@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My Blog</title>
+    <link rel="stylesheet" href="{{baseUrl}}/css/index.css">
+  </head>
+  <body>
+    <script src="http://localhost:35729/livereload.js"></script>
+    {{> navigation}}
+    <main class="page-wrapper">
+        <section class="hero">
+            <div class="background">
+            </div>
+            {{> navigation}}
+            <section class="post-item post-title center wrapper">
+                <ul class="meta">
+                    <li class="date">
+                        <a href="{{baseUrl}}">
+                            <time datetime="2016-07-30">July 30th, 2016</time>
+                        </a>
+                    </li>
+                </ul>
+                <h1 class="title">Title</h1>
+                <p class="excerpt">Description.</p>
+                <a href="/author/walkerrandolphsmith/" class="author">
+                    <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                    <span>walker</span
+                </a>
+            </section>
+            </div>
+        </section>

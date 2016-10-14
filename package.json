@@ -1,0 +1,34 @@
+{
+  "name": "blogr",
+  "description": "A blog example build with metalsmith",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node index.js"
+  },
+  "dependencies": {
+    "babel-cli": "^6.16.0",
+    "handlebars": "^2.0.0",
+    "metalsmith": "^0.11.0",
+    "metalsmith-changed": "^3.1.0",
+    "metalsmith-collections": "^0.6.0",
+    "metalsmith-drafts": "0.0.1",
+    "metalsmith-gist": "^0.3.0",
+    "metalsmith-icons": "^0.4.0",
+    "metalsmith-ignore": "^0.1.2",
+    "metalsmith-katex": "^0.3.0",
+    "metalsmith-less": "^2.0.0",
+    "metalsmith-markdown": "^0.2.1",
+    "metalsmith-pagination": "^1.0.0",
+    "metalsmith-permalinks": "^0.4.0",
+    "metalsmith-react": "^2.0.2",
+    "metalsmith-serve": "0.0.7",
+    "metalsmith-tags": "^0.6.1",
+    "metalsmith-templates": "^0.5.2",
+    "metalsmith-watch": "^1.0.3",
+    "metalsmith-word-count": "0.0.4",
+    "metasmith": "0.0.1",
+    "moment": "^2.8.3"
+  },
+  "devDependencies": {
+  }
+}

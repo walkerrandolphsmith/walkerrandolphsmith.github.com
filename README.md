@@ -1,0 +1,1 @@
+# A static blog build with [Metalsmith](http://metalsmith.io/)

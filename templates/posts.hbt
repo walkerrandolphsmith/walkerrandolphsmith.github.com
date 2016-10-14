@@ -1,0 +1,31 @@
+{{> header}}
+  <section>
+    <a href="{{baseUrl}}">for index</a>
+  </section>
+  <article class="post-contents">
+    <h1>{{this.title}}</h1>
+    <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
+    {{{contents}}}
+  </article>
+  <section class="post-bottom wrapper">
+      <div class="info">
+          <div class="tags">
+            {{#each this.tags }}
+                <a class="tag" href="{{baseUrl}}/tags/{{this}}.html" title="Posts named {{this}}">{{this}}</a>
+            {{/each}}
+          </div>
+          <div class="categories">
+            {{#each this.tags }}
+                <a class="category" href="{{baseUrl}}/tags/{{this}}.html" title="Posts named {{this}}">{{this}}</a>
+            {{/each}}
+          </div>
+      </div>
+      <div class="share-options">
+          <a href="" class="permalink">Permalink: link-to-be-added-later/</a>
+          <ul class="share-buttons">
+              <li>Share:</li>
+
+          </ul>
+      </div>
+  </section>
+{{> footer}}
