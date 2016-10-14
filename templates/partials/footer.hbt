@@ -1,6 +1,15 @@
       </main>
-      <footer>
-        made with <a href="http://www.metalsmith.io/">metalsmith</a>. take a look <a href="https://github.com/expalmer/blog-example-with-metalsmith">on github</a>
+      <footer class="post-info">
+        <div class="related-posts">
+            <a href="/purescript-for-front-end-developers/" class="previous-post">
+                <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="Previous Post Title" data-no-retina="true">
+                <div class="info">
+                    <span>Previous Post</span>
+                    <span class="title">Title</span>
+                </div>
+            </a>
+        </div>
+        <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
       </footer>
       <script src="{{baseUrl}}/katex.min.js" type="text/javascript"></script>
     </body>

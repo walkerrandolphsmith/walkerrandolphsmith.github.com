@@ -25,8 +25,7 @@
                 <p class="excerpt">Description.</p>
                 <a href="/author/walkerrandolphsmith/" class="author">
                     <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
-                    <span>walker</span
+                    <span>walker</span>
                 </a>
             </section>
-            </div>
         </section>
