@@ -1,17 +1,38 @@
 {{> header}}
-  <section>
-    <h1>List of Posts Paginated</h1>
-    <h3>Paging: ({{pagination.num}})</h3>
-    <ul>
+    <section class="post-list">
     {{#each pagination.files}}
-      <li>
-        <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">
-          <h2>{{this.title}}</h2>
-          <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
-        </a>
-      </li>
+        <article class="post-item">
+            <div class="wrapper">
+                <a href="{{baseUrl}}" class="content post-image"></a>
+                <ul class="meta">
+                    <li class="category Life">
+                        <a href="{{baseUrl}}">Tag</a>
+                    </li>
+                    <li class="date">
+                        <a href="{{baseUrl}}">
+                            <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
+                        </a>
+                    </li>
+                </ul>
+                <h2 class="title">
+                    <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">{{this.title}}</a>
+                </h2>
+                <p class="excerpt">
+                    This is the first n characters of the post I would like you to get an idea of what the article is about
+                    This is the first n characters of the post I would like you to get an idea of what the article is about
+                    This is the first n characters of the post I would like you to get an idea of what the article is about
+                    This is the first n characters of the post I would like you to get an idea of what the article is about
+                    I should implement a handlbars helper to accomplish this...
+                </p>
+                <a href="{{baseUrl}}/about" class="author">
+                <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">Walker Smith</a>
+            </div>
+        </article>
     {{/each}}
-    </ul>
+    </section>
+
+
+  <section>
     <ul class="pagination">
       {{#if pagination.previous}}
         <li><a href="{{baseUrl}}/{{pagination.previous.path}}">Prev</a></li>
