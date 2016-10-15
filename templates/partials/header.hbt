@@ -9,6 +9,7 @@
   <body>
     <script src="http://localhost:35729/livereload.js"></script>
     {{> navigation}}
+    {{> drawer}}
     <main class="page-wrapper">
         <section class="hero">
             <div class="background">
