@@ -6,8 +6,8 @@
     <ul>
         <li class="nav-home" role="presentation"><a href="{{baseUrl}}">Home</a></li>
         <li class="nav-about-me" role="presentation"><a href="{{baseUrl}}/about/">About Me</a></li>
-        <li class="nav-hire-me" role="presentation"><a href="{{baseUrl}}/hire-me/">Hire Me!</a></li>
-        <li class="nav-javascript" role="presentation"><a href="{{baseUrl}}/tag/javascript/">JavaScript</a></li>
+        <li class="nav-projects" role="presentation"><a href="{{baseUrl}}/projects/">Projects</a></li>
+        <li class="nav-javascript" role="presentation"><a href="{{baseUrl}}/tags/javascript.html">JavaScript</a></li>
     </ul>
     <ul>
     <li class="option drawernav"><span class="showdrawer"><i class="fa fa-navicon"></i></span></li>

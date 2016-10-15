@@ -74,6 +74,9 @@ const collectionOpts = {
         pattern: 'posts/*.md',
         sortBy: 'date',
         reverse: true
+    },
+    pages: {
+        pattern: 'content/pages/*.md'
     }
 };
 
