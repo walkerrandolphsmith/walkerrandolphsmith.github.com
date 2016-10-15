@@ -36,7 +36,8 @@ const baseUrl = url;
 Handlebars.registerPartial({
   'header': fs.readFileSync('./templates/partials/header.hbt').toString(),
   'footer': fs.readFileSync('./templates/partials/footer.hbt').toString(),
-  'navigation': fs.readFileSync('./templates/partials/navigation.hbt').toString()
+  'navigation': fs.readFileSync('./templates/partials/navigation.hbt').toString(),
+  'pagination': fs.readFileSync('./templates/partials/pagination.hbt').toString()
 });
 
 Handlebars.registerHelper('baseUrl', function() {

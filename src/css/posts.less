@@ -7,6 +7,10 @@
     margin: 0;
     list-style: none;
 
+    li:nth-child(2) a {
+      padding-right: 0;
+    }
+
     .category {
       float: left;
       display: none;
@@ -14,11 +18,34 @@
       &:first-child {
         display: initial;
       }
+
+      a {
+        display: inline-block;
+        background: #0085c3;
+        border-radius: 3px;
+        padding: 3px 15px;
+        font-family: "Montserrat","Arial",Sans-Serif;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #ffffff;
+      }
     }
 
     .date {
       float: right;
       margin-top: 3px;
+
+      a {
+        color: #b5b5b5;
+        font-family: "Montserrat","Arial",Sans-Serif;
+        font-size: 15px;
+        letter-spacing: -1px;
+        padding: 0 8px;
+
+        &:hover {
+          color: #5C5C5C;
+        }
+      }
     }
   }
 
