@@ -24,4 +24,23 @@
           </ul>
       </div>
   </section>
+  <section class="widget author-profile">
+        <div class="wrapper">
+            <div class="info">
+                <a href="{{baseUrl}}/author/" class="profile gravatar">
+                    <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                </a>
+                <div class="meta">
+                    <span class="title">Author</span>
+                    <h3><a href="{{baseUrl}}/author/">Walker Smith</a></h3>
+                </div>
+            </div>
+            <p>
+                Another tidbit about me the author of this post
+                Another tidbit about me the author of this post
+                Another tidbit about me the author of this post
+                Bam this blog is great with metalsmith
+            </p>
+        </div>
+  </section>
 {{> footer}}
