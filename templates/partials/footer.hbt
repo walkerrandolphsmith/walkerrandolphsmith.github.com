@@ -11,9 +11,6 @@
         </div>
         <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
       </footer>
-
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script>
-      <script src="{{baseUrl}}/katex.min.js" type="text/javascript"></script>
-      <script src="{{baseUrl}}/index.js" type="text/javascript"></script>
+      <script src="{{baseUrl}}/bundle.js" type="text/javascript"></script>
     </body>
   </html>

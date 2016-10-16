@@ -3,12 +3,31 @@
   "description": "A blog example build with metalsmith",
   "version": "1.0.0",
   "scripts": {
-    "build": "node index.js"
+    "start": "gulp dev",
+    "build": "gulp build"
   },
   "dependencies": {
     "babel-cli": "^6.16.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.9.0",
+    "browser-sync": "^2.17.3",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-filter": "^4.0.0",
+    "gulp-front-matter": "^1.3.0",
+    "gulp-less": "^3.1.0",
+    "gulp-metalsmith": "^1.0.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-rm": "^1.0.1",
+    "gulp-shell": "^0.5.2",
+    "gulpsmith": "^0.5.5",
     "handlebars": "^2.0.0",
+    "jquery": "^3.1.1",
+    "katex": "^0.6.0",
+    "less-plugin-autoprefix": "^1.5.1",
+    "lodash.assign": "^4.2.0",
     "metalsmith": "^0.11.0",
+    "metalsmith-babel": "^4.1.0",
     "metalsmith-changed": "^3.1.0",
     "metalsmith-collections": "^0.6.0",
     "metalsmith-drafts": "0.0.1",
@@ -25,10 +44,19 @@
     "metalsmith-tags": "^0.6.1",
     "metalsmith-templates": "^0.5.2",
     "metalsmith-watch": "^1.0.3",
+    "metalsmith-webpack": "^1.0.3",
     "metalsmith-word-count": "0.0.4",
     "metasmith": "0.0.1",
-    "moment": "^2.8.3"
+    "moment": "^2.8.3",
+    "require-dir": "^0.3.1",
+    "superagent": "^2.0.0",
+    "superagent-jsonp": "0.0.7",
+    "webpack": "^1.13.2"
   },
-  "devDependencies": {
+  "devDependencies": {},
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
   }
 }
