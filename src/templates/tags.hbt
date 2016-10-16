@@ -1,30 +1,40 @@
   {{> header}}
-    <section class="hero">
+    <section class="hero hero-tag">
        <div class="background">
        </div>
        {{> navigation}}
-       <section class="post-item post-title center wrapper">
-           <h1 class="title">Musings of a software developer</h1>
-           <p class="excerpt">
-
-           </p>
-           <a href="{{baseUrl}}/author/walkerrandolphsmith/index.html" class="author">
-               <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
-               <span>Walker Randolph Smith</span>
-           </a>
+       <section class="tag-title center wrapper">
+           <h1 class="title">{{tag}}</h1>
        </section>
     </section>
     <section>
-       <h1>Tag: <strong>{{tag}}</strong></h1>
-       <ul>
-       {{#each posts }}
-       <li>
-           <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">
-               <h2>{{this.title}}</h2>
-               <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
-           </a>
-         </li>
+       {{#each posts}}
+           <article class="post-item">
+               <div class="wrapper">
+                   <a href="{{baseUrl}}" class="content post-image"></a>
+                   <ul class="meta">
+                       <li class="category Life">
+                           <a href="{{baseUrl}}">Tag</a>
+                       </li>
+                       <li class="date">
+                           <a href="{{baseUrl}}">
+                               <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
+                           </a>
+                       </li>
+                   </ul>
+                   <h2 class="title">
+                       <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">{{this.title}}</a>
+                   </h2>
+                   <p class="excerpt">
+                       {{stripExcerpt this.excerpt}}
+                   </p>
+                   <a href="{{baseUrl}}/about" class="author">
+                   <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">Walker Smith</a>
+               </div>
+           </article>
        {{/each}}
-       </ul>
+
+
+
     </section>
 {{> footer}}

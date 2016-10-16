@@ -57,7 +57,9 @@ Handlebars.registerHelper('currentPage', function( current, page ) {
 });
 
 Handlebars.registerHelper('stripExcerpt', function( excerpt ) {
-    return excerpt.replace('<p>', '').replace('</p>', '');
+    return new Handlebars.SafeString(
+        excerpt.replace('<p>', '').replace('</p>', '')
+    );
 });
 
 Handlebars.registerHelper('tagList', function(context) {
