@@ -1,18 +1,30 @@
   {{> header}}
-    <section>
-      <a href="{{baseUrl}}">Index</a>
+    <section class="hero">
+       <div class="background">
+       </div>
+       {{> navigation}}
+       <section class="post-item post-title center wrapper">
+           <h1 class="title">Musings of a software developer</h1>
+           <p class="excerpt">
+
+           </p>
+           <a href="{{baseUrl}}/author/walkerrandolphsmith/index.html" class="author">
+               <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+               <span>Walker Randolph Smith</span>
+           </a>
+       </section>
     </section>
     <section>
-      <h1>Tag: <strong>{{tag}}</strong></h1>
-      <ul>
-      {{#each posts }}
-        <li>
-            <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">
-              <h2>{{this.title}}</h2>
-              <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
-            </a>
-          </li>
-      {{/each}}
-      </ul>
+       <h1>Tag: <strong>{{tag}}</strong></h1>
+       <ul>
+       {{#each posts }}
+       <li>
+           <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">
+               <h2>{{this.title}}</h2>
+               <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
+           </a>
+         </li>
+       {{/each}}
+       </ul>
     </section>
-  {{> footer}}
+{{> footer}}
