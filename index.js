@@ -58,6 +58,24 @@ Handlebars.registerHelper('currentPage', function( current, page ) {
   return current === page ? 'current' : '';
 });
 
+Handlebars.registerHelper('tagList', function(context) {
+    var tags = [];
+    context.posts.forEach(post => {
+        tags = tags.concat(post.tags);
+    });
+
+    var counts = {};
+
+    for (var i = 0; i < tags.length; i++)
+        counts[tags[i]] = (counts[tags[i]] + 1) || 1;
+
+    return new Handlebars.SafeString(
+        [...new Set(tags)]
+            .map(tag => `<a href=${baseUrl}/tags/${tag}.html>${tag} (${counts[tag]})</a>`)
+            .join('')
+    )
+});
+
 const lessOpts = {
     pattern: '**/*.less',
     render: {
@@ -106,7 +124,8 @@ const tagOpts = {
 
 const iconOpts = {
     sets: { fa: 'fontawesome' },
-    fontDir: 'fonts'
+    fontDir: 'fonts',
+    CSSDir: 'css'
 };
 
 const build = (clean = false) => (done) => {
@@ -125,7 +144,7 @@ const build = (clean = false) => (done) => {
         .use(pagination(paginationOpts))
         .use(gist())
         .use(tags(tagOpts))
-        //.use(icons(iconOpts))
+        //.use(icons())
         .use(templates('handlebars'));
 
     if (process.env.NODE_ENV !== 'production') {

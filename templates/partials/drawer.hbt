@@ -54,8 +54,7 @@
         <h3 class="title">Tags</h3>
         <hr>
         <div class="tagcloud">
-            <a href="{{baseUrl}}/tags/javascript.html">JavaScript</a>
-            <a href="{{baseUrl}}/tags/javascript.html">TODO more</a>
+            {{tagList this}}
         </div>
     </section>
 
