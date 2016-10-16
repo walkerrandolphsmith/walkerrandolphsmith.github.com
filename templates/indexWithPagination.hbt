@@ -36,11 +36,7 @@
                     <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">{{this.title}}</a>
                 </h2>
                 <p class="excerpt">
-                    This is the first n characters of the post I would like you to get an idea of what the article is about
-                    This is the first n characters of the post I would like you to get an idea of what the article is about
-                    This is the first n characters of the post I would like you to get an idea of what the article is about
-                    This is the first n characters of the post I would like you to get an idea of what the article is about
-                    I should implement a handlbars helper to accomplish this...
+                    {{stripExcerpt this.excerpt}}
                 </p>
                 <a href="{{baseUrl}}/about" class="author">
                 <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">Walker Smith</a>

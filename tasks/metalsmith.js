@@ -14,12 +14,9 @@ var gist         = require('metalsmith-gist');
 var drafts       = require('metalsmith-drafts');
 var pagination   = require('metalsmith-pagination');
 var wordcount    = require("metalsmith-word-count");
-var less         = require('metalsmith-less');
 var ignore       = require('metalsmith-ignore');
-var icons        = require('metalsmith-icons');
 var Handlebars   = require('handlebars');
-var changed      = require('metalsmith-changed');
-var livereload   = require('metalsmith-livereload');
+var excerpts     = require('metalsmith-excerpts');
 
 var fs           = require('fs');
 var moment       = require('moment');
@@ -54,6 +51,10 @@ Handlebars.registerHelper('dateGMT', function( context ) {
 
 Handlebars.registerHelper('currentPage', function( current, page ) {
     return current === page ? 'current' : '';
+});
+
+Handlebars.registerHelper('stripExcerpt', function( excerpt ) {
+    return excerpt.replace('<p>', '').replace('</p>', '');
 });
 
 Handlebars.registerHelper('tagList', function(context) {
@@ -135,6 +136,7 @@ gulp.task('metalsmith', function() {
                 .use(collections(collectionOpts))
                 .use(katex())
                 .use(markdown())
+                .use(excerpts())
                 .use(permalinks(permalinkOpts))
                 .use(pagination(paginationOpts))
                 .use(gist())
