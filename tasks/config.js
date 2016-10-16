@@ -20,10 +20,14 @@ const config = {
         src: `${src}/app/index.js`,
         glob: `${src}/app/**/*.js`
     },
+    assets: {
+        src: `${src}/css/{fonts,images}/**/*.*`,
+        dest: `${dest}/css`
+    },
     blogPatterns: [
-        `${src}/css/{fonts, images}/**/*.*`,
         `${src}/content/**/*.md`,
-        `${src}/posts/*.md`
+        `${src}/posts/*.md`,
+        `templates/**/*.hbt`
     ]
 };
 
