@@ -17,7 +17,7 @@
           </div>
       </div>
       <div class="share-options">
-          <a href="" class="permalink">Permalink: link-to-be-added-later/</a>
+          <a href="{{baseUrl}}/{{this.path}}/index.html" class="permalink">{{baseUrl}}/{{this.path}}/index.html</a>
           <ul class="share-buttons">
               <li>Share:</li>
               <li>
