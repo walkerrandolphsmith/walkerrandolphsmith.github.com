@@ -223,24 +223,35 @@
   .widget.github-repos,
   .widget.bitbucket-repos,
   .widget.jsfiddle-repos {
-    position: relative;
+
+    .title {
+      margin-bottom: 0;
+    }
 
     .pages {
-      position: absolute;
-      top: 30px;
-      right: 0;
-      font-size: 14px;
-
-      .fa {
+      span[id$="prev"], span[id$="next"] {
         cursor: pointer;
+        font-size: 12px;
+
+        i {
+          font-size: 14px;
+
+          &.fa-chevron-right {
+            padding-left: .25em;
+          }
+
+          &.fa-chevron-left {
+            padding-right: .25em;
+          }
+        }
       }
 
-      .fa-chevron-right {
-        padding-left: .25em;
+      span[id$="prev"] {
+        padding-right: 15px;
       }
 
-      .fa-chevron-left {
-        padding-right: .25em;
+      span[id$="next"] {
+
       }
     }
 

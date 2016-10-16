@@ -61,9 +61,14 @@
     <section class="widget github-repos">
         <h3 class="title">Github</h3>
         <div class="pages">
-            <i id="gh-prev" class="fa fa-angle-left"></i>
-                <span>Previous Next</span>
-            <i id="gh-next" class="fa fa-angle-right"></i>
+            <span id="gh-prev">
+                <i class="fa fa-angle-left"></i>
+                Previous
+            </span>
+            <span id="gh-next">
+                Next
+                <i class="fa fa-angle-right"></i>
+            </span>
         </div>
         <hr>
         <div id="gh-groups"></div>
@@ -72,9 +77,14 @@
     <section class="widget bitbucket-repos">
         <h3 class="title">Bitbucket</h3>
         <div class="pages">
-            <i id="bb-prev" class="fa fa-angle-left"></i>
-                <span>Previous Next</span>
-            <i id="bb-next" class="fa fa-angle-right"></i>
+            <span id="bb-prev">
+                <i class="fa fa-angle-left"></i>
+                Previous
+            </span>
+            <span id="bb-next">
+                Next
+                <i class="fa fa-angle-right"></i>
+            </span>
         </div>
         <hr>
         <div id="bb-groups"></div>
@@ -83,9 +93,14 @@
     <section class="widget jsfiddle-repos">
         <h3 class="title">Js Fiddles</h3>
         <div class="pages">
-            <i id="jsf-prev" class="fa fa-angle-left"></i>
-                <span>Previous Next</span>
-            <i id="jsf-next" class="fa fa-angle-right"></i>
+            <span id="jsf-prev">
+                <i class="fa fa-angle-left"></i>
+                Previous
+            </span>
+            <span id="jsf-next">
+                Next
+                <i class="fa fa-angle-right"></i>
+            </span>
         </div>
         <hr>
         <div id="jsf-groups"></div>
