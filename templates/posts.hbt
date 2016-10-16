@@ -1,9 +1,31 @@
 {{> header}}
-  <article class="post-contents wrapper">
+    <section class="hero">
+        <div class="background">
+        </div>
+        {{> navigation}}
+        <section class="post-item post-title center wrapper">
+            <ul class="meta">
+                <li class="date">
+                    <a href="{{baseUrl}}">
+                        <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
+                    </a>
+                </li>
+            </ul>
+            <h1 class="title">{{this.title}}</h1>
+            <p class="excerpt">
+                {{this.description}}
+            </p>
+            <a href="{{baseUrl}}/author/walkerrandolphsmith/index.html" class="author">
+                <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                <span>Walker Randolph Smith</span>
+            </a>
+        </section>
+    </section>
+    <article class="post-contents wrapper">
     <h1>{{this.title}}</h1>
     {{{contents}}}
-  </article>
-  <section class="post-bottom wrapper">
+    </article>
+    <section class="post-bottom wrapper">
       <div class="info">
           <div class="tags">
             {{#each this.tags }}
@@ -45,8 +67,8 @@
 
           </ul>
       </div>
-  </section>
-  <section class="widget author-profile">
+    </section>
+    <section class="widget author-profile">
         <div class="wrapper">
             <div class="info">
                 <a href="{{baseUrl}}/author/" class="profile gravatar">
@@ -64,5 +86,5 @@
                 Bam this blog is great with metalsmith
             </p>
         </div>
-  </section>
+    </section>
 {{> footer}}
