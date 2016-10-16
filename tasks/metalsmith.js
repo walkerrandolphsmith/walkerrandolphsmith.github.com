@@ -87,7 +87,7 @@ var collectionOpts = {
         reverse: true
     },
     pages: {
-        pattern: 'content/pages/*.md'
+        pattern: 'pages/*.md'
     }
 };
 
