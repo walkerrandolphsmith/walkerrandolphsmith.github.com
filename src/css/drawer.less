@@ -219,4 +219,50 @@
       }
     }
   }
+
+  .widget.github-repos,
+  .widget.bitbucket-repos,
+  .widget.jsfiddle-repos {
+    position: relative;
+
+    .pages {
+      position: absolute;
+      top: 30px;
+      right: 0;
+      font-size: 14px;
+
+      .fa {
+        cursor: pointer;
+      }
+
+      .fa-chevron-right {
+        padding-left: .25em;
+      }
+
+      .fa-chevron-left {
+        padding-right: .25em;
+      }
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: none;
+      background: none !important;
+
+      &.active {
+        display: block;
+      }
+
+      h5 {
+        margin-bottom: 0;
+      }
+
+      a {
+        font-family: "Montserrat","Arial",Sans-Serif;
+        color: #242526;
+      }
+    }
+  }
 }

@@ -58,6 +58,39 @@
         </div>
     </section>
 
+    <section class="widget github-repos">
+        <h3 class="title">Github</h3>
+        <div class="pages">
+            <i id="gh-prev" class="fa fa-angle-left"></i>
+                <span>Previous Next</span>
+            <i id="gh-next" class="fa fa-angle-right"></i>
+        </div>
+        <hr>
+        <div id="gh-groups"></div>
+    </section>
+
+    <section class="widget bitbucket-repos">
+        <h3 class="title">Bitbucket</h3>
+        <div class="pages">
+            <i id="bb-prev" class="fa fa-angle-left"></i>
+                <span>Previous Next</span>
+            <i id="bb-next" class="fa fa-angle-right"></i>
+        </div>
+        <hr>
+        <div id="bb-groups"></div>
+    </section>
+
+    <section class="widget jsfiddle-repos">
+        <h3 class="title">Js Fiddles</h3>
+        <div class="pages">
+            <i id="jsf-prev" class="fa fa-angle-left"></i>
+                <span>Previous Next</span>
+            <i id="jsf-next" class="fa fa-angle-right"></i>
+        </div>
+        <hr>
+        <div id="jsf-groups"></div>
+    </section>
+
     <section class="widget twitter">
         <h3 class="title">Twitter</h3>
         <hr>
