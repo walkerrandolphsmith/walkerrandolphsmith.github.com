@@ -28,12 +28,15 @@ const PORT = 3000;
 const URL = `${PROTOCOL}://${HOST}:${PORT}`;
 var baseUrl = URL;
 
+const templatePath = './src/templates';
+const partialPath = `${templatePath}/partials`;
+
 Handlebars.registerPartial({
-    'header': fs.readFileSync('./templates/partials/header.hbt').toString(),
-    'footer': fs.readFileSync('./templates/partials/footer.hbt').toString(),
-    'drawer': fs.readFileSync('./templates/partials/drawer.hbt').toString(),
-    'navigation': fs.readFileSync('./templates/partials/navigation.hbt').toString(),
-    'pagination': fs.readFileSync('./templates/partials/pagination.hbt').toString()
+    header: fs.readFileSync(`${partialPath}/header.hbt`).toString(),
+    footer: fs.readFileSync(`${partialPath}/footer.hbt`).toString(),
+    drawer: fs.readFileSync(`${partialPath}/drawer.hbt`).toString(),
+    navigation: fs.readFileSync(`${partialPath}/navigation.hbt`).toString(),
+    pagination: fs.readFileSync(`${partialPath}/pagination.hbt`).toString()
 });
 
 Handlebars.registerHelper('baseUrl', function() {
@@ -113,6 +116,11 @@ var tagOpts = {
     reverse: true
 };
 
+var templatesOpts = {
+    engine: 'handlebars',
+    directory: templatePath
+};
+
 gulp.task('metalsmith', function() {
     const markdownFilter = filter(file => /md/.test(file.path));
 
@@ -141,7 +149,7 @@ gulp.task('metalsmith', function() {
                 .use(pagination(paginationOpts))
                 .use(gist())
                 .use(tags(tagOpts))
-                .use(templates('handlebars'))
+                .use(templates(templatesOpts))
         )
         .pipe(gulp.dest('./build'));
 });

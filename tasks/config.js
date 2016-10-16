@@ -27,7 +27,7 @@ const config = {
     blogPatterns: [
         `${src}/content/**/*.md`,
         `${src}/posts/*.md`,
-        `templates/**/*.hbt`
+        `${src}/templates/**/*.hbt`
     ]
 };
 
