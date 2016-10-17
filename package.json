@@ -32,6 +32,7 @@
     "metalsmith-collections": "^0.6.0",
     "metalsmith-drafts": "0.0.1",
     "metalsmith-excerpts": "^1.1.0",
+    "metalsmith-feed": "^0.2.0",
     "metalsmith-gist": "^0.3.0",
     "metalsmith-ignore": "^0.1.2",
     "metalsmith-katex": "^0.3.0",

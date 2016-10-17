@@ -4,6 +4,7 @@
     </div>
     <nav class="main light">
     <ul>
+        <li class="nav-rss" role="presentation"><a href={{baseUrl}}/rss.xml><i class="fa fa-rss"></i></a></li>
         <li class="nav-home" role="presentation"><a href="{{baseUrl}}">Home</a></li>
         <li class="nav-about-me" role="presentation"><a href="{{baseUrl}}/about/">About Me</a></li>
         <li class="nav-projects" role="presentation"><a href="{{baseUrl}}/projects/">Projects</a></li>

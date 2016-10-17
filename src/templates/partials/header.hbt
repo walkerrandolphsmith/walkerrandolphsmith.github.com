@@ -17,12 +17,13 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
   </head>
   <body>
-    <header class="blog-info hidden">
+    <header class="blog-info fixed hidden">
         <div class="title">
             <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="Walker Smith"></a>
         </div>
         <nav class="main light">
         <ul>
+            <li class="nav-rss" role="presentation"><a href={{baseUrl}}/rss.xml><i class="fa fa-rss"></i></a></li>
             <li class="nav-home" role="presentation"><a href="{{baseUrl}}">Home</a></li>
             <li class="nav-about-me" role="presentation"><a href="{{baseUrl}}/about/">About Me</a></li>
             <li class="nav-projects" role="presentation"><a href="{{baseUrl}}/projects/">Projects</a></li>

@@ -19,6 +19,8 @@ var Handlebars   = require('handlebars');
 var excerpts     = require('metalsmith-excerpts');
 var sitemap      = require('metalsmith-mapsite');
 var robots       = require('metalsmith-robots');
+var feed         = require('metalsmith-feed');
+
 var fs           = require('fs');
 var moment       = require('moment');
 
@@ -97,6 +99,10 @@ var collectionOpts = {
     }
 };
 
+var feedOpts = {
+    collection: 'posts'
+};
+
 var permalinkOpts = {
     pattern: ':title',
     relative: false
@@ -127,7 +133,13 @@ var templatesOpts = {
 var fullName = 'walkerrandolphsmith';
 
 var metaData = {
+    site_url: 'http://www.walkerrandolphsmith.com',
     site_name: fullName,
+    site: {
+        title: 'Walker Randolph Smith',
+        url: 'http://www.walkerrandolphsmith.com',
+        author: fullName
+    },
     author: {
         handle: fullName,
         email: 'walkerrandolphsmith@gmail.com',
@@ -188,6 +200,7 @@ gulp.task('metalsmith', function() {
                 .use(tags(tagOpts))
                 .use(sitemap(sitemapOpts))
                 .use(robots(robotsOpts))
+                .use(feed(feedOpts))
                 .use(templates(templatesOpts))
         )
         .pipe(gulp.dest('./build'));
