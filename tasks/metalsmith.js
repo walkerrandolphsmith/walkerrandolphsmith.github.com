@@ -87,6 +87,10 @@ Handlebars.registerHelper('tagList', function(context) {
     )
 });
 
+Handlebars.registerHelper('dropIndexHtml', function(url) {
+    return url.replace('index.html', '');
+});
+
 var ignoreOpts = [
     '**/*.less',
     'app/**/*.*'
@@ -169,7 +173,8 @@ var metaData = {
 };
 
 var sitemapOpts = {
-    hostname: 'http://www.walkerrandolphsmith.com'
+    hostname: 'http://www.walkerrandolphsmith.com',
+    omitIndex: true
 };
 
 var robotsOpts = {

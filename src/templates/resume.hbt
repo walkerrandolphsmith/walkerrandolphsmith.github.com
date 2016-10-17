@@ -9,6 +9,12 @@
     </section>
     <section class="resume">
         <div class="wrapper">
+            <section class="summary">
+                <header>
+                    <h2 class="title">Summary</h2>
+                </header>
+                <p class="description">{{this.summary}}</p>
+            </section>
             <section class="experience">
                 <header>
                     <h2 class="title">Experience</h2>

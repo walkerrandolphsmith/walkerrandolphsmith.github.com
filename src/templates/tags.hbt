@@ -23,7 +23,7 @@
                        </li>
                    </ul>
                    <h2 class="title">
-                       <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">{{this.title}}</a>
+                       <a href="{{baseUrl}}/{{this.path}}/" title="{{this.title}}">{{this.title}}</a>
                    </h2>
                    <p class="excerpt">
                        {{stripExcerpt this.excerpt}}

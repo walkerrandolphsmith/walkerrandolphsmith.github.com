@@ -15,7 +15,7 @@
                 <p class="excerpt">
                     {{this.description}}
                 </p>
-                <a href="{{baseUrl}}/author/walkerrandolphsmith/index.html" class="author">
+                <a href="{{baseUrl}}/resume/" class="author">
                     <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
                     <span>Walker Randolph Smith</span>
                 </a>
@@ -39,12 +39,12 @@
               </div>
           </div>
           <div class="share-options">
-              <a href="{{baseUrl}}/{{this.path}}/index.html" class="permalink">{{baseUrl}}/{{this.path}}/index.html</a>
+              <a href="{{baseUrl}}/{{this.path}}/" class="permalink">{{baseUrl}}/{{this.path}}/</a>
               <ul class="share-buttons">
                   <li>Share:</li>
                   <li>
                     <a class="facebook"
-                       href="https://www.facebook.com/sharer/sharer.php?u={{baseUrl}}/{{this.path}}/index.html"
+                       href="https://www.facebook.com/sharer/sharer.php?u={{baseUrl}}/{{this.path}}/"
                        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                        <i class="fa fa-facebook"></i>
                     </a>
@@ -52,14 +52,14 @@
                   <!--<li><a class="linkedin"><i class="fa fa-linkedin"></i></a></li>-->
                   <li>
                       <a class="twitter"
-                         href="http://twitter.com/share?text={{this.title}}&url={{baseUrl}}/{{this.path}}/index.html"
+                         href="http://twitter.com/share?text={{this.title}}&url={{baseUrl}}/{{this.path}}/"
                          onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
                          <i class="fa fa-twitter"></i>
                       </a>
                   </li>
                   <li>
                     <a class="google-plus"
-                       href="https://plus.google.com/share?url={{baseUrl}}/{{this.path}}/index.html"
+                       href="https://plus.google.com/share?url={{baseUrl}}/{{this.path}}/"
                        onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
                         <i class="fa fa-google-plus"></i>
                     </a>
@@ -91,7 +91,7 @@
     <footer class="post-info">
         <div class="related-posts show">
             {{#if this.previous.path}}
-            <a href="{{baseUrl}}/{{this.previous.path}}/index.html" class="previous-post">
+            <a href="{{baseUrl}}/{{this.previous.path}}/" class="previous-post">
                 <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
                 <div class="info">
                     <span>Previous Post</span>
@@ -101,7 +101,7 @@
             {{/if}}
             <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
             {{#if this.next.path}}
-            <a href="{{baseUrl}}/{{this.next.path}}/index.html" class="next-post">
+            <a href="{{baseUrl}}/{{this.next.path}}/" class="next-post">
                 <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.next.title}}" data-no-retina="true">
                 <div class="info">
                     <span>Next Post</span>

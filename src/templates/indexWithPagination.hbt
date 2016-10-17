@@ -11,7 +11,7 @@
                 I am a passionate programmer with a lot to say.
                 I am a passionate programmer with a lot to say.
             </p>
-            <a href="{{baseUrl}}/author/walkerrandolphsmith/index.html" class="author">
+            <a href="{{baseUrl}}/resume/" class="author">
                 <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
                 <span>Walker Randolph Smith</span>
             </a>
@@ -33,7 +33,7 @@
                     </li>
                 </ul>
                 <h2 class="title">
-                    <a href="{{baseUrl}}/{{this.path}}/index.html" title="{{this.title}}">{{this.title}}</a>
+                    <a href="{{baseUrl}}/{{this.path}}/" title="{{this.title}}">{{this.title}}</a>
                 </h2>
                 <p class="excerpt">
                     {{stripExcerpt this.excerpt}}
@@ -48,7 +48,7 @@
     <nav class="pagination">
         <div class="wrapper">
         {{#if pagination.previous}}
-            <a href="{{baseUrl}}/{{pagination.previous.path}}" class="button rounded light previous">
+            <a href="{{baseUrl}}/{{dropIndexHtml pagination.previous.path}}" class="button rounded light previous">
                 <span class="main">Older Posts</span>
                 <span class="sub">
                     <i class="fa fa-chevron-left"></i>
@@ -56,7 +56,7 @@
             </a>
         {{/if}}
         {{#if pagination.next}}
-            <a href="{{baseUrl}}/{{pagination.next.path}}" class="button rounded light next">
+            <a href="{{baseUrl}}/{{dropIndexHtml pagination.next.path}}" class="button rounded light next">
                 <span class="main">Newer Posts</span>
                 <span class="sub">
                     <i class="fa fa-chevron-right"></i>
