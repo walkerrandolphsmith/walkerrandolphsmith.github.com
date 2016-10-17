@@ -23,8 +23,8 @@
             <div class="wrapper">
                 <a href="{{baseUrl}}" class="content post-image"></a>
                 <ul class="meta">
-                    <li class="category Life">
-                        <a href="{{baseUrl}}">Tag</a>
+                    <li class="category {{firstTag this.tags}}">
+                        <a href="{{baseUrl}}/tags/{{firstTag this.tags}}.html">{{firstTag this.tags}}</a>
                     </li>
                     <li class="date">
                         <a href="{{baseUrl}}">

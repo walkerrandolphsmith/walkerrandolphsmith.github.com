@@ -59,6 +59,10 @@ Handlebars.registerHelper('currentPage', function( current, page ) {
     return current === page ? 'current' : '';
 });
 
+Handlebars.registerHelper('firstTag', function( tags) {
+    return tags[0];
+});
+
 Handlebars.registerHelper('stripExcerpt', function( excerpt ) {
     return new Handlebars.SafeString(
         excerpt.replace('<p>', '').replace('</p>', '')
