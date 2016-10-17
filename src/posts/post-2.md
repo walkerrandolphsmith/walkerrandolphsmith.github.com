@@ -4,6 +4,7 @@ template: posts.hbt
 date: 2014-03-01
 description: Post two Post two Post two Post two Post two Post two Post two Post two
 author: Walker Randolph Smith
+public: true
 tags: metalsmith, nodejs, javascript
 ---
 

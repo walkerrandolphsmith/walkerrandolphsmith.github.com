@@ -18,7 +18,7 @@ var ignore       = require('metalsmith-ignore');
 var Handlebars   = require('handlebars');
 var excerpts     = require('metalsmith-excerpts');
 var sitemap      = require('metalsmith-mapsite');
-
+var robots       = require('metalsmith-robots');
 var fs           = require('fs');
 var moment       = require('moment');
 
@@ -152,6 +152,14 @@ var metaData = {
     }
 };
 
+var sitemapOpts = {
+    hostname: 'http://www.walkerrandolphsmith.com'
+};
+
+var robotsOpts = {
+    sitemap: 'http://www.walkerrandolphsmith.com/sitemap.xml'
+};
+
 gulp.task('metalsmith', function() {
     const markdownFilter = filter(file => /md/.test(file.path));
 
@@ -178,10 +186,8 @@ gulp.task('metalsmith', function() {
                 .use(pagination(paginationOpts))
                 .use(gist())
                 .use(tags(tagOpts))
-                .use(sitemap({
-                    hostname: 'http://www.walkerrandolphsmith.com',
-                    omitIndex:    true
-                }))
+                .use(sitemap(sitemapOpts))
+                .use(robots(robotsOpts))
                 .use(templates(templatesOpts))
         )
         .pipe(gulp.dest('./build'));
