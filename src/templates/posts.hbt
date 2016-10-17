@@ -1,90 +1,116 @@
-{{> header}}
-    <section class="hero">
-        <div class="background">
-        </div>
-        {{> navigation}}
-        <section class="post-item post-title center wrapper">
-            <ul class="meta">
-                <li class="date">
-                    <a href="{{baseUrl}}">
-                        <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
-                    </a>
-                </li>
-            </ul>
-            <h1 class="title">{{this.title}}</h1>
-            <p class="excerpt">
-                {{this.description}}
-            </p>
-            <a href="{{baseUrl}}/author/walkerrandolphsmith/index.html" class="author">
-                <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
-                <span>Walker Randolph Smith</span>
-            </a>
-        </section>
-    </section>
-    <article class="post-contents wrapper">
-    <h1>{{this.title}}</h1>
-    {{{contents}}}
-    </article>
-    <section class="post-bottom wrapper">
-      <div class="info">
-          <div class="tags">
-            {{#each this.tags }}
-                <a class="tag" href="{{baseUrl}}/tags/{{this}}.html" title="Posts named {{this}}">{{this}}</a>
-            {{/each}}
-          </div>
-          <div class="categories">
-            {{#each this.tags }}
-                <a class="category" href="{{baseUrl}}/tags/{{this}}.html" title="Posts named {{this}}">{{this}}</a>
-            {{/each}}
-          </div>
-      </div>
-      <div class="share-options">
-          <a href="{{baseUrl}}/{{this.path}}/index.html" class="permalink">{{baseUrl}}/{{this.path}}/index.html</a>
-          <ul class="share-buttons">
-              <li>Share:</li>
-              <li>
-                <a class="facebook"
-                   href="https://www.facebook.com/sharer/sharer.php?u={{baseUrl}}/{{this.path}}/index.html"
-                   onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                   <i class="fa fa-facebook"></i>
-                </a>
-              </li>
-              <!--<li><a class="linkedin"><i class="fa fa-linkedin"></i></a></li>-->
-              <li>
-                  <a class="twitter"
-                     href="http://twitter.com/share?text={{this.title}}&url={{baseUrl}}/{{this.path}}/index.html"
-                     onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                     <i class="fa fa-twitter"></i>
-                  </a>
-              </li>
-              <li>
-                <a class="google-plus"
-                   href="https://plus.google.com/share?url={{baseUrl}}/{{this.path}}/index.html"
-                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-                    <i class="fa fa-google-plus"></i>
-                </a>
-              </li>
-
-          </ul>
-      </div>
-    </section>
-    <section class="widget author-profile">
-        <div class="wrapper">
-            <div class="info">
-                <a href="{{baseUrl}}/author/" class="profile gravatar">
-                    <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
-                </a>
-                <div class="meta">
-                    <span class="title">Author</span>
-                    <h3><a href="{{baseUrl}}/author/">Walker Smith</a></h3>
-                </div>
+    {{> header}}
+        <section class="hero">
+            <div class="background">
             </div>
-            <p>
-                Another tidbit about me the author of this post
-                Another tidbit about me the author of this post
-                Another tidbit about me the author of this post
-                Bam this blog is great with metalsmith
-            </p>
+            {{> navigation}}
+            <section class="post-item post-title center wrapper">
+                <ul class="meta">
+                    <li class="date">
+                        <a href="{{baseUrl}}">
+                            <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
+                        </a>
+                    </li>
+                </ul>
+                <h1 class="title">{{this.title}}</h1>
+                <p class="excerpt">
+                    {{this.description}}
+                </p>
+                <a href="{{baseUrl}}/author/walkerrandolphsmith/index.html" class="author">
+                    <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                    <span>Walker Randolph Smith</span>
+                </a>
+            </section>
+        </section>
+        <article class="post-contents wrapper">
+        <h1>{{this.title}}</h1>
+        {{{contents}}}
+        </article>
+        <section class="post-bottom wrapper">
+          <div class="info">
+              <div class="tags">
+                {{#each this.tags }}
+                    <a class="tag" href="{{baseUrl}}/tags/{{this}}.html" title="Posts named {{this}}">{{this}}</a>
+                {{/each}}
+              </div>
+              <div class="categories">
+                {{#each this.tags }}
+                    <a class="category" href="{{baseUrl}}/tags/{{this}}.html" title="Posts named {{this}}">{{this}}</a>
+                {{/each}}
+              </div>
+          </div>
+          <div class="share-options">
+              <a href="{{baseUrl}}/{{this.path}}/index.html" class="permalink">{{baseUrl}}/{{this.path}}/index.html</a>
+              <ul class="share-buttons">
+                  <li>Share:</li>
+                  <li>
+                    <a class="facebook"
+                       href="https://www.facebook.com/sharer/sharer.php?u={{baseUrl}}/{{this.path}}/index.html"
+                       onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                       <i class="fa fa-facebook"></i>
+                    </a>
+                  </li>
+                  <!--<li><a class="linkedin"><i class="fa fa-linkedin"></i></a></li>-->
+                  <li>
+                      <a class="twitter"
+                         href="http://twitter.com/share?text={{this.title}}&url={{baseUrl}}/{{this.path}}/index.html"
+                         onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                         <i class="fa fa-twitter"></i>
+                      </a>
+                  </li>
+                  <li>
+                    <a class="google-plus"
+                       href="https://plus.google.com/share?url={{baseUrl}}/{{this.path}}/index.html"
+                       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                        <i class="fa fa-google-plus"></i>
+                    </a>
+                  </li>
+
+              </ul>
+          </div>
+        </section>
+        <section class="widget author-profile">
+            <div class="wrapper">
+                <div class="info">
+                    <a href="{{baseUrl}}/author/" class="profile gravatar">
+                        <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                    </a>
+                    <div class="meta">
+                        <span class="title">Author</span>
+                        <h3><a href="{{baseUrl}}/author/">Walker Smith</a></h3>
+                    </div>
+                </div>
+                <p>
+                    Another tidbit about me the author of this post
+                    Another tidbit about me the author of this post
+                    Another tidbit about me the author of this post
+                    Bam this blog is great with metalsmith
+                </p>
+            </div>
+        </section>
+    </main>
+    <footer class="post-info">
+        <div class="related-posts show">
+            {{#if this.previous.path}}
+            <a href="{{baseUrl}}/{{this.previous.path}}/index.html" class="previous-post">
+                <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
+                <div class="info">
+                    <span>Previous Post</span>
+                    <span class="title">{{this.previous.title}}</span>
+                </div>
+            </a>
+            {{/if}}
+            <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
+            {{#if this.next.path}}
+            <a href="{{baseUrl}}/{{this.next.path}}/index.html" class="next-post">
+                <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.next.title}}" data-no-retina="true">
+                <div class="info">
+                    <span>Next Post</span>
+                    <span class="title">{{this.next.title}}</span>
+                </div>
+            </a>
+            {{/if}}
         </div>
-    </section>
-{{> footer}}
+    </footer>
+    <script src="{{baseUrl}}/bundle.js" type="text/javascript"></script>
+  </body>
+</html>
