@@ -123,6 +123,34 @@ var templatesOpts = {
     directory: templatePath
 };
 
+var fullName = 'walkerrandolphsmith';
+
+var metaData = {
+    site_name: fullName,
+    author: {
+        handle: fullName,
+        email: 'walkerrandolphsmith@gmail.com',
+        name: 'walker randolph smith',
+        shortName: 'walker smith',
+        shortDesc: 'I am an author of this short description in metadata',
+        longDesc: ''
+    },
+    accounts: {
+        twitter: {
+            handle: 'WalkerRSmith',
+            url: 'twitter.com/'
+        },
+        linkedin: {
+            handle: fullName,
+            url: 'linkedin.com/'
+        },
+        stackOverflow: {
+            handle: fullName,
+            url: 'stackoverflow.com/'
+        }
+    }
+};
+
 gulp.task('metalsmith', function() {
     const markdownFilter = filter(file => /md/.test(file.path));
 
@@ -137,9 +165,7 @@ gulp.task('metalsmith', function() {
         //.pipe(markdownFilter.restore)
         .pipe(
             gulpsmith()
-                .metadata({
-                    site_name: 'walker site name'
-                })
+                .metadata(metaData)
                 .use(ignore(ignoreOpts))
                 .use(drafts())
                 .use(wordcount())
