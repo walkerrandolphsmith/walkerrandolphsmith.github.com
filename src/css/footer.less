@@ -92,3 +92,63 @@ footer.post-info {
     }
   }
 }
+
+footer.main {
+  overflow: hidden;
+  padding: 30px;
+  background: #242526;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+
+  .made-by, .social {
+    width: 50%;
+  }
+
+  .made-by {
+    padding: 0;
+    border: 0;
+
+    .main {
+      font-family: "Varela Round","Arial",Sans-Serif;
+      font-size: 13px;
+      line-height: normal;
+      letter-spacing: -0.5px;
+      color: #ced3d8;
+    }
+
+    i {
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+  }
+
+  .social li:last-child {
+    border: 0;
+  }
+
+  .social {
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 0;
+    margin: 5px 0;
+    overflow: hidden;
+    list-style: none;
+
+    li {
+      display: block;
+      float: left;
+      border-left: 1px solid #4b4b4b;
+      cursor: pointer;
+
+      a {
+        display: inline-block;
+        margin: 0;
+        padding: 0 17px;
+        font-size: 14px;
+        color: #fff;
+      }
+    }
+  }
+}
