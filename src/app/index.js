@@ -18,7 +18,13 @@ $(function() {
     $('.open').on('click', function() {
         $drawer.addClass('show');
     });
+
+    $('.back-to-top').on('click', function() {
+        console.log('i am clikced');
+        $("html, body").animate({ scrollTop: 0 }, 1000);
+    });
 });
+
 
 request
     .get('https://api.github.com/users/walkerrandolphsmith/repos')
