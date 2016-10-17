@@ -17,6 +17,7 @@ var wordcount    = require("metalsmith-word-count");
 var ignore       = require('metalsmith-ignore');
 var Handlebars   = require('handlebars');
 var excerpts     = require('metalsmith-excerpts');
+var sitemap      = require('metalsmith-mapsite');
 
 var fs           = require('fs');
 var moment       = require('moment');
@@ -177,6 +178,10 @@ gulp.task('metalsmith', function() {
                 .use(pagination(paginationOpts))
                 .use(gist())
                 .use(tags(tagOpts))
+                .use(sitemap({
+                    hostname: 'http://www.walkerrandolphsmith.com',
+                    omitIndex:    true
+                }))
                 .use(templates(templatesOpts))
         )
         .pipe(gulp.dest('./build'));
