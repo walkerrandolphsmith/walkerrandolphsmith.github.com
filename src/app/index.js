@@ -5,6 +5,7 @@ import $ from 'jquery';
 import katex from 'katex';
 import chunck from 'lodash.chunk';
 import jqueryCycle from 'jquery-cycle';
+import navigationScroll from './navigation-scroll';
 
 GoogleAnalytics();
 

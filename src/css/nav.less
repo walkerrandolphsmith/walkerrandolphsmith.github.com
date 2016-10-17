@@ -8,8 +8,6 @@ header.blog-info {
   height: 75px;
   border-bottom: 2px solid #f2f2f2;
   z-index: 1500;
-  -webkit-transition: -webkit-transform 150ms ease-in-out,left 500ms ease-in-out;
-  -moz-transition: -moz-transform 150ms ease-in-out,left 500ms ease-in-out;
   transition: transform 150ms ease-in-out,left 500ms ease-in-out;
 
   &.transparent {
@@ -17,6 +15,10 @@ header.blog-info {
     border: 0;
     padding: 35px;
     position: absolute;
+  }
+
+  &.hidden {
+    transform: translateY(-100%);
   }
 
   .title {
