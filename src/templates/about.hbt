@@ -1,5 +1,0 @@
-{{> header}}
-    <section class="author">
-        walker
-    </section>
-{{> footer}}

@@ -1,0 +1,96 @@
+.resume {
+
+  .title {
+    margin: 45px 0;
+    margin-bottom: 0;
+    font-family: "Varela Round", "Arial", Sans-Serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 62px;
+    letter-spacing: -1px;
+  }
+
+  .alt {
+    &:first-child {
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 18px;
+      color: #000;
+      margin-top: 0px;
+      margin-bottom: 4px;
+      display: -moz-inline-stack;
+      display: inline-block;
+      vertical-align: middle;
+      zoom: 1;
+    }
+
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 16px;
+    color: #434649;
+    margin: 0;
+  }
+
+  .interval {
+    display: block;
+    margin-top: 3px;
+    margin-bottom: 0px;
+    color: #66696a;
+    font-size: 13px;
+    line-height: 17px;
+  }
+
+  .description {
+    margin: 20px 0;
+    font-family: "Noto Serif", "Times New Roman", Serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 35px;
+    color: #62646c;
+    color: rgba(35, 37, 40, 0.7);
+    overflow: hidden;
+  }
+
+  .skills-list {
+    display: flex;
+    flex-direction: row;
+
+    section {
+      width: 50%;
+    }
+
+    ol {
+      display: inline-block;
+      text-align: left;
+      list-style-type: none;
+      margin: 0;
+      margin-left: 1em;
+      padding: 0;
+      counter-reset: li-counter;
+
+      li {
+        position: relative;
+        margin-bottom: 20px;
+        padding-left: 0.5em;
+        min-height: 1em;
+        border-left: 2px solid #CCCCCC;
+        color: black;
+
+        &:before {
+          position: absolute;
+          top: 0;
+          left: -1.5em;
+          width: 0.8em;
+          font-size: 1em;
+          line-height: 1;
+          font-weight: bold;
+          text-align: right;
+          color: #464646;
+          content: counter(li-counter);
+          counter-increment: li-counter;
+        }
+      }
+    }
+  }
+}
+

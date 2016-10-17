@@ -38,7 +38,7 @@
                 <p class="excerpt">
                     {{stripExcerpt this.excerpt}}
                 </p>
-                <a href="{{baseUrl}}/about" class="author">
+                <a href="{{baseUrl}}/resume" class="author">
                 <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">Walker Smith</a>
             </div>
         </article>

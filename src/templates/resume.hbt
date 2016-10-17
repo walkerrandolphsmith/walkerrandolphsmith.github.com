@@ -1,0 +1,63 @@
+{{> header}}
+    <section class="hero hero-resume">
+       <div class="background">
+       </div>
+       {{> navigation}}
+       <section class="tag-title center wrapper">
+           <h1 class="title">R&eacute;sum&eacute;</h1>
+       </section>
+    </section>
+    <section class="resume">
+        <div class="wrapper">
+            <section class="experience">
+                <header>
+                    <h2 class="title">Experience</h2>
+                </header>
+                {{#each this.jobs}}
+                    <h3>{{this.name}}</h3>
+                    <span class="alt">{{this.position}}</span>
+                    <span class="interval">{{this.interval}}</span>
+                    <p class="description">{{this.description}}</p>
+                {{/each}}
+            </section>
+            <section class="skills">
+                <header>
+                    <h2 class="title">Skills</h2>
+                </header>
+                <div class="skills-list">
+                    <section>
+                        <h3>Skills:</h3>
+                        <ol>
+                        {{#each this.skills}}
+                            <li>{{this}}</li>
+                        {{/each}}
+                        </ol>
+                    </section>
+
+                    <section>
+                        <h3>Frameworks:</h3>
+                        <ol>
+                        {{#each this.frameworks}}
+                            <li>{{this}}</li>
+                        {{/each}}
+                        </ol>
+                    </section>
+                </div>
+            </section>
+            <section class="education">
+                <header>
+                    <h2 class="title">Education</h2>
+                </header>
+                {{#each this.education}}
+                    <h3>{{this.name}}</h3>
+                    <div class="alt">
+                        <span>{{this.alt}}</span>
+                        <span>{{this.mentions}}</span>
+                    </div>
+                    <span class="interval">{{this.interval}}</span>
+                    <p class="description">{{this.description}}</p>
+                {{/each}}
+            </section>
+        </div>
+    </section>
+{{> footer}}
