@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8">
     <title>My Blog</title>
+    <meta name="description" content="Walker Randolph Smith resume." />
+    <meta name="author" content="Walker Randolph Smith" />
+    <meta charset="utf-8">
+    <link rel="canonical" href="http://walkerrandolphsmith.github.com/" />
+
+    <link rel="icon" type="image/png" href="{{baseUrl}}/css/images/profile.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="{{baseUrl}}/css/images/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="{{baseUrl}}/css/images/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="{{baseUrl}}/css/images/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="{{baseUrl}}/css/images/apple-icon-144x144.png" />
     <link rel="stylesheet" href="{{baseUrl}}/css/blogr.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
   </head>
