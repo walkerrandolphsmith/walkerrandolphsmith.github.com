@@ -28,12 +28,12 @@
         <section class="post-bottom wrapper">
           <div class="info">
               <div class="tags">
-                {{tagListWithoutCount this}}
+                {{#each this.tags}}
+                    <a class="tag" href="{{baseUrl}}/tags/{{this}}/" title="{{this}}">{{this}}</a>
+                {{/each}}
               </div>
               <div class="categories">
-                {{#each this.tags }}
-                    <a class="category" href="{{baseUrl}}/tags/{{this}}.html" title="Posts named {{this}}">{{this}}</a>
-                {{/each}}
+
               </div>
           </div>
           <div class="share-options">

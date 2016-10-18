@@ -58,56 +58,14 @@ Handlebars.registerHelper('currentPage', function( current, page ) {
     return current === page ? 'current' : '';
 });
 
-Handlebars.registerHelper('firstTag', function( tags) {
-    var running = '';
-    for(var i = 0; i < tags.length; i++) {
-        var char = tags[i];
-        if(char === ',') {
-            return running.trim();
-        } else {
-            running += char;
-        }
-    }
+Handlebars.registerHelper('firstTag', function(tags) {
+    return tags[0];
 });
 
 Handlebars.registerHelper('stripExcerpt', function( excerpt ) {
     return new Handlebars.SafeString(
         excerpt ? excerpt.replace('<p>', '').replace('</p>', '') : ''
     );
-});
-
-Handlebars.registerHelper('tagList', function(context) {
-    const tags = context.posts
-        .reduce((tags, post, i) => tags.concat(post.tags.concat([','])), [])
-        .filter(tag => tag !== ' ')
-        .join('')
-        .split(',')
-        .filter(tag => !!tag);
-
-    var counts = {};
-
-    for (var i = 0; i < tags.length; i++)
-        counts[tags[i]] = (counts[tags[i]] + 1) || 1;
-
-    return new Handlebars.SafeString(
-        [...new Set(tags)]
-            .map(tag => `<a href=${baseUrl}/tags/${tag}/>${tag} (${counts[tag]})</a>`)
-            .join('')
-    )
-});
-
-Handlebars.registerHelper('tagListWithoutCount', function(context) {
-    const allTags = context.posts
-        .reduce((tags, post, i) => tags.concat(post.tags.concat([','])), [])
-        .filter(tag => tag !== ' ')
-        .join('')
-        .split(',')
-        .filter(tag => !!tag)
-        .map(tag => `<a class="tag" href=${baseUrl}/tags/${tag}/>${tag}</a>`);
-
-    const tags = [...new Set(allTags)];
-
-    return new Handlebars.SafeString(tags.join(''))
 });
 
 Handlebars.registerHelper('dropIndexHtml', function(url) {
@@ -153,7 +111,8 @@ var tagOpts = {
     template:'tags.hbt',
     path:'tags',
     sortBy: 'title',
-    reverse: true
+    reverse: true,
+    yaml: { template: "tags.hbt" }
 };
 
 var templatesOpts = {
@@ -204,46 +163,48 @@ var robotsOpts = {
     sitemap: 'http://www.walkerrandolphsmith.com/sitemap.xml'
 };
 
-
-tags = function(opts){
-    var defaultOpts = { path:"tags/", yaml: { template: "tags.hbt" } };
-    opts = _.defaults(opts || {}, defaultOpts);
-    return function(files, metalsmith, done){
+var tags = function(opts) {
+    return function (files, metalsmith, done) {
         meta = metalsmith.metadata();
-        var tags = _.reduce(files, function(memo,file,path) {
-            file.tags = file.tags ? _.map(file.tags,function(t){return t.toLowerCase();}) : [];
 
-            var xx = [];
-            var running = '';
-            for(var i = 0; i < file.tags.length; i++) {
-                var char = file.tags[i];
-                if(char === ',') {
-                    xx.push(running.trim());
-                    running = '';
-                } else {
-                    running += char;
-                }
-            }
-            xx.push(running.trim());
+        let tags = Object
+            .keys(files)
+            .reduce((array, key) => array.concat(
+                Object.assign({}, files[key], { key: key})
+            ), [])
+            .filter(file => file.tags)
+            .reduce((memo, file) => {
+                const tags = file.tags
+                    .split(',')
+                    .filter(tag => tag !== ' ')
+                    .filter(tag => !!tag)
+                    .map(tag => tag.trim())
+                    .map(tag => tag.toLowerCase());
+                files[file.key].tags = tags;
 
-            _.each(xx,function(tag){
-                key = opts.path + "/" + tag + "/index.html";
-                memo[key] = _.defaults({}, memo[key], { tag:tag, posts:[], contents:'' }, opts.yaml);
-                memo[key].posts = _.sortBy(memo[key].posts.concat(file), 'date').reverse();
-            });
-            return memo;
-        }, {});
+                tags.forEach(tag => {
+                    const key = `${opts.path}/${tag}/index.html`;
+                    memo[key] = Object.assign({}, memo[key], {tag: tag, posts: [], contents: ''}, opts.yaml);
+                    memo[key].posts = _.sortBy(memo[key].posts.concat(file), 'date').reverse();
+                });
+                return memo;
+            }, {});
 
         _.extend(files, tags);
 
-        meta.taglist = _.sortBy(_.reduce(tags, function(memo, tag) {
-            return memo.concat({ tag: tag.tag, count: tag.posts.length, posts: tag.posts });
-        },[]), 'count').reverse();
+        const tagsArray = Object
+            .keys(tags)
+            .reduce((array, key) => array.concat(
+                Object.assign({}, { path: key }, tags[key])
+            ), []);
 
-        meta.tags = _.reduce(tags, function(memo,tag) {
-            memo[tag.tag] = { tag: tag.tag, count: tag.posts.length, posts: tag.posts };
-            return memo;
-        },{});
+        const tagList = tagsArray.reduce((memo, tag) => memo.concat(
+            Object.assign({}, tag, {count: tag.posts.length})
+        ), []);
+
+        metalsmith.metadata().taglist = _.sortBy(tagList, 'count').reverse();
+
+        metalsmith.metadata().tags = tagsArray;
 
         done();
     };

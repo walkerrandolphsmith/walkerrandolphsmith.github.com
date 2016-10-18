@@ -54,7 +54,9 @@
         <h3 class="title">Tags</h3>
         <hr>
         <div class="tagcloud">
-            {{tagList this}}
+            {{#each this.taglist}}
+                <a class="tag" href="{{baseUrl}}/tags/{{this.tag}}/" title="{{this.tag}}">{{this.tag}} ({{this.count}})</a>
+            {{/each}}
         </div>
     </section>
 
