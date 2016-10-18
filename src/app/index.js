@@ -13,6 +13,17 @@ $(function() {
     commentsStream();
     navigationScroller();
     postBottomInScreen();
+    animateProgressBar();
+
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.body.clientHeight;
+
+    const $meter = $('.meter .amount');
+    $(window).scroll(() => {
+        const currentPosition = $(window).scrollTop() + windowHeight;
+        const percentComplete = currentPosition / documentHeight;
+        $meter.css({ width: (percentComplete * 100) + "%" });
+    });
 });
 
 const postBottomInScreen = () => {
@@ -72,6 +83,17 @@ const navigationScroller = () => {
         } else {
             $header.addClass('hidden');
         }
+    });
+};
+
+const animateProgressBar = () => {
+    $(".meter .amount").each(function() {
+        $(this)
+            .data("origWidth", $(this).width())
+            .width(0)
+            .animate({
+                width: $(this).data("origWidth")
+            }, 1200);
     });
 };
 

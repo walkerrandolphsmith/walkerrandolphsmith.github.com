@@ -97,6 +97,9 @@
         </section>
     </main>
     <footer class="post-info">
+        <div class="meter">
+            <span class="amount"></span>
+        </div>
         <div class="default show">
             <a href="{{baseUrl}}/resume/" class="author">
                 <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
