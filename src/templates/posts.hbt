@@ -74,7 +74,7 @@
                     </a>
                     <div class="meta">
                         <span class="title">Author</span>
-                        <h3><a href="{{baseUrl}}/resume/">Walker Smith</a></h3>
+                        <h3><a href="{{baseUrl}}/resume/">{{this.author}}</a></h3>
                     </div>
                 </div>
                 <p>
@@ -101,7 +101,7 @@
             <a href="{{baseUrl}}/resume/" class="author">
                 <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
                 <div class="info">
-                    <span>Smitty author</span>
+                    <span>{{this.author}}</span>
                     <span class="title">
                         <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
                     </span>
