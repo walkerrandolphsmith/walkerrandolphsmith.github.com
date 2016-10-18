@@ -142,7 +142,7 @@ request
 
 const cycle = (repos, key) => {
     const listItems = repos.map(
-        repo => `<li><h5 class="name"><a href="${repo.url}">${repo.name}</a></h5><p class="description">${repo.description}</p></li>`
+        repo => `<li><h5 class="name"><a href="${repo.url}" target="_blank">${repo.name}</a></h5><p class="description">${repo.description}</p></li>`
     );
 
     const groupSize = 2;
