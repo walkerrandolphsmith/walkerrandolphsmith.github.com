@@ -4,16 +4,13 @@
         </div>
         {{> navigation}}
         <section class="post-item post-title center wrapper">
-            <h1 class="title">Musings of a software developer</h1>
+            <h1 class="title">{{this.site.hometitle}}</h1>
             <p class="excerpt">
-                I am a passionate programmer with a lot to say.
-                I am a passionate programmer with a lot to say.
-                I am a passionate programmer with a lot to say.
-                I am a passionate programmer with a lot to say.
+                {{this.authorbio.shortDesc}}
             </p>
             <a href="{{baseUrl}}/resume/" class="author">
-                <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
-                <span>Walker Randolph Smith</span>
+                <img src="{{baseUrl}}/css/images/kakashi.png" alt="{{this.author}}" data-no-retina="true">
+                <span>{{this.author}}</span>
             </a>
         </section>
     </section>
@@ -39,7 +36,9 @@
                     {{stripExcerpt this.excerpt}}
                 </p>
                 <a href="{{baseUrl}}/resume" class="author">
-                <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">Walker Smith</a>
+                    <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">
+                    {{this.author}}
+                </a>
             </div>
         </article>
     {{/each}}

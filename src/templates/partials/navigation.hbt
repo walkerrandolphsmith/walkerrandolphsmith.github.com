@@ -1,6 +1,6 @@
 <header class="blog-info transparent">
     <div class="title">
-        <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="Walker Smith"></a>
+        <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}"></a>
     </div>
     <nav class="main light">
     <ul>

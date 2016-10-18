@@ -16,8 +16,8 @@
                     {{this.description}}
                 </p>
                 <a href="{{baseUrl}}/resume/" class="author">
-                    <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
-                    <span>Walker Randolph Smith</span>
+                    <img src="{{baseUrl}}/css/images/kakashi.png" alt="{{this.author}}" data-no-retina="true">
+                    <span>{{this.author}}</span>
                 </a>
             </section>
         </section>
@@ -70,7 +70,7 @@
             <div class="wrapper">
                 <div class="info">
                     <a href="{{baseUrl}}/resume/" class="profile gravatar">
-                        <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                        <img src="{{baseUrl}}/css/images/kakashi.png" alt="{{this.author}}" data-no-retina="true">
                     </a>
                     <div class="meta">
                         <span class="title">Author</span>

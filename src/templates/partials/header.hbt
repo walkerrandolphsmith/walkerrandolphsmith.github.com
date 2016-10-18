@@ -2,9 +2,9 @@
   <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>My Blog</title>
+    <title>{{this.site.title}}</title>
     <meta name="description" content="Walker Randolph Smith resume." />
-    <meta name="author" content="Walker Randolph Smith" />
+    <meta name="author" content="{{this.authorbio.name}}" />
     <meta charset="utf-8">
     <link rel="canonical" href="http://walkerrandolphsmith.github.com/" />
 
@@ -19,7 +19,7 @@
   <body>
     <header class="blog-info fixed hidden">
         <div class="title">
-            <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="Walker Smith"></a>
+            <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}"></a>
         </div>
         <nav class="main light">
         <ul>

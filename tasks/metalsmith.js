@@ -125,21 +125,23 @@ var templatesOpts = {
     directory: templatePath
 };
 
-var fullName = 'walkerrandolphsmith';
+var handle = 'walkerrandolphsmith';
+var fullName = 'Walker Randolph Smith';
 
 var metaData = {
     site_url: 'http://www.walkerrandolphsmith.com',
     site_name: fullName,
     site: {
-        title: 'Walker Randolph Smith',
+        title: fullName,
+        hometitle: 'Musings of a sotfware developer',
         url: 'http://www.walkerrandolphsmith.com',
         author: fullName
     },
     authorbio: {
         handle: fullName,
         email: 'walkerrandolphsmith@gmail.com',
-        name: 'walker randolph smith',
-        shortName: 'walker smith',
+        name: fullName,
+        shortName: 'Walker Smith',
         shortDesc: ` Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My interests include UI/UX engineering, learning, and test driven development.`,
         longDesc: ''
     },

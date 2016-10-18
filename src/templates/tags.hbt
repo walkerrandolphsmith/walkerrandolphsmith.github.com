@@ -29,7 +29,9 @@
                        {{stripExcerpt this.excerpt}}
                    </p>
                    <a href="{{baseUrl}}/resume" class="author">
-                   <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">Walker Smith</a>
+                       <img src="{{baseUrl}}/css/images/kakashi.png" alt="{{this.author}}" data-no-retina="true">
+                       <span>{{this.author}}</span>
+                   </a>
                </div>
            </article>
        {{/each}}

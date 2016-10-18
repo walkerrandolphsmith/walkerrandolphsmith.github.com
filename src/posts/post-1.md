@@ -3,7 +3,7 @@ title: Post 1
 template: posts.hbt
 date: 2016-03-01
 description: Post one
-author: Walker Randolph Smith,
+author: Walker Randolph Smith
 public: true
 tags: metalsmith, nodejs, javascript
 ---

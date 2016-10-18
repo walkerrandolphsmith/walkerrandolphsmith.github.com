@@ -1,7 +1,7 @@
       </main>
       <footer class="main">
         <section class="made-by">
-            <div class="main">Made with <i class="fa fa-heart"></i> by Walker Smith</div>
+            <div class="main">Made with <i class="fa fa-heart"></i> by {{this.authorbio.name}}</div>
         </section>
         <ul class="social">
             <li>

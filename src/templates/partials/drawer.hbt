@@ -3,14 +3,11 @@
 
     <section class="widget blog-info">
             <a href="{{baseUrl}}">
-                <img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="Walker Smith">
+                <img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}">
             </a>
         <hr>
         <p>
-            This is a tidbit about me!
-            This is a tidbit about me!
-            This is a tidbit about me!
-            This is a tidbit about me!
+            {{this.authorbio.shortDesc}}
         </p>
     </section>
 
@@ -116,7 +113,7 @@
     </section>
     <section class="widget copyright">
         <p class="main">
-            <span>Made with </span><i class="fa fa-heart"></i><span> by </span><a href="{{baseUrl}}">Walker Smith</a>
+            <span>Made with </span><i class="fa fa-heart"></i><span> by </span><a href="{{baseUrl}}">{{this.authorbio.name}}</a>
         </p>
     </section>
 
