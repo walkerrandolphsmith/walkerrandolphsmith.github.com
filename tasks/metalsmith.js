@@ -71,6 +71,12 @@ Handlebars.registerHelper('dropIndexHtml', function(url) {
     return url.replace('index.html', '');
 });
 
+Handlebars.registerHelper('authorbio', function(c) {
+    console.log(c.site);
+    console.log(c.authorbio);
+    console.log(c.accounts);
+});
+
 var ignoreOpts = [
     '**/*.less',
     'app/**/*.*'
@@ -129,12 +135,12 @@ var metaData = {
         url: 'http://www.walkerrandolphsmith.com',
         author: fullName
     },
-    author: {
+    authorbio: {
         handle: fullName,
         email: 'walkerrandolphsmith@gmail.com',
         name: 'walker randolph smith',
         shortName: 'walker smith',
-        shortDesc: 'I am an author of this short description in metadata',
+        shortDesc: ` Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My interests include UI/UX engineering, learning, and test driven development.`,
         longDesc: ''
     },
     accounts: {
