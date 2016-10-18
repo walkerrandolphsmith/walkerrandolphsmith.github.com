@@ -1,36 +1,62 @@
+import $ from 'jquery';
+import jqueryCycle from 'jquery-cycle';
+import chunck from 'lodash.chunk';
 import request from 'superagent';
 import jsonp from 'superagent-jsonp';
+import katex from 'katex';
 import GoogleAnalytics from './google-analytics';
 import disqus from './disqus';
-import $ from 'jquery';
-import katex from 'katex';
-import chunck from 'lodash.chunk';
-import jqueryCycle from 'jquery-cycle';
-import navigationScroll from './navigation-scroll';
 
 $(function() {
-    var $drawer = $('.drawer');
+    drawer();
+    backToTop();
+    commentsStream();
+    navigationScroller();
+});
 
-    $('.close').on('click', function() {
+const drawer = () => {
+    const $drawer = $('.drawer');
+
+    $('.close').on('click', () => {
         $drawer.removeClass('show');
     });
 
-    $('.open').on('click', function() {
+    $('.open').on('click', () => {
         $drawer.addClass('show');
     });
+};
 
-    $('.back-to-top').on('click', function() {
-        console.log('i am clikced');
+const backToTop = () => {
+    $('.back-to-top').on('click', () => {
         $("html, body").animate({ scrollTop: 0 }, 1000);
     });
+};
 
-    $('#comments').on('click', function() {
+const commentsStream = () => {
+    $('#comments').on('click', () => {
         $('.comment-steam').show();
-        var current = $(document).scrollTop();
-        var windowHeight = window.innerHeight;
+        const current = $(document).scrollTop();
+        const windowHeight = window.innerHeight;
         $('body,html').animate({ scrollTop: current + windowHeight }, 800);
     });
-});
+};
+
+const navigationScroller = () => {
+    var prev = 0;
+    var $window = $(window);
+    var $header = $($('header.blog-info')[0]);
+    var lastScrollTop = 0;
+
+    $window.on('scroll', function(){
+        lastScrollTop = $window.scrollTop();
+        if(lastScrollTop > 527) {
+            $header.toggleClass('hidden', lastScrollTop > prev);
+            prev = lastScrollTop;
+        } else {
+            $header.addClass('hidden');
+        }
+    });
+};
 
 
 request
@@ -40,7 +66,6 @@ request
         if (err || !response.body) return;
         let repos = [];
         if(response.body.data.message) {
-            //Rate limiting message
             repos = [
                 {
                     name: 'yolo',
@@ -99,7 +124,6 @@ const cycle = (repos, key) => {
         repo => `<li><h5 class="name"><a href="${repo.url}">${repo.name}</a></h5><p class="description">${repo.description}</p></li>`
     );
 
-    const total = listItems.length;
     const groupSize = 2;
     const groups = chunck(listItems, groupSize);
 
