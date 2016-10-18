@@ -22,7 +22,6 @@ var feed         = require('metalsmith-feed');
 
 var fs           = require('fs');
 var moment       = require('moment');
-var _            = require('underscore');
 
 const PROTOCOL = 'http';
 const HOST = 'localhost';
@@ -167,7 +166,7 @@ var tags = function(opts) {
     return function (files, metalsmith, done) {
         meta = metalsmith.metadata();
 
-        let tags = Object
+        const tags = Object
             .keys(files)
             .reduce((array, key) => array.concat(
                 Object.assign({}, files[key], { key: key})
@@ -190,7 +189,7 @@ var tags = function(opts) {
                 return memo;
             }, {});
 
-        _.extend(files, tags);
+        files = Object.assign({}, files, tags);
 
         const tagsArray = Object
             .keys(tags)
@@ -198,11 +197,11 @@ var tags = function(opts) {
                 Object.assign({}, { path: key }, tags[key])
             ), []);
 
-        const tagList = tagsArray.reduce((memo, tag) => memo.concat(
-            Object.assign({}, tag, { count: tag.posts.length })
-        ), []);
-
-        metalsmith.metadata().taglist = _.sortBy(tagList, 'count').reverse();
+        metalsmith.metadata().taglist = tagsArray
+            .reduce((memo, tag) => memo.concat(
+                Object.assign({}, tag, { count: tag.posts.length })
+            ), [])
+            .sort((curr, next) => curr.count < next.count);
 
         metalsmith.metadata().tags = tagsArray;
 
