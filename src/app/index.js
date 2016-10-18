@@ -12,7 +12,24 @@ $(function() {
     backToTop();
     commentsStream();
     navigationScroller();
+    postBottomInScreen();
 });
+
+const postBottomInScreen = () => {
+    const $postBottom = $('.post-bottom');
+    const $default = $('footer .default');
+    const $relatedPosts = $('footer .related-posts');
+    $(window).scroll(() => {
+        if ($postBottom[0].getBoundingClientRect().bottom < (window.innerHeight / 2)) {
+            $default.hide();
+            $relatedPosts.fadeIn("slow")
+        }
+        else {
+            $default.fadeIn("slow");
+            $relatedPosts.hide();
+        }
+    });
+};
 
 const drawer = () => {
     const $drawer = $('.drawer');

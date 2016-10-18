@@ -97,7 +97,20 @@
         </section>
     </main>
     <footer class="post-info">
-        <div class="related-posts show">
+        <div class="default show">
+            <a href="{{baseUrl}}/resume/" class="author">
+                <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                <div class="info">
+                    <span>Smitty author</span>
+                    <span class="title">
+                        <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
+                    </span>
+                </div>
+            </a>
+            <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
+
+        </div>
+        <div class="related-posts">
             {{#if this.previous.path}}
             <a href="{{baseUrl}}/{{this.previous.path}}/" class="previous-post">
                 <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
