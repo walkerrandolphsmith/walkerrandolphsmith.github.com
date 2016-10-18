@@ -184,8 +184,8 @@ var tags = function(opts) {
 
                 tags.forEach(tag => {
                     const key = `${opts.path}/${tag}/index.html`;
-                    memo[key] = Object.assign({}, memo[key], {tag: tag, posts: [], contents: ''}, opts.yaml);
-                    memo[key].posts = _.sortBy(memo[key].posts.concat(file), 'date').reverse();
+                    memo[key] = Object.assign({}, {tag: tag, posts: [], contents: ''}, memo[key], opts.yaml);
+                    memo[key].posts = memo[key].posts.concat([file]);
                 });
                 return memo;
             }, {});
@@ -199,7 +199,7 @@ var tags = function(opts) {
             ), []);
 
         const tagList = tagsArray.reduce((memo, tag) => memo.concat(
-            Object.assign({}, tag, {count: tag.posts.length})
+            Object.assign({}, tag, { count: tag.posts.length })
         ), []);
 
         metalsmith.metadata().taglist = _.sortBy(tagList, 'count').reverse();
