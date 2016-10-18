@@ -28,9 +28,7 @@
         <section class="post-bottom wrapper">
           <div class="info">
               <div class="tags">
-                {{#each this.tags }}
-                    <a class="tag" href="{{baseUrl}}/tags/{{this}}.html" title="Posts named {{this}}">{{this}}</a>
-                {{/each}}
+                {{tagListWithoutCount this}}
               </div>
               <div class="categories">
                 {{#each this.tags }}

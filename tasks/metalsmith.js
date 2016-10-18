@@ -9,7 +9,6 @@ var markdown     = require('metalsmith-markdown');
 var katex        = require('metalsmith-katex');
 var templates    = require('metalsmith-templates');
 var permalinks   = require('metalsmith-permalinks');
-var tags         = require('metalsmith-tags');
 var gist         = require('metalsmith-gist');
 var drafts       = require('metalsmith-drafts');
 var pagination   = require('metalsmith-pagination');
@@ -23,7 +22,7 @@ var feed         = require('metalsmith-feed');
 
 var fs           = require('fs');
 var moment       = require('moment');
-
+var _            = require('underscore');
 
 const PROTOCOL = 'http';
 const HOST = 'localhost';
@@ -60,20 +59,30 @@ Handlebars.registerHelper('currentPage', function( current, page ) {
 });
 
 Handlebars.registerHelper('firstTag', function( tags) {
-    return tags[0];
+    var running = '';
+    for(var i = 0; i < tags.length; i++) {
+        var char = tags[i];
+        if(char === ',') {
+            return running.trim();
+        } else {
+            running += char;
+        }
+    }
 });
 
 Handlebars.registerHelper('stripExcerpt', function( excerpt ) {
     return new Handlebars.SafeString(
-        excerpt.replace('<p>', '').replace('</p>', '')
+        excerpt ? excerpt.replace('<p>', '').replace('</p>', '') : ''
     );
 });
 
 Handlebars.registerHelper('tagList', function(context) {
-    var tags = [];
-    context.posts.forEach(post => {
-        tags = tags.concat(post.tags);
-    });
+    const tags = context.posts
+        .reduce((tags, post, i) => tags.concat(post.tags.concat([','])), [])
+        .filter(tag => tag !== ' ')
+        .join('')
+        .split(',')
+        .filter(tag => !!tag);
 
     var counts = {};
 
@@ -82,9 +91,23 @@ Handlebars.registerHelper('tagList', function(context) {
 
     return new Handlebars.SafeString(
         [...new Set(tags)]
-            .map(tag => `<a href=${baseUrl}/tags/${tag}.html>${tag} (${counts[tag]})</a>`)
+            .map(tag => `<a href=${baseUrl}/tags/${tag}/>${tag} (${counts[tag]})</a>`)
             .join('')
     )
+});
+
+Handlebars.registerHelper('tagListWithoutCount', function(context) {
+    const allTags = context.posts
+        .reduce((tags, post, i) => tags.concat(post.tags.concat([','])), [])
+        .filter(tag => tag !== ' ')
+        .join('')
+        .split(',')
+        .filter(tag => !!tag)
+        .map(tag => `<a class="tag" href=${baseUrl}/tags/${tag}/>${tag}</a>`);
+
+    const tags = [...new Set(allTags)];
+
+    return new Handlebars.SafeString(tags.join(''))
 });
 
 Handlebars.registerHelper('dropIndexHtml', function(url) {
@@ -181,6 +204,52 @@ var robotsOpts = {
     sitemap: 'http://www.walkerrandolphsmith.com/sitemap.xml'
 };
 
+
+tags = function(opts){
+    var defaultOpts = { path:"tags/", yaml: { template: "tags.hbt" } };
+    opts = _.defaults(opts || {}, defaultOpts);
+    return function(files, metalsmith, done){
+        meta = metalsmith.metadata();
+        var tags = _.reduce(files, function(memo,file,path) {
+            file.tags = file.tags ? _.map(file.tags,function(t){return t.toLowerCase();}) : [];
+
+            var xx = [];
+            var running = '';
+            for(var i = 0; i < file.tags.length; i++) {
+                var char = file.tags[i];
+                if(char === ',') {
+                    xx.push(running.trim());
+                    running = '';
+                } else {
+                    running += char;
+                }
+            }
+            xx.push(running.trim());
+
+            _.each(xx,function(tag){
+                key = opts.path + "/" + tag + "/index.html";
+                memo[key] = _.defaults({}, memo[key], { tag:tag, posts:[], contents:'' }, opts.yaml);
+                memo[key].posts = _.sortBy(memo[key].posts.concat(file), 'date').reverse();
+            });
+            return memo;
+        }, {});
+
+        _.extend(files, tags);
+
+        meta.taglist = _.sortBy(_.reduce(tags, function(memo, tag) {
+            return memo.concat({ tag: tag.tag, count: tag.posts.length, posts: tag.posts });
+        },[]), 'count').reverse();
+
+        meta.tags = _.reduce(tags, function(memo,tag) {
+            memo[tag.tag] = { tag: tag.tag, count: tag.posts.length, posts: tag.posts };
+            return memo;
+        },{});
+
+        done();
+    };
+};
+
+
 gulp.task('metalsmith', function() {
     const markdownFilter = filter(file => /md/.test(file.path));
 
@@ -188,7 +257,6 @@ gulp.task('metalsmith', function() {
         .src('src/**')
         .pipe(markdownFilter)
         .pipe(frontMatter()).on('data', function(file) {
-            console.log(file.path);
             assign(file, file.frontMatter);
             delete file.frontMatter;
         })
