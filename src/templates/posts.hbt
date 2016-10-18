@@ -82,6 +82,19 @@
                 </p>
             </div>
         </section>
+        <section class="comments">
+            <section class="comments-header" id="comments">
+                <div class="wrapper">
+                    <i class="fa fa-comments"></i>
+                    <span class="title">Read comments</span>
+                </div>
+            </section>
+            <section class="comment-steam">
+                <div class="wrapper">
+                    <div id="disqus_thread"></div>
+                </div>
+            </section>
+        </section>
     </main>
     <footer class="post-info">
         <div class="related-posts show">

@@ -1,13 +1,12 @@
 import request from 'superagent';
 import jsonp from 'superagent-jsonp';
 import GoogleAnalytics from './google-analytics';
+import disqus from './disqus';
 import $ from 'jquery';
 import katex from 'katex';
 import chunck from 'lodash.chunk';
 import jqueryCycle from 'jquery-cycle';
 import navigationScroll from './navigation-scroll';
-
-GoogleAnalytics();
 
 $(function() {
     var $drawer = $('.drawer');
@@ -23,6 +22,13 @@ $(function() {
     $('.back-to-top').on('click', function() {
         console.log('i am clikced');
         $("html, body").animate({ scrollTop: 0 }, 1000);
+    });
+
+    $('#comments').on('click', function() {
+        $('.comment-steam').show();
+        var current = $(document).scrollTop();
+        var windowHeight = window.innerHeight;
+        $('body,html').animate({ scrollTop: current + windowHeight }, 800);
     });
 });
 
