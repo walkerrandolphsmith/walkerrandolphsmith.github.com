@@ -11,36 +11,47 @@ $(function() {
     drawer();
     backToTop();
     commentsStream();
-    navigationScroller();
-    postBottomInScreen();
-    animateProgressBar();
 
     const windowHeight = window.innerHeight;
     const documentHeight = document.body.clientHeight;
 
-    const $meter = $('.meter .amount');
-    $(window).scroll(() => {
-        const currentPosition = $(window).scrollTop() + windowHeight;
-        const percentComplete = currentPosition / documentHeight;
-        $meter.css({ width: (percentComplete * 100) + "%" });
-    });
-});
+    var $window = $(window);
 
-const postBottomInScreen = () => {
+    const $meter = $('.meter .amount');
+
     const $postBottom = $('.post-bottom');
     const $default = $('footer .default');
     const $relatedPosts = $('footer .related-posts');
-    $(window).scroll(() => {
+
+    const $header = $($('header.blog-info')[0]);
+    let prev = 0;
+    let lastScrollTop = 0;
+
+
+    $window.scroll(() => {
+        lastScrollTop = $window.scrollTop();
+
+        const currentPosition = lastScrollTop + windowHeight;
+        const percentComplete = currentPosition / documentHeight;
+        $meter.css({ width: (percentComplete * 100) + "%" });
+
         if ($postBottom[0].getBoundingClientRect().bottom < (window.innerHeight / 2)) {
             $default.hide();
-            $relatedPosts.fadeIn("slow")
+            $relatedPosts.fadeIn('slow')
         }
         else {
-            $default.fadeIn("slow");
+            $default.fadeIn('slow');
             $relatedPosts.hide();
         }
+
+        if(lastScrollTop > 527) {
+            $header.toggleClass('hidden', lastScrollTop > prev);
+            prev = lastScrollTop;
+        } else {
+            $header.addClass('hidden');
+        }
     });
-};
+});
 
 const drawer = () => {
     const $drawer = $('.drawer');
@@ -68,35 +79,6 @@ const commentsStream = () => {
         $('body,html').animate({ scrollTop: current + windowHeight }, 800);
     });
 };
-
-const navigationScroller = () => {
-    var prev = 0;
-    var $window = $(window);
-    var $header = $($('header.blog-info')[0]);
-    var lastScrollTop = 0;
-
-    $window.on('scroll', function(){
-        lastScrollTop = $window.scrollTop();
-        if(lastScrollTop > 527) {
-            $header.toggleClass('hidden', lastScrollTop > prev);
-            prev = lastScrollTop;
-        } else {
-            $header.addClass('hidden');
-        }
-    });
-};
-
-const animateProgressBar = () => {
-    $(".meter .amount").each(function() {
-        $(this)
-            .data("origWidth", $(this).width())
-            .width(0)
-            .animate({
-                width: $(this).data("origWidth")
-            }, 1200);
-    });
-};
-
 
 request
     .get('https://api.github.com/users/walkerrandolphsmith/repos')
