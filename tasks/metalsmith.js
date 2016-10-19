@@ -22,7 +22,7 @@ var feed         = require('metalsmith-feed');
 
 var fs           = require('fs');
 var moment       = require('moment');
-
+var _            = require('underscore');
 const PROTOCOL = 'http';
 const HOST = 'localhost';
 const PORT = 3000;
@@ -187,17 +187,17 @@ var tags = function(opts) {
                     .filter(tag => !!tag)
                     .map(tag => tag.trim())
                     .map(tag => tag.toLowerCase());
-                files[file.key].tags = tags;
 
-                tags.forEach(tag => {
-                    const key = `${opts.path}/${tag}/index.html`;
-                    memo[key] = Object.assign({}, {tag: tag, posts: [], contents: ''}, memo[key], opts.yaml);
-                    memo[key].posts = memo[key].posts.concat([file]);
-                });
+                    tags.forEach(tag => {
+                        const key = `${opts.path}/${tag}/index.html`;
+                        memo[key] = Object.assign({}, {tag: tag, posts: [], contents: ''}, memo[key], opts.yaml);
+                        memo[key].posts = memo[key].posts.concat([file]);
+                        assign(files[file.key], { tags });
+                    });
                 return memo;
             }, {});
 
-        files = Object.assign({}, files, tags);
+        assign(files, tags);
 
         const tagsArray = Object
             .keys(tags)
