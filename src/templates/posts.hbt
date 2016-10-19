@@ -141,6 +141,8 @@
                     <span class="title">{{this.next.title}}</span>
                 </div>
             </a>
+            {{else}}
+            <a class="right"></a>
             {{/if}}
         </div>
     </footer>
