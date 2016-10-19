@@ -115,7 +115,7 @@
                 <i class="fa fa-clock-o"></i>
                 <div class="info">
                     <span class="title">
-                        time remaining
+                        {{this.wordCount}} word count
                     </span>
                 </div>
             </span>
