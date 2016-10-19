@@ -6,6 +6,7 @@ description: Post one
 author: Walker Randolph Smith
 public: true
 tags: metalsmith, nodejs, javascript
+hero: e.png
 ---
 
 Loreum ipsoum Loreum ipsoum  Loreum ipsoum  Loreum ipsoum Loreum ipsoum

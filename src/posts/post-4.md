@@ -6,6 +6,7 @@ description: Post four Post four Post four Post four Post four Post four Post fo
 author: Walker Randolph Smith
 public: true
 tags: nodejs, javascript
+hero: d.jpg
 ---
 
 Loreum ipsoum Loreum ipsoum  Loreum ipsoum  Loreum ipsoum Loreum ipsoum

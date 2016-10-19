@@ -1,7 +1,10 @@
     {{> header}}
         <section class="hero">
-            <div class="background">
-            </div>
+            {{#if this.hero}}
+            <div class="background" style="background-image: url('/css/images/{{this.hero}}');"></div>
+            {{else}}
+            <div class="background" style="background-image: url('/css/images/e.png');"></div>
+            {{/if}}
             {{> navigation}}
             <section class="post-item post-title center wrapper">
                 <ul class="meta">
