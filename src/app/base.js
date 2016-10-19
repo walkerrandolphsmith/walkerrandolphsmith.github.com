@@ -8,7 +8,28 @@ import GoogleAnalytics from './google-analytics';
 export default (() => {
     $(function() {
         drawer();
+        styleTwitterStream();
     });
+
+    const styleTwitterStream = () => {
+        setTimeout(() => {
+            const $frame = $('iframe#twitter-widget-0');
+            const timelineClass = '.timeline-Widget';
+            const headerClass = '.timeline-Header';
+            const bodyClass = '.timeline-Body';
+            const footerClass = '.timeline-Footer';
+            const $timeline = $frame.contents().find(timelineClass);
+
+            const $header = $timeline.find(headerClass);
+            $header.css({ display: 'none' });
+
+            const $body = $timeline.find(bodyClass);
+            $body.css({ border: 'none', width: '329px' });
+
+            const $footer = $timeline.find(footerClass);
+            $footer.css({ display: 'none' });
+        }, 500);
+    }
     
     const drawer = () => {
         const $drawer = $('.drawer');
