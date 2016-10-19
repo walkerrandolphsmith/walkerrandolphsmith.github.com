@@ -6,42 +6,54 @@ import jsonp from 'superagent-jsonp';
 import GoogleAnalytics from './google-analytics';
 
 export default (() => {
-    $(function() {
-        drawer();
-        styleTwitterStream();
-    });
 
-    const styleTwitterStream = () => {
-        setTimeout(() => {
-            const $frame = $('iframe#twitter-widget-0');
-            const timelineClass = '.timeline-Widget';
-            const headerClass = '.timeline-Header';
-            const bodyClass = '.timeline-Body';
-            const footerClass = '.timeline-Footer';
-            const $timeline = $frame.contents().find(timelineClass);
+    window.twttr = (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0],
+            t = window.twttr || {};
+        if (d.getElementById(id)) return t;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://platform.twitter.com/widgets.js";
+        fjs.parentNode.insertBefore(js, fjs);
 
-            const $header = $timeline.find(headerClass);
+        t._e = [];
+        t.ready = function(f) {
+            t._e.push(f);
+        };
+
+        return t;
+    }(document, "script", "twitter-wjs"));
+
+    window.twttr.ready(
+        twttr => twttr.events.bind('loaded', () => {
+            const $timeline = $('iframe#twitter-widget-0')
+                .contents()
+                .find('.timeline-Widget');
+
+            const $header = $timeline.find('.timeline-Header');
             $header.css({ display: 'none' });
 
-            const $body = $timeline.find(bodyClass);
+            const $body = $timeline.find('.timeline-Body');
             $body.css({ border: 'none', width: '329px' });
 
-            const $footer = $timeline.find(footerClass);
+            const $footer = $timeline.find('.timeline-Footer');
             $footer.css({ display: 'none' });
-        }, 500);
-    }
-    
-    const drawer = () => {
+
+            console.log($header, $body, $footer);
+        })
+    );
+
+    $(function() {
         const $drawer = $('.drawer');
-    
+
         $('.close').on('click', () => {
             $drawer.removeClass('show');
         });
-    
+
         $('.open').on('click', () => {
             $drawer.addClass('show');
         });
-    };
+    });
     
     request
         .get('https://api.github.com/users/walkerrandolphsmith/repos')
