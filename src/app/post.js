@@ -3,6 +3,7 @@ import disqus from './disqus';
 import $ from 'jquery';
 
 export default (() => {
+    const HERO_HEIGHT = 527;
     $(function () {
         backToTop();
         commentsStream();
@@ -19,6 +20,10 @@ export default (() => {
         const $relatedPosts = $('footer .related-posts');
 
         const $header = $($('header.blog-info')[0]);
+
+        const $background = $('.background');
+        const $title = $('.post-title');
+
         let prev = 0;
         let lastScrollTop = 0;
 
@@ -39,11 +44,14 @@ export default (() => {
                     $relatedPosts.hide();
                 }
 
-                if (lastScrollTop > 527) {
+                if (lastScrollTop > HERO_HEIGHT) {
                     $header.toggleClass('hidden', lastScrollTop > prev);
                     prev = lastScrollTop;
                 } else {
                     $header.addClass('hidden');
+                    const opacity = (lastScrollTop / HERO_HEIGHT) + 0.3;
+                    $background.css({ opacity: opacity });
+                    $title.css({ opacity: 1 - opacity });
                 }
             });
         }
