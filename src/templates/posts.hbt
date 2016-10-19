@@ -144,6 +144,6 @@
             {{/if}}
         </div>
     </footer>
-    <script src="{{baseUrl}}/bundle.js" type="text/javascript"></script>
+    <script src="{{baseUrl}}/post.js" type="text/javascript"></script>
   </body>
 </html>
