@@ -6,7 +6,6 @@ footer.post-info {
   width: 100%;
   background: #fff;
   height: 75px;
-  //border-top: 2px solid #f2f2f2;
   z-index: 1500;
   transition: left 500ms ease-in-out;
 
@@ -15,24 +14,24 @@ footer.post-info {
   }
 
   .default, .related-posts {
+    display: flex;
+    justify-content: space-between;
     overflow: hidden;
-    position: relative;
     padding: 22px 25px 15px;
 
-    .previous-post {
-      float: left;
-      display: block;
+    .left, .right {
+      display: flex;
+      width: 40%;
     }
 
-    .next-post {
-      float: right;
+    .right {
+      display: flex;
+      justify-content: flex-end;
       text-align: right;
     }
 
-
-    img {
+    img, .fa-clock-o {
       display: block;
-      float: left;
       width: 30px;
       height: 30px;
       border-radius: 60px;
@@ -40,7 +39,8 @@ footer.post-info {
     }
 
     .info {
-      float: left;
+      display: flex;
+      flex-direction: column;
 
       span {
         display: block;
@@ -64,20 +64,10 @@ footer.post-info {
       cursor: pointer;
       width: 28px;
       height: 28px;
-      position: absolute;
       background: #e8e8e8;
-      top: 50%;
-      left: 50%;
-      -webkit-transform: translate(-50%, -50%);
-      -moz-transform: translate(-50%, -50%);
-      -ms-transform: translate(-50%, -50%);
-      -o-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%);
       text-align: center;
       line-height: 22px;
       border-radius: 90px;
-      -webkit-transition: background 0.15s ease-in-out;
-      -moz-transition: background 0.15s ease-in-out;
       transition: background 0.15s ease-in-out;
 
       &:hover {
@@ -116,13 +106,13 @@ footer.post-info {
 }
 
 footer.main {
-  overflow: hidden;
-  padding: 30px;
-  background: #242526;
   display: flex;
   align-items: center;
   flex-direction: row;
   justify-content: center;
+  overflow: hidden;
+  padding: 30px;
+  background: #242526;
 
   .made-by, .social {
     width: 50%;

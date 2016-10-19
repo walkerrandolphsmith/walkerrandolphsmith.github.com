@@ -101,7 +101,7 @@
             <span class="amount"></span>
         </div>
         <div class="default show">
-            <a href="{{baseUrl}}/resume/" class="author">
+            <a href="{{baseUrl}}/resume/" class="author left">
                 <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
                 <div class="info">
                     <span>{{this.author}}</span>
@@ -111,21 +111,30 @@
                 </div>
             </a>
             <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
-
+            <span class="reading-time-remaining right">
+                <i class="fa fa-clock-o"></i>
+                <div class="info">
+                    <span class="title">
+                        time remaining
+                    </span>
+                </div>
+            </span>
         </div>
         <div class="related-posts">
             {{#if this.previous.path}}
-            <a href="{{baseUrl}}/{{this.previous.path}}/" class="previous-post">
+            <a href="{{baseUrl}}/{{this.previous.path}}/" class="previous-post left">
                 <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
                 <div class="info">
                     <span>Previous Post</span>
                     <span class="title">{{this.previous.title}}</span>
                 </div>
             </a>
+            {{else}}
+            <span class="left"></span>
             {{/if}}
             <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
             {{#if this.next.path}}
-            <a href="{{baseUrl}}/{{this.next.path}}/" class="next-post">
+            <a href="{{baseUrl}}/{{this.next.path}}/" class="next-post right">
                 <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.next.title}}" data-no-retina="true">
                 <div class="info">
                     <span>Next Post</span>
