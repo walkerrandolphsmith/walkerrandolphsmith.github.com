@@ -29,7 +29,7 @@
     {
       "@context": "http://schema.org",
       "@type": "Article",
-      "headline": "{{this.title}}",
+      "headline": "{{ampTitle this.title}}",
       "datePublished": "{{this.date}}",
       "description": "{{this.description}}",
       "author": {
@@ -52,7 +52,7 @@
     <main>
         <section>
             <header>
-                <h1>{{this.title}}</h1>
+                <h1>{{ampTitle this.title}}</h1>
                 <amp-img src="{{baseUrl}}/css/images/{{this.hero}}"
                      width="264" height="96" layout="responsive">
                 </amp-img>

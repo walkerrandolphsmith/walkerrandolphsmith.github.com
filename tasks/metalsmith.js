@@ -63,6 +63,8 @@ Handlebars.registerHelper('stripExcerpt', excerpt => new Handlebars.SafeString(
     excerpt ? excerpt.replace('<p>', '').replace('</p>', '') : ''
 ));
 
+Handlebars.registerHelper('ampTitle', title => title.replace('-amp', ''));
+
 Handlebars.registerHelper('dropIndexHtml', url => url.replace('index.html', ''));
 
 var handle = 'walkerrandolphsmith';
