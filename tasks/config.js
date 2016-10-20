@@ -5,6 +5,8 @@ const dest = './build';
 
 const config = {
     port: 3000,
+    src: src,
+    dest: dest,
     styles: {
         src: `${src}/css/index.less`,
         glob: `${src}/css/**/*.less`,
@@ -22,6 +24,10 @@ const config = {
     },
     assets: {
         src: `${src}/css/{fonts,images}/**/*.*`,
+        globs: [
+            `${src}/CNAME`,
+            `${src}/googled7479385bda29208.html`
+        ],
         dest: `${dest}/css`
     },
     blogPatterns: [
