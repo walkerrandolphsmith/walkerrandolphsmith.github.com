@@ -179,6 +179,7 @@ var tags = function(opts) {
             .reduce((array, key) => array.concat(
                 Object.assign({}, files[key], { key: key})
             ), [])
+            .filter(file => file.path.indexOf('amp') < 0)
             .filter(file => file.tags)
             .reduce((memo, file) => {
                 const tags = file.tags
