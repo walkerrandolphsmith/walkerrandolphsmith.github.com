@@ -1,8 +1,8 @@
 var gulp         = require('gulp');
 var gulpsmith    = require( 'gulpsmith');
 var filter       = require('gulp-filter');
-var frontMatter      = require('gulp-front-matter');
-var assign           = require('lodash.assign');
+var frontMatter  = require('gulp-front-matter');
+var assign       = require('lodash.assign');
 var fs           = require('fs');
 var moment       = require('moment');
 
@@ -213,6 +213,16 @@ var tags = function(opts) {
     };
 };
 
+const metadataLogger = (isLogging) => (files, metalsmith, done) => {
+    if(isLogging) {
+        var meta = metalsmith.metadata();
+        console.log( meta );
+        console.log( Object.keys(meta) );
+        console.log( Object.keys(meta.collections) );
+    }
+
+    done();
+};
 
 gulp.task('metalsmith', function() {
     const markdownFilter = filter(file => /md/.test(file.path));
@@ -243,6 +253,7 @@ gulp.task('metalsmith', function() {
                 .use(robots(robotsOpts))
                 .use(feed(feedOpts))
                 .use(templates(templatesOpts))
+                .use(metadataLogger(false))
         )
         .pipe(gulp.dest('./build'));
 });
