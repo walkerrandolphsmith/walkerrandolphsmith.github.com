@@ -71,11 +71,43 @@ Handlebars.registerHelper('dropIndexHtml', function(url) {
     return url.replace('index.html', '');
 });
 
-Handlebars.registerHelper('authorbio', function(c) {
-    console.log(c.site);
-    console.log(c.authorbio);
-    console.log(c.accounts);
-});
+var handle = 'walkerrandolphsmith';
+var fullName = 'Walker Randolph Smith';
+var defaultDescription = 'Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My interests include UI/UX engineering, learning, and test driven development.'
+var ogType = 'website';
+
+var metaData = {
+    site_url: 'http://www.walkerrandolphsmith.com',
+    site_name: fullName,
+    site: {
+        title: fullName,
+        hometitle: 'Musings of a sotfware developer',
+        url: 'http://www.walkerrandolphsmith.com',
+        author: fullName
+    },
+    authorbio: {
+        handle: fullName,
+        email: 'walkerrandolphsmith@gmail.com',
+        name: fullName,
+        shortName: 'Walker Smith',
+        shortDesc: defaultDescription,
+        longDesc: ''
+    },
+    accounts: {
+        twitter: {
+            handle: 'WalkerRSmith',
+            url: 'twitter.com/'
+        },
+        linkedin: {
+            handle: fullName,
+            url: 'linkedin.com/'
+        },
+        stackOverflow: {
+            handle: fullName,
+            url: 'stackoverflow.com/'
+        }
+    }
+};
 
 var ignoreOpts = [
     '**/*.less',
@@ -107,7 +139,12 @@ var paginationOpts = {
         perPage: 2,
         template: 'indexWithPagination.hbt',
         first: 'index.html',
-        path: ':num/index.html'
+        path: ':num/index.html',
+        pageMetadata: {
+            description: defaultDescription,
+            type: ogType,
+            hero: 'default.png'
+        }
     }
 };
 
@@ -123,42 +160,6 @@ var tagOpts = {
 var templatesOpts = {
     engine: 'handlebars',
     directory: templatePath
-};
-
-var handle = 'walkerrandolphsmith';
-var fullName = 'Walker Randolph Smith';
-
-var metaData = {
-    site_url: 'http://www.walkerrandolphsmith.com',
-    site_name: fullName,
-    site: {
-        title: fullName,
-        hometitle: 'Musings of a sotfware developer',
-        url: 'http://www.walkerrandolphsmith.com',
-        author: fullName
-    },
-    authorbio: {
-        handle: fullName,
-        email: 'walkerrandolphsmith@gmail.com',
-        name: fullName,
-        shortName: 'Walker Smith',
-        shortDesc: ` Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My interests include UI/UX engineering, learning, and test driven development.`,
-        longDesc: ''
-    },
-    accounts: {
-        twitter: {
-            handle: 'WalkerRSmith',
-            url: 'twitter.com/'
-        },
-        linkedin: {
-            handle: fullName,
-            url: 'linkedin.com/'
-        },
-        stackOverflow: {
-            handle: fullName,
-            url: 'stackoverflow.com/'
-        }
-    }
 };
 
 var sitemapOpts = {
@@ -190,7 +191,14 @@ var tags = function(opts) {
 
                     tags.forEach(tag => {
                         const key = `${opts.path}/${tag}/index.html`;
-                        memo[key] = Object.assign({}, {tag: tag, posts: [], contents: ''}, memo[key], opts.yaml);
+                        memo[key] = Object.assign({}, {
+                            tag: tag, posts: [], contents: '',
+                            title: tag,
+                            type: ogType,
+                            description: 'Articles related to ' + tag,
+                            hero: `${tag}.png`,
+                            path: `tags/${tag}`
+                        }, memo[key], opts.yaml);
                         memo[key].posts = memo[key].posts.concat([file]);
                         assign(files[file.key], { tags });
                     });

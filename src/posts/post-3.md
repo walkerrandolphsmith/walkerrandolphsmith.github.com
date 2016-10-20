@@ -4,6 +4,7 @@ template: posts.hbt
 date: 2014-03-01
 description: Post three
 author: Walker Randolph Smith
+type: article
 public: true
 tags: metalsmith, nodejs, javascript
 hero: c.jpg

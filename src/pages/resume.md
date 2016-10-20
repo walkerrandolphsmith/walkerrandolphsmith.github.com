@@ -1,6 +1,9 @@
 ---
 title: resume
 template: resume.hbt
+type: website
+description: Walker Randolph Smith's Resume
+hero: resume.png
 summary: Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My most recent project is an Android application with accompanying Angular website to help prevent texting and driving. My interests include UI/UX engineering, Agile, and test driven development.
 jobs:
  -
