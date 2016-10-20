@@ -28,7 +28,6 @@ const PROTOCOL = 'http';
 const HOST = 'localhost';
 const PORT = 3000;
 const URL = `${PROTOCOL}://${HOST}:${PORT}`;
-var baseUrl = URL;
 
 const templatePath = './src/templates';
 const partialPath = `${templatePath}/partials`;
@@ -41,36 +40,24 @@ Handlebars.registerPartial({
     pagination: fs.readFileSync(`${partialPath}/pagination.hbt`).toString()
 });
 
-Handlebars.registerHelper('baseUrl', function() {
-    return baseUrl;
-});
+Handlebars.registerHelper('baseUrl', () => URL);
 
-Handlebars.registerHelper('dateFormat', function( context ) {
-    return moment(context).format("LL");
-});
+Handlebars.registerHelper('dateFormat', context => moment(context).format("LL"));
 
-Handlebars.registerHelper('dateGMT', function( context ) {
+Handlebars.registerHelper('dateGMT', context => {
     context = context === 'new' ? new Date() : context;
     return context.toGMTString();
 });
 
-Handlebars.registerHelper('currentPage', function( current, page ) {
-    return current === page ? 'current' : '';
-});
+Handlebars.registerHelper('currentPage', (current, page) => current === page ? 'current' : '');
 
-Handlebars.registerHelper('firstTag', function(tags) {
-    return tags[0];
-});
+Handlebars.registerHelper('firstTag', tags => tags[0]);
 
-Handlebars.registerHelper('stripExcerpt', function( excerpt ) {
-    return new Handlebars.SafeString(
-        excerpt ? excerpt.replace('<p>', '').replace('</p>', '') : ''
-    );
-});
+Handlebars.registerHelper('stripExcerpt', excerpt => new Handlebars.SafeString(
+    excerpt ? excerpt.replace('<p>', '').replace('</p>', '') : ''
+));
 
-Handlebars.registerHelper('dropIndexHtml', function(url) {
-    return url.replace('index.html', '');
-});
+Handlebars.registerHelper('dropIndexHtml', url => url.replace('index.html', ''));
 
 var handle = 'walkerrandolphsmith';
 var fullName = 'Walker Randolph Smith';
