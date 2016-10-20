@@ -46,15 +46,21 @@
                   <li>
                     <a class="facebook"
                        href="https://www.facebook.com/sharer/sharer.php?u={{baseUrl}}/{{this.path}}/"
-                       onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                       onclick="window.open(this.href, 'facebook-share', 'width=490,height=530');return false;">
                        <i class="fa fa-facebook"></i>
                     </a>
                   </li>
-                  <!--<li><a class="linkedin"><i class="fa fa-linkedin"></i></a></li>-->
+                  <li>
+                    <a class="linkedin"
+                       href="http://www.linkedin.com/shareArticle?mini=true&url={{baseUrl}}/{{this.path}}/&title={{this.path}}"
+                       onclick="window.open(this.href, 'linkedin-share', 'width=490,height=530');return false;">
+                       <i class="fa fa-linkedin"></i>
+                   </a>
+                  </li>
                   <li>
                       <a class="twitter"
                          href="http://twitter.com/share?text={{this.title}}&url={{baseUrl}}/{{this.path}}/"
-                         onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                         onclick="window.open(this.href, 'twitter-share', 'width=490,height=530');return false;">
                          <i class="fa fa-twitter"></i>
                       </a>
                   </li>
