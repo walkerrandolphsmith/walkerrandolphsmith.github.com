@@ -38,6 +38,7 @@ const templatePath = './src/templates';
 const partialPath = `${templatePath}/partials`;
 
 Handlebars.registerPartial({
+    head: fs.readFileSync(`${partialPath}/head.hbt`).toString(),
     header: fs.readFileSync(`${partialPath}/header.hbt`).toString(),
     footer: fs.readFileSync(`${partialPath}/footer.hbt`).toString(),
     drawer: fs.readFileSync(`${partialPath}/drawer.hbt`).toString(),

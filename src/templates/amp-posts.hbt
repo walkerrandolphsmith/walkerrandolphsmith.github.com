@@ -1,43 +1,7 @@
 <!doctype html>
 <html ⚡>
   <head>
-    <title>{{this.site.title}}</title>
-    <meta name="description" content="{{this.description}}" />
-    <meta name="author" content="{{this.authorbio.name}}" />
-
-    <meta charset="utf-8">
-    <link rel="canonical" href="{{this.path}}">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-    <meta name="HandheldFriendly" content="True">
-    <link rel="canonical" href="{{baseUrl}}/{{this.path}}">
-    <link rel="alternate" type="application/rss+xml" title="{{this.authorbio.name}}" href="{{baseUrl}}/rss/">
-
-    <meta name="referrer" content="no-referrer-when-downgrade">
-
-    <link rel="icon" type="image/png" href="{{baseUrl}}/css/images/profile.png" />
-    <link rel="apple-touch-icon" sizes="57x57" href="{{baseUrl}}/css/images/apple-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="72x72" href="{{baseUrl}}/css/images/apple-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="114x114" href="{{baseUrl}}/css/images/apple-icon-114x114.png" />
-    <link rel="apple-touch-icon" sizes="144x144" href="{{baseUrl}}/css/images/apple-icon-144x144.png" />
-
-    <meta property="og:site_name" content="{{this.site.title}}" />
-    <meta property="og:title" content="{{this.title}}" />
-    <meta property="og:type" content="{{this.type}}" />
-    <meta property="og:url" content="{{baseUrl}}/{{this.path}}" />
-    <meta property="og:description" content="{{this.description}}" />
-    <meta property="og:image" content="{{baseUrl}}/css/images/{{this.hero}}" />
-    <meta property="og:image:width" content="1920">
-    <meta property="og:image:height" content="1080">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{this.title}}">
-    <meta name="twitter:description" content="{{this.description}}">
-    <meta name="twitter:url" content="{{baseUrl}}/{{this.path}}">
-    <meta name="twitter:image" content="{{baseUrl}}/css/images/{{this.hero}}">
-    <meta name="twitter:label1" content="Written by">
-    <meta name="twitter:data1" content="{{this.authorbio.name}}">
-
+    {{> head}}
     <style amp-custom>
 
     </style>
