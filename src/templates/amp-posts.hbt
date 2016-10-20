@@ -10,7 +10,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
     <meta name="HandheldFriendly" content="True">
-
+    <link rel="canonical" href="{{baseUrl}}/{{this.path}}">
     <link rel="alternate" type="application/rss+xml" title="{{this.authorbio.name}}" href="{{baseUrl}}/rss/">
 
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -39,7 +39,7 @@
     <meta name="twitter:data1" content="{{this.authorbio.name}}">
 
     <style amp-custom>
-      h1 {color: red}
+
     </style>
 
     <script type="application/ld+json">
@@ -58,10 +58,9 @@
     <script async src="https://cdn.ampproject.org/v0.js"></script>
   </head>
   <body>
-    <h1>Sample document</h1>
+    <h1>{{this.title}}</h1>
     <p>
-      Some text
-      <amp-img src=sample.jpg width=300 height=300></amp-img>
+      {{stripExcerpt contents}}
     </p>
   </body>
 </html>

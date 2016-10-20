@@ -2,6 +2,11 @@ var gulp         = require('gulp');
 var gulpsmith    = require( 'gulpsmith');
 var filter       = require('gulp-filter');
 var frontMatter  = require('gulp-front-matter');
+var rename       = require('gulp-rename');
+var clean        = require('gulp-clean');
+var change       = require('gulp-change');
+
+
 var assign       = require('lodash.assign');
 var fs           = require('fs');
 var moment       = require('moment');
@@ -110,6 +115,9 @@ var collectionOpts = {
     },
     pages: {
         pattern: 'pages/*.md'
+    },
+    amp: {
+        pattern: 'amp/*.md'
     }
 };
 
@@ -224,17 +232,49 @@ const metadataLogger = (isLogging) => (files, metalsmith, done) => {
     done();
 };
 
-gulp.task('metalsmith', function() {
+gulp.task('cleanAmp', function() {
+   return gulp.src('src/amps/', { read: false })
+        .pipe(clean());
+});
+
+gulp.task('amp', ['cleanAmp'], function() {
+    return gulp.src('src/posts/**')
+        .pipe(filter(file => {
+            return /md/.test(file.path)
+        }))
+        .pipe(change((content) => {
+            let contents = content
+                .replace(
+                    /template: posts.hbt/g,
+                    'template: amp-posts.hbt'
+                );
+            const matches = contents.match(/title: (?:.*)\n/);
+            if(matches) {
+                const oldTitle = matches[0];
+                const oldTitlePortion = oldTitle.split('\n')[0];
+                contents = contents.replace(oldTitlePortion, oldTitlePortion + "-amp")
+            }
+
+            return contents;
+        }))
+        .pipe(rename((path) => {
+            path.basename += '-amp';
+            path.basename = path.basename.replace(/-/g, '');
+            path.extname = '.md';
+        }))
+        .pipe(gulp.dest('src/amps/'));
+});
+
+gulp.task('metalsmith', ['amp'], function() {
     const markdownFilter = filter(file => /md/.test(file.path));
 
     return gulp
-        .src('src/**')
+        .src('src/**/*.*')
         .pipe(markdownFilter)
         .pipe(frontMatter()).on('data', function(file) {
             assign(file, file.frontMatter);
             delete file.frontMatter;
         })
-        //.pipe(markdownFilter.restore)
         .pipe(
             gulpsmith()
                 .metadata(metaData)
