@@ -3,18 +3,45 @@
   <head>
     {{> head}}
     <style amp-custom>
+        header {
+            position: relative;
+        }
 
+        h1 {
+            display: inline;
+            position: absolute;
+            z-index: 2;
+            left: 50%;
+            top: 25%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2em;
+        }
+        article {
+            padding: 90px;
+        }
+        footer {
+            padding-left: 90px;
+        }
     </style>
 
     <script type="application/ld+json">
     {
       "@context": "http://schema.org",
-      "@type": "NewsArticle",
-      "headline": "Article headline",
-      "image": [
-        "thumbnail1.jpg"
-      ],
-      "datePublished": "2015-02-05T08:00:00+08:00"
+      "@type": "Article",
+      "headline": "{{this.title}}",
+      "datePublished": "{{this.date}}",
+      "description": "{{this.description}}",
+      "author": {
+        "@type": "Person",
+        "name": "{{this.authorbio.name}}"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "{{baseUrl}}/css/images/{{this.hero}}",
+        "height": 2000,
+        "width": 800
+      }
     }
     </script>
     <script async custom-element="amp-carousel" src="https://cdn.ampproject.org/v0/amp-carousel-0.1.js"></script>
@@ -22,9 +49,23 @@
     <script async src="https://cdn.ampproject.org/v0.js"></script>
   </head>
   <body>
-    <h1>{{this.title}}</h1>
-    <p>
-      {{stripExcerpt contents}}
-    </p>
+    <main>
+        <section>
+            <header>
+                <h1>{{this.title}}</h1>
+                <amp-img src="{{baseUrl}}/css/images/{{this.hero}}"
+                     width="264" height="96" layout="responsive">
+                </amp-img>
+            </header>
+            <article>
+                <p>
+                  {{stripExcerpt contents}}
+                </p>
+            </article>
+        </section>
+    </main>
+    <footer>
+        Authored by {{this.authorbio.name}}
+    </footer>
   </body>
 </html>
