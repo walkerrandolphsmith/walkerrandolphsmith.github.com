@@ -1,8 +1,10 @@
 var gulp         = require('gulp');
 var gulpsmith    = require( 'gulpsmith');
 var filter       = require('gulp-filter');
-frontMatter      = require('gulp-front-matter');
-assign           = require('lodash.assign');
+var frontMatter      = require('gulp-front-matter');
+var assign           = require('lodash.assign');
+var fs           = require('fs');
+var moment       = require('moment');
 
 var collections  = require('metalsmith-collections');
 var markdown     = require('metalsmith-markdown');
@@ -20,9 +22,8 @@ var sitemap      = require('metalsmith-mapsite');
 var robots       = require('metalsmith-robots');
 var feed         = require('metalsmith-feed');
 
-var fs           = require('fs');
-var moment       = require('moment');
-var _            = require('underscore');
+
+
 const PROTOCOL = 'http';
 const HOST = 'localhost';
 const PORT = 3000;
