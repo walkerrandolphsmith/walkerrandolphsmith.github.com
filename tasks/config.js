@@ -24,10 +24,7 @@ const config = {
     },
     assets: {
         src: `${src}/css/{fonts,images}/**/*.*`,
-        globs: [
-            `${src}/CNAME`,
-            `${src}/googled7479385bda29208.html`
-        ],
+        cname: `${src}/{CNAME,googled7479385bda29208.html}`,
         dest: `${dest}/css`
     },
     blogPatterns: [
