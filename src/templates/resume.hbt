@@ -1,12 +1,5 @@
 {{> header}}
-    <section class="hero hero-resume">
-       <div class="background">
-       </div>
-       {{> navigation}}
-       <section class="tag-title center wrapper">
-           <h1 class="title">R&eacute;sum&eacute;</h1>
-       </section>
-    </section>
+    {{> heroShort}}
     <section class="resume">
         <div class="wrapper">
             <section class="summary">

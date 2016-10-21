@@ -1,5 +1,6 @@
 ---
 title: resume
+heroTitle: R&eacute;sum&eacute;
 template: resume.hbt
 type: website
 description: Walker Randolph Smith's Resume

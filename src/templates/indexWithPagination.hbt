@@ -1,19 +1,5 @@
 {{> header}}
-    <section class="hero">
-        <div class="background">
-        </div>
-        {{> navigation}}
-        <section class="post-item post-title center wrapper">
-            <h1 class="title">{{this.site.hometitle}}</h1>
-            <p class="excerpt">
-                {{this.authorbio.shortDesc}}
-            </p>
-            <a href="{{baseUrl}}/resume/" class="author">
-                <img src="{{baseUrl}}/css/images/kakashi.png" alt="{{this.author}}" data-no-retina="true">
-                <span>{{this.author}}</span>
-            </a>
-        </section>
-    </section>
+    {{> hero}}
     <section class="post-list">
     {{#each pagination.files}}
         <article class="post-item">

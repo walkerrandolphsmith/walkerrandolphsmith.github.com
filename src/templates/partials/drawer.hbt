@@ -12,9 +12,7 @@
     </section>
 
     <section class="widget navigation">
-        <!--
-        {{>navigation }}
-        -->
+
     </section>
     <section class="widget subscribe">
         <div class="inner">

@@ -1,11 +1,31 @@
-    {{> header}}
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      {{> head}}
+      <link rel="stylesheet" href="{{baseUrl}}/css/blogr.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  </head>
+  <body>
+    <header class="blog-info fixed hidden">
+        <div class="title">
+            <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}"></a>
+        </div>
+        {{> postNav}}
+    </header>
+    {{> drawer}}
+    <main class="page-wrapper">
         <section class="hero">
             {{#if this.hero}}
             <div class="background" style="background-image: url('/css/images/{{this.hero}}');"></div>
             {{else}}
             <div class="background" style="background-image: url('/css/images/e.png');"></div>
             {{/if}}
-            {{> navigation}}
+            <header class="blog-info transparent">
+                <div class="title">
+                    <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}"></a>
+                </div>
+                {{> postNav}}
+            </header>
             <section class="post-item post-title center wrapper">
                 <ul class="meta">
                     <li class="date">

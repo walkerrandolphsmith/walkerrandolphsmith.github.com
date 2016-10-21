@@ -15,7 +15,10 @@ module.exports = (function(){
         header: fs.readFileSync(`${partialPath}/header.hbt`).toString(),
         footer: fs.readFileSync(`${partialPath}/footer.hbt`).toString(),
         drawer: fs.readFileSync(`${partialPath}/drawer.hbt`).toString(),
-        navigation: fs.readFileSync(`${partialPath}/navigation.hbt`).toString(),
+        hero: fs.readFileSync(`${partialPath}/hero.hbt`).toString(),
+        heroShort: fs.readFileSync(`${partialPath}/hero-short.hbt`).toString(),
+        nav: fs.readFileSync(`${partialPath}/nav.hbt`).toString(),
+        postNav: fs.readFileSync(`${partialPath}/nav-post.hbt`).toString(),
         pagination: fs.readFileSync(`${partialPath}/pagination.hbt`).toString()
     });
 
@@ -39,4 +42,8 @@ module.exports = (function(){
     Handlebars.registerHelper('ampTitle', title => title.replace('-amp', ''));
 
     Handlebars.registerHelper('dropIndexHtml', url => url.replace('index.html', ''));
+
+    Handlebars.registerHelper('heroTitle', title => new Handlebars.SafeString(
+        title
+    ));
 })();

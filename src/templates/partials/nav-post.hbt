@@ -1,9 +1,6 @@
-<header class="blog-info transparent">
-    <div class="title">
-        <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}"></a>
-    </div>
-    <nav class="main light">
+<nav class="main light">
     <ul>
+        <li class="nav-amp" role="presentation"><a href={{baseUrl}}/{{this.path}}-amp/><i class="fa fa-bolt"></i></a></li>
         <li class="nav-rss" role="presentation"><a href={{baseUrl}}/rss.xml><i class="fa fa-rss"></i></a></li>
         <li class="nav-home" role="presentation"><a href="{{baseUrl}}">Home</a></li>
         <li class="nav-about-me" role="presentation"><a href="{{baseUrl}}/resume/">R&eacute;sum&eacute;</a></li>
@@ -17,5 +14,4 @@
             </span>
         </li>
     </ul>
-    </nav>
-</header>
+</nav>

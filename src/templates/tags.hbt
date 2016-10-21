@@ -1,12 +1,5 @@
   {{> header}}
-    <section class="hero hero-tag">
-       <div class="background">
-       </div>
-       {{> navigation}}
-       <section class="tag-title center wrapper">
-           <h1 class="title">{{tag}}</h1>
-       </section>
-    </section>
+    {{> heroShort}}
     <section>
        {{#each posts}}
            <article class="post-item">

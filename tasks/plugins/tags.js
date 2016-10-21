@@ -24,6 +24,7 @@ module.exports = function(opts) {
                     memo[key] = Object.assign({}, {
                         tag: tag, posts: [], contents: '',
                         title: tag,
+                        heroTitle: tag,
                         type: 'website',
                         description: 'Articles related to ' + tag,
                         hero: `${tag}.png`,
