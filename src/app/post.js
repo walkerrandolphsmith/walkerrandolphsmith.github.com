@@ -27,34 +27,32 @@ export default (() => {
         let prev = 0;
         let lastScrollTop = 0;
 
-        if (location.pathname.match(/post/)) {
-            $window.scroll(() => {
-                lastScrollTop = $window.scrollTop();
+        $window.scroll(() => {
+            lastScrollTop = $window.scrollTop();
 
-                const currentPosition = lastScrollTop + windowHeight;
-                const percentComplete = currentPosition / documentHeight;
-                $meter.css({width: (percentComplete * 100) + "%"});
+            const currentPosition = lastScrollTop + windowHeight;
+            const percentComplete = currentPosition / documentHeight;
+            $meter.css({width: (percentComplete * 100) + "%"});
 
-                if ($postBottom[0].getBoundingClientRect().bottom < (window.innerHeight / 2)) {
-                    $default.hide();
-                    $relatedPosts.fadeIn('slow')
-                }
-                else {
-                    $default.fadeIn('slow');
-                    $relatedPosts.hide();
-                }
+            if ($postBottom[0].getBoundingClientRect().bottom < (window.innerHeight / 2)) {
+                $default.hide();
+                $relatedPosts.fadeIn('slow')
+            }
+            else {
+                $default.fadeIn('slow');
+                $relatedPosts.hide();
+            }
 
-                if (lastScrollTop > HERO_HEIGHT) {
-                    $header.toggleClass('hidden', lastScrollTop > prev);
-                    prev = lastScrollTop;
-                } else {
-                    $header.addClass('hidden');
-                    const opacity = (lastScrollTop / HERO_HEIGHT) + 0.3;
-                    $background.css({ opacity: opacity });
-                    $title.css({ opacity: 1 - opacity });
-                }
-            });
-        }
+            if (lastScrollTop > HERO_HEIGHT) {
+                $header.toggleClass('hidden', lastScrollTop > prev);
+                prev = lastScrollTop;
+            } else {
+                $header.addClass('hidden');
+                const opacity = (lastScrollTop / HERO_HEIGHT) + 0.3;
+                $background.css({ opacity: opacity });
+                $title.css({ opacity: 1 - opacity });
+            }
+        });
     });
 
     const backToTop = () => {
