@@ -50,7 +50,7 @@ const config = {
     ],
     metalsmith: {
         src: `${src}/**/*.*`,
-        dest: `./build`,
+        dest: dest,
         metaData: {
             site_url: DOMAIN,
             site_name: fullName,
