@@ -88,7 +88,7 @@ const config = {
             '**/*.js'
         ],
         amp: {
-            src: `${src}/amps`
+            src: `${src}/content/amps`
         },
         collection: {
             posts: {
