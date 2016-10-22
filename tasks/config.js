@@ -45,7 +45,6 @@ const config = {
     },
     blogPatterns: [
         `${src}/content/**/*.md`,
-        `${src}/posts/*.md`,
         `${src}/templates/**/*.hbt`
     ],
     metalsmith: {
@@ -94,7 +93,7 @@ const config = {
             posts: {
                 pattern: 'content/posts/*.md',
                 sortBy: 'date',
-                reverse: true
+                reverse: false
             },
             pages: {
                 pattern: 'content/pages/*.md'
@@ -129,6 +128,9 @@ const config = {
             sortBy: 'title',
             reverse: true,
             yaml: { template: "tags.hbt" }
+        },
+        related: {
+            matchOn: 'postId'
         },
         templatePath: tempaltePath,
         templates: {

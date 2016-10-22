@@ -2,11 +2,13 @@
 title: Electron Native Apps
 template: posts.hbt
 date: 2016-10-22
+postId: 0
 description: A introduction to building Election native applications with JavaScript
 author: Walker Randolph Smith
 type: article
 public: true
 tags: electron, javascript
+related: [2]
 hero: e.png
 ---
 

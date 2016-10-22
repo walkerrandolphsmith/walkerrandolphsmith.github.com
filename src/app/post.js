@@ -33,8 +33,7 @@ export default (() => {
             const currentPosition = lastScrollTop + windowHeight;
             const percentComplete = currentPosition / documentHeight;
             $meter.css({width: (percentComplete * 100) + "%"});
-
-            if ($postBottom[0].getBoundingClientRect().bottom < (window.innerHeight / 2)) {
+            if ($postBottom[0].getBoundingClientRect().top < (window.innerHeight)) {
                 $default.hide();
                 $relatedPosts.fadeIn('slow')
             }

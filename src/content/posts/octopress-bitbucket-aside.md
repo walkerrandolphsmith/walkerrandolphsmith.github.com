@@ -1,12 +1,14 @@
 ---
 title: Add Bitbucket Aside to Octopress
 template: posts.hbt
+postId: 1
 date: 2013-07-05
 description: Adding Bitbucket repositories to your Octopress blog.
 author: Walker Randolph Smith
 type: article
 public: true
 tags: javascript
+related: [2]
 hero: e.png
 ---
 

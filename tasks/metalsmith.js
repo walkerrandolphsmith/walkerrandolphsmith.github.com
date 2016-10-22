@@ -20,10 +20,12 @@ var excerpts            = require('metalsmith-excerpts');
 var sitemap             = require('metalsmith-mapsite');
 var robots              = require('metalsmith-robots');
 var feed                = require('metalsmith-feed');
+var related             = require('metalsmith-static-related');
 var tags                = require('./plugins/tags');
 var metaLogger          = require('./plugins/metaLogger');
-var highlighter            = require('./plugins/highlighter');
-       
+var highlighter         = require('./plugins/highlighter');
+var recentPosts         = require('./plugins/recentPosts');
+
 var config              = require('./config');
 var options             = config.metalsmith;
 
@@ -34,6 +36,7 @@ const paginationOpts    = options.pagination;
 const feedOpts          = options.feed;
 const permalinkOpts     = options.permalink;
 const tagOpts           = options.tags;
+const relatedOpts       = options.related;
 const templateOpts      = options.templates;
 const sitemapOpts       = options.sitemap;
 const robotsOpts        = options.robot;
@@ -56,6 +59,8 @@ gulp.task('metalsmith', ['amp'], function() {
                 .use(ignore(ignoreOpts))
                 .use(drafts())
                 .use(collections(collectionOpts))
+                .use(related(relatedOpts))
+                .use(recentPosts())
                 .use(katex())
                 .use(markdown({
                     gfm: true,

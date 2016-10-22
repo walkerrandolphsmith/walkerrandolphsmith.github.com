@@ -1,12 +1,14 @@
 ---
 title: VersionOne JavaScript SDK
 template: posts.hbt
+postId: 2
 date: 2016-10-21
 description: Getting started with the VersionOne JavaScript SDK
 author: Walker Randolph Smith
 type: article
 public: true
 tags: VersionOne, JavaScript
+related: [0,1]
 hero: d.jpg
 ---
 
