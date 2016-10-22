@@ -6,7 +6,7 @@ var extensions = {
     less: 'css',
     scss: 'css',
     sass: 'css',
-    html: 'markup',
+    html: 'markdown',
     svg: 'markup',
     xml: 'markup',
     py: 'python',
