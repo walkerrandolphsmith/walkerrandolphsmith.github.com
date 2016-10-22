@@ -38,3 +38,15 @@ time {
   left: 0;
   transition: left 500ms ease-in-out;
 }
+
+.post-contents, .excerpt {
+  a[href*="//"]:not([href*="walkerrandolphsmith.com"]):after {
+    content: "\f08e";
+    font-family: FontAwesome;
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+    padding-left: .25em;
+  }
+}
