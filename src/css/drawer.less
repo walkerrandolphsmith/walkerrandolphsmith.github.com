@@ -113,6 +113,13 @@
       margin: 0;
       padding: 0;
       list-style: none;
+
+      li a {
+        display: block;
+        padding: 15px 0;
+        color: #242526;
+        outline: none;
+      }
     }
   }
 
@@ -120,7 +127,7 @@
     position: relative;
     overflow: hidden;
 
-    i {
+    i.fa-envelope-o {
       position: absolute;
       font-size: 14px;
       bottom: 54px;
@@ -188,6 +195,10 @@
       -webkit-transition: background 0.15s ease-in;
       -moz-transition: background 0.15s ease-in;
       transition: background 0.15s ease-in;
+
+      //disabled
+      pointer-events: none;
+      cursor: not-allowed;
     }
   }
 

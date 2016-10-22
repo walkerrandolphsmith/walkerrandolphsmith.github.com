@@ -12,7 +12,14 @@
     </section>
 
     <section class="widget navigation">
-
+        <nav class="main-drawer">
+            <ul>
+                <li class="nav-home" role="presentation"><a href="{{baseUrl}}">Home</a></li>
+                <li class="nav-about-me" role="presentation"><a href="{{baseUrl}}/resume/">R&eacute;sum&eacute;</a></li>
+                <li class="nav-projects" role="presentation"><a href="{{baseUrl}}/projects/">Projects</a></li>
+                <li class="nav-javascript" role="presentation"><a href="{{baseUrl}}/tags/javascript/">JavaScript</a></li>
+            </ul>
+        </nav>
     </section>
     <section class="widget subscribe">
         <div class="inner">
@@ -20,7 +27,8 @@
             <hr>
 
             <p>
-                Subscribe to my newsletter for a weekly look at the latest news, tools, and techniques from the React community.
+                Subscribe to my newsletter for updates on the evolution of the JavaScript toolchain.
+                <a href={{baseUrl}}/rss.xml><i class="fa fa-rss"></i></a> Currently updates are only available via RSS.
             </p>
             <i class="fa fa-envelope-o"></i>
 
@@ -37,7 +45,7 @@
                             <div class="response" id="mce-success-response" style="display:none"></div>
                         </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
                         <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_3c40623ce03f70afd7e8b6687_d572450014" tabindex="-1" value=""></div>
-                        <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+                        <div class="clear"><input type="submit" value="Subscribe" name="subscribe" disabled id="mc-embedded-subscribe" class="button"></div>
                     </div>
                 </form>
             </div>
