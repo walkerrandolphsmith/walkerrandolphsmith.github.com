@@ -46,4 +46,17 @@ module.exports = (function(){
     Handlebars.registerHelper('heroTitle', title => new Handlebars.SafeString(
         title
     ));
+
+    Handlebars.registerHelper('mastery', level => {
+        const dots = [];
+        for(var i = 0; i < 5; i++) {
+            dots.push(
+                level <= i ? '<span class="level"></span>' : '<span class="level achieved"></span>'
+            );
+        }
+
+        return new Handlebars.SafeString(
+            `<div class="mastery">${dots.join('')}</div>`
+        )
+    });
 })();
