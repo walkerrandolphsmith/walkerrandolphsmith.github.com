@@ -22,6 +22,7 @@ var robots              = require('metalsmith-robots');
 var feed                = require('metalsmith-feed');
 var tags                = require('./plugins/tags');
 var metaLogger          = require('./plugins/metaLogger');
+var highlighter            = require('./plugins/highlighter');
        
 var config              = require('./config');
 var options             = config.metalsmith;
@@ -56,7 +57,13 @@ gulp.task('metalsmith', ['amp'], function() {
                 .use(drafts())
                 .use(collections(collectionOpts))
                 .use(katex())
-                .use(markdown())
+                .use(markdown({
+                    gfm: true,
+                    smartypants: true,
+                    renderer: highlighter.renderer,
+                    langPrefix: 'language-',
+                    highlight: highlighter.highlighter
+                }))
                 .use(excerpts())
                 .use(permalinks(permalinkOpts))
                 .use(pagination(paginationOpts))
