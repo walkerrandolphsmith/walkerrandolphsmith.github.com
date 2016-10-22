@@ -8,7 +8,7 @@
   <body>
     <header class="blog-info fixed hidden">
         <div class="title">
-            <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}"></a>
+            <a href="{{baseUrl}}"><img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}"></a>
         </div>
         {{> postNav}}
     </header>
@@ -22,7 +22,7 @@
             {{/if}}
             <header class="blog-info transparent">
                 <div class="title">
-                    <a href="{{baseUrl}}"><img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}"></a>
+                    <a href="{{baseUrl}}"><img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}"></a>
                 </div>
                 {{> postNav}}
             </header>
@@ -39,7 +39,7 @@
                     {{this.description}}
                 </p>
                 <a href="{{baseUrl}}/resume/" class="author">
-                    <img src="{{baseUrl}}/css/images/kakashi.png" alt="{{this.author}}" data-no-retina="true">
+                    <img src="{{avatar}}" alt="{{this.author}}" data-no-retina="true">
                     <span>{{this.author}}</span>
                 </a>
             </section>
@@ -121,7 +121,7 @@
             <div class="wrapper">
                 <div class="info">
                     <a href="{{baseUrl}}/resume/" class="profile gravatar">
-                        <img src="{{baseUrl}}/css/images/kakashi.png" alt="{{this.author}}" data-no-retina="true">
+                        <img src="{{avatar}}" alt="{{this.author}}" data-no-retina="true">
                     </a>
                     <div class="meta">
                         <span class="title">Author</span>
@@ -153,7 +153,7 @@
         </div>
         <div class="default show">
             <a href="{{baseUrl}}/resume/" class="author left">
-                <img src="{{baseUrl}}/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                <img src="{{avatar}}" alt="Walker Smith" data-no-retina="true">
                 <div class="info">
                     <span>{{this.author}}</span>
                     <span class="title">
@@ -174,7 +174,7 @@
         <div class="related-posts">
             {{#if this.previous.path}}
             <a href="{{baseUrl}}/{{this.previous.path}}/" class="previous-post left">
-                <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
+                <img src="{{avatar}}" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
                 <div class="info">
                     <span>Previous Post</span>
                     <span class="title">{{this.previous.title}}</span>
@@ -186,7 +186,7 @@
             <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
             {{#if this.next.path}}
             <a href="{{baseUrl}}/{{this.next.path}}/" class="next-post right">
-                <img src="{{baseUrl}}/css/images/kakashi.png" width="36px" height="36px" alt="{{this.next.title}}" data-no-retina="true">
+                <img src="{{avatar}}" width="36px" height="36px" alt="{{this.next.title}}" data-no-retina="true">
                 <div class="info">
                     <span>Next Post</span>
                     <span class="title">{{this.next.title}}</span>

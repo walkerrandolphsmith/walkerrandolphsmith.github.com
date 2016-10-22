@@ -3,7 +3,7 @@
         <li class="nav-rss" role="presentation"><a href={{baseUrl}}/rss.xml><i class="fa fa-rss"></i></a></li>
         <li class="nav-home" role="presentation"><a href="{{baseUrl}}">Home</a></li>
         <li class="nav-about-me" role="presentation"><a href="{{baseUrl}}/resume/">R&eacute;sum&eacute;</a></li>
-        <li class="nav-projects" role="presentation"><a href="{{baseUrl}}/projects/">Projects</a></li>
+        <!--<li class="nav-projects" role="presentation"><a href="{{baseUrl}}/projects/">Projects</a></li>-->
         <li class="nav-javascript" role="presentation"><a href="{{baseUrl}}/tags/javascript/">JavaScript</a></li>
     </ul>
     <ul>

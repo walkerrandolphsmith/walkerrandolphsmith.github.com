@@ -257,7 +257,7 @@
                     </li>
                     <li style="display: none;">
                         <a href="{{baseUrl}}/resume/" class="author">
-                            <img src="{{baseUrl}}/css/images/kakashi.png" alt="{{this.author}}" data-no-retina="true">
+                            <img src="{{avatar}}" alt="{{this.author}}" data-no-retina="true">
                             <span>{{this.author}}</span>
                         </a>
                     </li>

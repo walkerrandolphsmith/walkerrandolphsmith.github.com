@@ -24,6 +24,8 @@ module.exports = (function(){
 
     Handlebars.registerHelper('baseUrl', () => URL);
 
+    Handlebars.registerHelper('avatar', () => URL + '/css/images/kakashi.png');
+
     Handlebars.registerHelper('dateFormat', context => moment(context).format("LL"));
 
     Handlebars.registerHelper('dateGMT', context => {

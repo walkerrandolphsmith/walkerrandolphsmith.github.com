@@ -3,7 +3,7 @@
 
     <section class="widget blog-info">
             <a href="{{baseUrl}}">
-                <img src="{{baseUrl}}/css/images/kakashi.png" class="retina" alt="{{this.authorbio.name}}">
+                <img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}">
             </a>
         <hr>
         <p>
