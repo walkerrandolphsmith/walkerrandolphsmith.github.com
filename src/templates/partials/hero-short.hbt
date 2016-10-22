@@ -7,7 +7,7 @@
        </div>
        {{> nav}}
    </header>
-   <section class="tag-title center wrapper">
+   <section class="tag-title post-title post-item center wrapper">
        <h1 class="title">{{heroTitle this.heroTitle}}</h1>
    </section>
 </section>

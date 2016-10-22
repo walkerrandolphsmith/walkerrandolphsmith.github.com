@@ -75,4 +75,30 @@
       text-align: center;
     }
   }
+
+  #resume {
+    padding: 90px 50px;
+
+    & > header {
+      & > div:first-child .fa {
+        padding-left: 0;
+      }
+      .avatar {
+        align-items: center;
+
+        img {
+          width: 75px;
+          height: 75px;
+        }
+      }
+    }
+
+    .flexbox-container {
+      flex-direction: column;
+
+      & > div {
+        width: 100% !important;
+      }
+    }
+  }
 }

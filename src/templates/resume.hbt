@@ -1,12 +1,12 @@
 {{> header}}
     {{> heroShort}}
-    <main id="resume">
+    <section id="resume">
         <header>
             <div>
                 <h1>{{this.authorbio.name}}</h1>
                 <span>{{this.summary}}</span>
                 <div>
-                    <i class="fa fa-link"></i><a href="http://www.walkerrandolphsmith.com">http://www.walkerrandolphsmith.com</a>
+                    <i class="fa fa-link"></i><a href="http://www.walkerrandolphsmith.com">walkerrandolphsmith.com</a>
                     <i class="fa fa-map-marker"></i><span>Atlanta, GA</span>
                 </div>
             </div>
