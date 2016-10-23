@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <title>Walker Randolph Smith</title>
+      <meta name="description" content="Getting started with the VersionOne JavaScript SDK" />
+      <meta name="author" content="Walker Randolph Smith" />
+      
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      
+      <meta name="HandheldFriendly" content="True">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="canonical" href="http://walkerrandolphsmith.github.com/" />
+      
+      <link rel="amphtml" href="http://localhost:3000/versionone-javascript-sdk-amp/">
+      <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://localhost:3000/rss/">
+      
+      <meta name="referrer" content="no-referrer-when-downgrade">
+      
+      <link rel="icon" type="image/png" href="http://localhost:3000/css/images/profile.png" />
+      <link rel="apple-touch-icon" sizes="57x57" href="http://localhost:3000/css/images/apple-icon-57x57.png" />
+      <link rel="apple-touch-icon" sizes="72x72" href="http://localhost:3000/css/images/apple-icon-72x72.png" />
+      <link rel="apple-touch-icon" sizes="114x114" href="http://localhost:3000/css/images/apple-icon-114x114.png" />
+      <link rel="apple-touch-icon" sizes="144x144" href="http://localhost:3000/css/images/apple-icon-144x144.png" />
+      
+      <meta property="og:site_name" content="Walker Randolph Smith" />
+      <meta property="og:title" content="VersionOne JavaScript SDK" />
+      <meta property="og:type" content="article" />
+      <meta property="og:url" content="http://localhost:3000/versionone-javascript-sdk" />
+      <meta property="og:description" content="Getting started with the VersionOne JavaScript SDK" />
+      <meta property="og:image" content="http://localhost:3000/css/images/d.jpg" />
+      <meta property="og:image:width" content="1920">
+      <meta property="og:image:height" content="1080">
+      
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="VersionOne JavaScript SDK">
+      <meta name="twitter:description" content="Getting started with the VersionOne JavaScript SDK">
+      <meta name="twitter:url" content="http://localhost:3000/versionone-javascript-sdk">
+      <meta name="twitter:image" content="http://localhost:3000/css/images/d.jpg">
+      <meta name="twitter:label1" content="Written by">
+      <meta name="twitter:data1" content="Walker Randolph Smith">
+      <link rel="stylesheet" href="http://localhost:3000/css/blogr.css">
+  </head>
+  <body>
+    <header class="blog-info fixed hidden">
+        <div class="title">
+            <a href="http://localhost:3000"><img src="http://localhost:3000/css/images/kakashi.png" class="retina" alt="Walker Randolph Smith"></a>
+        </div>
+        <nav class="main light">
+            <ul>
+                <li class="nav-amp" role="presentation"><a href=http://localhost:3000/versionone-javascript-sdk-amp/><i class="fa fa-bolt"></i></a></li>
+                <li class="nav-rss" role="presentation"><a href=http://localhost:3000/rss.xml><i class="fa fa-rss"></i></a></li>
+                <li class="nav-home" role="presentation"><a href="http://localhost:3000">Home</a></li>
+                <li class="nav-about-me" role="presentation"><a href="http://localhost:3000/resume/">R&eacute;sum&eacute;</a></li>
+                <!--<li class="nav-projects" role="presentation"><a href="http://localhost:3000/projects/">Projects</a></li>-->
+                <li class="nav-javascript" role="presentation"><a href="http://localhost:3000/tags/javascript/">JavaScript</a></li>
+            </ul>
+            <ul>
+                <li class="option open">
+                    <span class="showdrawer">
+                        <i class="fa fa-navicon"></i>
+                    </span>
+                </li>
+            </ul>
+        </nav>    </header>
+    <section class="drawer">
+        <i class="fa fa-times close"></i>
+    
+        <section class="widget blog-info">
+                <a href="http://localhost:3000">
+                    <img src="http://localhost:3000/css/images/kakashi.png" class="retina" alt="Walker Randolph Smith">
+                </a>
+            <hr>
+            <p>
+                Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My interests include UI/UX engineering, learning, and test driven development.
+            </p>
+        </section>
+    
+        <section class="widget navigation">
+            <nav class="main-drawer">
+                <ul>
+                    <li class="nav-home" role="presentation"><a href="http://localhost:3000">Home</a></li>
+                    <li class="nav-about-me" role="presentation"><a href="http://localhost:3000/resume/">R&eacute;sum&eacute;</a></li>
+                    <li class="nav-projects" role="presentation"><a href="http://localhost:3000/projects/">Projects</a></li>
+                    <li class="nav-javascript" role="presentation"><a href="http://localhost:3000/tags/javascript/">JavaScript</a></li>
+                </ul>
+            </nav>
+        </section>
+        <section class="widget subscribe">
+            <div class="inner">
+                <h3 class="title">My Newsletter</h3>
+                <hr>
+    
+                <p>
+                    Subscribe to my newsletter for updates on the evolution of the JavaScript toolchain.
+                    <a href=http://localhost:3000/rss.xml><i class="fa fa-rss"></i></a> Currently updates are only available via RSS.
+                </p>
+                <i class="fa fa-envelope-o"></i>
+    
+                <!-- Begin MailChimp Form -->
+                <div id="mc_embed_signup">
+                    <form action="" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+                        <div id="mc_embed_signup_scroll">
+                            <div class="mc-field-group">
+                                <label for="mce-EMAIL">Email Address </label>
+                                <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address...">
+                            </div>
+                            <div id="mce-responses" class="clear">
+                                <div class="response" id="mce-error-response" style="display:none"></div>
+                                <div class="response" id="mce-success-response" style="display:none"></div>
+                            </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                            <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_3c40623ce03f70afd7e8b6687_d572450014" tabindex="-1" value=""></div>
+                            <div class="clear"><input type="submit" value="Subscribe" name="subscribe" disabled id="mc-embedded-subscribe" class="button"></div>
+                        </div>
+                    </form>
+                </div>
+                <!-- End MailChimp Form -->
+    
+            </div>
+        </section>
+        <section class="widget tags">
+            <h3 class="title">Tags</h3>
+            <hr>
+            <div class="tags">
+                    <a class="tag" href="http://localhost:3000/tags/javascript/" title="javascript">javascript (3)</a>
+                    <a class="tag" href="http://localhost:3000/tags/electron/" title="electron">electron (1)</a>
+                    <a class="tag" href="http://localhost:3000/tags/versionone/" title="versionone">versionone (1)</a>
+            </div>
+        </section>
+    
+        <section class="widget github-repos">
+            <h3 class="title">Github</h3>
+            <div class="pages">
+                <span id="gh-prev">
+                    <i class="fa fa-angle-left"></i>
+                    Previous
+                </span>
+                <span id="gh-next">
+                    Next
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </div>
+            <hr>
+            <div id="gh-groups"></div>
+        </section>
+    
+        <section class="widget bitbucket-repos">
+            <h3 class="title">Bitbucket</h3>
+            <div class="pages">
+                <span id="bb-prev">
+                    <i class="fa fa-angle-left"></i>
+                    Previous
+                </span>
+                <span id="bb-next">
+                    Next
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </div>
+            <hr>
+            <div id="bb-groups"></div>
+        </section>
+    
+        <section class="widget jsfiddle-repos">
+            <h3 class="title">Js Fiddles</h3>
+            <div class="pages">
+                <span id="jsf-prev">
+                    <i class="fa fa-angle-left"></i>
+                    Previous
+                </span>
+                <span id="jsf-next">
+                    Next
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </div>
+            <hr>
+            <div id="jsf-groups"></div>
+        </section>
+    
+        <section class="widget twitter">
+            <h3 class="title">Twitter</h3>
+            <hr>
+            <a class="twitter-timeline"  href="https://twitter.com/WalkerRSmith" data-widget-id="398194465573052416" style="display: none;"></a>
+        </section>
+        <section class="widget copyright">
+            <p class="main">
+                <span>Made with </span><i class="fa fa-heart"></i><span> by </span><a href="http://localhost:3000">Walker Randolph Smith</a>
+            </p>
+        </section>
+    
+    </section>    <main class="page-wrapper">
+        <section class="hero">
+            <div class="background" style="background-image: url('/css/images/d.jpg');"></div>
+            <header class="blog-info transparent">
+                <div class="title">
+                    <a href="http://localhost:3000"><img src="http://localhost:3000/css/images/kakashi.png" class="retina" alt="Walker Randolph Smith"></a>
+                </div>
+                <nav class="main light">
+                    <ul>
+                        <li class="nav-amp" role="presentation"><a href=http://localhost:3000/versionone-javascript-sdk-amp/><i class="fa fa-bolt"></i></a></li>
+                        <li class="nav-rss" role="presentation"><a href=http://localhost:3000/rss.xml><i class="fa fa-rss"></i></a></li>
+                        <li class="nav-home" role="presentation"><a href="http://localhost:3000">Home</a></li>
+                        <li class="nav-about-me" role="presentation"><a href="http://localhost:3000/resume/">R&eacute;sum&eacute;</a></li>
+                        <!--<li class="nav-projects" role="presentation"><a href="http://localhost:3000/projects/">Projects</a></li>-->
+                        <li class="nav-javascript" role="presentation"><a href="http://localhost:3000/tags/javascript/">JavaScript</a></li>
+                    </ul>
+                    <ul>
+                        <li class="option open">
+                            <span class="showdrawer">
+                                <i class="fa fa-navicon"></i>
+                            </span>
+                        </li>
+                    </ul>
+                </nav>            </header>
+            <section class="post-item post-title center wrapper">
+                <ul class="meta">
+                    <li class="date">
+                        <a href="http://localhost:3000">
+                            <time datetime="October 20, 2016">October 20, 2016</time>
+                        </a>
+                    </li>
+                </ul>
+                <h1 class="title">VersionOne JavaScript SDK</h1>
+                <p class="excerpt">
+                    Getting started with the VersionOne JavaScript SDK
+                </p>
+                <a href="http://localhost:3000/resume/" class="author">
+                    <img src="http://localhost:3000/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">
+                    <span>Walker Randolph Smith</span>
+                </a>
+            </section>
+        </section>
+        <article class="post-contents wrapper">
+        <h1>VersionOne JavaScript SDK</h1>
+        <p>Recently the VersionOne JavaScript SDK received some love and got a major version release.
+The SDK allows communication with a VersionOne instance by exposing some of the well documented apis including
+ <code>query.v1</code>, <code>rest-1.v1</code>, and <code>metav1</code>. The SDK ultimately makes HTTP requests to a specified VersionOne instance.
+In this scenario I will not consider CORS and make all the requests from a server.
+This article assumes prior knowledge around Node.js and javascript.
+I will cover how to set up a minimal node application that uses an express server and the SDK to make queries to VersionOne.
+You can follow along with this git repo <a href="https://github.com/walkerrandolphsmith/sample-v1sdk-app">sample-v1sdk-app</a>.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>This is a node application and therefore we will start by creating our <code>package.json</code>.</p>
+<pre><code>npm init --yes</code></pre>
+<p>After generating a minimal package we can edit it to specify things about our app.
+At this point we may also want to create a <code>README.md</code> to describe the application and a <code>.gitignore</code> file to ignore
+certain files and directories, such as <code>node_modules</code> directory, from version control.</p>
+<p>Let’s create a git repo and commit our first change.</p>
+<pre><code>git init
+git add .
+git commit -m "Initial commit to our app"</code></pre>
+<h2 id="versionone-sdk">VersionOne SDK</h2>
+<p>Lets setup the VersionOne SDK.
+First we need to install it.</p>
+<pre><code>npm install --save v1sdk</code></pre>
+<p>The SDK does not directly require a dependency on an AJAX library to make HTTP requests, but instead allows the consumer
+to choose the library of their choice and pass it as a parameter to the SDK.
+In this case we will use <code>axios</code> as our library of choice so we need to install it as well.</p>
+<pre><code>npm install --save axios</code></pre>
+<p>Now that we have installed our dependencies we can create an instance of the SDK.
+Let’s create a file that exports the constructed instance and call it <code>V1Server</code>.</p>
+<pre class="language-js"><code class="language-js"><span class="token keyword" >const</span> axios <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'axios'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token keyword" >const</span> v1sdk <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'v1sdk/dist/index'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token keyword" >const</span> sdk <span class="token operator" >=</span> v1sdk<span class="token punctuation" >.</span><span class="token keyword" >default</span><span class="token punctuation" >;</span>
+<span class="token keyword" >const</span> axiosConnector <span class="token operator" >=</span> v1sdk<span class="token punctuation" >.</span>axiosConnector<span class="token punctuation" >;</span>
+
+<span class="token keyword" >const</span> axiosConnectedSdk <span class="token operator" >=</span> <span class="token function" >axiosConnector</span><span class="token punctuation" >(</span>axios<span class="token punctuation" >)</span><span class="token punctuation" >(</span>sdk<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+module<span class="token punctuation" >.</span>exports <span class="token operator" >=</span> <span class="token function" >axiosConnectedSdk</span><span class="token punctuation" >(</span><span class="token string" >'V1Host'</span><span class="token punctuation" >,</span> <span class="token string" >'v1Instance'</span><span class="token punctuation" >)</span>
+    <span class="token punctuation" >.</span><span class="token function" >withCreds</span><span class="token punctuation" >(</span><span class="token string" >'v1User'</span><span class="token punctuation" >,</span> <span class="token string" >'v1Password'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    <span class="token comment" spellcheck="true">//.withAccessToken('token');</span></code></pre>
+<p>Note the <code>V1Host</code>, <code>V1Instance</code>, <code>V1User</code>, and <code>V1Password</code>.
+The host and instance can be found on the url you use to access your VersionOne instance.
+For example if your VersionOne instance is found at <code>https://CompanyA/Production</code>, then
+<code>V1Host</code> is <code>CompanyA</code> and <code>V1Instance</code> is <code>Production</code>.
+<code>V1User</code> and <code>V1Password</code> are a valid username and password pair for the instance.
+The SDK currently supports Basic authentication with and username and password and
+also supports VersionOne AccessTokens. In the above example the SDK is using Basic authenticaion
+but the commented line shows how to use an AccessToken.</p>
+<p>The module that is exported is an object that contains methods for <code>create</code>, <code>update</code> and <code>query</code> of VersionOne Assets.
+In addition in version 2.1.0 of the SDK methods <code>queryDefinition</code> and <code>activityStream</code> are available.</p>
+<p>Let’s use this module to query our VersionOne instance for PrimaryWorkitems’ names. We need to create a <code>server.js</code> file.</p>
+<pre class="language-js"><code class="language-js"><span class="token keyword" >var</span> v1 <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'./V1Server'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+v1<span class="token punctuation" >.</span><span class="token function" >query</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
+    <span class="token string" >'from'</span><span class="token punctuation" >:</span> <span class="token string" >'PrimaryWorkitem'</span><span class="token punctuation" >,</span>
+    <span class="token string" >'select'</span><span class="token punctuation" >:</span> <span class="token punctuation" >[</span>
+        <span class="token string" >'Name'</span>
+    <span class="token punctuation" >]</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>assets <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
+    console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>assets<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre>
+<p>In order to make this easier to run lets add an npm script to <code>package.json</code> that runs the app.
+Edit the package to contain a start command within the scripts.</p>
+<pre><code>"scripts": {
+    "start": "node server.js"
+}</code></pre>
+<p>Now when we run the app it will immediately make a request to the VersionOne instance
+and print the response to the console.</p>
+<h2 id="express">Express</h2>
+<p>Now we can start building the web server. I will choose express, lets install it.</p>
+<pre><code>npm install --save express</code></pre>
+<p>Let’s update <code>server.js</code>
+to create an express server and listen on port 3000. It will look something like:</p>
+<pre class="language-js"><code class="language-js"><span class="token keyword" >var</span> express <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'express'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+<span class="token keyword" >const</span> app <span class="token operator" >=</span> <span class="token function" >express</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token keyword" >const</span> v1 <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'./V1Server'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+app<span class="token punctuation" >.</span><span class="token function" >use</span><span class="token punctuation" >(</span><span class="token string" >'/'</span><span class="token punctuation" >,</span> <span class="token punctuation" >(</span>request<span class="token punctuation" >,</span> response<span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
+    response<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token number" >200</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >send</span><span class="token punctuation" >(</span><span class="token string" >'hello world'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+app<span class="token punctuation" >.</span><span class="token function" >use</span><span class="token punctuation" >(</span><span class="token string" >'/backlog'</span><span class="token punctuation" >,</span> <span class="token punctuation" >(</span>request<span class="token punctuation" >,</span> response<span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
+    v1<span class="token punctuation" >.</span><span class="token function" >query</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
+        <span class="token string" >'from'</span><span class="token punctuation" >:</span> <span class="token string" >'PrimaryWorkitem'</span><span class="token punctuation" >,</span>
+        <span class="token string" >'select'</span><span class="token punctuation" >:</span> <span class="token punctuation" >[</span>
+            <span class="token string" >'Name'</span>
+        <span class="token punctuation" >]</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>assets <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
+        response<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token number" >200</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >send</span><span class="token punctuation" >(</span>assets<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+app<span class="token punctuation" >.</span><span class="token function" >listen</span><span class="token punctuation" >(</span><span class="token number" >3000</span><span class="token punctuation" >,</span> error <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
+    <span class="token keyword" >if</span><span class="token punctuation" >(</span>error<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+        console<span class="token punctuation" >.</span><span class="token function" >error</span><span class="token punctuation" >(</span>error<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    <span class="token punctuation" >}</span> <span class="token keyword" >else</span> <span class="token punctuation" >{</span>
+        console<span class="token punctuation" >.</span><span class="token function" >info</span><span class="token punctuation" >(</span><span class="token template-string" ><span class="token string" >`
+            ==> Listening on port 3000.
+            Open http://localhost:3000/.
+         `</span></span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    <span class="token punctuation" >}</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre>
+<p>The server returns the text hello world when requesting the root route, <code>/</code> and the response from the v1 query when
+requesting the <code>backlog</code> route.</p>
+
+        </article>
+        <section class="post-bottom wrapper">
+          <div class="more-content">
+              <section id="related-posts">
+                <header><h3>Related Posts</h3></header>
+                <ul>
+                    <li>
+                        <a href="http://localhost:3000/add-bitbucket-aside-to-octopress" title="add-bitbucket-aside-to-octopress">Add Bitbucket Aside to Octopress</a>
+                    </li>
+                    <li>
+                        <a href="http://localhost:3000/electron-native-apps" title="electron-native-apps">Electron Native Apps</a>
+                    </li>
+                </ul>
+              </section>
+              <section id="recent-posts">
+                  <header><h3>Recent Posts</h3></header>
+                  <ul>
+                      <li>
+                          <a href="http://localhost:3000/electron-native-apps" title="electron-native-apps">Electron Native Apps</a>
+                      </li>
+                      <li>
+                          <a href="http://localhost:3000/versionone-javascript-sdk" title="versionone-javascript-sdk">VersionOne JavaScript SDK</a>
+                      </li>
+                      <li>
+                          <a href="http://localhost:3000/add-bitbucket-aside-to-octopress" title="add-bitbucket-aside-to-octopress">Add Bitbucket Aside to Octopress</a>
+                      </li>
+                  </ul>
+              </section>
+          </div>
+          <div class="info">
+              <div class="tags">
+                    <a class="tag" href="http://localhost:3000/tags/versionone/" title="versionone">versionone</a>
+                    <a class="tag" href="http://localhost:3000/tags/javascript/" title="javascript">javascript</a>
+              </div>
+              <div class="categories">
+
+              </div>
+          </div>
+          <div class="share-options">
+              <a href="http://localhost:3000/versionone-javascript-sdk/" class="permalink">http://localhost:3000/versionone-javascript-sdk/</a>
+              <ul class="share-buttons">
+                  <li>Share:</li>
+                  <li>
+                    <a class="facebook"
+                       href="https://www.facebook.com/sharer/sharer.php?u=http://localhost:3000/versionone-javascript-sdk/"
+                       onclick="window.open(this.href, 'facebook-share', 'width=490,height=530');return false;">
+                       <i class="fa fa-facebook"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="linkedin"
+                       href="http://www.linkedin.com/shareArticle?mini=true&url=http://localhost:3000/versionone-javascript-sdk/&title=versionone-javascript-sdk"
+                       onclick="window.open(this.href, 'linkedin-share', 'width=490,height=530');return false;">
+                       <i class="fa fa-linkedin"></i>
+                   </a>
+                  </li>
+                  <li>
+                      <a class="twitter"
+                         href="http://twitter.com/share?text=VersionOne JavaScript SDK&url=http://localhost:3000/versionone-javascript-sdk/"
+                         onclick="window.open(this.href, 'twitter-share', 'width=490,height=530');return false;">
+                         <i class="fa fa-twitter"></i>
+                      </a>
+                  </li>
+                  <li>
+                    <a class="google-plus"
+                       href="https://plus.google.com/share?url=http://localhost:3000/versionone-javascript-sdk/"
+                       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                        <i class="fa fa-google-plus"></i>
+                    </a>
+                  </li>
+
+              </ul>
+          </div>
+        </section>
+        <section class="widget author-profile">
+            <div class="wrapper">
+                <div class="info">
+                    <a href="http://localhost:3000/resume/" class="profile gravatar">
+                        <img src="http://localhost:3000/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">
+                    </a>
+                    <div class="meta">
+                        <span class="title">Author</span>
+                        <h3><a href="http://localhost:3000/resume/">Walker Randolph Smith</a></h3>
+                    </div>
+                </div>
+                <p>
+                    Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My interests include UI/UX engineering, learning, and test driven development.
+                </p>
+            </div>
+        </section>
+        <section class="comments">
+            <section class="comments-header" id="comments">
+                <div class="wrapper">
+                    <i class="fa fa-comments-o"></i>
+                    <span class="title">Read comments</span>
+                </div>
+            </section>
+            <section class="comment-steam">
+                <div class="wrapper">
+                    <div id="disqus_thread"></div>
+                </div>
+            </section>
+        </section>
+    </main>
+    <footer class="post-info">
+        <div class="meter">
+            <span class="amount"></span>
+        </div>
+        <div class="default show">
+            <a href="http://localhost:3000/resume/" class="author left">
+                <img src="http://localhost:3000/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                <div class="info">
+                    <span>Walker Randolph Smith</span>
+                    <span class="title">
+                        <time datetime="October 20, 2016">October 20, 2016</time>
+                    </span>
+                </div>
+            </a>
+            <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
+            <span class="post-more-content-shortcut right">
+                <div class="info">
+                    <span id="comment">
+                        <i class="fa fa-comments-o"></i>
+                        Comments
+                    </span>
+                    <span id="share">
+                        <i class="fa fa-share"></i>
+                        Share
+                    </span>
+                </div>
+            </span>
+        </div>
+        <div class="related-posts">
+            <a href="http://localhost:3000/add-bitbucket-aside-to-octopress/" class="previous-post left">
+                <img src="http://localhost:3000/css/images/e.png" width="36px" height="36px" alt="Add Bitbucket Aside to Octopress" data-no-retina="true">
+                <div class="info">
+                    <span>Previous Post</span>
+                    <span class="title">Add Bitbucket Aside to Octopress</span>
+                </div>
+            </a>
+            <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
+            <a href="http://localhost:3000/electron-native-apps/" class="next-post right">
+                <img src="http://localhost:3000/css/images/e.png" width="36px" height="36px" alt="Electron Native Apps" data-no-retina="true">
+                <div class="info">
+                    <span>Next Post</span>
+                    <span class="title">Electron Native Apps</span>
+                </div>
+            </a>
+        </div>
+    </footer>
+    <script src="http://localhost:3000/post.js" type="text/javascript"></script>
+  </body>
+</html>

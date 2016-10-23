@@ -1,0 +1,384 @@
+<!doctype html>
+<html ⚡>
+  <head>
+    <title>Walker Randolph Smith</title>
+    <meta name="description" content="A introduction to building Election native applications with JavaScript" />
+    <meta name="author" content="Walker Randolph Smith" />
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="canonical" href="http://walkerrandolphsmith.github.com/" />
+    
+    <link rel="amphtml" href="http://localhost:3000/electron-native-apps-amp-amp/">
+    <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://localhost:3000/rss/">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+    <link rel="icon" type="image/png" href="http://localhost:3000/css/images/profile.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="http://localhost:3000/css/images/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="http://localhost:3000/css/images/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="http://localhost:3000/css/images/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="http://localhost:3000/css/images/apple-icon-144x144.png" />
+    
+    <meta property="og:site_name" content="Walker Randolph Smith" />
+    <meta property="og:title" content="Electron Native Apps-amp" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="http://localhost:3000/electron-native-apps-amp" />
+    <meta property="og:description" content="A introduction to building Election native applications with JavaScript" />
+    <meta property="og:image" content="http://localhost:3000/css/images/e.png" />
+    <meta property="og:image:width" content="1920">
+    <meta property="og:image:height" content="1080">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Electron Native Apps-amp">
+    <meta name="twitter:description" content="A introduction to building Election native applications with JavaScript">
+    <meta name="twitter:url" content="http://localhost:3000/electron-native-apps-amp">
+    <meta name="twitter:image" content="http://localhost:3000/css/images/e.png">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Walker Randolph Smith">
+    <style amp-custom>
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            margin-left: 20px;
+            font-size: 2em;
+            font-weight: 600;
+            line-height: 62px;
+            letter-spacing: -1px;
+            color: #373737;
+        }
+        header ul {
+            margin-right: 20px;
+        }
+        article {
+            padding: 90px;
+        }
+        h2 {
+            margin: 50px 0 30px;
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 44px;
+            letter-spacing: -1px;
+            color: #494a50;
+        }
+
+        h3 {
+            margin: 50px 0 30px;
+            font-size: 28px;
+            font-weight: 400;
+            line-height: 44px;
+            letter-spacing: -1px;
+            color: #b2b2b2;
+        }
+        p {
+            font-weight: 400;
+            font-size: 17px;
+            line-height: 32px;
+            margin: 20px 0 65px;
+            color: #62646c;
+        }
+        ul, ol {
+            list-style: none;
+        }
+
+        pre {
+          padding: 2em;
+        }
+
+        code, pre {
+          font-family: Consolas, Menlo, Monaco, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", "Courier New", Courier, monospace;
+          font-size: 14px;
+          line-height: 1.375;
+          direction: ltr;
+          text-align: left;
+          white-space: pre;
+          word-spacing: normal;
+          word-break: normal;
+
+          -moz-tab-size: 4;
+          -o-tab-size: 4;
+          tab-size: 4;
+
+          -webkit-hyphens: none;
+          -moz-hyphens: none;
+          -ms-hyphens: none;
+          hyphens: none;
+          background: #faf8f5;
+          line-height: 30px;
+
+          margin: .5em 0;
+          overflow: auto;
+        }
+
+        p > code {
+          padding: 0.5em;
+        }
+
+        code[class*="language-"],
+        pre[class*="language-"] {
+          color: #728fcb;
+        }
+
+        pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+        code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+          text-shadow: none;
+          background: #faf8f5;
+        }
+
+        pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+        code[class*="language-"]::selection, code[class*="language-"] ::selection {
+          text-shadow: none;
+          background: #faf8f5;
+        }
+
+        pre[class*="language-"] {
+          padding: 1em;
+          margin: .5em 0;
+          overflow: auto;
+        }
+
+        :not(pre) > code[class*="language-"] {
+          padding: .1em;
+          border-radius: .3em;
+        }
+
+        .token.comment,
+        .token.prolog,
+        .token.doctype,
+        .token.cdata {
+          color: #b6ad9a;
+        }
+
+        .token.punctuation {
+          color: #b6ad9a;
+        }
+
+        .token.namespace {
+          opacity: .7;
+        }
+
+        .token.tag,
+        .token.operator,
+        .token.number {
+          color: #063289;
+        }
+
+        .token.property,
+        .token.function {
+          color: #b29762;
+        }
+
+        .token.tag-id,
+        .token.selector,
+        .token.atrule-id {
+          color: #2d2006;
+        }
+
+        code.language-javascript,
+        .token.attr-name {
+          color: #896724;
+        }
+
+        code.language-css,
+        code.language-scss,
+        .token.boolean,
+        .token.string,
+        .token.entity,
+        .token.url,
+        .language-css .token.string,
+        .language-scss .token.string,
+        .style .token.string,
+        .token.attr-value,
+        .token.keyword,
+        .token.control,
+        .token.directive,
+        .token.unit,
+        .token.statement,
+        .token.regex,
+        .token.atrule {
+          color: #728fcb;
+        }
+
+        .token.placeholder,
+        .token.variable {
+          color: #93abdc;
+        }
+
+        .token.deleted {
+          text-decoration: line-through;
+        }
+
+        .token.inserted {
+          border-bottom: 1px dotted #2d2006;
+          text-decoration: none;
+        }
+
+        .token.italic {
+          font-style: italic;
+        }
+
+        .token.important,
+        .token.bold {
+          font-weight: bold;
+        }
+
+        .token.important {
+          color: #896724;
+        }
+
+        .token.entity {
+          cursor: help;
+        }
+
+        pre > code.highlight {
+          outline: .4em solid #896724;
+          outline-offset: .4em;
+        }
+
+        .line-numbers .line-numbers-rows {
+          border-right-color: #ece8de;
+        }
+
+        .line-numbers-rows > span:before {
+          color: #cdc4b1;
+        }
+
+        .line-highlight {
+          background: rgba(45, 32, 6, 0.2);
+          background: -webkit-linear-gradient(left, rgba(45, 32, 6, 0.2) 70%, rgba(45, 32, 6, 0));
+          background: linear-gradient(to right, rgba(45, 32, 6, 0.2) 70%, rgba(45, 32, 6, 0));
+        }
+
+        footer {
+            padding-left: 90px;
+        }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "Article",
+      "headline": "Electron Native Apps",
+      "datePublished": "Fri Oct 21 2016 20:00:00 GMT-0400 (EDT)",
+      "description": "A introduction to building Election native applications with JavaScript",
+      "author": {
+        "@type": "Person",
+        "name": "Walker Randolph Smith"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "http://localhost:3000/css/images/e.png",
+        "height": 2000,
+        "width": 800
+      }
+    }
+    </script>
+    <script async custom-element="amp-carousel" src="https://cdn.ampproject.org/v0/amp-carousel-0.1.js"></script>
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+  </head>
+  <body>
+    <main>
+        <section class="post-item post-title">
+            <header>
+                <h1>Electron Native Apps</h1>
+                <ul class="meta">
+                    <li class="date">
+                        <time datetime="October 21, 2016">October 21, 2016</time>
+                    </li>
+                    <li style="display: none;">
+                        <a href="http://localhost:3000/resume/" class="author">
+                            <img src="http://localhost:3000/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">
+                            <span>Walker Randolph Smith</span>
+                        </a>
+                    </li>
+                </ul>
+            </header>
+            <amp-img src="http://localhost:3000/css/images/e.png"
+                 width="264" height="96" layout="responsive">
+            </amp-img>
+        </section>
+        <section>
+            <article>
+                <p>
+                  Electron allows for creating cross platform, native applications that run on the Node.js runtime.
+Today, native applications can be created with a consistent set of tools including Javascript, HTML, and CSS.
+Electron, developed by Github, was orginally known as Atom Shell as it powered the homegrown text editor created at Github, Atom.
+Now well known applications such as Slack, Atom, Visual Studio Code, and more have been developed with Electron.
+I am going to cover creating a minimal Electron application.
+<h2 id="getting-started">Getting Started</h2>
+<p>First, let’s add a <code>README.md</code> to describe the project. Next we will create a <code>.gitignore</code> file to ignore certain
+files and directories from version control. Since we are creating a node application lets add the following lines to
+the <code>.gitignore</code>.</p>
+<pre><code>node_modules/
+*.log</code></pre>
+<p>Now we will create our <code>package.json</code> to configure aspects of the application. In order to pre-fill the package with default
+values we can use the <code>--yes</code> flag at the end our the following command:</p>
+<pre><code>npm init --yes</code></pre>
+<p>Let’s create a git repo and commit our first change.</p>
+<pre><code>git init
+git add .
+git commit -m "Initial commit to our app"</code></pre>
+<h2 id="dependencies">Dependencies</h2>
+<p>Electron can come in a pre-packaged manner and we will install this with the following command:</p>
+<pre><code>npm install --save electron-prebuilt</code></pre>
+<h2 id="setup">Setup</h2>
+<p>The entire application can be created with only three files: <code>package.json</code>, <code>index.js</code>, and ‘index.html’.
+We will create a directory like</p>
+<pre><code>app/
+├── package.json
+├── index.js
+└── index.html</code></pre>
+<p>The <code>index.html</code> file serves as the user interface. In our case we want a document that contains the text “hello world”.</p>
+<pre class="language-html"><code class="language-html"><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>html</span><span class="token punctuation" >></span></span>
+    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>body</span><span class="token punctuation" >></span></span>
+        Hello World
+    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>body</span><span class="token punctuation" >></span></span>
+<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>html</span><span class="token punctuation" >></span></span></code></pre>
+<p>The <code>index.js</code> file will be used to manage opening a window and loading our user interface.</p>
+<pre class="language-js"><code class="language-js"><span class="token keyword" >const</span> <span class="token punctuation" >{</span> app<span class="token punctuation" >,</span> BrowserWindow <span class="token punctuation" >}</span> <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'electron'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+<span class="token keyword" >let</span> win<span class="token punctuation" >;</span>
+<span class="token keyword" >const</span> createWindow <span class="token operator" >=</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
+    win <span class="token operator" >=</span> <span class="token keyword" >new</span> <span class="token class-name" >BrowserWindow</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>width<span class="token punctuation" >:</span> <span class="token number" >800</span><span class="token punctuation" >,</span> height<span class="token punctuation" >:</span> <span class="token number" >600</span><span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+    win<span class="token punctuation" >.</span><span class="token function" >loadURL</span><span class="token punctuation" >(</span><span class="token template-string" ><span class="token string" >`file://</span><span class="token interpolation" ><span class="token interpolation-punctuation punctuation" >${</span>__dirname<span class="token interpolation-punctuation punctuation" >}</span></span><span class="token string" >/index.html`</span></span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+    win<span class="token punctuation" >.</span>webContents<span class="token punctuation" >.</span><span class="token function" >openDevTools</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+    win<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >'closed'</span><span class="token punctuation" >,</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
+        win <span class="token operator" >=</span> <span class="token keyword" >null</span><span class="token punctuation" >;</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+
+app<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >'ready'</span><span class="token punctuation" >,</span> createWindow<span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre>
+<p>First we import portions of electron, the app and BrowserWindow. We declare win to ensure it is not removed
+by garbage collection. <code>createWindow</code> is a function that creates a new BrowserWindow, loads the user interface from disk,
+opens Chrome Developer Console, and creates an event listener for when the window is closed. Lastly,
+when the app is ready we invoke the <code>createWindow</code> function.</p>
+<h2 id="running-the-app">Running the app</h2>
+<p>In order for electron to process our <code>index.js</code> file and open a window we must tell it to do so.</p>
+<pre><code>./node_modules/.bin/electron index.js</code></pre>
+<p>In order to make this easier to run lets add an npm script to <code>package.json</code> that runs the app.
+Edit the package to contain a start command within the scripts.</p>
+<pre><code>"scripts": {
+    "start": "electron index.js"
+}</code></pre>
+<p>Now when we run the app it will open the application in a new window that contains our text hello world!</p>
+
+                </p>
+            </article>
+        </section>
+    </main>
+    <footer>
+        Authored by Walker Randolph Smith
+    </footer>
+  </body>
+</html>
