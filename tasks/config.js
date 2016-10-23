@@ -3,13 +3,13 @@ var pkg = require('./../package.json');
 const src = './src';
 const dest = './build';
 
+const DOMAIN = `http://www.walkerrandolphsmith.com`;
 
 const PROTOCOL = 'http';
 const HOST = 'localhost';
 const PORT = 3000;
-const URL = `${PROTOCOL}://${HOST}:${PORT}`;
+const URL = process.env.NODE_ENV === 'production' ? DOMAIN : `${PROTOCOL}://${HOST}:${PORT}`;
 
-const DOMAIN = `http://www.walkerrandolphsmith.com`;
 
 const tempaltePath = `${src}/templates`;
 
