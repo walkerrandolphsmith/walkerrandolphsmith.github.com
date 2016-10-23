@@ -16,23 +16,9 @@
     color: rgba(35,37,40,0.7);
   }
 
-  a {
-    color: #656770;
-    border-bottom: 1px solid #d4d5de;
-
-    &:hover {
-      border-color: #a2a3ab;
-    }
-  }
-
-
   h1 {
     margin: 50px 0 30px;
     font-family: "Varela Round","Arial",Sans-Serif;
-    font-size: 48px;
-    font-weight: 600;
-    line-height: 62px;
-    letter-spacing: -1px;
     color: #373737;
   }
 
@@ -238,5 +224,26 @@
     line-height: 32px;
     margin: 20px 0 65px;
     color: #62646c;
+  }
+}
+
+.post-contents, .excerpt {
+  a[href*="//"]:not([href*="walkerrandolphsmith.com"]):after {
+    content: "\f08e";
+    font-family: FontAwesome;
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+    padding-left: .25em;
+  }
+
+  a {
+    color: #656770;
+    border-bottom: 1px solid #d4d5de;
+
+    &:hover {
+      border-color: #a2a3ab;
+    }
   }
 }
