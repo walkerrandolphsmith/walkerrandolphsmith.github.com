@@ -56,7 +56,7 @@
     <section class="widget tags">
         <h3 class="title">Tags</h3>
         <hr>
-        <div class="tagcloud">
+        <div class="tags">
             {{#each this.taglist}}
                 <a class="tag" href="{{baseUrl}}/tags/{{this.tag}}/" title="{{this.tag}}">{{this.tag}} ({{this.count}})</a>
             {{/each}}
