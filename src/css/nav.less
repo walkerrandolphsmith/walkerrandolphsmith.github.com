@@ -3,10 +3,10 @@ header.blog-info {
   top: 0;
   left: 0;
   width: 100%;
-  background: #fff;
+  background: @paper;
   padding: 22px 25px 15px;
   height: 75px;
-  border-bottom: 2px solid #f2f2f2;
+  border-bottom: 2px solid @lightestGray;
   z-index: 1500;
   transition: transform 150ms ease-in-out,left 500ms ease-in-out;
 
@@ -26,7 +26,7 @@ header.blog-info {
     font-family: "Varela Round","Arial",Sans-Serif;
     font-size: 18px;
     font-weight: 600;
-    color: #373737;
+    color: @header;
 
     img {
       width: 36px;
@@ -51,7 +51,7 @@ header.blog-info {
         position: relative;
 
         a, i {
-          color: #4b4b4b;
+          color: @darkestGray;
           padding: 3px 12px 15px;
           font-size: 14px;
           cursor: pointer;
@@ -70,9 +70,9 @@ header.blog-info {
           transition: color 0.15s ease-in;
 
           &:hover {
-            color: #fff;
+            color: @paper;
 
-            i { color: #fff; }
+            i { color: @paper; }
           }
         }
       }
@@ -89,9 +89,9 @@ header.fixed {
     }
 
     ul li a:hover {
-      color: #373737;
-      border-bottom: 1px solid #373737;
-      i { color: #373737; }
+      color: @header;
+      border-bottom: 1px solid @header;
+      i { color: @header; }
     }
   }
 }

@@ -1,6 +1,6 @@
 nav.pagination {
   position: relative;
-  border-top: 1px solid #f3f3f3;
+  border-top: 1px solid @lightestGray;
   padding: 80px 0;
   overflow: hidden;
 
@@ -8,9 +8,9 @@ nav.pagination {
     font-family: "Montserrat","Arial",Sans-Serif;
     font-size: 13px;
     text-transform: uppercase;
-    color: #373737;
+    color: @header;
     border-radius: 90px;
-    border: 2px solid #e9e9e9;
+    border: 2px solid @lighterGray;
     padding: 7px 36px;
     letter-spacing: -0.5px;
     -webkit-transition: border-color 0.1s ease-in-out;
@@ -18,12 +18,12 @@ nav.pagination {
     transition: border-color 0.1s ease-in-out;
 
     &:hover {
-      border-color: #B6B7C5;
+      border-color: @lightGray;
     }
 
     .sub {
       display: none;
-      color: #373737;
+      color: @header;
     }
   }
 

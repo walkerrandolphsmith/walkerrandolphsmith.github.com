@@ -4,7 +4,7 @@
   font-size: 19px;
   font-weight: 400;
   line-height: 35px;
-  color: rgba(35,37,40,0.7);
+  color: @darkerGray;
 
   p, ol, ul {
     margin: 45px 0;
@@ -13,13 +13,13 @@
     font-size: 19px;
     font-weight: 400;
     line-height: 35px;
-    color: rgba(35,37,40,0.7);
+    color: @darkerGray;
   }
 
   h1 {
     margin: 50px 0 30px;
     font-family: "Varela Round","Arial",Sans-Serif;
-    color: #373737;
+    color: @header;
   }
 
   h2 {
@@ -29,7 +29,7 @@
     font-weight: 600;
     line-height: 44px;
     letter-spacing: -1px;
-    color: #494a50;
+    color: @darkestGray;
   }
 
   h3 {
@@ -39,7 +39,7 @@
     font-weight: 400;
     line-height: 44px;
     letter-spacing: -1px;
-    color: #b2b2b2;
+    color: @gray;
   }
 }
 
@@ -52,7 +52,7 @@
     height: 1px;
     width: 70%;
     margin: 0 auto 90px;
-    background: #dfdfdf;
+    background: @lightGray;
   }
 
   .info {
@@ -65,8 +65,8 @@
       display: none;
       padding: 12px 25px;
       border-radius: 3px;
-      background: #0085c3;
-      color: #fff;
+      background: @category;
+      color: @paper;
       font-family: "Montserrat","Arial",Sans-Serif;
       font-weight: 400;
       font-size: 11px;
@@ -87,7 +87,7 @@
       font-weight: 400;
       font-size: 11px;
       line-height: normal;
-      color: #858585;
+      color: @gray;
     }
 
     .share-buttons {
@@ -101,7 +101,7 @@
         font-size: 11px;
         line-height: normal;
         text-transform: uppercase;
-        color: #868686;
+        color: @gray;
         margin-top: 11px;
       }
 
@@ -115,8 +115,7 @@
           display: block;
           width: 35px;
           height: 35px;
-          background: #f2f2f2;
-          color: #636c77;
+          background: @lightestGray;
           border-radius: 70px;
           font-size: 12px;
           text-align: center;
@@ -124,12 +123,12 @@
           -webkit-transition: background 0.15s ease-in;
           -moz-transition: background 0.15s ease-in;
           transition: background 0.15s ease-in;
-          color: #fff;
+          color: @paper;
 
-          &.twitter { background: #55acee; }
-          &.facebook { background: #3b5998; }
-          &.google-plus { background: #dd4b39; }
-          &.linkedin { background: #0077B5; }
+          &.twitter { background: @twitter; }
+          &.facebook { background: @facebook; }
+          &.google-plus { background: @google; }
+          &.linkedin { background: @linkedin; }
         }
       }
     }
@@ -154,7 +153,7 @@
 
       li a {
         font-size: .75em;
-        color: #858585;
+        color: @gray;
       }
     }
   }
@@ -165,8 +164,8 @@
 .author-profile {
   padding: 35px 0 0;
   margin: 110px 0 0 0;
-  background: #f9f9f9;
-  border-top: 1px solid #f3f3f3;
+  background: @offWhite;
+  border-top: 1px solid @lightestGray;
   text-align: center;
 
   &:after {
@@ -174,7 +173,7 @@
     clear: both;
     content: '';
     width: 20%;
-    background: #ececec;
+    background: @lighterGray;
     height: 1px;
     margin-top: 35px;
   }
@@ -198,7 +197,7 @@
         font-size: 15px;
         line-height: normal;
         text-transform: uppercase;
-        color: #c9c9c9;
+        color: @lightGray;
         display: block;
         margin-top: 26px;
       }
@@ -211,7 +210,7 @@
           font-weight: 600;
           font-size: 24px;
           line-height: normal;
-          color: #403f3f;
+          color: @gunmetal;
         }
       }
     }
@@ -223,7 +222,7 @@
     font-size: 17px;
     line-height: 32px;
     margin: 20px 0 65px;
-    color: #62646c;
+    color: @darkGray;
   }
 }
 
@@ -239,11 +238,11 @@
   }
 
   a {
-    color: #656770;
-    border-bottom: 1px solid #d4d5de;
+    color: @darkerGray;
+    border-bottom: 1px solid @lightGray;
 
     &:hover {
-      border-color: #a2a3ab;
+      border-color: @gray;
     }
   }
 }

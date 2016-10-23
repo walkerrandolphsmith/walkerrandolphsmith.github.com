@@ -4,7 +4,7 @@ footer.post-info {
   bottom: 0;
   left: 0;
   width: 100%;
-  background: #fff;
+  background: @paper;
   height: 75px;
   z-index: 1500;
   transition: left 500ms ease-in-out;
@@ -47,12 +47,12 @@ footer.post-info {
         font-family: "Montserrat","Arial",Sans-Serif;
         font-size: 12px;
         line-height: normal;
-        color: #8f99a3;
+        color: @gray;
         text-transform: uppercase;
       }
 
       .title {
-        color: #585858;
+        color: @darkestGray;
         font-family: "Varela Round","Arial",Sans-Serif;
         font-size: 15px;
         text-transform: none;
@@ -64,19 +64,19 @@ footer.post-info {
       cursor: pointer;
       width: 28px;
       height: 28px;
-      background: #e8e8e8;
+      background: @lighterGray;
       text-align: center;
       line-height: 22px;
       border-radius: 90px;
       transition: background 0.15s ease-in-out;
 
       &:hover {
-        background: #4a5153;
+        background: @darkestGray;
       }
 
       i {
         font-size: 11px;
-        color: #fff;
+        color: @paper;
       }
     }
   }
@@ -84,8 +84,8 @@ footer.post-info {
   .meter {
     height: 2px;
     position: relative;
-    background: #f2f2f2;
-    box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+    background: @lightestGray;
+    box-shadow: inset 0 -1px 1px @lightestGrayBoxShadow;
 
     .amount {
       display: block;
@@ -97,7 +97,7 @@ footer.post-info {
               rgb(84,240,84) 69%
       );
       box-shadow:
-              inset 0 2px 9px  rgba(255,255,255,0.3),
+              inset 0 2px 9px  @lightestGrayBoxShadow,
               inset 0 -2px 6px rgba(0,0,0,0.4);
       position: relative;
       overflow: hidden;
@@ -112,7 +112,7 @@ footer.main {
   justify-content: center;
   overflow: hidden;
   padding: 30px;
-  background: #242526;
+  background: @darkestGunmetal;
 
   .made-by, .social {
     width: 50%;
@@ -127,7 +127,7 @@ footer.main {
       font-size: 13px;
       line-height: normal;
       letter-spacing: -0.5px;
-      color: #ced3d8;
+      color: @lightGray;
     }
 
     i {
@@ -151,7 +151,7 @@ footer.main {
     li {
       display: block;
       float: left;
-      border-left: 1px solid #4b4b4b;
+      border-left: 1px solid @darkestGray;
       cursor: pointer;
 
       a {
@@ -159,7 +159,7 @@ footer.main {
         margin: 0;
         padding: 0 17px;
         font-size: 14px;
-        color: #fff;
+        color: @paper;
       }
     }
   }
