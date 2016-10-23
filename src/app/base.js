@@ -55,7 +55,7 @@ export default (() => {
         });
 
         $('a').each(function() {
-            var a = new RegExp('/' + window.location.host + '/');
+            var a = new RegExp(window.location.host);
             if(!a.test(this.href)) {
                 $(this).click(function(event) {
                     event.preventDefault();
