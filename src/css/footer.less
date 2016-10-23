@@ -30,7 +30,7 @@ footer.post-info {
       text-align: right;
     }
 
-    img, .fa-clock-o {
+    img {
       display: block;
       width: 30px;
       height: 30px;
@@ -56,6 +56,29 @@ footer.post-info {
         font-family: "Varela Round","Arial",Sans-Serif;
         font-size: 15px;
         text-transform: none;
+      }
+    }
+
+    .post-more-content-shortcut {
+      .info {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      span {
+        cursor: pointer;
+        &:hover {
+          color: @darkestGray;
+        }
+      }
+
+      span:first-child {
+        padding-right: 1em;
+      }
+
+      span:last-child {
+        border-left: 1px solid @darkerGray;
+        padding-left: 1em;
       }
     }
 

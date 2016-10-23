@@ -136,7 +136,7 @@
         <section class="comments">
             <section class="comments-header" id="comments">
                 <div class="wrapper">
-                    <i class="fa fa-comments"></i>
+                    <i class="fa fa-comments-o"></i>
                     <span class="title">Read comments</span>
                 </div>
             </section>
@@ -162,11 +162,15 @@
                 </div>
             </a>
             <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
-            <span class="reading-time-remaining right">
-                <i class="fa fa-clock-o"></i>
+            <span class="post-more-content-shortcut right">
                 <div class="info">
-                    <span class="title">
-                        {{this.wordCount}} word count
+                    <span id="comment">
+                        <i class="fa fa-comments-o"></i>
+                        Comments
+                    </span>
+                    <span id="share">
+                        <i class="fa fa-share"></i>
+                        Share
                     </span>
                 </div>
             </span>
