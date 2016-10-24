@@ -6,6 +6,10 @@
                 <i class="fa fa-print"></i>
                 Print
             </span>
+            <span id="pdf">
+                <i class="fa fa-file-pdf-o"></i>
+                Download
+            </span>
         </section>
         <section>
             <div class="bio">

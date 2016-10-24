@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import jqueryCycle from 'jquery-cycle';
+import jsPDF from 'jspdf';
 import chunck from 'lodash.chunk';
 import request from 'superagent';
 import jsonp from 'superagent-jsonp';
@@ -64,21 +65,12 @@ export default (() => {
                 });
             }
         });
+
         $('#print').on('click', () => {
-            const data = $('#resume').html();
+            const id = 'resume';
+            const mywindow = window.open('', id, 'height=400,width=600');
 
-            const mywindow = window.open('', 'resume', 'height=400,width=600');
-
-            const contents = `<html>
-                <head>
-                    <title>Resume</title>
-                    <!--<link rel="stylesheet" href="blogr.css" type="text/css" />-->
-                </head>
-                <body>
-                ${data}
-                </body>
-            </html>
-            `;
+            const contents = getContents('#' + id);
 
             mywindow.document.write(contents);
             mywindow.document.close();
@@ -88,7 +80,28 @@ export default (() => {
 
             return true;
         });
+
+        $('#pdf').on('click', () => {
+            const doc = new jsPDF();
+            const contents = $(getContents('#resume'));
+
+            console.log(contents);
+            console.log(contents.html());
+
+            doc.fromHTML(contents.html(), 15, 15, {});
+            doc.save('Resume.pdf');
+        });
     });
+
+    const getContents = (id) => `<html>
+        <head>
+            <title>Resume</title>
+        </head>
+        <body>
+        ${$(id).html()}
+        </body>
+    </html>
+    `;
     
     request
         .get('https://api.github.com/users/walkerrandolphsmith/repos')
