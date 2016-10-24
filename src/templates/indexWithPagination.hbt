@@ -22,7 +22,7 @@
                     {{stripExcerpt this.excerpt}}
                 </p>
                 <a href="{{baseUrl}}/resume" class="author">
-                    <img src="{{avatar}}" alt="Walker Randolph Smith" data-no-retina="true">
+                    <img src="{{avatar}}" alt="{{this.authorbio.name}}" data-no-retina="true">
                     {{this.author}}
                 </a>
             </div>
