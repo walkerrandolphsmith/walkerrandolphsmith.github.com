@@ -67,10 +67,16 @@ export default (() => {
         });
 
         $('#print').on('click', () => {
-            const id = 'resume';
-            const mywindow = window.open('', id, 'height=400,width=600');
+            const mywindow = window.open('', 'resume', 'height=400,width=600');
 
-            const contents = getContents('#' + id);
+            const contents = `<html>
+                <head>
+                    <title>Resume</title>
+                </head>
+                <body>
+                ${$('#resume').html()}
+                </body>
+            </html>`;
 
             mywindow.document.write(contents);
             mywindow.document.close();
@@ -83,25 +89,11 @@ export default (() => {
 
         $('#pdf').on('click', () => {
             const doc = new jsPDF();
-            const contents = $(getContents('#resume'));
-
-            console.log(contents);
-            console.log(contents.html());
-
-            doc.fromHTML(contents.html(), 15, 15, {});
+            const text = $('#resume').text();
+            doc.text(5, 5, text);
             doc.save('Resume.pdf');
         });
     });
-
-    const getContents = (id) => `<html>
-        <head>
-            <title>Resume</title>
-        </head>
-        <body>
-        ${$(id).html()}
-        </body>
-    </html>
-    `;
     
     request
         .get('https://api.github.com/users/walkerrandolphsmith/repos')
