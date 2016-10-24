@@ -8,7 +8,7 @@
             </span>
         </section>
         <section>
-            <div>
+            <div class="bio">
                 <h1>{{this.authorbio.name}}</h1>
                 <span>{{this.summary}}</span>
                 <div>
