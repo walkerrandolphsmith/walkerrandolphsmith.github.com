@@ -4,7 +4,7 @@ heroTitle: R&eacute;sum&eacute;
 template: resume.hbt
 type: website
 description: Walker Randolph Smith's Resume
-hero: resume.png
+hero: default.jpg
 summary: Technology enthusiast, proud Eagle Scout, and software craftsman
 goal: Maintain a constant improvement and regularly empty my full glass.
 jobs:

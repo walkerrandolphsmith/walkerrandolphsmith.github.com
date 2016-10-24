@@ -9,7 +9,7 @@ type: article
 public: true
 tags: javascript
 related: [2]
-hero: e.png
+hero: city.jpg
 ---
 
 Adding public repositories hosted on Bitbucket to your blog is a great idea to showcase your projects.

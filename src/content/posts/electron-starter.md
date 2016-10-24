@@ -9,7 +9,7 @@ type: article
 public: true
 tags: electron, javascript
 related: [2]
-hero: e.png
+hero: default.jpg
 ---
 
 Electron allows for creating cross platform, native applications that run on the Node.js runtime.

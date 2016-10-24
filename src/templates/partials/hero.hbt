@@ -1,6 +1,9 @@
 <section class="hero">
-    <div class="background">
-    </div>
+    {{#if this.hero}}
+    <div class="background" style="background-image: url('/css/images/{{this.hero}}');"></div>
+    {{else}}
+    <div class="background" style="background-image: url('/css/images/default.jpg');"></div>
+    {{/if}}
     <header class="blog-info transparent">
         <div class="title">
             <a href="{{baseUrl}}"><img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}"></a>

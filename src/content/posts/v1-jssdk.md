@@ -9,7 +9,7 @@ type: article
 public: true
 tags: VersionOne, JavaScript
 related: [0,1]
-hero: d.jpg
+hero: workshop.png
 ---
 
 Recently the VersionOne JavaScript SDK received some love and got a major version release.

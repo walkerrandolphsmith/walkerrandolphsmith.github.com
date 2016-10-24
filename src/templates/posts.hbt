@@ -17,7 +17,7 @@
             {{#if this.hero}}
             <div class="background" style="background-image: url('/css/images/{{this.hero}}');"></div>
             {{else}}
-            <div class="background" style="background-image: url('/css/images/e.png');"></div>
+            <div class="background" style="background-image: url('/css/images/default.jpg');"></div>
             {{/if}}
             <header class="blog-info transparent">
                 <div class="title">
