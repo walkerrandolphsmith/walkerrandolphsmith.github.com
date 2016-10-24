@@ -9,9 +9,9 @@
     </ul>
     <ul>
         <li class="option open">
-            <span class="showdrawer">
+            <a href="{{baseUrl}}" onclick="return false" class="showdrawer">
                 <i class="fa fa-navicon"></i>
-            </span>
+            </a>
         </li>
     </ul>
 </nav>
