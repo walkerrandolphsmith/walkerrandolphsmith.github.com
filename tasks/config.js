@@ -55,7 +55,7 @@ const config = {
             site_name: fullName,
             site: {
                 title: fullName,
-                hometitle: 'Musings of a sotfware developer',
+                hometitle: 'Musings of a software developer',
                 url: DOMAIN,
                 author: fullName
             },
