@@ -51,10 +51,12 @@ npm install --save electron-prebuilt
 
 ## Setup
 
-The entire application can be created with only three files: `package.json`, `index.js`, and 'index.html'.
+The entire application can be created with only three files: `package.json`, `index.js`, and `index.html`.
 We will create a directory like
 ```
 app/
+├── README.md
+├── .gitignore
 ├── package.json
 ├── index.js
 └── index.html
