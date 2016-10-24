@@ -71,5 +71,36 @@ export default (() => {
         $("#share").click(function() {
             $('html, body').animate({ scrollTop: $(".share-buttons").offset().top }, 2000);
         });
+
+        $('.fa-copy').on('click', copy);
     });
 })()
+
+var copy = (event) => {
+    const $copier = $(event.target);
+    const $pre = $copier.parent().find('pre');
+    selectText($pre[0]);
+    try {
+        document.execCommand('copy');
+    }
+    catch (err) {  }
+};
+
+var selectText = (element) => {
+    var doc = document;
+    var text = element;
+    var range;
+    var selection;
+
+    if (doc.body.createTextRange) {
+        range = document.body.createTextRange();
+        range.moveToElementText(text);
+        range.select();
+    } else if (window.getSelection) {
+        selection = window.getSelection();
+        range = document.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+};
