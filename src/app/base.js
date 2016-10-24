@@ -39,20 +39,34 @@ export default (() => {
 
             const $footer = $timeline.find('.timeline-Footer');
             $footer.css({ display: 'none' });
-
-            console.log($header, $body, $footer);
         })
     );
 
     $(function() {
         const $drawer = $('.drawer');
 
-        $('.close').on('click', () => {
+        $('.close').on('click', (event) => {
             $drawer.removeClass('show');
+            event.stopPropagation();
         });
 
-        $('.open').on('click', () => {
+        $('.open').on('click', (event) => {
             $drawer.addClass('show');
+            event.stopPropagation();
+        });
+
+        $(window).on('click', (event) => {
+            const $target = $(event.target);
+            const childOfDrawer = $target.parents('.drawer').length > 0;
+            if(!childOfDrawer) {
+                $drawer.removeClass('show');
+            }
+        });
+
+        $(document).keyup((event) => {
+            if(event.which === 27 /* escape */) {
+                $drawer.removeClass('show');
+            }
         });
 
         $('a').each(function() {
@@ -94,7 +108,7 @@ export default (() => {
             doc.save('Resume.pdf');
         });
     });
-    
+
     request
         .get('https://api.github.com/users/walkerrandolphsmith/repos')
         .use(jsonp)
