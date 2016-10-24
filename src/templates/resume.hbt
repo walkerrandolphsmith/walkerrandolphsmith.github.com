@@ -1,7 +1,13 @@
 {{> header}}
     {{> heroShort}}
     <section id="resume">
-        <header>
+        <section>
+            <span id="print">
+                <i class="fa fa-print"></i>
+                Print
+            </span>
+        </section>
+        <section>
             <div>
                 <h1>{{this.authorbio.name}}</h1>
                 <span>{{this.summary}}</span>
@@ -13,7 +19,7 @@
             <div class="avatar">
                 <img src="{{avatar}}" alt="{{this.authorbio.name}}" />
             </div>
-        </header>
+        </section>
         <section>
             <div class="flexbox-container">
                 <div>

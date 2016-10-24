@@ -64,6 +64,30 @@ export default (() => {
                 });
             }
         });
+        $('#print').on('click', () => {
+            const data = $('#resume').html();
+
+            const mywindow = window.open('', 'resume', 'height=400,width=600');
+
+            const contents = `<html>
+                <head>
+                    <title>Resume</title>
+                    <!--<link rel="stylesheet" href="blogr.css" type="text/css" />-->
+                </head>
+                <body>
+                ${data}
+                </body>
+            </html>
+            `;
+
+            mywindow.document.write(contents);
+            mywindow.document.close();
+            mywindow.focus();
+            mywindow.print();
+            mywindow.close();
+
+            return true;
+        });
     });
     
     request

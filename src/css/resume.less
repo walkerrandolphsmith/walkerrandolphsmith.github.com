@@ -1,7 +1,12 @@
 #resume {
   padding: 90px 250px;
 
-  & > header {
+  section:first-child {
+    justify-content: flex-end;
+    padding-bottom: 50px;
+  }
+
+  & > section {
     display: flex;
 
     & > div:first-child  {
@@ -136,3 +141,16 @@
   }
 }
 
+#print, #pdf {
+  i { color: @paper; }
+  display: inline-block;
+  background: @royal;
+  border-radius: 3px;
+  padding: 3px 15px;
+  font-family: "Montserrat","Arial",Sans-Serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: @paper;
+  cursor: pointer;
+  margin-left: 1em;
+}
