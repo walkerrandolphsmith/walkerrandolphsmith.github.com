@@ -16,8 +16,10 @@ footer.post-info {
   .default, .related-posts {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     overflow: hidden;
-    padding: 22px 25px 15px;
+    padding: 0 25px 0;
+    height: 100%;
 
     .left, .right {
       display: flex;
@@ -28,6 +30,11 @@ footer.post-info {
       display: flex;
       justify-content: flex-end;
       text-align: right;
+
+      img {
+        margin-left: 10px;
+        margin-right: 0;
+      }
     }
 
     img {
@@ -41,8 +48,10 @@ footer.post-info {
     .info {
       display: flex;
       flex-direction: column;
+      max-height: 50px;
+      overflow: hidden;
 
-      span {
+      & > span {
         display: block;
         font-family: "Montserrat","Arial",Sans-Serif;
         font-size: 12px;
@@ -72,11 +81,11 @@ footer.post-info {
         }
       }
 
-      span:first-child {
+      .info > span:first-child {
         padding-right: 1em;
       }
 
-      span:last-child {
+      .info > span:last-child {
         border-left: 1px solid @darkerGray;
         padding-left: 1em;
       }
