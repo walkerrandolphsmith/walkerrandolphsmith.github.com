@@ -30,6 +30,7 @@ gulp.task('build', function(callback) {
     runSequence(
         'clean',
         ['metalsmith', 'scripts', 'styles', 'assets', 'cname'],
+        'pdf',
         callback
     );
 });
