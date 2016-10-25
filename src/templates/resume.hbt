@@ -1,118 +1,118 @@
 {{> header}}
     {{> heroShort}}
-    <section id="resume">
-        <section>
-            <div class="bio">
-                <h1>{{this.authorbio.name}}</h1>
-                <span>{{this.summary}}</span>
-                <div>
-                    <i class="fa fa-link"></i><a href="http://www.walkerrandolphsmith.com">walkerrandolphsmith.com</a>
-                    <i class="fa fa-map-marker"></i><span>Atlanta, GA</span>
+         <section id="resume">
+            <section>
+                <div class="bio">
+                    <h1>{{this.authorbio.name}}</h1>
+                    <span>{{this.summary}}</span>
+                    <div>
+                        <i class="fa fa-link"></i><a href="http://www.walkerrandolphsmith.com">walkerrandolphsmith.com</a>
+                        <i class="fa fa-map-marker"></i><span>Atlanta, GA</span>
+                    </div>
                 </div>
-            </div>
-            <div class="avatar">
-                <img src="{{avatar}}" alt="{{this.authorbio.name}}" />
-            </div>
-        </section>
-        <section>
-            <div class="flexbox-container">
-                <div>
-                    <section id="experience">
-                        <header>
-                            <h2>Experience</h2>
-                        </header>
-                        {{#each this.jobs}}
-                        <div class="group">
-                            <h3>{{this.position}}</h3>
-                            <span class="alt">{{this.name}}</span>
-                            <i class="fa fa-calendar"></i>
-                            <span class="interval">{{this.interval}}</span>
-                            <!--<p class="description">{{this.description}}</p>-->
-                            <ul>
-                                {{#each this.activities}}
-                                    <li>{{this}}</li>
-                                {{/each}}
-                            </ul>
-                        </div>
-                        {{/each}}
-                    </section>
-
-                    <section id="projects">
-                        <header>
-                            <h2>Projects</h2>
-                        </header>
-                        {{#each this.projects}}
-                        <div class="group">
-                            <h3>{{this.name}}</h3>
-                            <span class="alt"><a href="{{this.url}}">{{this.link}}</a></span>
-                            <p class="description">{{this.description}}</p>
-                        </div>
-                        {{/each}}
-                    </section>
-
+                <div class="avatar">
+                    <img src="{{avatar}}" alt="{{this.authorbio.name}}" />
                 </div>
-                <div>
+            </section>
+            <section>
+                <div class="flexbox-container">
+                    <div>
+                        <section id="experience">
+                            <header>
+                                <h2>Experience</h2>
+                            </header>
+                            {{#each this.jobs}}
+                            <div class="group">
+                                <h3>{{this.position}}</h3>
+                                <span class="alt">{{this.name}}</span>
+                                <i class="fa fa-calendar"></i>
+                                <span class="interval">{{this.interval}}</span>
+                                <!--<p class="description">{{this.description}}</p>-->
+                                <ul>
+                                    {{#each this.activities}}
+                                        <li>{{this}}</li>
+                                    {{/each}}
+                                </ul>
+                            </div>
+                            {{/each}}
+                        </section>
 
-                    <section>
-                       <header>
-                           <h2>Goal</h2>
-                       </header>
-                       <p>
-                            {{this.goal}}
-                       </p>
-                   </section>
+                        <section id="projects">
+                            <header>
+                                <h2>Projects</h2>
+                            </header>
+                            {{#each this.projects}}
+                            <div class="group">
+                                <h3>{{this.name}}</h3>
+                                <span class="alt"><a href="{{this.url}}">{{this.link}}</a></span>
+                                <p class="description">{{this.description}}</p>
+                            </div>
+                            {{/each}}
+                        </section>
 
-                   <section>
-                       <header>
-                           <h2>Skills</h2>
-                       </header>
-                       <ol>
-                           {{#each this.skills}}
-                           <li class="group">
-                               <h3>{{this.name}}</h3>
-                               {{mastery this.level}}
-                           </li>
-                           {{/each}}
-                       </ol>
-                   </section>
+                    </div>
+                    <div>
 
-                   <section>
-                      <header>
-                          <h2>Frameworks</h2>
-                      </header>
-                      <ol>
-                          {{#each this.frameworks}}
-                          <li class="group">
-                              <h3>{{this.name}}</h3>
-                              {{mastery this.level}}
-                          </li>
+                        <section>
+                           <header>
+                               <h2>Goal</h2>
+                           </header>
+                           <p>
+                                {{this.goal}}
+                           </p>
+                       </section>
+
+                       <section>
+                           <header>
+                               <h2>Skills</h2>
+                           </header>
+                           <ol>
+                               {{#each this.skills}}
+                               <li class="group">
+                                   <h3>{{this.name}}</h3>
+                                   {{mastery this.level}}
+                               </li>
+                               {{/each}}
+                           </ol>
+                       </section>
+
+                       <section>
+                          <header>
+                              <h2>Frameworks</h2>
+                          </header>
+                          <ol>
+                              {{#each this.frameworks}}
+                              <li class="group">
+                                  <h3>{{this.name}}</h3>
+                                  {{mastery this.level}}
+                              </li>
+                              {{/each}}
+                          </ol>
+                      </section>
+
+                      <section>
+                          <header>
+                              <h2>Education</h2>
+                          </header>
+                          {{#each this.education}}
+                              <h3>{{this.alt}}</h3>
+                              <span class="alt">{{this.name}}</span>
+                              <i class="fa fa-calendar"></i>
+                              <span class="interval">{{this.interval}}</span>
                           {{/each}}
-                      </ol>
-                  </section>
-
-                  <section>
-                      <header>
-                          <h2>Education</h2>
-                      </header>
-                      {{#each this.education}}
-                          <h3>{{this.alt}}</h3>
-                          <span class="alt">{{this.name}}</span>
-                          <i class="fa fa-calendar"></i>
-                          <span class="interval">{{this.interval}}</span>
-                      {{/each}}
-                  </section>
+                      </section>
+                    </div>
                 </div>
-            </div>
+            </section>
+            <section>
+                <span id="print">
+                    <i class="fa fa-print"></i>
+                    Print
+                </span>
+                <span id="pdf">
+                    <i class="fa fa-file-pdf-o"></i>
+                    Download
+                </span>
+            </section>
         </section>
-        <section>
-            <span id="print">
-                <i class="fa fa-print"></i>
-                Print
-            </span>
-            <span id="pdf">
-                <i class="fa fa-file-pdf-o"></i>
-                Download
-            </span>
-        </section>
-    </main>
 {{> footer}}
