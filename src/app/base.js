@@ -100,13 +100,6 @@ export default (() => {
 
             return true;
         });
-
-        $('#pdf').on('click', () => {
-            const doc = new jsPDF();
-            const text = $('#resume').text();
-            doc.text(5, 5, text);
-            doc.save('Resume.pdf');
-        });
     });
 
     request

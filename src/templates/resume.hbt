@@ -109,10 +109,10 @@
                     <i class="fa fa-print"></i>
                     Print
                 </span>
-                <span id="pdf">
+                <a id="pdf" href="{{baseUrl}}/index.pdf" download>
                     <i class="fa fa-file-pdf-o"></i>
                     Download
-                </span>
+                </a>
             </section>
         </section>
 {{> footer}}

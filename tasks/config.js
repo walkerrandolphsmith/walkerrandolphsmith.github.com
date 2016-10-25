@@ -47,6 +47,10 @@ const config = {
         `${src}/content/**/*.md`,
         `${src}/templates/**/*.hbt`
     ],
+    resume: {
+        src: `${dest}/resume/index.html`,
+        dest: `${dest}/`
+    },
     metalsmith: {
         src: `${src}/**/*.*`,
         dest: dest,
