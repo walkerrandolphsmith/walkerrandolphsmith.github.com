@@ -34,7 +34,7 @@ var convert = function (options) {
         <html>
             <head>
                 <title>Resume</title>
-                <link rel="stylesheet" href="http://www.walkerrandolphsmith.com/css/blogr.css">
+                <link rel="stylesheet" media="print" href="http://www.walkerrandolphsmith.com/css/blogr.css">
             </head>
             <body>
             <section id="resume">

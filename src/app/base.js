@@ -83,12 +83,14 @@ export default (() => {
         $('#print').on('click', () => {
             const mywindow = window.open('', 'resume', 'height=400,width=600');
 
+            const resume = ($('<div/>').append($('#resume').clone()).html())
+
             const contents = `<html>
                 <head>
                     <title>Resume</title>
                 </head>
                 <body>
-                ${$('#resume').html()}
+                ${resume}
                 </body>
             </html>`;
 
