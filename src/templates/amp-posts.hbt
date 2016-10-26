@@ -255,6 +255,9 @@
                     <li class="date">
                         <time datetime="{{ dateFormat this.date }}">{{ dateFormat this.date }}</time>
                     </li>
+                    <li>
+                        <a href="{{baseUrl}}/{{ampPath this.path}}" title={{ampTitle this.title}}">View the original article.</a>
+                    </li>
                     <li style="display: none;">
                         <a href="{{baseUrl}}/resume/" class="author">
                             <img src="{{avatar}}" alt="{{this.author}}" data-no-retina="true">

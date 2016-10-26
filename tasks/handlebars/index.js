@@ -42,6 +42,7 @@ module.exports = (function(){
     ));
 
     Handlebars.registerHelper('ampTitle', title => title.replace('-amp', ''));
+    Handlebars.registerHelper('ampPath', title => title.replace('-amp', ''));
 
     Handlebars.registerHelper('dropIndexHtml', url => url.replace('index.html', ''));
 
