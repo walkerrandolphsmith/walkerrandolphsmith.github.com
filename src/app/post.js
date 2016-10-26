@@ -69,7 +69,15 @@ export default (() => {
         });
 
         $("#share").click(function() {
-            $('html, body').animate({ scrollTop: $(".share-buttons").offset().top }, 2000);
+            const $buttons = $('.share-buttons li:not(:first-child)');
+            $('html, body').animate(
+                { scrollTop: $(".share-buttons").offset().top - (windowHeight /2) },
+                2000,
+                () => {
+                    $buttons.addClass('wiggle');
+                    setTimeout(() => $buttons.removeClass('wiggle'), 2000);
+                }
+            );
         });
 
         $('.fa-copy').on('click', copy);

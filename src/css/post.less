@@ -77,12 +77,15 @@
   }
 
   .share-options {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
     .permalink {
       width: 65%;
       overflow: hidden;
       display: block;
       float: left;
-      margin-top: 11px;
       font-family: "Montserrat","Arial",Sans-Serif;
       font-weight: 400;
       font-size: 11px;
@@ -93,7 +96,8 @@
     .share-buttons {
       padding: 0;
       margin: 0;
-      float: right;
+      display: flex;
+      align-items: center;
 
       li:first-child {
         font-family: "Montserrat","Arial",Sans-Serif;
@@ -102,13 +106,28 @@
         line-height: normal;
         text-transform: uppercase;
         color: @gray;
-        margin-top: 11px;
+      }
+
+      li.wiggle:not(:first-child) {
+        animation: wiggle 0.5s infinite;
+      }
+
+      li:hover:not(:first-child) {
+        animation: wiggle 0.5s infinite;
+      }
+
+      @keyframes wiggle {
+        0% {transform:rotate(15deg);}
+        50% {transform:rotate(-15deg);}
+        100% {transform:rotate(15deg);}
       }
 
       li {
         display: block;
         float: left;
-        margin-left: 8px;
+        border: 5px solid transparent;
+        border-radius: 50%;
+        transition: 300ms linear all;
 
         a {
           cursor: pointer;
@@ -120,8 +139,6 @@
           font-size: 12px;
           text-align: center;
           line-height: 35px;
-          -webkit-transition: background 0.15s ease-in;
-          -moz-transition: background 0.15s ease-in;
           transition: background 0.15s ease-in;
           color: @paper;
 
