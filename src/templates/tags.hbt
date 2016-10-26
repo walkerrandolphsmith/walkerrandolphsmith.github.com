@@ -1,6 +1,6 @@
   {{> header}}
     {{> heroShort}}
-    <section>
+    <section class="post-list">
        {{#each posts}}
            <article class="post-item">
                <div class="wrapper">
