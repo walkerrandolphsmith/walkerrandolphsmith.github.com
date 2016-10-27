@@ -21,6 +21,7 @@ var sitemap             = require('metalsmith-mapsite');
 var robots              = require('metalsmith-robots');
 var feed                = require('metalsmith-feed');
 var related             = require('metalsmith-static-related');
+var redirect            = require('metalsmith-redirect');
 var tags                = require('./plugins/tags');
 var metaLogger          = require('./plugins/metaLogger');
 var highlighter         = require('./plugins/highlighter');
@@ -40,6 +41,7 @@ const relatedOpts       = options.related;
 const templateOpts      = options.templates;
 const sitemapOpts       = options.sitemap;
 const robotsOpts        = options.robot;
+const redirectOpts      = options.redirect;
 const src               = options.src;
 const dest              = options.dest;
 
@@ -75,6 +77,7 @@ gulp.task('metalsmith', ['amp'], function() {
                 .use(gist())
                 .use(tags(tagOpts))
                 .use(wordcount())
+                .use(redirect(redirectOpts))
                 .use(sitemap(sitemapOpts))
                 .use(robots(robotsOpts))
                 .use(feed(feedOpts))

@@ -136,6 +136,9 @@ const config = {
         related: {
             matchOn: 'postId'
         },
+        redirect: {
+            '/blog/2013/01/20/octopress-syntax-highlighting/': '/add-bitbucket-aside-to-octopress'
+        },
         templatePath: tempaltePath,
         templates: {
             engine: 'handlebars',
