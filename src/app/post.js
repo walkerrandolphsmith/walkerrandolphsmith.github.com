@@ -9,6 +9,7 @@ export default (() => {
         const documentHeight = document.body.clientHeight;
 
         var $window = $(window);
+        const $entirePage = $('html, body');
 
         const $meter = $('.meter .amount');
 
@@ -20,6 +21,8 @@ export default (() => {
 
         const $background = $('.background');
         const $title = $('.post-title');
+
+        const $comments = $('.comment-stream');
 
         let prev = 0;
         let lastScrollTop = 0;
@@ -54,23 +57,23 @@ export default (() => {
         });
 
         $('.back-to-top').on('click', () => {
-            $("html, body").animate({scrollTop: 0}, 1000);
+            $entirePage.animate({scrollTop: 0}, 1000);
         });
 
         $('#comments').on('click', () => {
-            $('.comment-steam').show();
+            $comments.show();
             const current = $(document).scrollTop();
-            $('body,html').animate({scrollTop: current + windowHeight}, 800);
+            $entirePage.animate({scrollTop: current + windowHeight}, 800);
         });
 
         $('#comment').on('click', () => {
-            $('.comment-steam').show();
-            $('body,html').animate({scrollTop: documentHeight }, 2000);
+            $comments.show();
+            $entirePage.animate({scrollTop: documentHeight }, 2000);
         });
 
-        $("#share").click(function() {
+        $("#share").click(() => {
             const $buttons = $('.share-buttons li:not(:first-child)');
-            $('html, body').animate(
+            $entirePage.animate(
                 { scrollTop: $(".share-buttons").offset().top - (windowHeight /2) },
                 2000,
                 () => {
