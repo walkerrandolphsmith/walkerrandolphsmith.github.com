@@ -2,11 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 <url> <loc>http://www.walkerrandolphsmith.com/content/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/electron-native-apps-amp/</loc> </url>
+<url> <loc>http://www.walkerrandolphsmith.com/knockout-and-durandal-amp/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/add-bitbucket-aside-to-octopress-amp/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/versionone-javascript-sdk-amp/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/projects/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/resume/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/electron-native-apps/</loc> </url>
+<url> <loc>http://www.walkerrandolphsmith.com/knockout-and-durandal/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/add-bitbucket-aside-to-octopress/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/versionone-javascript-sdk/</loc> </url>
 <url> <loc>http://www.walkerrandolphsmith.com/posts/1/</loc> </url>

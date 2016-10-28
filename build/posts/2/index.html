@@ -122,7 +122,7 @@
             <h3 class="title">Tags</h3>
             <hr>
             <div class="tags">
-                    <a class="tag" href="http://www.walkerrandolphsmith.com/tags/javascript/" title="javascript">javascript (3)</a>
+                    <a class="tag" href="http://www.walkerrandolphsmith.com/tags/javascript/" title="javascript">javascript (4)</a>
                     <a class="tag" href="http://www.walkerrandolphsmith.com/tags/electron/" title="electron">electron (1)</a>
                     <a class="tag" href="http://www.walkerrandolphsmith.com/tags/versionone/" title="versionone">versionone (1)</a>
             </div>
@@ -224,24 +224,54 @@
             <div class="wrapper">
                 <a href="http://www.walkerrandolphsmith.com" class="content post-image"></a>
                 <ul class="meta">
-                    <li class="category electron">
-                        <a href="http://www.walkerrandolphsmith.com/tags/electron/">electron</a>
+                    <li class="category javascript">
+                        <a href="http://www.walkerrandolphsmith.com/tags/javascript/">javascript</a>
                     </li>
                     <li class="date">
                         <a href="http://www.walkerrandolphsmith.com">
-                            <time datetime="October 21, 2016">October 21, 2016</time>
+                            <time datetime="April 14, 2014">April 14, 2014</time>
                         </a>
                     </li>
                 </ul>
                 <h2 class="title">
-                    <a href="http://www.walkerrandolphsmith.com/electron-native-apps/" title="Electron Native Apps">Electron Native Apps</a>
+                    <a href="http://www.walkerrandolphsmith.com/knockout-and-durandal/" title="Knockout and Durandal">Knockout and Durandal</a>
                 </h2>
                 <p class="excerpt">
-                    Electron allows for creating cross platform, native applications that run on the Node.js runtime.
-Today, native applications can be created with a consistent set of tools including Javascript, HTML, and CSS.
-Electron, developed by Github, was orginally known as Atom Shell as it powered the homegrown text editor created at Github, Atom.
-Now well known applications such as Slack, Atom, Visual Studio Code, and more have been developed with Electron.
-I am going to cover creating a minimal Electron application.
+                    Single page applications are web applications contained on a single HTML file that are dynamically updated using client side JavaScript in response to user interactions.
+This article will discuss creating a SPA using Durandal and Knockout. This technology stack leverages a variation on
+the traditional Model View Controller pattern called Model-View-View Model, <strong>MVVM</strong>, which a design pattern for building user interfaces.
+The pattern divides the user interface into three major components.
+The Models represent the application’s stored data. Ajax can be used with server-side code to read and write the stored model data.
+The View-Models are JavaScript objects that represent a subset of data and operations on that data required by a specific user interface to render.
+The Views are UI components that graphically expose the View-Model data and operations.
+Durandal is one of many JavaScript frameworks that leverage this design pattern. One emerging giant is Angular and yesterday it was announced, <a href="http://eisenbergeffect.bluespire.com/angular-and-durandal-converge/">here</a>, on Twitter that Durandal and Angular will converge!
+                </p>
+                <a href="http://www.walkerrandolphsmith.com/resume" class="author">
+                    <img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" alt="" data-no-retina="true">
+                    Walker Randolph Smith
+                </a>
+            </div>
+        </article>
+        <article class="post-item">
+            <div class="wrapper">
+                <a href="http://www.walkerrandolphsmith.com" class="content post-image"></a>
+                <ul class="meta">
+                    <li class="category javascript">
+                        <a href="http://www.walkerrandolphsmith.com/tags/javascript/">javascript</a>
+                    </li>
+                    <li class="date">
+                        <a href="http://www.walkerrandolphsmith.com">
+                            <time datetime="July 4, 2013">July 4, 2013</time>
+                        </a>
+                    </li>
+                </ul>
+                <h2 class="title">
+                    <a href="http://www.walkerrandolphsmith.com/add-bitbucket-aside-to-octopress/" title="Add Bitbucket Aside to Octopress">Add Bitbucket Aside to Octopress</a>
+                </h2>
+                <p class="excerpt">
+                    Adding public repositories hosted on Bitbucket to your blog is a great idea to showcase your projects.
+Checking out how the Github aside works will help, as they are similar.
+However, unlike Github, repository names on Bitbucket can have white space, but the URL to a repository is stripped of white space and every letter is converted to lowercase.
                 </p>
                 <a href="http://www.walkerrandolphsmith.com/resume" class="author">
                     <img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" alt="" data-no-retina="true">
@@ -253,12 +283,16 @@ I am going to cover creating a minimal Electron application.
 
     <nav class="pagination">
         <div class="wrapper">
-            <a href="http://www.walkerrandolphsmith.com/" class="button rounded light previous">
-                <span class="main">Older Posts</span>
-                <span class="sub">
-                    <i class="fa fa-chevron-left"></i>
-                </span>
-            </a>
+            <div>
+                <a href="http://www.walkerrandolphsmith.com/" class="button rounded light previous">
+                    <span class="main">Newer Posts</span>
+                    <span class="sub">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                </a>
+            </div>
+            <div>
+            </div>
         </div>
 
     </nav>

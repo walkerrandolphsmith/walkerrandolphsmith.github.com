@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <title>Walker Randolph Smith</title>
+      <meta name="description" content="Creating a single page application." />
+      <meta name="author" content="Walker Randolph Smith" />
+      
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      
+      <meta name="HandheldFriendly" content="True">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="canonical" href="http://walkerrandolphsmith.github.com/" />
+      
+      <link rel="amphtml" href="http://www.walkerrandolphsmith.com/knockout-and-durandal-amp/">
+      <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://www.walkerrandolphsmith.com/rss/">
+      
+      <meta name="referrer" content="no-referrer-when-downgrade">
+      
+      <link rel="icon" type="image/png" href="http://www.walkerrandolphsmith.com/css/images/profile.png" />
+      <link rel="apple-touch-icon" sizes="57x57" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-57x57.png" />
+      <link rel="apple-touch-icon" sizes="72x72" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-72x72.png" />
+      <link rel="apple-touch-icon" sizes="114x114" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-114x114.png" />
+      <link rel="apple-touch-icon" sizes="144x144" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-144x144.png" />
+      
+      <meta property="og:site_name" content="Walker Randolph Smith" />
+      <meta property="og:title" content="Knockout and Durandal" />
+      <meta property="og:type" content="article" />
+      <meta property="og:url" content="http://www.walkerrandolphsmith.com/knockout-and-durandal" />
+      <meta property="og:description" content="Creating a single page application." />
+      <meta property="og:image" content="http://www.walkerrandolphsmith.com/css/images/city.jpg" />
+      <meta property="og:image:width" content="1920">
+      <meta property="og:image:height" content="1080">
+      
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="Knockout and Durandal">
+      <meta name="twitter:description" content="Creating a single page application.">
+      <meta name="twitter:url" content="http://www.walkerrandolphsmith.com/knockout-and-durandal">
+      <meta name="twitter:image" content="http://www.walkerrandolphsmith.com/css/images/city.jpg">
+      <meta name="twitter:label1" content="Written by">
+      <meta name="twitter:data1" content="Walker Randolph Smith">
+      <link rel="stylesheet" href="http://www.walkerrandolphsmith.com/css/blogr.css">
+  </head>
+  <body>
+    <header class="blog-info fixed hidden">
+        <div class="title">
+            <a href="http://www.walkerrandolphsmith.com"><img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" class="retina" alt="Walker Randolph Smith"></a>
+        </div>
+        <nav class="main light">
+            <ul>
+                <li class="nav-amp" role="presentation"><a href=http://www.walkerrandolphsmith.com/knockout-and-durandal-amp/><i class="fa fa-bolt"></i></a></li>
+                <li class="nav-rss" role="presentation"><a href=http://www.walkerrandolphsmith.com/rss.xml><i class="fa fa-rss"></i></a></li>
+                <li class="nav-home" role="presentation"><a href="http://www.walkerrandolphsmith.com">Home</a></li>
+                <li class="nav-about-me" role="presentation"><a href="http://www.walkerrandolphsmith.com/resume/">R&eacute;sum&eacute;</a></li>
+                <!--<li class="nav-projects" role="presentation"><a href="http://www.walkerrandolphsmith.com/projects/">Projects</a></li>-->
+                <li class="nav-javascript" role="presentation"><a href="http://www.walkerrandolphsmith.com/tags/javascript/">JavaScript</a></li>
+            </ul>
+            <ul>
+                <li class="option open">
+                    <a href="http://www.walkerrandolphsmith.com" onclick="return false" class="showdrawer">
+                        <i class="fa fa-navicon"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>    </header>
+    <section class="drawer">
+        <i class="fa fa-times close"></i>
+    
+        <section class="widget blog-info">
+                <a href="http://www.walkerrandolphsmith.com">
+                    <img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" class="retina" alt="Walker Randolph Smith">
+                </a>
+            <hr>
+            <p>
+                Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My interests include UI/UX engineering, learning, and test driven development.
+            </p>
+        </section>
+    
+        <section class="widget navigation">
+            <nav class="main-drawer">
+                <ul>
+                    <li class="nav-home" role="presentation"><a href="http://www.walkerrandolphsmith.com">Home</a></li>
+                    <li class="nav-about-me" role="presentation"><a href="http://www.walkerrandolphsmith.com/resume/">R&eacute;sum&eacute;</a></li>
+                    <li class="nav-projects" role="presentation"><a href="http://www.walkerrandolphsmith.com/projects/">Projects</a></li>
+                    <li class="nav-javascript" role="presentation"><a href="http://www.walkerrandolphsmith.com/tags/javascript/">JavaScript</a></li>
+                </ul>
+            </nav>
+        </section>
+        <section class="widget subscribe">
+            <div class="inner">
+                <h3 class="title">My Newsletter</h3>
+                <hr>
+    
+                <p>
+                    Subscribe to my newsletter for updates on the evolution of the JavaScript toolchain.
+                    <a href=http://www.walkerrandolphsmith.com/rss.xml><i class="fa fa-rss"></i></a> Currently updates are only available via RSS.
+                </p>
+                <i class="fa fa-envelope-o"></i>
+    
+                <!-- Begin MailChimp Form -->
+                <div id="mc_embed_signup">
+                    <form action="" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">
+                        <div id="mc_embed_signup_scroll">
+                            <div class="mc-field-group">
+                                <label for="mce-EMAIL">Email Address </label>
+                                <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address...">
+                            </div>
+                            <div id="mce-responses" class="clear">
+                                <div class="response" id="mce-error-response" style="display:none"></div>
+                                <div class="response" id="mce-success-response" style="display:none"></div>
+                            </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                            <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_3c40623ce03f70afd7e8b6687_d572450014" tabindex="-1" value=""></div>
+                            <div class="clear"><input type="submit" value="Subscribe" name="subscribe" disabled id="mc-embedded-subscribe" class="button"></div>
+                        </div>
+                    </form>
+                </div>
+                <!-- End MailChimp Form -->
+    
+            </div>
+        </section>
+        <section class="widget tags">
+            <h3 class="title">Tags</h3>
+            <hr>
+            <div class="tags">
+                    <a class="tag" href="http://www.walkerrandolphsmith.com/tags/javascript/" title="javascript">javascript (4)</a>
+                    <a class="tag" href="http://www.walkerrandolphsmith.com/tags/electron/" title="electron">electron (1)</a>
+                    <a class="tag" href="http://www.walkerrandolphsmith.com/tags/versionone/" title="versionone">versionone (1)</a>
+            </div>
+        </section>
+    
+        <section class="widget github-repos">
+            <h3 class="title">Github</h3>
+            <div class="pages">
+                <span id="gh-prev">
+                    <i class="fa fa-angle-left"></i>
+                    Previous
+                </span>
+                <span id="gh-next">
+                    Next
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </div>
+            <hr>
+            <div id="gh-groups"></div>
+        </section>
+    
+        <section class="widget bitbucket-repos">
+            <h3 class="title">Bitbucket</h3>
+            <div class="pages">
+                <span id="bb-prev">
+                    <i class="fa fa-angle-left"></i>
+                    Previous
+                </span>
+                <span id="bb-next">
+                    Next
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </div>
+            <hr>
+            <div id="bb-groups"></div>
+        </section>
+    
+        <section class="widget jsfiddle-repos">
+            <h3 class="title">Js Fiddles</h3>
+            <div class="pages">
+                <span id="jsf-prev">
+                    <i class="fa fa-angle-left"></i>
+                    Previous
+                </span>
+                <span id="jsf-next">
+                    Next
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </div>
+            <hr>
+            <div id="jsf-groups"></div>
+        </section>
+    
+        <section class="widget twitter">
+            <h3 class="title">Twitter</h3>
+            <hr>
+            <a class="twitter-timeline"  href="https://twitter.com/WalkerRSmith" data-widget-id="398194465573052416" style="display: none;"></a>
+        </section>
+        <section class="widget copyright">
+            <p class="main">
+                <span>Made with </span><i class="fa fa-heart"></i><span> by </span><a href="http://www.walkerrandolphsmith.com">Walker Randolph Smith</a>
+            </p>
+        </section>
+    
+    </section>    <main class="page-wrapper">
+        <section class="hero">
+            <div class="background" style="background-image: url('/css/images/city.jpg');"></div>
+            <header class="blog-info transparent">
+                <div class="title">
+                    <a href="http://www.walkerrandolphsmith.com"><img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" class="retina" alt="Walker Randolph Smith"></a>
+                </div>
+                <nav class="main light">
+                    <ul>
+                        <li class="nav-amp" role="presentation"><a href=http://www.walkerrandolphsmith.com/knockout-and-durandal-amp/><i class="fa fa-bolt"></i></a></li>
+                        <li class="nav-rss" role="presentation"><a href=http://www.walkerrandolphsmith.com/rss.xml><i class="fa fa-rss"></i></a></li>
+                        <li class="nav-home" role="presentation"><a href="http://www.walkerrandolphsmith.com">Home</a></li>
+                        <li class="nav-about-me" role="presentation"><a href="http://www.walkerrandolphsmith.com/resume/">R&eacute;sum&eacute;</a></li>
+                        <!--<li class="nav-projects" role="presentation"><a href="http://www.walkerrandolphsmith.com/projects/">Projects</a></li>-->
+                        <li class="nav-javascript" role="presentation"><a href="http://www.walkerrandolphsmith.com/tags/javascript/">JavaScript</a></li>
+                    </ul>
+                    <ul>
+                        <li class="option open">
+                            <a href="http://www.walkerrandolphsmith.com" onclick="return false" class="showdrawer">
+                                <i class="fa fa-navicon"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>            </header>
+            <section class="post-item post-title center wrapper">
+                <ul class="meta">
+                    <li class="date">
+                        <a href="http://www.walkerrandolphsmith.com">
+                            <time datetime="April 14, 2014">April 14, 2014</time>
+                        </a>
+                    </li>
+                </ul>
+                <h1 class="title">Knockout and Durandal</h1>
+                <p class="excerpt">
+                    Creating a single page application.
+                </p>
+                <a href="http://www.walkerrandolphsmith.com/resume/" class="author">
+                    <img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">
+                    <span>Walker Randolph Smith</span>
+                </a>
+            </section>
+        </section>
+        <article class="post-contents wrapper">
+        <h1>Knockout and Durandal</h1>
+        <p>Single page applications are web applications contained on a single HTML file that are dynamically updated using client side JavaScript in response to user interactions.
+This article will discuss creating a SPA using Durandal and Knockout. This technology stack leverages a variation on
+the traditional Model View Controller pattern called Model-View-View Model, <strong>MVVM</strong>, which a design pattern for building user interfaces.
+The pattern divides the user interface into three major components.
+The Models represent the application’s stored data. Ajax can be used with server-side code to read and write the stored model data.
+The View-Models are JavaScript objects that represent a subset of data and operations on that data required by a specific user interface to render.
+The Views are UI components that graphically expose the View-Model data and operations.
+Durandal is one of many JavaScript frameworks that leverage this design pattern. One emerging giant is Angular and yesterday it was announced, <a href="http://eisenbergeffect.bluespire.com/angular-and-durandal-converge/">here</a>, on Twitter that Durandal and Angular will converge!</p>
+<h2 id="dependency-management">Dependency Management</h2>
+<p>Require.Js supports the AMD, Asynchronous Module Definition, API to enable application to manage JavaScript dependencies. JavaScript libraries are loaded by HTML script tags in which the order of the libraries in the tag determine when they are loaded.
+The dependecy of one library on another is weakly stated because the order in which the libraries occur in the script tag must be known by the developer.</p>
+<p>Require.Js looks for a <code>data-main</code> attribute to start script loading in which modules are loaded relative to a base URL.
+The index.html should contain a script tag with said attribute which indicates the module ID to load, in this case <code>main</code></p>
+<div class="code-wrapper"><pre><code><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>script</span> <span class="token attr-name" >data-main</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>scripts/main.js<span class="token punctuation" >"</span></span> <span class="token attr-name" >src</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>scripts/require.js<span class="token punctuation" >"</span></span><span class="token punctuation" >></span></span><span class="token script language-javascript" ></span><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>script</span><span class="token punctuation" >></span></span></code></pre><i class="fa fa-copy"></i></div><p>The relative path can be configured in this script as follows:</p>
+<div class="code-wrapper"><pre class="language-js"><code class="language-js">requirejs<span class="token punctuation" >.</span><span class="token function" >config</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
+    baseUrl<span class="token punctuation" >:</span> <span class="token string" >'/'</span><span class="token punctuation" >,</span>
+    paths<span class="token punctuation" >:</span> <span class="token punctuation" >{</span>
+        <span class="token string" >'text'</span><span class="token punctuation" >:</span> <span class="token string" >'../Scripts/text'</span><span class="token punctuation" >,</span>
+        <span class="token string" >'durandal'</span><span class="token punctuation" >:</span> <span class="token string" >'../Scripts/durandal'</span><span class="token punctuation" >,</span>
+        <span class="token string" >'plugins'</span><span class="token punctuation" >:</span> <span class="token string" >'../Scripts/durandal/plugins'</span><span class="token punctuation" >,</span>
+        <span class="token string" >'transitions'</span><span class="token punctuation" >:</span> <span class="token string" >'../Scripts/durandal/transitions'</span>
+    <span class="token punctuation" >}</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><p>The next code block will be added to <code>main.js</code> and demonstrates the use of modules and the use of the define function to manage dependencies.</p>
+<div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token function" >define</span><span class="token punctuation" >(</span><span class="token string" >'jquery'</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span> <span class="token keyword" >return</span> jQuery<span class="token punctuation" >;</span> <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token function" >define</span><span class="token punctuation" >(</span><span class="token string" >'knockout'</span><span class="token punctuation" >,</span> ko<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+<span class="token function" >define</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span><span class="token string" >'durandal/system'</span><span class="token punctuation" >,</span> <span class="token string" >'durandal/app'</span><span class="token punctuation" >,</span> <span class="token string" >'durandal/viewLocator'</span><span class="token punctuation" >]</span><span class="token punctuation" >,</span>
+ <span class="token keyword" >function</span> <span class="token punctuation" >(</span>system<span class="token punctuation" >,</span> app<span class="token punctuation" >,</span> viewLocator<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+    system<span class="token punctuation" >.</span><span class="token function" >debug</span><span class="token punctuation" >(</span><span class="token boolean" >true</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+    app<span class="token punctuation" >.</span>title <span class="token operator" >=</span> <span class="token string" >'Durandal Starter Kit'</span><span class="token punctuation" >;</span>
+
+    app<span class="token punctuation" >.</span><span class="token function" >configurePlugins</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
+        router<span class="token punctuation" >:</span> <span class="token boolean" >true</span><span class="token punctuation" >,</span>
+        dialog<span class="token punctuation" >:</span> <span class="token boolean" >true</span><span class="token punctuation" >,</span>
+        widget<span class="token punctuation" >:</span> <span class="token boolean" >true</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+    app<span class="token punctuation" >.</span><span class="token function" >start</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span><span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+        <span class="token comment" spellcheck="true">//Replace 'viewmodels' in the moduleId with 'views' to locate the view.</span>
+        <span class="token comment" spellcheck="true">//Look for partial views in a 'views' folder in the root.</span>
+        viewLocator<span class="token punctuation" >.</span><span class="token function" >useConvention</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+        <span class="token comment" spellcheck="true">//Show the app by setting the root view model with a transition.</span>
+        app<span class="token punctuation" >.</span><span class="token function" >setRoot</span><span class="token punctuation" >(</span><span class="token string" >'viewmodels/shell'</span><span class="token punctuation" >,</span> <span class="token string" >'entrance'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><p>The define function is working with JavaScript modules opposed to script files to avoid global namespace issues.
+Define can take an object literal or a function as a parameter if no dependencies exist.
+If the module does have dependencies then the first argument to define is an array of dependency names.
+The second argument, a function, called the factory function, returns an object that defines the module.
+The dependency names in the array will be passed to this function as arguments and must be listed in the same order as they occur in the array.
+In the code block above one define function has an array as the first argument and a function as the second argument.
+The function’s arguments are system, app, and viewLocator and directly correspond with the elements of the array.
+The second parameter is registered with the define function so the dependencies have been loaded and executed before passed as modules as arguments to the function.</p>
+<h2 id="durnadal">Durnadal</h2>
+<p>Using Durandal, within the body of this factory function a module, app, sets its root view to <code>viewmodels/shell</code>.
+This indicates the View-Model that is initially loaded is named shell and resides in the <code>viewmodels</code> directory.
+The View-Models have corresponding Views and are associated by name. Therefore there is also a shell View.
+The shell View-Model will be used to handle the routing of our SPA.</p>
+<div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token function" >define</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span>
+      <span class="token string" >'plugins/router'</span><span class="token punctuation" >,</span>
+      <span class="token string" >'durandal/app'</span>
+<span class="token punctuation" >]</span><span class="token punctuation" >,</span>
+    <span class="token keyword" >function</span> <span class="token punctuation" >(</span>
+        router<span class="token punctuation" >,</span>
+        app
+    <span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+        <span class="token string" >"use strict"</span><span class="token punctuation" >;</span>
+
+        <span class="token keyword" >var</span> obj <span class="token operator" >=</span> <span class="token punctuation" >{</span>
+            router<span class="token punctuation" >:</span> router<span class="token punctuation" >,</span>
+            activate<span class="token punctuation" >:</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                router<span class="token punctuation" >.</span><span class="token function" >map</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span>
+                    <span class="token punctuation" >{</span>
+                      route<span class="token punctuation" >:</span> <span class="token string" >''</span><span class="token punctuation" >,</span>
+                      title<span class="token punctuation" >:</span> <span class="token string" >'Home'</span><span class="token punctuation" >,</span>
+                      moduleId<span class="token punctuation" >:</span> <span class="token string" >'viewmodels/home'</span><span class="token punctuation" >,</span>
+                      nav<span class="token punctuation" >:</span> <span class="token boolean" >true</span>
+                    <span class="token punctuation" >}</span>
+                <span class="token punctuation" >]</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >buildNavigationModel</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+                <span class="token keyword" >return</span> router<span class="token punctuation" >.</span><span class="token function" >activate</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+
+        <span class="token keyword" >return</span> obj<span class="token punctuation" >;</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><p>Routes will be triggered when <code>router.navigate(&#39;your/hash/here&#39;);</code> is called or the typical trigger using an anchor, <code>a</code>, element.
+The <code>shell</code> View is a simple <code>div</code> element with a <code>data-bind</code> attribute for the router.</p>
+<div class="code-wrapper"><pre><code><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>div</span> <span class="token attr-name" >class</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>container page-host<span class="token punctuation" >"</span></span>
+     <span class="token attr-name" >data-bind</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>router: { transition:<span class="token punctuation" >'</span>entrance<span class="token punctuation" >'</span>, cacheViews:true }<span class="token punctuation" >"</span></span><span class="token punctuation" >></span></span>
+<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>div</span><span class="token punctuation" >></span></span></code></pre><i class="fa fa-copy"></i></div><h2 id="knockout">Knockout</h2>
+<p>Now that the shell of the application is configured we can discuss how Knockout can be used to create responsive UI with a clean data model.</p>
+<p>Knockout has two features that make it awesome, dependency tracking to automatically update UI based on model.
+declarative binding to connect components of the UI to the model. As shown in the routing above the default route has a moduleId <code>viewmodels/home</code>.</p>
+<div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token function" >define</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span>
+        <span class="token string" >"knockout"</span><span class="token punctuation" >,</span>
+        <span class="token string" >"durandal/app"</span><span class="token punctuation" >,</span>
+        <span class="token string" >"viewmodels/toDoItem/list"</span>
+<span class="token punctuation" >]</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>
+        ko<span class="token punctuation" >,</span>
+        app<span class="token punctuation" >,</span>
+        ToDoItems
+    <span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+    <span class="token string" >"use strict"</span><span class="token punctuation" >;</span>
+
+    <span class="token keyword" >var</span> isList <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >observable</span><span class="token punctuation" >(</span><span class="token string" >"list"</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    <span class="token keyword" >var</span> obj <span class="token operator" >=</span> <span class="token punctuation" >{</span>
+        tasksDueToday<span class="token punctuation" >:</span> <span class="token keyword" >new</span> <span class="token class-name" >ToDoItems</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >,</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+
+    obj<span class="token punctuation" >.</span>activate <span class="token operator" >=</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+
+    <span class="token keyword" >return</span> obj<span class="token punctuation" >;</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><p>This View-Model uses the define function to pass three modules into its factory function, including the View-Model, <code>list</code>.
+One property of the list is tasksDueToday which is a <code>new</code> ToDoItems.
+Notice ToDoItems was passed as a module to the factory function using the name list in the dependencies array.</p>
+<p>The corresponding View for the home View-Model is using declarative binding to connect the View-Model’s tasksDueToday property and use dependency tracking to inject the View corresponding to the taskDueToday View-Model.</p>
+<div class="code-wrapper"><pre><code><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>section</span><span class="token punctuation" >></span></span>
+    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>header</span><span class="token punctuation" >></span></span>
+        <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>h1</span><span class="token punctuation" >></span></span>To Do List<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>h1</span><span class="token punctuation" >></span></span>
+    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>header</span><span class="token punctuation" >></span></span>
+    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>div</span> <span class="token attr-name" >class</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>to-do-list<span class="token punctuation" >"</span></span><span class="token punctuation" >></span></span>
+        <span class="token comment" spellcheck="true">&lt;!--ko compose: tasksDueToday--></span><span class="token comment" spellcheck="true">&lt;!--/ko--></span>
+    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>div</span><span class="token punctuation" >></span></span>
+<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>section</span><span class="token punctuation" >></span></span></code></pre><i class="fa fa-copy"></i></div><p>The following is an example of a to do list with more features including
+creating related tasks, adding labels, filtering by label, retrieving the list and its count.</p>
+<div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token function" >define</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span>
+       <span class="token string" >"durandal/app"</span><span class="token punctuation" >,</span>
+        <span class="token string" >"models/TaskStatus"</span><span class="token punctuation" >,</span>
+        <span class="token string" >"viewmodels/toDoItem/toDoItem"</span><span class="token punctuation" >,</span>
+        <span class="token string" >"viewmodels/toDoItem/summary"</span><span class="token punctuation" >,</span>
+        <span class="token string" >"viewmodels/toDoItem/new"</span>
+<span class="token punctuation" >]</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>
+        app<span class="token punctuation" >,</span>
+        TaskStatus<span class="token punctuation" >,</span>
+        ToDoItem<span class="token punctuation" >,</span>
+        ToDoItemSummary<span class="token punctuation" >,</span>
+        CreateToDoItem
+<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+    <span class="token string" >"use strict"</span><span class="token punctuation" >;</span>
+
+    <span class="token keyword" >var</span> ctor <span class="token operator" >=</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+        <span class="token keyword" >var</span> self <span class="token operator" >=</span> <span class="token keyword" >this</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation" >.</span>status <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >observable</span><span class="token punctuation" >(</span><span class="token string" >'all'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation" >.</span>items <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >observableArray</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation" >.</span>newTask <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >observable</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+        self<span class="token punctuation" >.</span>numberOfTasks <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >computed</span><span class="token punctuation" >(</span><span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >==</span> <span class="token string" >'all'</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span>length<span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span> <span class="token keyword" >else</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >filter</span><span class="token punctuation" >(</span><span class="token keyword" >function</span> <span class="token punctuation" >(</span>task<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                    <span class="token keyword" >return</span> task<span class="token punctuation" >.</span><span class="token function" >toDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >==</span> self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+                <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span>length<span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+        self<span class="token punctuation" >.</span>filteredItems <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >computed</span><span class="token punctuation" >(</span><span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >==</span> <span class="token string" >'all'</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span> <span class="token keyword" >else</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >filter</span><span class="token punctuation" >(</span><span class="token keyword" >function</span><span class="token punctuation" >(</span>task<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                    <span class="token keyword" >return</span> task<span class="token punctuation" >.</span><span class="token function" >toDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >==</span> self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+                <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+
+
+        self<span class="token punctuation" >.</span>getItems <span class="token operator" >=</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>status<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>status <span class="token operator" >===</span> <span class="token string" >'all'</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span><span class="token keyword" >else</span> <span class="token keyword" >return</span> ko<span class="token punctuation" >.</span>utils<span class="token punctuation" >.</span><span class="token function" >arrayFilter</span><span class="token punctuation" >(</span>self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>item<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >var</span> st <span class="token operator" >=</span> item<span class="token punctuation" >.</span><span class="token function" >toDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+                <span class="token keyword" >return</span> <span class="token punctuation" >(</span>st <span class="token operator" >===</span> status<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+
+        self<span class="token punctuation" >.</span>getNumberOfItems <span class="token operator" >=</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>status<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>status <span class="token operator" >===</span> <span class="token string" >'all'</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span>length<span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span> <span class="token keyword" >else</span> <span class="token keyword" >return</span> ko<span class="token punctuation" >.</span>utils<span class="token punctuation" >.</span><span class="token function" >arrayFilter</span><span class="token punctuation" >(</span>self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>item<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >var</span> st <span class="token operator" >=</span> item<span class="token punctuation" >.</span><span class="token function" >toDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+                <span class="token keyword" >return</span> <span class="token punctuation" >(</span>st <span class="token operator" >===</span> status<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span>length<span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+
+        <span class="token function" >createNewTask</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation" >.</span>addTask <span class="token operator" >=</span> addTask<span class="token punctuation" >;</span>
+        self<span class="token punctuation" >.</span>activate <span class="token operator" >=</span> activate<span class="token punctuation" >;</span>
+
+        <span class="token keyword" >function</span> <span class="token function" >activate</span><span class="token punctuation" >(</span>activationData<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>activationData <span class="token operator" >==</span> <span class="token keyword" >null</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >return</span><span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span>
+            self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span>activationData<span class="token punctuation" >.</span>items<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span>
+
+        <span class="token keyword" >function</span> <span class="token function" >addTask</span><span class="token punctuation" >(</span>task<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>task <span class="token operator" >==</span> <span class="token keyword" >null</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                <span class="token keyword" >return</span><span class="token punctuation" >;</span>
+            <span class="token punctuation" >}</span>
+            <span class="token keyword" >var</span> newTask <span class="token operator" >=</span> <span class="token keyword" >new</span> <span class="token class-name" >ToDoItemSummary</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            newTask<span class="token punctuation" >.</span><span class="token function" >activate</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span> toDoItem<span class="token punctuation" >:</span> task <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            self<span class="token punctuation" >.</span>items<span class="token punctuation" >.</span><span class="token function" >push</span><span class="token punctuation" >(</span>newTask<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            <span class="token function" >createNewTask</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            newTask<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >"task:removed"</span><span class="token punctuation" >,</span> removeTask<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span>
+
+        <span class="token keyword" >function</span> <span class="token function" >createNewTask</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            <span class="token keyword" >var</span> newTask <span class="token operator" >=</span> <span class="token keyword" >new</span> <span class="token class-name" >CreateToDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            <span class="token keyword" >var</span> newToDoItem <span class="token operator" >=</span> <span class="token keyword" >new</span> <span class="token class-name" >ToDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            newToDoItem<span class="token punctuation" >.</span><span class="token function" >activate</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
+                status<span class="token punctuation" >:</span> TaskStatus<span class="token punctuation" >.</span>unstarted<span class="token punctuation" >.</span>label
+            <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            newTask<span class="token punctuation" >.</span><span class="token function" >activate</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
+                toDoItem<span class="token punctuation" >:</span> newToDoItem
+            <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            self<span class="token punctuation" >.</span><span class="token function" >newTask</span><span class="token punctuation" >(</span>newTask<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+            newTask<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >"task:new:saved"</span><span class="token punctuation" >,</span> addTask<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span>
+
+        <span class="token keyword" >function</span> <span class="token function" >removeTask</span><span class="token punctuation" >(</span>task<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            <span class="token keyword" >var</span> taskToRemove <span class="token operator" >=</span> ko<span class="token punctuation" >.</span>utils<span class="token punctuation" >.</span><span class="token function" >arrayFilter</span><span class="token punctuation" >(</span>
+                self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span>item<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+                    <span class="token keyword" >return</span> <span class="token punctuation" >(</span>item<span class="token punctuation" >.</span>toDoItem <span class="token operator" >===</span> task<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+                <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >[</span><span class="token number" >0</span><span class="token punctuation" >]</span><span class="token punctuation" >;</span>
+
+            self<span class="token punctuation" >.</span>items<span class="token punctuation" >.</span><span class="token function" >remove</span><span class="token punctuation" >(</span>taskToRemove<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span>
+
+        self<span class="token punctuation" >.</span>filterAll <span class="token operator" >=</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token string" >'all'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation" >.</span>filterUnstarted <span class="token operator" >=</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span>TaskStatus<span class="token punctuation" >.</span>unstarted<span class="token punctuation" >.</span>label<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation" >.</span>filterStarted <span class="token operator" >=</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span>TaskStatus<span class="token punctuation" >.</span>started<span class="token punctuation" >.</span>label<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation" >.</span>filterComplete <span class="token operator" >=</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+            self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span>TaskStatus<span class="token punctuation" >.</span>complete<span class="token punctuation" >.</span>label<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+    <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+    <span class="token keyword" >return</span> ctor<span class="token punctuation" >;</span>
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div>
+        </article>
+        <section class="post-bottom wrapper">
+          <div class="more-content">
+              <section id="related-posts">
+                <header><h3>Related Posts</h3></header>
+                <ul>
+                    <li>
+                        <a href="http://www.walkerrandolphsmith.com/versionone-javascript-sdk" title="versionone-javascript-sdk">VersionOne JavaScript SDK</a>
+                    </li>
+                </ul>
+              </section>
+              <section id="recent-posts">
+                  <header><h3>Recent Posts</h3></header>
+                  <ul>
+                      <li>
+                          <a href="http://www.walkerrandolphsmith.com/electron-native-apps" title="electron-native-apps">Electron Native Apps</a>
+                      </li>
+                      <li>
+                          <a href="http://www.walkerrandolphsmith.com/versionone-javascript-sdk" title="versionone-javascript-sdk">VersionOne JavaScript SDK</a>
+                      </li>
+                      <li>
+                          <a href="http://www.walkerrandolphsmith.com/knockout-and-durandal" title="knockout-and-durandal">Knockout and Durandal</a>
+                      </li>
+                      <li>
+                          <a href="http://www.walkerrandolphsmith.com/add-bitbucket-aside-to-octopress" title="add-bitbucket-aside-to-octopress">Add Bitbucket Aside to Octopress</a>
+                      </li>
+                  </ul>
+              </section>
+          </div>
+          <div class="info">
+              <div class="tags">
+                    <a class="tag" href="http://www.walkerrandolphsmith.com/tags/javascript/" title="javascript">javascript</a>
+              </div>
+              <div class="categories">
+
+              </div>
+          </div>
+          <div class="share-options">
+              <a href="http://www.walkerrandolphsmith.com/knockout-and-durandal/" class="permalink">http://www.walkerrandolphsmith.com/knockout-and-durandal/</a>
+              <ul class="share-buttons">
+                  <li>Share:</li>
+                  <li>
+                    <a class="facebook"
+                       href="https://www.facebook.com/sharer/sharer.php?u=http://www.walkerrandolphsmith.com/knockout-and-durandal/"
+                       onclick="window.open(this.href, 'facebook-share', 'width=490,height=530');return false;">
+                       <i class="fa fa-facebook"></i>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="linkedin"
+                       href="http://www.linkedin.com/shareArticle?mini=true&url=http://www.walkerrandolphsmith.com/knockout-and-durandal/&title=knockout-and-durandal"
+                       onclick="window.open(this.href, 'linkedin-share', 'width=490,height=530');return false;">
+                       <i class="fa fa-linkedin"></i>
+                   </a>
+                  </li>
+                  <li>
+                      <a class="twitter"
+                         href="http://twitter.com/share?text=Knockout and Durandal&url=http://www.walkerrandolphsmith.com/knockout-and-durandal/"
+                         onclick="window.open(this.href, 'twitter-share', 'width=490,height=530');return false;">
+                         <i class="fa fa-twitter"></i>
+                      </a>
+                  </li>
+                  <li>
+                    <a class="google-plus"
+                       href="https://plus.google.com/share?url=http://www.walkerrandolphsmith.com/knockout-and-durandal/"
+                       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                        <i class="fa fa-google-plus"></i>
+                    </a>
+                  </li>
+
+              </ul>
+          </div>
+        </section>
+        <section class="widget author-profile">
+            <div class="wrapper">
+                <div class="info">
+                    <a href="http://www.walkerrandolphsmith.com/resume/" class="profile gravatar">
+                        <img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" alt="Walker Randolph Smith" data-no-retina="true">
+                    </a>
+                    <div class="meta">
+                        <span class="title">Author</span>
+                        <h3><a href="http://www.walkerrandolphsmith.com/resume/">Walker Randolph Smith</a></h3>
+                    </div>
+                </div>
+                <p>
+                    Technology enthusiast, proud Eagle Scout, and software craftsman, I have a passion for the web and software development. I strive to adhere to Agile and SOLID principles while always maintaining a constant pursuit of improvement. My interests include UI/UX engineering, learning, and test driven development.
+                </p>
+            </div>
+        </section>
+        <section class="comments">
+            <section class="comments-header" id="comments">
+                <div class="wrapper">
+                    <i class="fa fa-comments-o"></i>
+                    <span class="title">Read comments</span>
+                </div>
+            </section>
+            <section class="comment-stream">
+                <div class="wrapper">
+                    <div id="disqus_thread"></div>
+                </div>
+            </section>
+        </section>
+    </main>
+    <footer class="post-info">
+        <div class="meter">
+            <span class="amount"></span>
+        </div>
+        <div class="default show">
+            <a href="http://www.walkerrandolphsmith.com/resume/" class="author left">
+                <img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" alt="Walker Smith" data-no-retina="true">
+                <div class="info">
+                    <span>Walker Randolph Smith</span>
+                    <span class="title">
+                        <time datetime="April 14, 2014">April 14, 2014</time>
+                    </span>
+                </div>
+            </a>
+            <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
+            <span class="post-more-content-shortcut right">
+                <div class="info">
+                    <span id="comment">
+                        <i class="fa fa-comments-o"></i>
+                        <span>Comments</span>
+                    </span>
+                    <span id="share">
+                        <i class="fa fa-share"></i>
+                        <span>Share</span>
+                    </span>
+                </div>
+            </span>
+        </div>
+        <div class="related-posts">
+            <a href="http://www.walkerrandolphsmith.com/versionone-javascript-sdk/" class="previous-post left">
+                <img src="http://www.walkerrandolphsmith.com/css/images/workshop.png" width="36px" height="36px" alt="VersionOne JavaScript SDK" data-no-retina="true">
+                <div class="info">
+                    <span>Previous Post</span>
+                    <span class="title">VersionOne JavaScript SDK</span>
+                </div>
+            </a>
+            <span class="back-to-top"><i class="fa fa-chevron-up"></i></span>
+            <a href="http://www.walkerrandolphsmith.com/add-bitbucket-aside-to-octopress/" class="next-post right">
+                <div class="info">
+                    <span>Next Post</span>
+                    <span class="title">Add Bitbucket Aside to Octopress</span>
+                </div>
+                <img src="http://www.walkerrandolphsmith.com/css/images/city.jpg" width="36px" height="36px" alt="Add Bitbucket Aside to Octopress" data-no-retina="true">
+            </a>
+        </div>
+    </footer>
+    <script src="http://www.walkerrandolphsmith.com/post.js" type="text/javascript"></script>
+  </body>
+</html>
