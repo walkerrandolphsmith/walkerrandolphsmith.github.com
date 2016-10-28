@@ -139,7 +139,7 @@
                     <span class="title">Read comments</span>
                 </div>
             </section>
-            <section class="comment-steam">
+            <section class="comment-stream">
                 <div class="wrapper">
                     <div id="disqus_thread"></div>
                 </div>

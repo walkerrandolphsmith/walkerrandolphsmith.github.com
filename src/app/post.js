@@ -71,7 +71,7 @@ export default (() => {
             $entirePage.animate({scrollTop: documentHeight }, 2000);
         });
 
-        $("#share").click(() => {
+        $("#share").on('click', () => {
             const $buttons = $('.share-buttons li:not(:first-child)');
             $entirePage.animate(
                 { scrollTop: $(".share-buttons").offset().top - (windowHeight /2) },
