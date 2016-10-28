@@ -2,11 +2,16 @@
   position: relative;
 
   .fa-copy {
+    display: none;
     padding: .5em;
     cursor: pointer;
     position: absolute;
     top: 0;
     right: 0;
+  }
+
+  &:hover .fa-copy {
+    display: inline;
   }
 }
 
