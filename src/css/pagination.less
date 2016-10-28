@@ -4,35 +4,33 @@ nav.pagination {
   padding: 80px 0;
   overflow: hidden;
 
-  .previous, .next {
-    font-family: "Montserrat","Arial",Sans-Serif;
-    font-size: 13px;
-    text-transform: uppercase;
-    color: @header;
-    border-radius: 90px;
-    border: 2px solid @lighterGray;
-    padding: 7px 36px;
-    letter-spacing: -0.5px;
-    -webkit-transition: border-color 0.1s ease-in-out;
-    -moz-transition: border-color 0.1s ease-in-out;
-    transition: border-color 0.1s ease-in-out;
+  .wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 
-    &:hover {
-      border-color: @lightGray;
-    }
-
-    .sub {
-      display: none;
+    .previous, .next {
+      font-family: "Montserrat", "Arial", Sans-Serif;
+      font-size: 13px;
+      text-transform: uppercase;
       color: @header;
+      border-radius: 90px;
+      border: 2px solid @lighterGray;
+      padding: 15px 36px;
+      letter-spacing: -0.5px;
+      -webkit-transition: border-color 0.1s ease-in-out;
+      -moz-transition: border-color 0.1s ease-in-out;
+      transition: border-color 0.1s ease-in-out;
+
+      &:hover {
+        border-color: @lightGray;
+      }
+
+      .sub {
+        display: none;
+        color: @header;
+      }
     }
-  }
-
-  .previous {
-    float: left;
-  }
-
-  .next {
-    float: right;
   }
 }
 

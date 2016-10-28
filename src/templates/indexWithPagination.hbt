@@ -32,22 +32,26 @@
 
     <nav class="pagination">
         <div class="wrapper">
-        {{#if pagination.previous}}
-            <a href="{{baseUrl}}/{{dropIndexHtml pagination.previous.path}}" class="button rounded light previous">
-                <span class="main">Older Posts</span>
-                <span class="sub">
-                    <i class="fa fa-chevron-left"></i>
-                </span>
-            </a>
-        {{/if}}
-        {{#if pagination.next}}
-            <a href="{{baseUrl}}/{{dropIndexHtml pagination.next.path}}" class="button rounded light next">
-                <span class="main">Newer Posts</span>
-                <span class="sub">
-                    <i class="fa fa-chevron-right"></i>
-                </span>
-            </a>
-        {{/if}}
+            <div>
+            {{#if pagination.previous}}
+                <a href="{{baseUrl}}/{{dropIndexHtml pagination.previous.path}}" class="button rounded light previous">
+                    <span class="main">Newer Posts</span>
+                    <span class="sub">
+                        <i class="fa fa-chevron-left"></i>
+                    </span>
+                </a>
+            {{/if}}
+            </div>
+            <div>
+            {{#if pagination.next}}
+                <a href="{{baseUrl}}/{{dropIndexHtml pagination.next.path}}" class="button rounded light next">
+                    <span class="main">Older Posts</span>
+                    <span class="sub">
+                        <i class="fa fa-chevron-right"></i>
+                    </span>
+                </a>
+            {{/if}}
+            </div>
         </div>
 
     </nav>

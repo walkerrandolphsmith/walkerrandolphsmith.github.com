@@ -97,7 +97,7 @@ const config = {
             posts: {
                 pattern: 'content/posts/*.md',
                 sortBy: 'date',
-                reverse: false
+                reverse: true
             },
             pages: {
                 pattern: 'content/pages/*.md'
