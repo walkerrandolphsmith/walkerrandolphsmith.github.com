@@ -24,7 +24,7 @@ gulp.task('draft', [], function() {
     const tags = options.tags;
 
 
-    const dir = path.resolve(__dirname, '../', 'src', 'posts/');
+    const dir = path.resolve(__dirname, '../', 'src', 'content', 'posts');
 
     if(!name) {
         console.log('No name was provided with -n or --name');
@@ -53,7 +53,7 @@ description: Post one
 author: Walker Randolph Smith
 type: article
 public: ${isDraft ? 'false' : 'true'}
-tags: ${tags.split(',').join(', ')}
+tags: ${tags ? tags.split(',').join(', ') : ''}
 hero: default.png
 ---
 `;
