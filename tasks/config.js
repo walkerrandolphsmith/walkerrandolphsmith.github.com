@@ -43,10 +43,7 @@ const config = {
         cname: `${src}/{CNAME,googled7479385bda29208.html}`,
         dest: `${dest}/css`
     },
-    blogPatterns: [
-        `${src}/content/**/*.md`,
-        `${src}/templates/**/*.hbt`
-    ],
+    blogPatterns: `${src}/{content,templates}/**/*.*`,
     resume: {
         src: `${dest}/resume/index.html`,
         dest: `${dest}/`

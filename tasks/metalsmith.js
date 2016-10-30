@@ -45,7 +45,7 @@ const redirectOpts      = options.redirect;
 const src               = options.src;
 const dest              = options.dest;
 
-gulp.task('metalsmith', ['amp'], function() {
+gulp.task('metalsmith', function() {
     const markdownFilter = filter(file => /md/.test(file.path));
 
     return gulp

@@ -29,6 +29,7 @@ gulp.task('scripts', shell.task([
 gulp.task('build', function(callback) {
     runSequence(
         'clean',
+        'amp',
         ['metalsmith', 'scripts', 'styles', 'assets', 'cname'],
         'pdf',
         callback

@@ -9,13 +9,12 @@ gulp.task('dev', ['build'], function() {
         port: config.port
     });
 
-    config.blogPatterns.forEach(pattern => {
-        gulp.watch(pattern, ['metalsmith']);
-        gulp.watch(pattern).on('change', browserSync.reload);
-    });
+    gulp.watch(config.blogPatterns, ['metalsmith']);
+    gulp.watch(config.blogPatterns).on('change', browserSync.reload);
 
     gulp.watch(config.scripts.glob, ['scripts']);
     gulp.watch(config.scripts.glob).on('change', browserSync.reload);
+
     gulp.watch(config.styles.glob, ['styles']);
     gulp.watch(config.styles.glob).on('change', browserSync.reload);
 });
