@@ -4,11 +4,13 @@ Allow: electron-native-apps-amp/index.html
 Allow: knockout-and-durandal-amp/index.html
 Allow: add-bitbucket-aside-to-octopress-amp/index.html
 Allow: pair-programming-amp/index.html
+Allow: promises-amp/index.html
 Allow: versionone-javascript-sdk-amp/index.html
 Allow: array/index.html
 Allow: electron-native-apps/index.html
 Allow: knockout-and-durandal/index.html
 Allow: add-bitbucket-aside-to-octopress/index.html
 Allow: pair-programming/index.html
+Allow: promises/index.html
 Allow: versionone-javascript-sdk/index.html
 Sitemap: http://www.walkerrandolphsmith.com/sitemap.xml

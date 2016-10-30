@@ -122,7 +122,7 @@
             <h3 class="title">Tags</h3>
             <hr>
             <div class="tags">
-                    <a class="tag" href="http://www.walkerrandolphsmith.com/tags/javascript/" title="javascript">javascript (5)</a>
+                    <a class="tag" href="http://www.walkerrandolphsmith.com/tags/javascript/" title="javascript">javascript (6)</a>
                     <a class="tag" href="http://www.walkerrandolphsmith.com/tags/electron/" title="electron">electron (1)</a>
                     <a class="tag" href="http://www.walkerrandolphsmith.com/tags/practices/" title="practices">practices (1)</a>
                     <a class="tag" href="http://www.walkerrandolphsmith.com/tags/versionone/" title="versionone">versionone (1)</a>
@@ -225,6 +225,37 @@
             <div class="wrapper">
                 <a href="http://www.walkerrandolphsmith.com" class="content post-image"></a>
                 <ul class="meta">
+                    <li class="category versionone">
+                        <a href="http://www.walkerrandolphsmith.com/tags/versionone/">versionone</a>
+                    </li>
+                    <li class="date">
+                        <a href="http://www.walkerrandolphsmith.com">
+                            <time datetime="October 20, 2016">October 20, 2016</time>
+                        </a>
+                    </li>
+                </ul>
+                <h2 class="title">
+                    <a href="http://www.walkerrandolphsmith.com/versionone-javascript-sdk/" title="VersionOne JavaScript SDK">VersionOne JavaScript SDK</a>
+                </h2>
+                <p class="excerpt">
+                    Recently the VersionOne JavaScript SDK received some love and got a major version release.
+The SDK allows communication with a VersionOne instance by exposing some of the well documented apis including
+ <code>query.v1</code>, <code>rest-1.v1</code>, and <code>metav1</code>. The SDK ultimately makes HTTP requests to a specified VersionOne instance.
+In this scenario I will not consider CORS and make all the requests from a server.
+This article assumes prior knowledge around Node.js and javascript.
+I will cover how to set up a minimal node application that uses an express server and the SDK to make queries to VersionOne.
+You can follow along with this git repo <a href="https://github.com/walkerrandolphsmith/sample-v1sdk-app">sample-v1sdk-app</a>.
+                </p>
+                <a href="http://www.walkerrandolphsmith.com/resume" class="author">
+                    <img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" alt="" data-no-retina="true">
+                    Walker Randolph Smith
+                </a>
+            </div>
+        </article>
+        <article class="post-item">
+            <div class="wrapper">
+                <a href="http://www.walkerrandolphsmith.com" class="content post-image"></a>
+                <ul class="meta">
                     <li class="category javascript">
                         <a href="http://www.walkerrandolphsmith.com/tags/javascript/">javascript</a>
                     </li>
@@ -253,33 +284,6 @@ Durandal is one of many JavaScript frameworks that leverage this design pattern.
                 </a>
             </div>
         </article>
-        <article class="post-item">
-            <div class="wrapper">
-                <a href="http://www.walkerrandolphsmith.com" class="content post-image"></a>
-                <ul class="meta">
-                    <li class="category javascript">
-                        <a href="http://www.walkerrandolphsmith.com/tags/javascript/">javascript</a>
-                    </li>
-                    <li class="date">
-                        <a href="http://www.walkerrandolphsmith.com">
-                            <time datetime="July 4, 2013">July 4, 2013</time>
-                        </a>
-                    </li>
-                </ul>
-                <h2 class="title">
-                    <a href="http://www.walkerrandolphsmith.com/add-bitbucket-aside-to-octopress/" title="Add Bitbucket Aside to Octopress">Add Bitbucket Aside to Octopress</a>
-                </h2>
-                <p class="excerpt">
-                    Adding public repositories hosted on Bitbucket to your blog is a great idea to showcase your projects.
-Checking out how the Github aside works will help, as they are similar.
-However, unlike Github, repository names on Bitbucket can have white space, but the URL to a repository is stripped of white space and every letter is converted to lowercase.
-                </p>
-                <a href="http://www.walkerrandolphsmith.com/resume" class="author">
-                    <img src="http://www.walkerrandolphsmith.com/css/images/kakashi.png" alt="" data-no-retina="true">
-                    Walker Randolph Smith
-                </a>
-            </div>
-        </article>
     </section>
 
     <nav class="pagination">
@@ -293,6 +297,12 @@ However, unlike Github, repository names on Bitbucket can have white space, but 
                 </a>
             </div>
             <div>
+                <a href="http://www.walkerrandolphsmith.com/posts/4/" class="button rounded light next">
+                    <span class="main">Older Posts</span>
+                    <span class="sub">
+                        <i class="fa fa-chevron-right"></i>
+                    </span>
+                </a>
             </div>
         </div>
 
