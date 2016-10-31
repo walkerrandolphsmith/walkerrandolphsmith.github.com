@@ -1,5 +1,6 @@
 var pkg = require('./../package.json');
-
+var renderer = require('./plugins/renderer');
+var highlighter = require('./plugins/highlighter');
 const src = './src';
 const dest = './build';
 
@@ -87,6 +88,13 @@ const config = {
             '**/*.less',
             '**/*.js'
         ],
+        marked: {
+            gfm: true,
+            smartypants: true,
+            renderer: renderer,
+            langPrefix: 'language-',
+            highlight: highlighter
+        },
         amp: {
             src: `${src}/content/amps`
         },

@@ -24,7 +24,6 @@ var related             = require('metalsmith-static-related');
 var redirect            = require('metalsmith-redirect');
 var tags                = require('./plugins/tags');
 var metaLogger          = require('./plugins/metaLogger');
-var highlighter         = require('./plugins/highlighter');
 var recentPosts         = require('./plugins/recentPosts');
 
 var config              = require('./config');
@@ -32,6 +31,7 @@ var options             = config.metalsmith;
 
 const metaData          = options.metaData;
 const ignoreOpts        = options.ignore;
+const markedOpts        = options.marked;
 const collectionOpts    = options.collection;
 const paginationOpts    = options.pagination;
 const feedOpts          = options.feed;
@@ -64,13 +64,7 @@ gulp.task('metalsmith', function() {
                 .use(related(relatedOpts))
                 .use(recentPosts())
                 .use(katex())
-                .use(markdown({
-                    gfm: true,
-                    smartypants: true,
-                    renderer: highlighter.renderer,
-                    langPrefix: 'language-',
-                    highlight: highlighter.highlighter
-                }))
+                .use(markdown(markedOpts))
                 .use(excerpts())
                 .use(permalinks(permalinkOpts))
                 .use(pagination(paginationOpts))

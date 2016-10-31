@@ -41,6 +41,22 @@
     letter-spacing: -1px;
     color: @gray;
   }
+
+  h2, h3 {
+    position: relative;
+    .anchor {
+      position: absolute;
+      left: -18px;
+      border: none;
+      color: @header;
+      cursor: pointer;
+      visibility: hidden;
+      &:before { content: '#'; }
+    }
+    &:hover .anchor {
+      visibility: visible;
+    }
+  }
 }
 
 .post-bottom {
