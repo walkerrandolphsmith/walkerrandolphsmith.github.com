@@ -116,7 +116,7 @@
             <div class="wrapper">
                 <div class="info">
                     <a href="{{baseUrl}}/resume/" class="profile gravatar">
-                        <img src="{{avatar}}" alt="{{this.author}}" data-no-retina="true">
+                        <img src="{{darkAvatar}}" alt="{{this.author}}" data-no-retina="true">
                     </a>
                     <div class="meta">
                         <span class="title">Author</span>
