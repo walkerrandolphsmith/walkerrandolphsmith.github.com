@@ -7,7 +7,7 @@
   <body>
     <header class="blog-info fixed hidden">
         <div class="title">
-            <a href="{{baseUrl}}"><img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}"></a>
+            <a href="{{baseUrl}}"><img src="{{darkAvatar}}" class="retina" alt="{{this.authorbio.name}}"></a>
         </div>
         {{> nav}}
     </header>
