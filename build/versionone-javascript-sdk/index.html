@@ -240,16 +240,14 @@ In this scenario I will not consider CORS and make all the requests from a serve
 This article assumes prior knowledge around Node.js and javascript.
 I will cover how to set up a minimal node application that uses an express server and the SDK to make queries to VersionOne.
 You can follow along with this git repo <a href="https://github.com/walkerrandolphsmith/sample-v1sdk-app">sample-v1sdk-app</a>.</p>
-<h2 id="getting-started">Getting Started</h2>
-<p>This is a node application and therefore we will start by creating our <code>package.json</code>.</p>
+<h2><a name="getting-started" class="anchor" href="#getting-started"></a>Getting Started</h2><p>This is a node application and therefore we will start by creating our <code>package.json</code>.</p>
 <div class="code-wrapper"><pre><code>npm init --yes</code></pre><i class="fa fa-copy"></i></div><p>After generating a minimal package we can edit it to specify things about our app.
 At this point we may also want to create a <code>README.md</code> to describe the application and a <code>.gitignore</code> file to ignore
 certain files and directories, such as <code>node_modules</code> directory, from version control.</p>
 <p>Let’s create a git repo and commit our first change.</p>
 <div class="code-wrapper"><pre><code>git init
 git add .
-git commit -m "Initial commit to our app"</code></pre><i class="fa fa-copy"></i></div><h2 id="versionone-sdk">VersionOne SDK</h2>
-<p>Lets setup the VersionOne SDK.
+git commit -m "Initial commit to our app"</code></pre><i class="fa fa-copy"></i></div><h2><a name="versionone-sdk" class="anchor" href="#versionone-sdk"></a>VersionOne SDK</h2><p>Lets setup the VersionOne SDK.
 First we need to install it.</p>
 <div class="code-wrapper"><pre><code>npm install --save v1sdk</code></pre><i class="fa fa-copy"></i></div><p>The SDK does not directly require a dependency on an AJAX library to make HTTP requests, but instead allows the consumer
 to choose the library of their choice and pass it as a parameter to the SDK.
@@ -290,8 +288,7 @@ Edit the package to contain a start command within the scripts.</p>
     "start": "node server.js"
 }</code></pre><i class="fa fa-copy"></i></div><p>Now when we run the app it will immediately make a request to the VersionOne instance
 and print the response to the console.</p>
-<h2 id="express">Express</h2>
-<p>Now we can start building the web server. I will choose express, lets install it.</p>
+<h2><a name="express" class="anchor" href="#express"></a>Express</h2><p>Now we can start building the web server. I will choose express, lets install it.</p>
 <div class="code-wrapper"><pre><code>npm install --save express</code></pre><i class="fa fa-copy"></i></div><p>Let’s update <code>server.js</code>
 to create an express server and listen on port 3000. It will look something like:</p>
 <div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token keyword" >var</span> express <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'express'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>

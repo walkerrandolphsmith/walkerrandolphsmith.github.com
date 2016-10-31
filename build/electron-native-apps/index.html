@@ -238,8 +238,7 @@ Today, native applications can be created with a consistent set of tools includi
 Electron, developed by Github, was orginally known as Atom Shell as it powered the homegrown text editor created at Github, Atom.
 Now well known applications such as Slack, Atom, Visual Studio Code, and more have been developed with Electron.
 I am going to cover creating a minimal Electron application.</p>
-<h2 id="getting-started">Getting Started</h2>
-<p>First, let’s add a <code>README.md</code> to describe the project. Next we will create a <code>.gitignore</code> file to ignore certain
+<h2><a name="getting-started" class="anchor" href="#getting-started"></a>Getting Started</h2><p>First, let’s add a <code>README.md</code> to describe the project. Next we will create a <code>.gitignore</code> file to ignore certain
 files and directories from version control. Since we are creating a node application lets add the following lines to
 the <code>.gitignore</code>.</p>
 <div class="code-wrapper"><pre><code>node_modules/
@@ -248,10 +247,8 @@ values we can use the <code>--yes</code> flag at the end our the following comma
 <div class="code-wrapper"><pre><code>npm init --yes</code></pre><i class="fa fa-copy"></i></div><p>Let’s create a git repo and commit our first change.</p>
 <div class="code-wrapper"><pre><code>git init
 git add .
-git commit -m "Initial commit to our app"</code></pre><i class="fa fa-copy"></i></div><h2 id="dependencies">Dependencies</h2>
-<p>Electron can come in a pre-packaged manner and we will install this with the following command:</p>
-<div class="code-wrapper"><pre><code>npm install --save electron-prebuilt</code></pre><i class="fa fa-copy"></i></div><h2 id="setup">Setup</h2>
-<p>The entire application can be created with only three files: <code>package.json</code>, <code>index.js</code>, and <code>index.html</code>.
+git commit -m "Initial commit to our app"</code></pre><i class="fa fa-copy"></i></div><h2><a name="dependencies" class="anchor" href="#dependencies"></a>Dependencies</h2><p>Electron can come in a pre-packaged manner and we will install this with the following command:</p>
+<div class="code-wrapper"><pre><code>npm install --save electron-prebuilt</code></pre><i class="fa fa-copy"></i></div><h2><a name="setup" class="anchor" href="#setup"></a>Setup</h2><p>The entire application can be created with only three files: <code>package.json</code>, <code>index.js</code>, and <code>index.html</code>.
 We will create a directory like</p>
 <div class="code-wrapper"><pre><code>app/
 ├── README.md
@@ -283,8 +280,7 @@ app<span class="token punctuation" >.</span><span class="token function" >on</sp
 by garbage collection. <code>createWindow</code> is a function that creates a new BrowserWindow, loads the user interface from disk,
 opens Chrome Developer Console, and creates an event listener for when the window is closed. Lastly,
 when the app is ready we invoke the <code>createWindow</code> function.</p>
-<h2 id="running-the-app">Running the app</h2>
-<p>In order for electron to process our <code>index.js</code> file and open a window we must tell it to do so.</p>
+<h2><a name="running-the-app" class="anchor" href="#running-the-app"></a>Running the app</h2><p>In order for electron to process our <code>index.js</code> file and open a window we must tell it to do so.</p>
 <div class="code-wrapper"><pre><code>./node_modules/.bin/electron index.js</code></pre><i class="fa fa-copy"></i></div><p>In order to make this easier to run lets add an npm script to <code>package.json</code> that runs the app.
 Edit the package to contain a start command within the scripts.</p>
 <div class="code-wrapper"><pre><code>"scripts": {

@@ -320,8 +320,7 @@ Asynchronous programming can be a challenging task and it has evolved quite a bi
 In a few short years I have solved this problem like many other Javascript developers: using callbacks, promises, and now
 even <code>async</code> and <code>await</code>. Each of these approaches changes the structure of the asynchronous code as well as the control flow.
 For many people seeing the differences between these techniques will actually feel like a stroll down memory lane.
-<h2 id="callbacks">callbacks</h2>
-<p>The first technique I learned involved a pattern called callbacks. This term describes a technique of invoking a “callback”
+<h2><a name="callbacks" class="anchor" href="#callbacks"></a>callbacks</h2><p>The first technique I learned involved a pattern called callbacks. This term describes a technique of invoking a “callback”
 function that will operate on the results of an asynchronous function invocation when the result is available. As mentioned
 file IO is a great example of asynchronous code. Consider reading a file from disk:</p>
 <div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token keyword" >const</span> contents <span class="token operator" >=</span> fs<span class="token punctuation" >.</span><span class="token function" >readFile</span><span class="token punctuation" >(</span><span class="token string" >"my-file"</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
@@ -359,8 +358,7 @@ Lastly one common complaint of this code gives rise to the term callback hell, t
 The trail of <code>});</code> symbols at the end indicates how deeply nested this block has become. One solution to avoid this deep nesting is to
 declare each callback function instead of using anonymous functions. This allows the function to be written with the same
 indentation as the top level call to <code>readdir</code>.</p>
-<h2 id="promises">promises</h2>
-<p>A promise is an alternative construct that enables us to write more readable asynchronous code. Before the advent of ES2015 there
+<h2><a name="promises" class="anchor" href="#promises"></a>promises</h2><p>A promise is an alternative construct that enables us to write more readable asynchronous code. Before the advent of ES2015 there
 were many great node modules like <code>Q</code>, <code>bluebird</code>, <code>RSVP</code>, and many more that provided promises. Now Promise is a first class
 citizen of the language. So what is a promise? It is merely a function that is passed the arguments resolve and reject.
 The function is executed immediately by the Promise implementation, passing resolve and reject functions and after
@@ -387,8 +385,7 @@ callback function by passing an array of promises and/or scalar values to the fu
     <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>items <span class="token operator" >=</span><span class="token operator" >></span> Promise<span class="token punctuation" >.</span><span class="token function" >all</span><span class="token punctuation" >(</span>
         items<span class="token punctuation" >.</span><span class="token function" >map</span><span class="token punctuation" >(</span>i <span class="token operator" >=</span><span class="token operator" >></span> <span class="token function" >fetch</span><span class="token punctuation" >(</span><span class="token template-string" ><span class="token string" >`http://resource/details/</span><span class="token interpolation" ><span class="token interpolation-punctuation punctuation" >${</span>i<span class="token punctuation" >.</span>id<span class="token interpolation-punctuation punctuation" >}</span></span><span class="token string" >`</span></span><span class="token punctuation" >)</span><span class="token punctuation" >)</span>
     <span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token keyword" >catch</span><span class="token punctuation" >(</span>err <span class="token operator" >=</span><span class="token operator" >></span> console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>err<span class="token punctuation" >)</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><h2 id="async-await">async await</h2>
-<p>Now ES2016 has described a new language feature to help us handle promises with the keywords <code>async</code> and <code>await</code>!
+    <span class="token punctuation" >.</span><span class="token keyword" >catch</span><span class="token punctuation" >(</span>err <span class="token operator" >=</span><span class="token operator" >></span> console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>err<span class="token punctuation" >)</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><h2><a name="async-await" class="anchor" href="#async-await"></a>async await</h2><p>Now ES2016 has described a new language feature to help us handle promises with the keywords <code>async</code> and <code>await</code>!
 A function can de decorated with the <code>async</code> keyword that indicates it returns a Promise.
 It’s invocation can be decorated with the <code>await</code> keyword which allows us to read and write asynchronous code synchronously.
 The await keyword indicates there is a blocking call and further execution will wait for the promises resolution.</p>

@@ -314,15 +314,13 @@
                   Adding public repositories hosted on Bitbucket to your blog is a great idea to showcase your projects.
 Checking out how the Github aside works will help, as they are similar.
 However, unlike Github, repository names on Bitbucket can have white space, but the URL to a repository is stripped of white space and every letter is converted to lowercase.
-<h2 id="update-main-configuration">Update main configuration</h2>
-<p>In the <code>_config.yml</code> add the following lines:</p>
+<h2><a name="update-main-configuration" class="anchor" href="#update-main-configuration"></a>Update main configuration</h2><p>In the <code>_config.yml</code> add the following lines:</p>
 <div class="code-wrapper"><pre><code># Bitbucket repositories
 bitbucket_user: your-user-name
 bitbucket_repo_count: 5
 bitbucket_show_profile_link: true
 bitbucket_skip_forks: true</code></pre><i class="fa fa-copy"></i></div><p>If the view will be added to the sidebar you will also need to add the, yet to exist, bitbucket.html view to the appropriate aside. In this case add the repositories to the default asides.</p>
-<div class="code-wrapper"><pre><code>blog_index_asides: [custom/asides/bitbucket.html, asides/github.html]</code></pre><i class="fa fa-copy"></i></div><h2 id="add-the-view">Add the View</h2>
-<p>In the previous code block the path preceding bitbucket.html indicates where to make a new html file named bitbucket.</p>
+<div class="code-wrapper"><pre><code>blog_index_asides: [custom/asides/bitbucket.html, asides/github.html]</code></pre><i class="fa fa-copy"></i></div><h2><a name="add-the-view" class="anchor" href="#add-the-view"></a>Add the View</h2><p>In the previous code block the path preceding bitbucket.html indicates where to make a new html file named bitbucket.</p>
 <div class="code-wrapper"><pre><code>{% if site.bitbucket_user %}
 <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>section</span><span class="token punctuation" >></span></span>
   <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>h1</span><span class="token punctuation" >></span></span>Bitbucket Repos<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>h1</span><span class="token punctuation" >></span></span>
