@@ -86,6 +86,16 @@
       display: inline-block;
       vertical-align: -7px;
       margin-right: 15px;
+      opacity: 0.5;
+      transition: opacity .15s ease-in;
+    }
+
+    &:hover {
+      color: @darkerGray;
+
+      img {
+        opacity: 1;
+      }
     }
   }
 }
