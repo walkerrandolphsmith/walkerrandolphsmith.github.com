@@ -1,9 +1,5 @@
 <section class="hero hero-short">
-   {{#if this.hero}}
-   <div class="background" style="background-image: url('/css/images/{{this.hero}}');"></div>
-   {{else}}
-   <div class="background" style="background-image: url('/css/images/default.jpg');"></div>
-   {{/if}}
+    <div class="background" style="background-image: url('{{heroPath this.hero}}');"></div>
    <header class="blog-info transparent">
        <div class="title">
            <a href="{{baseUrl}}"><img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}"></a>

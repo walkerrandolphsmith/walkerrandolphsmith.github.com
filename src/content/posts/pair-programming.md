@@ -7,7 +7,7 @@ author: Walker Randolph Smith
 type: article
 public: true
 tags: practices
-hero: default.jpg
+hero: practices.png
 ---
 
 Over the past two years I have practiced pair programming on a daily basis. Prior to this exposure I was familiar with

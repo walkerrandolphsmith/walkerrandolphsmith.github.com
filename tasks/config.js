@@ -112,7 +112,7 @@ const config = {
                 pageMetadata: {
                     description: defaultDescription,
                     type: ogType,
-                    hero: 'default.png'
+                    hero: 'default.jpg'
                 }
             }
         },

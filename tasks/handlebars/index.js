@@ -27,6 +27,11 @@ module.exports = (function(){
     Handlebars.registerHelper('avatar', () => URL + '/css/images/logo.png');
     Handlebars.registerHelper('darkAvatar', () => URL + '/css/images/logo-dark.png');
 
+    Handlebars.registerHelper('heroPath', hero => {
+        const root = '/css/images/heroes';
+        return hero ? `${root}/${hero}` : `${root}/default.jpg`;
+    });
+
     Handlebars.registerHelper('dateFormat', context => moment(context).format("LL"));
 
     Handlebars.registerHelper('dateGMT', context => {

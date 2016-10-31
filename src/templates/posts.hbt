@@ -14,11 +14,7 @@
     {{> drawer}}
     <main class="page-wrapper">
         <section class="hero">
-            {{#if this.hero}}
-            <div class="background" style="background-image: url('/css/images/{{this.hero}}');"></div>
-            {{else}}
-            <div class="background" style="background-image: url('/css/images/default.jpg');"></div>
-            {{/if}}
+            <div class="background" style="background-image: url('{{heroPath this.hero}}');"></div>
             <header class="blog-info transparent">
                 <div class="title">
                     <a href="{{baseUrl}}"><img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}"></a>
@@ -177,7 +173,7 @@
         <div class="related-posts">
             {{#if this.previous.path}}
             <a href="{{baseUrl}}/{{this.previous.path}}/" class="previous-post left">
-                <img src="{{baseUrl}}/css/images/{{this.previous.hero}}" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
+                <img src="{{baseUrl}}{{heroPath this.previous.hero}}" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
                 <div class="info">
                     <span>Previous Post</span>
                     <span class="title">{{this.previous.title}}</span>
@@ -193,7 +189,7 @@
                     <span>Next Post</span>
                     <span class="title">{{this.next.title}}</span>
                 </div>
-                <img src="{{baseUrl}}/css/images/{{this.next.hero}}" width="36px" height="36px" alt="{{this.next.title}}" data-no-retina="true">
+                <img src="{{baseUrl}}{{heroPath this.next.hero}}" width="36px" height="36px" alt="{{this.next.title}}" data-no-retina="true">
             </a>
             {{else}}
             <a class="right"></a>

@@ -236,7 +236,7 @@
       },
       "image": {
         "@type": "ImageObject",
-        "url": "{{baseUrl}}/css/images/{{this.hero}}",
+        "url": "{{baseUrl}}{{heroPath this.hero}}",
         "height": 2000,
         "width": 800
       }
@@ -260,13 +260,13 @@
                     </li>
                     <li style="display: none;">
                         <a href="{{baseUrl}}/resume/" class="author">
-                            <img src="{{avatar}}" alt="{{this.author}}" data-no-retina="true">
+                            <img src="{{darkAvatar}}" alt="{{this.author}}" data-no-retina="true">
                             <span>{{this.author}}</span>
                         </a>
                     </li>
                 </ul>
             </header>
-            <amp-img src="{{baseUrl}}/css/images/{{this.hero}}"
+            <amp-img src="{{baseUrl}}{{heroPath this.hero}}"
                  width="264" height="96" layout="responsive">
             </amp-img>
         </section>
