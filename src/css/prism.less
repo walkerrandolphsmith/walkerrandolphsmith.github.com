@@ -234,6 +234,9 @@ pre.line-numbers > code {
   display: block;
   counter-increment: linenumber;
 }
+pre.language-shell.line-numbers .line-numbers-rows > span:before {
+  content: '$';
+}
 
 .line-numbers-rows > span:before {
   content: counter(linenumber);

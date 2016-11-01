@@ -23,7 +23,7 @@ You can follow along with this git repo [sample-v1sdk-app](https://github.com/wa
  ## Getting Started
 This is a node application and therefore we will start by creating our `package.json`.
 
-```
+```shell
 npm init --yes
 ```
 
@@ -32,22 +32,21 @@ At this point we may also want to create a `README.md` to describe the applicati
 certain files and directories, such as `node_modules` directory, from version control.
 
 Let's create a git repo and commit our first change.
-```
+```shell
 git init
-git add .
-git commit -m "Initial commit to our app"
+git commit -am "Initial commit to our app"
 ```
 
 ## VersionOne SDK
 Lets setup the VersionOne SDK.
 First we need to install it.
-```
+```shell
 npm install --save v1sdk
 ```
 The SDK does not directly require a dependency on an AJAX library to make HTTP requests, but instead allows the consumer
 to choose the library of their choice and pass it as a parameter to the SDK.
 In this case we will use `axios` as our library of choice so we need to install it as well.
-```
+```shell
 npm install --save axios
 ```
 
@@ -108,7 +107,7 @@ and print the response to the console.
 ## Express
 Now we can start building the web server. I will choose express, lets install it.
 
-```
+```shell
 npm install --save express
 ```
 

@@ -32,20 +32,19 @@ node_modules/
 Now we will create our `package.json` to configure aspects of the application. In order to pre-fill the package with default
 values we can use the `--yes` flag at the end our the following command:
 
-```
+```shell
 npm init --yes
 ```
 
 Let's create a git repo and commit our first change.
-```
+```shell
 git init
-git add .
-git commit -m "Initial commit to our app"
+git commit -am "Initial commit to our app"
 ```
 
 ## Dependencies
 Electron can come in a pre-packaged manner and we will install this with the following command:
-```
+```shell
 npm install --save electron-prebuilt
 ```
 
