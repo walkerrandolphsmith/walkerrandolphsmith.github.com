@@ -17,6 +17,9 @@
 
 pre {
   padding: 2em;
+  border-left: 5px solid #728fcb;
+  background-size: 100% 2em;
+  //background-image: -webkit-linear-gradient(#eee 0.05em, transparent .05em);
 }
 
 code, pre {
@@ -37,8 +40,8 @@ code, pre {
   -moz-hyphens: none;
   -ms-hyphens: none;
   hyphens: none;
-  background: #faf8f5;
-  line-height: 30px;
+  background-color: #faf8f5;
+  line-height: 20px;
 
   margin: .5em 0;
   overflow: auto;
@@ -177,4 +180,45 @@ pre > code.highlight {
   background: rgba(45, 32, 6, 0.2);
   background: -webkit-linear-gradient(left, rgba(45, 32, 6, 0.2) 70%, rgba(45, 32, 6, 0));
   background: linear-gradient(to right, rgba(45, 32, 6, 0.2) 70%, rgba(45, 32, 6, 0));
+}
+
+pre.line-numbers {
+  position: relative;
+  padding-left: 3.8em;
+  counter-reset: linenumber;
+}
+
+pre.line-numbers > code {
+  position: relative;
+}
+
+.line-numbers .line-numbers-rows {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  font-size: 100%;
+  left: -3.8em;
+  width: 3em;
+  letter-spacing: -1px;
+  border-right: 1px solid #999;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+}
+
+.line-numbers-rows > span {
+  pointer-events: none;
+  display: block;
+  counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+  content: counter(linenumber);
+  color: #999;
+  display: block;
+  padding-right: 0.8em;
+  text-align: right;
 }

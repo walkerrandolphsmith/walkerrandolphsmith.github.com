@@ -4,8 +4,9 @@ const renderer = new marked.Renderer();
 
 renderer.code = function(code, lang, escaped) {
     code = this.options.highlight(code, lang);
-    const langClass = !lang ? '' : ` class="${this.options.langPrefix + lang}"`;
-    return `<div class="code-wrapper"><pre${langClass}><code${langClass}>${code}</code></pre><i class="fa fa-copy"></i></div>`
+    const language = lang || 'none';
+    const classes = ` class="${this.options.langPrefix}${language} line-numbers"`;
+    return `<div class="code-wrapper"><pre${classes}><code${classes}>${code}</code></pre><i class="fa fa-copy"></i></div>`
 };
 
 renderer.heading = function(text, level) {
