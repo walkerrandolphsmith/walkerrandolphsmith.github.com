@@ -319,27 +319,26 @@ I am going to cover creating a minimal Electron application.
 <h2><a name="getting-started" class="anchor" href="#getting-started"></a>Getting Started</h2><p>First, let’s add a <code>README.md</code> to describe the project. Next we will create a <code>.gitignore</code> file to ignore certain
 files and directories from version control. Since we are creating a node application lets add the following lines to
 the <code>.gitignore</code>.</p>
-<div class="code-wrapper"><pre><code>node_modules/
-*.log</code></pre><i class="fa fa-copy"></i></div><p>Now we will create our <code>package.json</code> to configure aspects of the application. In order to pre-fill the package with default
+<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers">node_modules/
+*.log<span class="line-numbers-rows"><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Now we will create our <code>package.json</code> to configure aspects of the application. In order to pre-fill the package with default
 values we can use the <code>--yes</code> flag at the end our the following command:</p>
-<div class="code-wrapper"><pre><code>npm init --yes</code></pre><i class="fa fa-copy"></i></div><p>Let’s create a git repo and commit our first change.</p>
-<div class="code-wrapper"><pre><code>git init
-git add .
-git commit -m "Initial commit to our app"</code></pre><i class="fa fa-copy"></i></div><h2><a name="dependencies" class="anchor" href="#dependencies"></a>Dependencies</h2><p>Electron can come in a pre-packaged manner and we will install this with the following command:</p>
-<div class="code-wrapper"><pre><code>npm install --save electron-prebuilt</code></pre><i class="fa fa-copy"></i></div><h2><a name="setup" class="anchor" href="#setup"></a>Setup</h2><p>The entire application can be created with only three files: <code>package.json</code>, <code>index.js</code>, and <code>index.html</code>.
+<div class="code-wrapper"><pre class="language-shell line-numbers"><code class="language-shell line-numbers">npm init --yes<span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Let’s create a git repo and commit our first change.</p>
+<div class="code-wrapper"><pre class="language-shell line-numbers"><code class="language-shell line-numbers">git init
+git commit -am "Initial commit to our app"<span class="line-numbers-rows"><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><h2><a name="dependencies" class="anchor" href="#dependencies"></a>Dependencies</h2><p>Electron can come in a pre-packaged manner and we will install this with the following command:</p>
+<div class="code-wrapper"><pre class="language-shell line-numbers"><code class="language-shell line-numbers">npm install --save electron-prebuilt<span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><h2><a name="setup" class="anchor" href="#setup"></a>Setup</h2><p>The entire application can be created with only three files: <code>package.json</code>, <code>index.js</code>, and <code>index.html</code>.
 We will create a directory like</p>
-<div class="code-wrapper"><pre><code>app/
+<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers">app/
 ├── README.md
 ├── .gitignore
 ├── package.json
 ├── index.js
-└── index.html</code></pre><i class="fa fa-copy"></i></div><p>The <code>index.html</code> file serves as the user interface. In our case we want a document that contains the text “hello world”.</p>
-<div class="code-wrapper"><pre class="language-html"><code class="language-html"><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>html</span><span class="token punctuation" >></span></span>
+└── index.html<span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The <code>index.html</code> file serves as the user interface. In our case we want a document that contains the text “hello world”.</p>
+<div class="code-wrapper"><pre class="language-html line-numbers"><code class="language-html line-numbers"><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>html</span><span class="token punctuation" >></span></span>
     <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>body</span><span class="token punctuation" >></span></span>
         Hello World
     <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>body</span><span class="token punctuation" >></span></span>
-<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>html</span><span class="token punctuation" >></span></span></code></pre><i class="fa fa-copy"></i></div><p>The <code>index.js</code> file will be used to manage opening a window and loading our user interface.</p>
-<div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token keyword" >const</span> <span class="token punctuation" >{</span> app<span class="token punctuation" >,</span> BrowserWindow <span class="token punctuation" >}</span> <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'electron'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>html</span><span class="token punctuation" >></span></span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The <code>index.js</code> file will be used to manage opening a window and loading our user interface.</p>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >const</span> <span class="token punctuation" >{</span> app<span class="token punctuation" >,</span> BrowserWindow <span class="token punctuation" >}</span> <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'electron'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
 
 <span class="token keyword" >let</span> win<span class="token punctuation" >;</span>
 <span class="token keyword" >const</span> createWindow <span class="token operator" >=</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
@@ -354,16 +353,16 @@ We will create a directory like</p>
     <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
 <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
 
-app<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >'ready'</span><span class="token punctuation" >,</span> createWindow<span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><p>First we import portions of electron, the app and BrowserWindow. We declare win to ensure it is not removed
+app<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >'ready'</span><span class="token punctuation" >,</span> createWindow<span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>First we import portions of electron, the app and BrowserWindow. We declare win to ensure it is not removed
 by garbage collection. <code>createWindow</code> is a function that creates a new BrowserWindow, loads the user interface from disk,
 opens Chrome Developer Console, and creates an event listener for when the window is closed. Lastly,
 when the app is ready we invoke the <code>createWindow</code> function.</p>
 <h2><a name="running-the-app" class="anchor" href="#running-the-app"></a>Running the app</h2><p>In order for electron to process our <code>index.js</code> file and open a window we must tell it to do so.</p>
-<div class="code-wrapper"><pre><code>./node_modules/.bin/electron index.js</code></pre><i class="fa fa-copy"></i></div><p>In order to make this easier to run lets add an npm script to <code>package.json</code> that runs the app.
+<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers">./node_modules/.bin/electron index.js<span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>In order to make this easier to run lets add an npm script to <code>package.json</code> that runs the app.
 Edit the package to contain a start command within the scripts.</p>
-<div class="code-wrapper"><pre><code>"scripts": {
+<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers">"scripts": {
     "start": "electron index.js"
-}</code></pre><i class="fa fa-copy"></i></div><p>Now when we run the app it will open the application in a new window that contains our text hello world!</p>
+}<span class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Now when we run the app it will open the application in a new window that contains our text hello world!</p>
 
                 </p>
             </article>

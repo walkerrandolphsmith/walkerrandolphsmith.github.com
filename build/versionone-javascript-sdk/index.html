@@ -241,20 +241,19 @@ This article assumes prior knowledge around Node.js and javascript.
 I will cover how to set up a minimal node application that uses an express server and the SDK to make queries to VersionOne.
 You can follow along with this git repo <a href="https://github.com/walkerrandolphsmith/sample-v1sdk-app">sample-v1sdk-app</a>.</p>
 <h2><a name="getting-started" class="anchor" href="#getting-started"></a>Getting Started</h2><p>This is a node application and therefore we will start by creating our <code>package.json</code>.</p>
-<div class="code-wrapper"><pre><code>npm init --yes</code></pre><i class="fa fa-copy"></i></div><p>After generating a minimal package we can edit it to specify things about our app.
+<div class="code-wrapper"><pre class="language-shell line-numbers"><code class="language-shell line-numbers">npm init --yes<span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>After generating a minimal package we can edit it to specify things about our app.
 At this point we may also want to create a <code>README.md</code> to describe the application and a <code>.gitignore</code> file to ignore
 certain files and directories, such as <code>node_modules</code> directory, from version control.</p>
 <p>Let’s create a git repo and commit our first change.</p>
-<div class="code-wrapper"><pre><code>git init
-git add .
-git commit -m "Initial commit to our app"</code></pre><i class="fa fa-copy"></i></div><h2><a name="versionone-sdk" class="anchor" href="#versionone-sdk"></a>VersionOne SDK</h2><p>Lets setup the VersionOne SDK.
+<div class="code-wrapper"><pre class="language-shell line-numbers"><code class="language-shell line-numbers">git init
+git commit -am "Initial commit to our app"<span class="line-numbers-rows"><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><h2><a name="versionone-sdk" class="anchor" href="#versionone-sdk"></a>VersionOne SDK</h2><p>Lets setup the VersionOne SDK.
 First we need to install it.</p>
-<div class="code-wrapper"><pre><code>npm install --save v1sdk</code></pre><i class="fa fa-copy"></i></div><p>The SDK does not directly require a dependency on an AJAX library to make HTTP requests, but instead allows the consumer
+<div class="code-wrapper"><pre class="language-shell line-numbers"><code class="language-shell line-numbers">npm install --save v1sdk<span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The SDK does not directly require a dependency on an AJAX library to make HTTP requests, but instead allows the consumer
 to choose the library of their choice and pass it as a parameter to the SDK.
 In this case we will use <code>axios</code> as our library of choice so we need to install it as well.</p>
-<div class="code-wrapper"><pre><code>npm install --save axios</code></pre><i class="fa fa-copy"></i></div><p>Now that we have installed our dependencies we can create an instance of the SDK.
+<div class="code-wrapper"><pre class="language-shell line-numbers"><code class="language-shell line-numbers">npm install --save axios<span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Now that we have installed our dependencies we can create an instance of the SDK.
 Let’s create a file that exports the constructed instance and call it <code>V1Server</code>.</p>
-<div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token keyword" >const</span> axios <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'axios'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >const</span> axios <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'axios'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
 <span class="token keyword" >const</span> v1sdk <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'v1sdk/dist/index'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
 <span class="token keyword" >const</span> sdk <span class="token operator" >=</span> v1sdk<span class="token punctuation" >.</span><span class="token keyword" >default</span><span class="token punctuation" >;</span>
 <span class="token keyword" >const</span> axiosConnector <span class="token operator" >=</span> v1sdk<span class="token punctuation" >.</span>axiosConnector<span class="token punctuation" >;</span>
@@ -262,7 +261,7 @@ Let’s create a file that exports the constructed instance and call it <code>V1
 <span class="token keyword" >const</span> axiosConnectedSdk <span class="token operator" >=</span> <span class="token function" >axiosConnector</span><span class="token punctuation" >(</span>axios<span class="token punctuation" >)</span><span class="token punctuation" >(</span>sdk<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
 module<span class="token punctuation" >.</span>exports <span class="token operator" >=</span> <span class="token function" >axiosConnectedSdk</span><span class="token punctuation" >(</span><span class="token string" >'V1Host'</span><span class="token punctuation" >,</span> <span class="token string" >'v1Instance'</span><span class="token punctuation" >)</span>
     <span class="token punctuation" >.</span><span class="token function" >withCreds</span><span class="token punctuation" >(</span><span class="token string" >'v1User'</span><span class="token punctuation" >,</span> <span class="token string" >'v1Password'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-    <span class="token comment" spellcheck="true">//.withAccessToken('token');</span></code></pre><i class="fa fa-copy"></i></div><p>Note the <code>V1Host</code>, <code>V1Instance</code>, <code>V1User</code>, and <code>V1Password</code>.
+    <span class="token comment" spellcheck="true">//.withAccessToken('token');</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Note the <code>V1Host</code>, <code>V1Instance</code>, <code>V1User</code>, and <code>V1Password</code>.
 The host and instance can be found on the url you use to access your VersionOne instance.
 For example if your VersionOne instance is found at <code>https://CompanyA/Production</code>, then
 <code>V1Host</code> is <code>CompanyA</code> and <code>V1Instance</code> is <code>Production</code>.
@@ -273,7 +272,7 @@ but the commented line shows how to use an AccessToken.</p>
 <p>The module that is exported is an object that contains methods for <code>create</code>, <code>update</code> and <code>query</code> of VersionOne Assets.
 In addition in version 2.1.0 of the SDK methods <code>queryDefinition</code> and <code>activityStream</code> are available.</p>
 <p>Let’s use this module to query our VersionOne instance for PrimaryWorkitems’ names. We need to create a <code>server.js</code> file.</p>
-<div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token keyword" >var</span> v1 <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'./V1Server'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >var</span> v1 <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'./V1Server'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
 
 v1<span class="token punctuation" >.</span><span class="token function" >query</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
     <span class="token string" >'from'</span><span class="token punctuation" >:</span> <span class="token string" >'PrimaryWorkitem'</span><span class="token punctuation" >,</span>
@@ -282,16 +281,16 @@ v1<span class="token punctuation" >.</span><span class="token function" >query</
     <span class="token punctuation" >]</span>
 <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>assets <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
     console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>assets<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><p>In order to make this easier to run lets add an npm script to <code>package.json</code> that runs the app.
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>In order to make this easier to run lets add an npm script to <code>package.json</code> that runs the app.
 Edit the package to contain a start command within the scripts.</p>
-<div class="code-wrapper"><pre><code>"scripts": {
+<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers">"scripts": {
     "start": "node server.js"
-}</code></pre><i class="fa fa-copy"></i></div><p>Now when we run the app it will immediately make a request to the VersionOne instance
+}<span class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Now when we run the app it will immediately make a request to the VersionOne instance
 and print the response to the console.</p>
 <h2><a name="express" class="anchor" href="#express"></a>Express</h2><p>Now we can start building the web server. I will choose express, lets install it.</p>
-<div class="code-wrapper"><pre><code>npm install --save express</code></pre><i class="fa fa-copy"></i></div><p>Let’s update <code>server.js</code>
+<div class="code-wrapper"><pre class="language-shell line-numbers"><code class="language-shell line-numbers">npm install --save express<span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Let’s update <code>server.js</code>
 to create an express server and listen on port 3000. It will look something like:</p>
-<div class="code-wrapper"><pre class="language-js"><code class="language-js"><span class="token keyword" >var</span> express <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'express'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >var</span> express <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'express'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
 
 <span class="token keyword" >const</span> app <span class="token operator" >=</span> <span class="token function" >express</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
 <span class="token keyword" >const</span> v1 <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'./V1Server'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
@@ -320,7 +319,7 @@ app<span class="token punctuation" >.</span><span class="token function" >listen
             Open http://localhost:3000/.
          `</span></span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
     <span class="token punctuation" >}</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span></code></pre><i class="fa fa-copy"></i></div><p>The server returns the text hello world when requesting the root route, <code>/</code> and the response from the v1 query when
+<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The server returns the text hello world when requesting the root route, <code>/</code> and the response from the v1 query when
 requesting the <code>backlog</code> route.</p>
 
         </article>
