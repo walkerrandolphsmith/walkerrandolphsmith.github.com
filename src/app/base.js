@@ -42,7 +42,22 @@ export default (() => {
         })
     );
 
+    const setTheme = (newTheme, $body, $themer) => {
+        localStorage.setItem('theme', newTheme);
+        $body.removeClass();
+        $body.addClass(newTheme);
+        if($themer) {
+            $themer.val(newTheme)
+        }
+    };
+
     $(function() {
+        const $body = $('body');
+        const $themer = $('.dropdown select');
+
+        const theme = localStorage.getItem('theme') || $themer.val();
+        setTheme(theme, $body, $themer);
+
         const $drawer = $('.drawer');
 
         $('.close').on('click', (event) => {
@@ -101,6 +116,11 @@ export default (() => {
             mywindow.close();
 
             return true;
+        });
+
+        $themer.on('change', event => {
+            const selectedTheme = event.currentTarget.value.toLowerCase();
+            setTheme(selectedTheme, $body);
         });
     });
 

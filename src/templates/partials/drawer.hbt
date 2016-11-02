@@ -63,6 +63,21 @@
         </div>
     </section>
 
+    <section class="widget themes">
+        <h3 class="title">Themes</h3>
+        <hr>
+        <div class="dropdown">
+            <select>
+                <option value="solarized">Solarized</option>
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+            </select>
+            <div class="chevron">
+                <i class="fa fa-angle-down"></i>
+            </div>
+        </div>
+    </section>
+
     <section class="widget github-repos">
         <h3 class="title">Github</h3>
         <div class="pages">
