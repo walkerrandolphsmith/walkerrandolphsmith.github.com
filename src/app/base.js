@@ -183,6 +183,26 @@ export default (() => {
             }));
             cycle(fiddles, 'jsf');
         });
+
+    window.cw_badges = (response) => {
+        const user = response.user;
+        const url = 'https://coderwall.com/walkerrandolphsmith';
+        const badges = user.badges.map(badge => (
+            `<li class="badge">
+                <a href="${url}" target="_blank" title="${badge.name}">
+                    <img src="${badge.badge}" alt="${badge.name}"/>
+                </a>
+            </li>`
+        ));
+        $('.badges').html(badges);
+    };
+
+    (function() {
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "https://coderwall.com/walkerrandolphsmith.json?callback=cw_badges";
+        document.getElementsByTagName("body")[0].appendChild(script)
+    })();
     
     const cycle = (repos, key) => {
         const listItems = repos.map(

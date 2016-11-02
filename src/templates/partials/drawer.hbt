@@ -126,6 +126,12 @@
         <div id="jsf-groups"></div>
     </section>
 
+    <section class="widget coderwall-repos">
+        <h3 class="title">Badges</h3>
+        <hr>
+        <ul class="badges"></ul>
+    </section>
+
     <section class="widget twitter">
         <h3 class="title">Twitter</h3>
         <hr>
