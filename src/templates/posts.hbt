@@ -148,7 +148,7 @@
         </div>
         <div class="default show">
             <a href="{{baseUrl}}/resume/" class="author left">
-                <img src="{{avatar}}" alt="Walker Smith" data-no-retina="true">
+                <img src="{{darkAvatar}}" alt="Walker Smith" data-no-retina="true">
                 <div class="info">
                     <span>{{this.author}}</span>
                     <span class="title">
