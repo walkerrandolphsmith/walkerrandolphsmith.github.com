@@ -22,8 +22,6 @@ export default (() => {
         const $background = $('.background');
         const $title = $('.post-title');
 
-        const $comments = $('.comment-stream');
-
         let prev = 0;
         let lastScrollTop = 0;
 
@@ -61,13 +59,11 @@ export default (() => {
         });
 
         $('#comments').on('click', () => {
-            $comments.show();
             const current = $(document).scrollTop();
             $entirePage.animate({scrollTop: current + windowHeight}, 800);
         });
 
         $('#comment').on('click', () => {
-            $comments.show();
             $entirePage.animate({scrollTop: documentHeight }, 2000);
         });
 
