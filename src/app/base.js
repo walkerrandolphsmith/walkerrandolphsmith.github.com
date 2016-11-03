@@ -43,10 +43,14 @@ export default (() => {
 
     $(function() {
         const $body = $('body');
-        const $themer = $('.dropdown select');
 
+        const $themer = $('.dropdown select');
         const theme = localStorage.getItem('theme') || $themer.val();
         setTheme(theme, $body, $themer);
+        $themer.on('change', event => {
+            const selectedTheme = event.currentTarget.value.toLowerCase();
+            setTheme(selectedTheme, $body);
+        });
 
         const $drawer = $('.drawer');
 
@@ -106,11 +110,6 @@ export default (() => {
             mywindow.close();
 
             return true;
-        });
-
-        $themer.on('change', event => {
-            const selectedTheme = event.currentTarget.value.toLowerCase();
-            setTheme(selectedTheme, $body);
         });
     });
 
