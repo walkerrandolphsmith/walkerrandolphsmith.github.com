@@ -5,7 +5,119 @@ import request from 'superagent';
 import jsonp from 'superagent-jsonp';
 import GoogleAnalytics from './google-analytics';
 
+let hasBeenOpen = false;
+
 export default (() => {
+    $(function() {
+        const $body = $('body');
+
+        const $themer = $('.dropdown select');
+        const theme = localStorage.getItem('theme') || $themer.val();
+        setTheme(theme, $body, $themer);
+        $themer.on('change', event => {
+            const selectedTheme = event.currentTarget.value.toLowerCase();
+            setTheme(selectedTheme, $body);
+        });
+
+        const $drawer = $('.drawer');
+
+        $('.close').on('click', (event) => {
+            $drawer.removeClass('show');
+            event.stopPropagation();
+        });
+
+        $('.open').on('click', (event) => {
+            if(!hasBeenOpen) {
+                getDrawerData();
+                hasBeenOpen = true;
+            }
+            $drawer.addClass('show');
+            event.stopPropagation();
+        });
+
+        $(window).on('click', (event) => {
+            const $target = $(event.target);
+            const childOfDrawer = $target.parents('.drawer').length > 0;
+            if(!childOfDrawer) {
+                $drawer.removeClass('show');
+            }
+        });
+
+        $(document).keyup((event) => {
+            if(event.which === 27 /* escape */) {
+                $drawer.removeClass('show');
+            }
+        });
+
+        $('a').each(handleExternalLink);
+
+        $('#print').on('click', print);
+    });
+})()
+
+const handleExternalLink = function() {
+    var a = new RegExp(window.location.host);
+    if(!a.test(this.href)) {
+        $(this).click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            window.open(this.href, '_blank');
+        });
+    }
+};
+
+const print = () => {
+    const mywindow = window.open('', 'resume', 'height=400,width=600');
+
+    const resume = ($('<div/>').append($('#resume').clone()).html())
+
+    const contents = `<html>
+                <head>
+                    <title>Resume</title>
+                </head>
+                <body>
+                ${resume}
+                </body>
+            </html>`;
+
+    mywindow.document.write(contents);
+    mywindow.document.close();
+    mywindow.focus();
+    mywindow.print();
+    mywindow.close();
+
+    return true;
+};
+
+const setTheme = (newTheme, $body, $themer) => {
+    localStorage.setItem('theme', newTheme);
+    $body.removeClass();
+    $body.addClass(newTheme);
+    if($themer) {
+        $themer.val(newTheme)
+    }
+};
+
+const getDrawerData = () => {
+    window.cw_badges = (response) => {
+        const user = response.user;
+        const url = 'https://coderwall.com/walkerrandolphsmith';
+        const badges = user.badges.map(badge => (
+            `<li class="badge">
+                <a href="${url}" target="_blank" title="${badge.name}">
+                    <img src="${badge.badge}" alt="${badge.name}"/>
+                </a>
+            </li>`
+        ));
+        $('.badges').html(badges);
+    };
+
+    (function() {
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "https://coderwall.com/walkerrandolphsmith.json?callback=cw_badges";
+        document.getElementsByTagName("body")[0].appendChild(script)
+    })();
 
     window.twttr = (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0],
@@ -31,87 +143,6 @@ export default (() => {
                 .find('.timeline-Widget');
         })
     );
-
-    const setTheme = (newTheme, $body, $themer) => {
-        localStorage.setItem('theme', newTheme);
-        $body.removeClass();
-        $body.addClass(newTheme);
-        if($themer) {
-            $themer.val(newTheme)
-        }
-    };
-
-    $(function() {
-        const $body = $('body');
-
-        const $themer = $('.dropdown select');
-        const theme = localStorage.getItem('theme') || $themer.val();
-        setTheme(theme, $body, $themer);
-        $themer.on('change', event => {
-            const selectedTheme = event.currentTarget.value.toLowerCase();
-            setTheme(selectedTheme, $body);
-        });
-
-        const $drawer = $('.drawer');
-
-        $('.close').on('click', (event) => {
-            $drawer.removeClass('show');
-            event.stopPropagation();
-        });
-
-        $('.open').on('click', (event) => {
-            $drawer.addClass('show');
-            event.stopPropagation();
-        });
-
-        $(window).on('click', (event) => {
-            const $target = $(event.target);
-            const childOfDrawer = $target.parents('.drawer').length > 0;
-            if(!childOfDrawer) {
-                $drawer.removeClass('show');
-            }
-        });
-
-        $(document).keyup((event) => {
-            if(event.which === 27 /* escape */) {
-                $drawer.removeClass('show');
-            }
-        });
-
-        $('a').each(function() {
-            var a = new RegExp(window.location.host);
-            if(!a.test(this.href)) {
-                $(this).click(function(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    window.open(this.href, '_blank');
-                });
-            }
-        });
-
-        $('#print').on('click', () => {
-            const mywindow = window.open('', 'resume', 'height=400,width=600');
-
-            const resume = ($('<div/>').append($('#resume').clone()).html())
-
-            const contents = `<html>
-                <head>
-                    <title>Resume</title>
-                </head>
-                <body>
-                ${resume}
-                </body>
-            </html>`;
-
-            mywindow.document.write(contents);
-            mywindow.document.close();
-            mywindow.focus();
-            mywindow.print();
-            mywindow.close();
-
-            return true;
-        });
-    });
 
     request
         .get('https://api.github.com/users/walkerrandolphsmith/repos')
@@ -146,7 +177,7 @@ export default (() => {
             }
             cycle(repos, 'gh');
         });
-    
+
     request
         .get('https://api.bitbucket.org/1.0/users/walkerrandolphsmith')
         .use(jsonp)
@@ -159,7 +190,7 @@ export default (() => {
             }));
             cycle(repos, 'bb');
         });
-    
+
     request
         .get('http://jsfiddle.net/api/user/walkerrsmith/demo/list.json')
         .use(jsonp)
@@ -172,53 +203,33 @@ export default (() => {
             }));
             cycle(fiddles, 'jsf');
         });
+};
 
-    window.cw_badges = (response) => {
-        const user = response.user;
-        const url = 'https://coderwall.com/walkerrandolphsmith';
-        const badges = user.badges.map(badge => (
-            `<li class="badge">
-                <a href="${url}" target="_blank" title="${badge.name}">
-                    <img src="${badge.badge}" alt="${badge.name}"/>
-                </a>
-            </li>`
-        ));
-        $('.badges').html(badges);
-    };
+const cycle = (repos, key) => {
+    const listItems = repos.map(
+        repo => `<li><h5 class="name"><a href="${repo.url}" target="_blank">${repo.name}</a></h5><p class="description">${repo.description}</p></li>`
+    );
 
-    (function() {
-        var script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src = "https://coderwall.com/walkerrandolphsmith.json?callback=cw_badges";
-        document.getElementsByTagName("body")[0].appendChild(script)
-    })();
-    
-    const cycle = (repos, key) => {
-        const listItems = repos.map(
-            repo => `<li><h5 class="name"><a href="${repo.url}" target="_blank">${repo.name}</a></h5><p class="description">${repo.description}</p></li>`
-        );
-    
-        const groupSize = 2;
-        const groups = chunck(listItems, groupSize);
-    
-        const $section = $(`#${key}-groups`);
-    
-        groups.forEach((group, i) => {
-            const className = i === 0 ? ' active' : '';
-            const $container = $(`<ul class="${key}-repos${className}"></ul>`);
-            group.forEach(item => {
-                $container.append($(item));
-            });
-            $section.append($container);
+    const groupSize = 2;
+    const groups = chunck(listItems, groupSize);
+
+    const $section = $(`#${key}-groups`);
+
+    groups.forEach((group, i) => {
+        const className = i === 0 ? ' active' : '';
+        const $container = $(`<ul class="${key}-repos${className}"></ul>`);
+        group.forEach(item => {
+            $container.append($(item));
         });
-    
-        $section.cycle({
-            fx:     'fade',
-            prev:   `#${key}-prev`,
-            next:   `#${key}-next`,
-            timeout: 0,
-            rev: true,
-            delay: 100
-        });
-    };
-})()
+        $section.append($container);
+    });
+
+    $section.cycle({
+        fx:     'fade',
+        prev:   `#${key}-prev`,
+        next:   `#${key}-next`,
+        timeout: 0,
+        rev: true,
+        delay: 100
+    });
+};
