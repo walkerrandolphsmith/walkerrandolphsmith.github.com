@@ -30,15 +30,6 @@ export default (() => {
             const $timeline = $('iframe#twitter-widget-0')
                 .contents()
                 .find('.timeline-Widget');
-
-            const $header = $timeline.find('.timeline-Header');
-            $header.css({ display: 'none' });
-
-            const $body = $timeline.find('.timeline-Body');
-            $body.css({ border: 'none', width: '329px' });
-
-            const $footer = $timeline.find('.timeline-Footer');
-            $footer.css({ display: 'none' });
         })
     );
 
