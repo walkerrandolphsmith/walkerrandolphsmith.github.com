@@ -29,7 +29,9 @@ export default (() => {
             lastScrollTop = $window.scrollTop();
 
             const currentPosition = lastScrollTop + windowHeight;
-            const percentComplete = currentPosition / documentHeight;
+            const total = $postBottom.position().top + 90; //documentHeight
+            console.log(total, $postBottom);
+            const percentComplete = currentPosition / total;
 
             $meter.css({width: (percentComplete * 100) + "%"});
 
