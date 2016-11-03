@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import jqueryCycle from 'jquery-cycle';
-import jsPDF from 'jspdf';
 import chunck from 'lodash.chunk';
 import request from 'superagent';
 import jsonp from 'superagent-jsonp';
