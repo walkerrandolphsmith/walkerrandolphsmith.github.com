@@ -1,9 +1,21 @@
 import base from './base';
-import disqus from './disqus';
+import loadDisqus from './disqus';
 import $ from 'jquery';
+
+let commentsHaveBeenOpened = false;
+
+const openComments = ($comments) => {
+    if(!commentsHaveBeenOpened) {
+        loadDisqus();
+    }
+    commentsHaveBeenOpened = true;
+    $comments.show();
+};
 
 export default (() => {
     const HERO_HEIGHT = 527;
+    const END_OF_POST_DIVIDER_PADDING = 90;
+    const FOOTER_HEIGHT = 80;
     $(function () {
         const windowHeight = window.innerHeight;
         const documentHeight = document.body.clientHeight;
@@ -22,6 +34,7 @@ export default (() => {
         const $background = $('.background');
         const $title = $('.post-title');
 
+        const $comments = $('.comment-stream');
         let prev = 0;
         let lastScrollTop = 0;
 
@@ -29,7 +42,7 @@ export default (() => {
             lastScrollTop = $window.scrollTop();
 
             const currentPosition = lastScrollTop + windowHeight;
-            const total = $postBottom.position().top + 90; //documentHeight
+            const total = $postBottom.position().top + END_OF_POST_DIVIDER_PADDING;
             console.log(total, $postBottom);
             const percentComplete = currentPosition / total;
 
@@ -54,6 +67,10 @@ export default (() => {
                 $background.css({ opacity: opacity });
                 $title.css({ opacity: 1 - opacity });
             }
+
+            if(lastScrollTop + windowHeight > documentHeight - FOOTER_HEIGHT) {
+                openComments($comments);
+            }
         });
 
         $('.back-to-top').on('click', () => {
@@ -61,11 +78,13 @@ export default (() => {
         });
 
         $('#comments').on('click', () => {
+            openComments($comments);
             const current = $(document).scrollTop();
             $entirePage.animate({scrollTop: current + windowHeight}, 800);
         });
 
         $('#comment').on('click', () => {
+            openComments($comments);
             $entirePage.animate({scrollTop: documentHeight }, 2000);
         });
 
