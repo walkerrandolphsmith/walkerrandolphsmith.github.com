@@ -52,9 +52,9 @@
                       <i class="fa fa-plus expander"></i>
                       </header>
                       <ul>
-                      {{#each this.recentPosts}}
+                      {{#each this.toc}}
                           <li>
-                              <a href="{{baseUrl}}/{{this.path}}" title="{{this.path}}">{{this.title}}</a>
+                             <a href="{{baseURL}}/{{this.title}}#{{this.slug}}">{{this.text}}</a>
                           </li>
                       {{/each}}
                       </ul>

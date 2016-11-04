@@ -25,6 +25,7 @@ var redirect            = require('metalsmith-redirect');
 var tags                = require('./plugins/tags');
 var metaLogger          = require('./plugins/metaLogger');
 var recentPosts         = require('./plugins/recentPosts');
+var toc                 = require('./plugins/toc');
 
 var config              = require('./config');
 var options             = config.metalsmith;
@@ -64,6 +65,7 @@ gulp.task('metalsmith', function() {
                 .use(related(relatedOpts))
                 .use(recentPosts())
                 .use(katex())
+                .use(toc())
                 .use(markdown(markedOpts))
                 .use(excerpts())
                 .use(permalinks(permalinkOpts))
