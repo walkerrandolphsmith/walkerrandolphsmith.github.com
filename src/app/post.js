@@ -25,6 +25,8 @@ export default (() => {
 
         const $meter = $('.meter .amount');
 
+        const $stick = $('aside');
+
         const $postBottom = $('.post-bottom');
         const $default = $('footer .default');
         const $relatedPosts = $('footer .related-posts');
@@ -40,6 +42,7 @@ export default (() => {
 
         $window.scroll(() => {
             lastScrollTop = $window.scrollTop();
+            const goingDown = lastScrollTop > prev;
 
             const currentPosition = lastScrollTop + windowHeight;
             const total = $postBottom.position().top + END_OF_POST_DIVIDER_PADDING;
@@ -48,7 +51,9 @@ export default (() => {
 
             $meter.css({width: (percentComplete * 100) + "%"});
 
-            if ($postBottom[0].getBoundingClientRect().top < (windowHeight)) {
+            const endOfArticle = $postBottom[0].getBoundingClientRect().top;
+
+            if (endOfArticle < (windowHeight)) {
                 $default.hide();
                 $relatedPosts.fadeIn('slow')
             }
@@ -58,7 +63,7 @@ export default (() => {
             }
 
             if (lastScrollTop > HERO_HEIGHT) {
-                $header.toggleClass('hidden', lastScrollTop > prev);
+                $header.toggleClass('hidden', goingDown);
                 prev = lastScrollTop;
             }
             else {
@@ -66,6 +71,38 @@ export default (() => {
                 const opacity = (lastScrollTop / HERO_HEIGHT) + 0.3;
                 $background.css({ opacity: opacity });
                 $title.css({ opacity: 1 - opacity });
+
+            }
+
+            const pastTitle = lastScrollTop > (HERO_HEIGHT + 160);
+
+            if(goingDown) {
+                if (pastTitle) {
+                    $stick.addClass('fixed');
+                    $stick.css({marginTop: '0px' });
+                }
+                else {
+                    $stick.removeClass('fixed');
+                }
+            }
+            else {
+                if (!pastTitle) {
+                    $stick.removeClass('fixed');
+                }
+                else {
+                    $stick.addClass('fixed');
+                }
+                $stick.css({marginTop: 80 });
+            }
+
+            if(endOfArticle < windowHeight) {
+                $stick.removeClass('fixed');
+                $stick.css({
+                    'top': $postBottom.offset().top - ($postBottom.height() + $stick.height() + 90),
+                    'marginTop': 0
+                });
+            } else {
+                $stick.css('top', 0);
             }
 
             if(lastScrollTop + windowHeight > documentHeight - FOOTER_HEIGHT) {
