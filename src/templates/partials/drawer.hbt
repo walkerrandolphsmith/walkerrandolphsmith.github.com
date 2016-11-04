@@ -76,6 +76,13 @@
                 <i class="fa fa-angle-down"></i>
             </div>
         </div>
+        <div class="show-line-numbers">
+            <p>Show Line Numbers:</p>
+            <div class="checkbox">
+                <input type="checkbox" id="show-line-numbers" name="show-line-numbers" />
+                <label for="show-line-numbers"></label>
+            </div>
+        </div>
     </section>
 
     <section class="widget github-repos">

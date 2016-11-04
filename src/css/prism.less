@@ -203,6 +203,15 @@ pre > code.highlight {
   background: linear-gradient(to right, rgba(45, 32, 6, 0.2) 70%, rgba(45, 32, 6, 0));
 }
 
+body.hide-line-numbers {
+  .line-numbers-rows {
+    display: none;
+  }
+  pre.line-numbers {
+    padding-left: 2em;
+  }
+}
+
 pre.line-numbers {
   position: relative;
   padding-left: 3.8em;
@@ -214,6 +223,7 @@ pre.line-numbers > code {
 }
 
 .line-numbers .line-numbers-rows {
+  display: block;
   position: absolute;
   pointer-events: none;
   top: 0;
@@ -222,12 +232,7 @@ pre.line-numbers > code {
   width: 3em;
   letter-spacing: -1px;
   border-right: 1px solid #999;
-
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
-
 }
 
 .line-numbers-rows > span {

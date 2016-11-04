@@ -7,6 +7,8 @@ import GoogleAnalytics from './google-analytics';
 
 let hasBeenOpen = false;
 
+const THEMES = ['solarized', 'light', 'dark'];
+
 export default (() => {
     $(function() {
         const $body = $('body');
@@ -17,6 +19,14 @@ export default (() => {
         $themer.on('change', event => {
             const selectedTheme = event.currentTarget.value.toLowerCase();
             setTheme(selectedTheme, $body);
+        });
+
+        const $showLineNumbers = $('.checkbox input');
+        const showLineNumbers = localStorage.getItem('showLineNumbers') || false;
+        setLineNumberVisibility(showLineNumbers, $body, $showLineNumbers);
+        $showLineNumbers.on('change', event => {
+            const showLineNumbers = $(event.target).prop('checked');
+            setLineNumberVisibility(showLineNumbers, $body);
         });
 
         const $drawer = $('.drawer');
@@ -91,10 +101,19 @@ const print = () => {
 
 const setTheme = (newTheme, $body, $themer) => {
     localStorage.setItem('theme', newTheme);
-    $body.removeClass();
+    $body.removeClass(THEMES.join(' '));
     $body.addClass(newTheme);
     if($themer) {
         $themer.val(newTheme)
+    }
+};
+
+const setLineNumberVisibility = (showLineNumbers, $body, $showLineNumbers) => {
+    showLineNumbers = JSON.parse(showLineNumbers);
+    localStorage.setItem('showLineNumbers', showLineNumbers);
+    $body.toggleClass('hide-line-numbers', !showLineNumbers);
+    if($showLineNumbers) {
+        $showLineNumbers.prop('checked', showLineNumbers)
     }
 };
 
