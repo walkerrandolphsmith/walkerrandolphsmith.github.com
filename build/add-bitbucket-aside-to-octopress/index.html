@@ -260,9 +260,11 @@
                 </a>
             </section>
         </section>
-        <article class="post-contents wrapper">
-        <h1>Add Bitbucket Aside to Octopress</h1>
-        <p>Adding public repositories hosted on Bitbucket to your blog is a great idea to showcase your projects.
+
+        <section id="article">
+            <article class="post-contents">
+            <h1>Add Bitbucket Aside to Octopress</h1>
+            <p>Adding public repositories hosted on Bitbucket to your blog is a great idea to showcase your projects.
 Checking out how the Github aside works will help, as they are similar.
 However, unlike Github, repository names on Bitbucket can have white space, but the URL to a repository is stripped of white space and every letter is converted to lowercase.</p>
 <h2><a name="update-main-configuration" class="anchor" href="#update-main-configuration"></a>Update main configuration</h2><p>In the <code>_config.yml</code> add the following lines:</p>
@@ -362,7 +364,41 @@ bitbucket_skip_forks: true<span class="line-numbers-rows"><span></span><span></s
     <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
 <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Notice that the anchor tag’s href needs to be stripped and lowercased and this does the trick,</p>
 <div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers">repos<span class="token punctuation" >[</span>i<span class="token punctuation" >]</span><span class="token punctuation" >.</span>name<span class="token punctuation" >.</span><span class="token function" >replace</span><span class="token punctuation" >(</span><span class="token regex" >/\s+/g</span><span class="token punctuation" >,</span> <span class="token string" >'-'</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >toLowerCase</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div>
-        </article>
+            </article>
+            <aside class="natural">
+                <div id="toc">
+                    <section id="related-posts">
+                        <header><h3>Related Posts</h3></header>
+                        <ul>
+                            <li>
+                                <a href="http://www.walkerrandolphsmith.com/versionone-javascript-sdk" title="versionone-javascript-sdk">VersionOne JavaScript SDK</a>
+                            </li>
+                        </ul>
+                      </section>
+                      <section id="recent-posts">
+                          <header><h3>Recent Posts</h3></header>
+                          <ul>
+                              <li>
+                                  <a href="http://www.walkerrandolphsmith.com/promises" title="promises">Promises</a>
+                              </li>
+                              <li>
+                                  <a href="http://www.walkerrandolphsmith.com/array" title="array">Array</a>
+                              </li>
+                              <li>
+                                  <a href="http://www.walkerrandolphsmith.com/pair-programming" title="pair-programming">Pair Programming</a>
+                              </li>
+                              <li>
+                                  <a href="http://www.walkerrandolphsmith.com/electron-native-apps" title="electron-native-apps">Electron Native Apps</a>
+                              </li>
+                              <li>
+                                  <a href="http://www.walkerrandolphsmith.com/versionone-javascript-sdk" title="versionone-javascript-sdk">VersionOne JavaScript SDK</a>
+                              </li>
+                          </ul>
+                      </section>
+                  </div>
+            </aside>
+        </section>
+
         <section class="post-bottom wrapper">
           <div class="more-content">
               <section id="related-posts">
