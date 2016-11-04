@@ -46,28 +46,19 @@
             {{{contents}}}
             </article>
             <aside class="natural">
-                <div id="toc">
-                    <section id="related-posts">
-                        <header><h3>Related Posts</h3></header>
-                        <ul>
-                        {{#each this.related}}
-                            <li>
-                                <a href="{{baseUrl}}/{{this.path}}" title="{{this.path}}">{{this.title}}</a>
-                            </li>
-                        {{/each}}
-                        </ul>
-                      </section>
-                      <section id="recent-posts">
-                          <header><h3>Recent Posts</h3></header>
-                          <ul>
-                          {{#each this.recentPosts}}
-                              <li>
-                                  <a href="{{baseUrl}}/{{this.path}}" title="{{this.path}}">{{this.title}}</a>
-                              </li>
-                          {{/each}}
-                          </ul>
-                      </section>
-                  </div>
+                  <section id="toc">
+                      <header>
+                      <h3>In this Article</h3>
+                      <i class="fa fa-plus expander"></i>
+                      </header>
+                      <ul>
+                      {{#each this.recentPosts}}
+                          <li>
+                              <a href="{{baseUrl}}/{{this.path}}" title="{{this.path}}">{{this.title}}</a>
+                          </li>
+                      {{/each}}
+                      </ul>
+                  </section>
             </aside>
         </section>
 

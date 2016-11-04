@@ -26,6 +26,9 @@ export default (() => {
         const $meter = $('.meter .amount');
 
         const $stick = $('aside');
+        const $tocExpander = $('#toc header');
+        const $icon = $('#toc header i');
+
 
         const $postBottom = $('.post-bottom');
         const $default = $('footer .default');
@@ -138,6 +141,19 @@ export default (() => {
         });
 
         $('.fa-copy').on('click', copy);
+
+        $tocExpander.on('click', () => {
+            $stick.toggleClass('expanded');
+            if($stick.hasClass('expanded')) {
+                $icon.removeClass().addClass('fa fa-minus expander');
+                const curHeight = $stick.height();
+                const autoHeight = $stick.css('height', 'auto').height();
+                $stick.height(curHeight).animate({height: autoHeight + 20}, 500);
+            } else {
+                $stick.animate({height: '80px'}, 500);
+                $icon.removeClass().addClass('fa fa-plus expander');
+            }
+        });
     });
 })()
 
