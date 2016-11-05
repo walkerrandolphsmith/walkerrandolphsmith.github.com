@@ -6,7 +6,7 @@ type: website
 description: Walker Randolph Smith's Resume
 hero: default.jpg
 summary: Technology enthusiast, proud Eagle Scout, and software craftsman
-goal: Maintain a constant improvement and regularly empty my full glass.
+goal: Constantly improve my craft of software development.
 jobs:
  -
   name: VersionOne
@@ -27,7 +27,7 @@ jobs:
 skills:
  -
   name: JavaScript/ES2015/Node
-  level: 4
+  level: 5
  -
   name: Git
   level: 4
@@ -47,12 +47,6 @@ skills:
   name: Pair Programming
   level: 4
  -
-   name: HTML5
-   level: 4
- -
-  name: CSS3/LESS/SASS
-  level: 4
- -
   name: SQL/NOSQL
   level: 3
 
@@ -70,17 +64,11 @@ frameworks:
   name: Redux
   level: 4
  -
-  name: Immutable
-  level: 3
- -
    name: Webpack/Browserify
    level: 3
  -
    name: Docker
    level: 3
- -
-  name: LINQ
-  level: 4
  -
   name: MongoDB
   level: 3
@@ -102,11 +90,6 @@ projects:
   link: Hush
   url: http://www.github.com/walkerrandolphsmith.com/hush
   description: Android application to silence your device when you enter a saved location and un-silence the device when you leave.
- -
-  name: Roku Remote
-  link: Roku Remote
-  url: http://www.github.com/walkerrandolphsmith.com/roku-remote
-  description: Android and iOs application to control your roku device. Configure your favorite channel as quick actions on your remote.
 
 education:
  -
