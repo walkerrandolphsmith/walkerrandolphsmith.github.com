@@ -80,27 +80,27 @@ const print = () => {
     const mywindow = window.open('', 'resume', 'height=400,width=600');
 
     const resume = ($('<div/>').append($('#resume').clone()).html());
-    const $my_stylesheet_url = $('head').find('link:last').attr('href');
+    const styleSheetUrl = 'http://www.walkerrandolphsmith.com/css/blogr.css';
 
-    $.get($my_stylesheet_url, function(data) {
-        const contents = `<html>
+    const contents = `<html>
                     <head>
                         <title>Resume</title>
-                        <style>${data}</style>
+                        <link rel="stylesheet" href="${styleSheetUrl}" type="text/css" />
                     </head>
                     <body>
                     ${resume}
                     </body>
                 </html>`;
 
-        mywindow.document.write(contents);
-        mywindow.document.close();
-        mywindow.focus();
+    mywindow.document.write(contents);
+    mywindow.document.close();
+    mywindow.focus();
+    setTimeout(() => {
         mywindow.print();
         mywindow.close();
+    }, 500)
 
-        return true;
-    });
+    return true;
 };
 
 const setTheme = (newTheme, $body, $themer) => {
