@@ -8,11 +8,24 @@ let currentHeadings = [];
 
 const renderer = new marked.Renderer();
 
+const replacePattern = (str, pattern, replacement) => {
+    return str.split(pattern)
+        .join(replacement)
+        .toLowerCase()
+};
+
+const replacePatterns = (str, patterns, replacement) => {
+    patterns.forEach(pattern => {
+        str = replacePattern(str, pattern, replacement);
+    });
+    return str;
+};
+
 renderer.heading = function(text, level) {
     currentHeadings.push({
-        title: GLOBAL_FILE_NAME.split(' ').join('-').toLowerCase(),
+        title: replacePatterns(GLOBAL_FILE_NAME, [' ', '?'], '-'),
         text,
-        slug: text.split(' ').join('-').toLowerCase()
+        slug: replacePatterns(text, [' ', '?'], '-')
     });
 };
 
