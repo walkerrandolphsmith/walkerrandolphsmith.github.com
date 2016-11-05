@@ -79,24 +79,28 @@ const handleExternalLink = function() {
 const print = () => {
     const mywindow = window.open('', 'resume', 'height=400,width=600');
 
-    const resume = ($('<div/>').append($('#resume').clone()).html())
+    const resume = ($('<div/>').append($('#resume').clone()).html());
+    const $my_stylesheet_url = $('head').find('link:last').attr('href');
 
-    const contents = `<html>
-                <head>
-                    <title>Resume</title>
-                </head>
-                <body>
-                ${resume}
-                </body>
-            </html>`;
+    $.get($my_stylesheet_url, function(data) {
+        const contents = `<html>
+                    <head>
+                        <title>Resume</title>
+                        <style>${data}</style>
+                    </head>
+                    <body>
+                    ${resume}
+                    </body>
+                </html>`;
 
-    mywindow.document.write(contents);
-    mywindow.document.close();
-    mywindow.focus();
-    mywindow.print();
-    mywindow.close();
+        mywindow.document.write(contents);
+        mywindow.document.close();
+        mywindow.focus();
+        mywindow.print();
+        mywindow.close();
 
-    return true;
+        return true;
+    });
 };
 
 const setTheme = (newTheme, $body, $themer) => {
