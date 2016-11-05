@@ -12,22 +12,25 @@ const openComments = ($comments) => {
     $comments.show();
 };
 
+const END_OF_POST_DIVIDER_PADDING = 90;
+const FOOTER_HEIGHT = 80;
+
 export default (() => {
-    const HERO_HEIGHT = 527;
-    const END_OF_POST_DIVIDER_PADDING = 90;
-    const FOOTER_HEIGHT = 80;
     $(function () {
         const windowHeight = window.innerHeight;
         const documentHeight = document.body.clientHeight;
 
-        var $window = $(window);
+        const $window = $(window);
         const $entirePage = $('html, body');
+
+        const $hero = $('.hero');
 
         const $meter = $('.meter .amount');
 
         const $stick = $('aside');
-        const $tocExpander = $('#toc header');
-        const $icon = $('#toc header i');
+        const $toc = $('#toc');
+        const $tocExpander = $toc.find('header');
+        const $icon = $tocExpander.find('i');
 
 
         const $postBottom = $('.post-bottom');
@@ -45,18 +48,18 @@ export default (() => {
 
         const event = () => {
             lastScrollTop = $window.scrollTop();
+            const heroHeight = $hero.height();
             const goingDown = lastScrollTop > prev;
 
             const currentPosition = lastScrollTop + windowHeight;
             const total = $postBottom.position().top + END_OF_POST_DIVIDER_PADDING;
-            console.log(total, $postBottom);
             const percentComplete = currentPosition / total;
 
             $meter.css({width: (percentComplete * 100) + "%"});
 
             const endOfArticle = $postBottom[0].getBoundingClientRect().top;
 
-            if (endOfArticle < (windowHeight)) {
+            if (endOfArticle < windowHeight) {
                 $default.hide();
                 $relatedPosts.fadeIn('slow')
             }
@@ -65,47 +68,36 @@ export default (() => {
                 $relatedPosts.hide();
             }
 
-            if (lastScrollTop > HERO_HEIGHT) {
+            if (lastScrollTop > heroHeight) {
                 $header.toggleClass('hidden', goingDown);
                 prev = lastScrollTop;
             }
             else {
                 $header.addClass('hidden');
-                const opacity = (lastScrollTop / HERO_HEIGHT) + 0.3;
+                const opacity = (lastScrollTop / heroHeight) + 0.3;
                 $background.css({ opacity: opacity });
                 $title.css({ opacity: 1 - opacity });
 
             }
 
-            const pastTitle = lastScrollTop > (HERO_HEIGHT + 160);
+            const pastTitle = lastScrollTop > (heroHeight + 80);
+            $stick.toggleClass('fixed', pastTitle);
+            $stick.css({ 'marginTop': pastTitle ? '0px' : '80px' });
 
             if(goingDown) {
-                if (pastTitle) {
-                    $stick.addClass('fixed');
-                    $stick.css({marginTop: '0px' });
-                }
-                else {
-                    $stick.removeClass('fixed');
-                }
-            }
-            else {
-                if (!pastTitle) {
-                    $stick.removeClass('fixed');
-                }
-                else {
-                    $stick.addClass('fixed');
-                }
-                $stick.css({marginTop: 80 });
+                $stick.css({ 'top': '0px' });
+            } else {
+                $stick.css({ 'top': '80px' });
+                $stick.css({ 'marginTop': '0px' });
             }
 
-            if(endOfArticle < windowHeight) {
+            const bottomOfArticle = $('#article').offset().top + $('#article').height();
+            const bottomOfToc = $stick.offset().top + $stick.height();
+
+            if(bottomOfArticle <= bottomOfToc) {
+                console.log($('#article').height(), lastScrollTop);
                 $stick.removeClass('fixed');
-                $stick.css({
-                    'top': $postBottom.offset().top - ($postBottom.height() + $stick.height() + 90),
-                    'marginTop': 0
-                });
-            } else {
-                $stick.css('top', 0);
+                $stick.css({ 'top': $('#article').height() - $stick.height() });
             }
 
             if(lastScrollTop + windowHeight > documentHeight - FOOTER_HEIGHT) {
