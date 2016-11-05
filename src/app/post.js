@@ -43,7 +43,7 @@ export default (() => {
         let prev = 0;
         let lastScrollTop = 0;
 
-        $window.scroll(() => {
+        const event = () => {
             lastScrollTop = $window.scrollTop();
             const goingDown = lastScrollTop > prev;
 
@@ -111,7 +111,11 @@ export default (() => {
             if(lastScrollTop + windowHeight > documentHeight - FOOTER_HEIGHT) {
                 openComments($comments);
             }
-        });
+        };
+
+        event();
+
+        $window.scroll(event);
 
         $('.back-to-top').on('click', () => {
             $entirePage.animate({scrollTop: 0}, 1000);
