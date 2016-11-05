@@ -22,7 +22,7 @@ export default (() => {
         });
 
         const $showLineNumbers = $('.checkbox input');
-        const showLineNumbers = localStorage.getItem('showLineNumbers') || false;
+        const showLineNumbers = localStorage.getItem('showLineNumbers') || true;
         setLineNumberVisibility(showLineNumbers, $body, $showLineNumbers);
         $showLineNumbers.on('change', event => {
             const showLineNumbers = $(event.target).prop('checked');
