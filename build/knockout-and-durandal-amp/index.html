@@ -13,31 +13,31 @@
     
     <link rel="canonical" href="http://walkerrandolphsmith.github.com/" />
     
-    <link rel="amphtml" href="http://www.walkerrandolphsmith.com/knockout-and-durandal-amp-amp/">
-    <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://www.walkerrandolphsmith.com/rss/">
+    <link rel="amphtml" href="http://localhost:3000/knockout-and-durandal-amp-amp/">
+    <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://localhost:3000/rss/">
     
     <meta name="referrer" content="no-referrer-when-downgrade">
     
-    <link rel="icon" type="image/png" href="http://www.walkerrandolphsmith.com/css/images/profile.png" />
-    <link rel="apple-touch-icon" sizes="57x57" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="72x72" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="114x114" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-114x114.png" />
-    <link rel="apple-touch-icon" sizes="144x144" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-144x144.png" />
+    <link rel="icon" type="image/png" href="http://localhost:3000/css/images/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="http://localhost:3000/css/images/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="http://localhost:3000/css/images/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="http://localhost:3000/css/images/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="http://localhost:3000/css/images/apple-icon-144x144.png" />
     
     <meta property="og:site_name" content="Walker Randolph Smith" />
     <meta property="og:title" content="Knockout and Durandal-amp" />
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="http://www.walkerrandolphsmith.com/knockout-and-durandal-amp" />
+    <meta property="og:url" content="http://localhost:3000/knockout-and-durandal-amp" />
     <meta property="og:description" content="Creating a single page application." />
-    <meta property="og:image" content="http://www.walkerrandolphsmith.com/css/images/heroes/city.jpg" />
+    <meta property="og:image" content="http://localhost:3000/css/images/heroes/city.jpg" />
     <meta property="og:image:width" content="1920">
     <meta property="og:image:height" content="1080">
     
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Knockout and Durandal-amp">
     <meta name="twitter:description" content="Creating a single page application.">
-    <meta name="twitter:url" content="http://www.walkerrandolphsmith.com/knockout-and-durandal-amp">
-    <meta name="twitter:image" content="http://www.walkerrandolphsmith.com/css/images/heroes/city.jpg">
+    <meta name="twitter:url" content="http://localhost:3000/knockout-and-durandal-amp">
+    <meta name="twitter:image" content="http://localhost:3000/css/images/heroes/city.jpg">
     <meta name="twitter:label1" content="Written by">
     <meta name="twitter:data1" content="Walker Randolph Smith">
     <style amp-custom>
@@ -45,6 +45,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 90px;
         }
         h1 {
             margin-left: 20px;
@@ -58,7 +59,7 @@
             margin-right: 20px;
         }
         article {
-            padding: 90px;
+            padding: 25px 90px;
         }
         h2 {
             margin: 50px 0 30px;
@@ -258,6 +259,7 @@
 
         footer {
             padding-left: 90px;
+            padding-bottom: 25px;
         }
     </style>
 
@@ -274,7 +276,7 @@
       },
       "image": {
         "@type": "ImageObject",
-        "url": "http://www.walkerrandolphsmith.com/css/images/heroes/city.jpg",
+        "url": "http://localhost:3000/css/images/heroes/city.jpg",
         "height": 2000,
         "width": 800
       }
@@ -294,19 +296,16 @@
                         <time datetime="April 14, 2014">April 14, 2014</time>
                     </li>
                     <li>
-                        <a href="http://www.walkerrandolphsmith.com/knockout-and-durandal" title=Knockout and Durandal">View the original article.</a>
+                        <a href="http://localhost:3000/knockout-and-durandal" title=Knockout and Durandal">View the original article.</a>
                     </li>
                     <li style="display: none;">
-                        <a href="http://www.walkerrandolphsmith.com/resume/" class="author">
-                            <img src="http://www.walkerrandolphsmith.com/css/images/logo-dark.png" alt="Walker Randolph Smith" data-no-retina="true">
+                        <a href="http://localhost:3000/resume/" class="author">
+                            <img src="http://localhost:3000/css/images/logo-dark.png" alt="Walker Randolph Smith" data-no-retina="true">
                             <span>Walker Randolph Smith</span>
                         </a>
                     </li>
                 </ul>
             </header>
-            <amp-img src="http://www.walkerrandolphsmith.com/css/images/heroes/city.jpg"
-                 width="264" height="96" layout="responsive">
-            </amp-img>
         </section>
         <section>
             <article>
@@ -323,40 +322,40 @@ Durandal is one of many JavaScript frameworks that leverage this design pattern.
 The dependecy of one library on another is weakly stated because the order in which the libraries occur in the script tag must be known by the developer.</p>
 <p>Require.Js looks for a <code>data-main</code> attribute to start script loading in which modules are loaded relative to a base URL.
 The index.html should contain a script tag with said attribute which indicates the module ID to load, in this case <code>main</code></p>
-<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers"><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>script</span> <span class="token attr-name" >data-main</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>scripts/main.js<span class="token punctuation" >"</span></span> <span class="token attr-name" >src</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>scripts/require.js<span class="token punctuation" >"</span></span><span class="token punctuation" >></span></span><span class="token script language-javascript" ></span><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>script</span><span class="token punctuation" >></span></span><span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The relative path can be configured in this script as follows:</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers">requirejs<span class="token punctuation" >.</span><span class="token function" >config</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
-    baseUrl<span class="token punctuation" >:</span> <span class="token string" >'/'</span><span class="token punctuation" >,</span>
-    paths<span class="token punctuation" >:</span> <span class="token punctuation" >{</span>
-        <span class="token string" >'text'</span><span class="token punctuation" >:</span> <span class="token string" >'../Scripts/text'</span><span class="token punctuation" >,</span>
-        <span class="token string" >'durandal'</span><span class="token punctuation" >:</span> <span class="token string" >'../Scripts/durandal'</span><span class="token punctuation" >,</span>
-        <span class="token string" >'plugins'</span><span class="token punctuation" >:</span> <span class="token string" >'../Scripts/durandal/plugins'</span><span class="token punctuation" >,</span>
-        <span class="token string" >'transitions'</span><span class="token punctuation" >:</span> <span class="token string" >'../Scripts/durandal/transitions'</span>
-    <span class="token punctuation" >}</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The next code block will be added to <code>main.js</code> and demonstrates the use of modules and the use of the define function to manage dependencies.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function" >define</span><span class="token punctuation" >(</span><span class="token string" >'jquery'</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span> <span class="token keyword" >return</span> jQuery<span class="token punctuation" >;</span> <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-<span class="token function" >define</span><span class="token punctuation" >(</span><span class="token string" >'knockout'</span><span class="token punctuation" >,</span> ko<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">data-main</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>scripts/main.js<span class="token punctuation">"</span></span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>scripts/require.js<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token script language-javascript"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">></span></span><span class="line-numbers-rows"><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The relative path can be configured in this script as follows:</p>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers">requirejs<span class="token punctuation">.</span><span class="token function">config</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    baseUrl<span class="token punctuation">:</span> <span class="token string">'/'</span><span class="token punctuation">,</span>
+    paths<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">'text'</span><span class="token punctuation">:</span> <span class="token string">'../Scripts/text'</span><span class="token punctuation">,</span>
+        <span class="token string">'durandal'</span><span class="token punctuation">:</span> <span class="token string">'../Scripts/durandal'</span><span class="token punctuation">,</span>
+        <span class="token string">'plugins'</span><span class="token punctuation">:</span> <span class="token string">'../Scripts/durandal/plugins'</span><span class="token punctuation">,</span>
+        <span class="token string">'transitions'</span><span class="token punctuation">:</span> <span class="token string">'../Scripts/durandal/transitions'</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The next code block will be added to <code>main.js</code> and demonstrates the use of modules and the use of the define function to manage dependencies.</p>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function">define</span><span class="token punctuation">(</span><span class="token string">'jquery'</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">return</span> jQuery<span class="token punctuation">;</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">define</span><span class="token punctuation">(</span><span class="token string">'knockout'</span><span class="token punctuation">,</span> ko<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-<span class="token function" >define</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span><span class="token string" >'durandal/system'</span><span class="token punctuation" >,</span> <span class="token string" >'durandal/app'</span><span class="token punctuation" >,</span> <span class="token string" >'durandal/viewLocator'</span><span class="token punctuation" >]</span><span class="token punctuation" >,</span>
- <span class="token keyword" >function</span> <span class="token punctuation" >(</span>system<span class="token punctuation" >,</span> app<span class="token punctuation" >,</span> viewLocator<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-    system<span class="token punctuation" >.</span><span class="token function" >debug</span><span class="token punctuation" >(</span><span class="token boolean" >true</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token function">define</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'durandal/system'</span><span class="token punctuation">,</span> <span class="token string">'durandal/app'</span><span class="token punctuation">,</span> <span class="token string">'durandal/viewLocator'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+ <span class="token keyword">function</span> <span class="token punctuation">(</span>system<span class="token punctuation">,</span> app<span class="token punctuation">,</span> viewLocator<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    system<span class="token punctuation">.</span><span class="token function">debug</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    app<span class="token punctuation" >.</span>title <span class="token operator" >=</span> <span class="token string" >'Durandal Starter Kit'</span><span class="token punctuation" >;</span>
+    app<span class="token punctuation">.</span>title <span class="token operator">=</span> <span class="token string">'Durandal Starter Kit'</span><span class="token punctuation">;</span>
 
-    app<span class="token punctuation" >.</span><span class="token function" >configurePlugins</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
-        router<span class="token punctuation" >:</span> <span class="token boolean" >true</span><span class="token punctuation" >,</span>
-        dialog<span class="token punctuation" >:</span> <span class="token boolean" >true</span><span class="token punctuation" >,</span>
-        widget<span class="token punctuation" >:</span> <span class="token boolean" >true</span>
-    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    app<span class="token punctuation">.</span><span class="token function">configurePlugins</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+        router<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        dialog<span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        widget<span class="token punctuation">:</span> <span class="token boolean">true</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    app<span class="token punctuation" >.</span><span class="token function" >start</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span><span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
+    app<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">//Replace 'viewmodels' in the moduleId with 'views' to locate the view.</span>
         <span class="token comment" spellcheck="true">//Look for partial views in a 'views' folder in the root.</span>
-        viewLocator<span class="token punctuation" >.</span><span class="token function" >useConvention</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        viewLocator<span class="token punctuation">.</span><span class="token function">useConvention</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
         <span class="token comment" spellcheck="true">//Show the app by setting the root view model with a transition.</span>
-        app<span class="token punctuation" >.</span><span class="token function" >setRoot</span><span class="token punctuation" >(</span><span class="token string" >'viewmodels/shell'</span><span class="token punctuation" >,</span> <span class="token string" >'entrance'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The define function is working with JavaScript modules opposed to script files to avoid global namespace issues.
+        app<span class="token punctuation">.</span><span class="token function">setRoot</span><span class="token punctuation">(</span><span class="token string">'viewmodels/shell'</span><span class="token punctuation">,</span> <span class="token string">'entrance'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The define function is working with JavaScript modules opposed to script files to avoid global namespace issues.
 Define can take an object literal or a function as a parameter if no dependencies exist.
 If the module does have dependencies then the first argument to define is an array of dependency names.
 The second argument, a function, called the factory function, returns an object that defines the module.
@@ -368,192 +367,192 @@ The second parameter is registered with the define function so the dependencies 
 This indicates the View-Model that is initially loaded is named shell and resides in the <code>viewmodels</code> directory.
 The View-Models have corresponding Views and are associated by name. Therefore there is also a shell View.
 The shell View-Model will be used to handle the routing of our SPA.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function" >define</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span>
-      <span class="token string" >'plugins/router'</span><span class="token punctuation" >,</span>
-      <span class="token string" >'durandal/app'</span>
-<span class="token punctuation" >]</span><span class="token punctuation" >,</span>
-    <span class="token keyword" >function</span> <span class="token punctuation" >(</span>
-        router<span class="token punctuation" >,</span>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function">define</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+      <span class="token string">'plugins/router'</span><span class="token punctuation">,</span>
+      <span class="token string">'durandal/app'</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token keyword">function</span> <span class="token punctuation">(</span>
+        router<span class="token punctuation">,</span>
         app
-    <span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-        <span class="token string" >"use strict"</span><span class="token punctuation" >;</span>
+    <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token string">"use strict"</span><span class="token punctuation">;</span>
 
-        <span class="token keyword" >var</span> obj <span class="token operator" >=</span> <span class="token punctuation" >{</span>
-            router<span class="token punctuation" >:</span> router<span class="token punctuation" >,</span>
-            activate<span class="token punctuation" >:</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                router<span class="token punctuation" >.</span><span class="token function" >map</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span>
-                    <span class="token punctuation" >{</span>
-                      route<span class="token punctuation" >:</span> <span class="token string" >''</span><span class="token punctuation" >,</span>
-                      title<span class="token punctuation" >:</span> <span class="token string" >'Home'</span><span class="token punctuation" >,</span>
-                      moduleId<span class="token punctuation" >:</span> <span class="token string" >'viewmodels/home'</span><span class="token punctuation" >,</span>
-                      nav<span class="token punctuation" >:</span> <span class="token boolean" >true</span>
-                    <span class="token punctuation" >}</span>
-                <span class="token punctuation" >]</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >buildNavigationModel</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        <span class="token keyword">var</span> obj <span class="token operator">=</span> <span class="token punctuation">{</span>
+            router<span class="token punctuation">:</span> router<span class="token punctuation">,</span>
+            activate<span class="token punctuation">:</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                router<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+                    <span class="token punctuation">{</span>
+                      route<span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+                      title<span class="token punctuation">:</span> <span class="token string">'Home'</span><span class="token punctuation">,</span>
+                      moduleId<span class="token punctuation">:</span> <span class="token string">'viewmodels/home'</span><span class="token punctuation">,</span>
+                      nav<span class="token punctuation">:</span> <span class="token boolean">true</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">buildNavigationModel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-                <span class="token keyword" >return</span> router<span class="token punctuation" >.</span><span class="token function" >activate</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+                <span class="token keyword">return</span> router<span class="token punctuation">.</span><span class="token function">activate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-        <span class="token keyword" >return</span> obj<span class="token punctuation" >;</span>
-    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Routes will be triggered when <code>router.navigate(&#39;your/hash/here&#39;);</code> is called or the typical trigger using an anchor, <code>a</code>, element.
+        <span class="token keyword">return</span> obj<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Routes will be triggered when <code>router.navigate(&#39;your/hash/here&#39;);</code> is called or the typical trigger using an anchor, <code>a</code>, element.
 The <code>shell</code> View is a simple <code>div</code> element with a <code>data-bind</code> attribute for the router.</p>
-<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers"><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>div</span> <span class="token attr-name" >class</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>container page-host<span class="token punctuation" >"</span></span>
-     <span class="token attr-name" >data-bind</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>router: { transition:<span class="token punctuation" >'</span>entrance<span class="token punctuation" >'</span>, cacheViews:true }<span class="token punctuation" >"</span></span><span class="token punctuation" >></span></span>
-<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>div</span><span class="token punctuation" >></span></span><span class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><h2><a name="knockout" class="anchor" href="#knockout"></a>Knockout</h2><p>Now that the shell of the application is configured we can discuss how Knockout can be used to create responsive UI with a clean data model.</p>
+<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>container page-host<span class="token punctuation">"</span></span>
+     <span class="token attr-name">data-bind</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>router: { transition:<span class="token punctuation">'</span>entrance<span class="token punctuation">'</span>, cacheViews:true }<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><h2><a name="knockout" class="anchor" href="#knockout"></a>Knockout</h2><p>Now that the shell of the application is configured we can discuss how Knockout can be used to create responsive UI with a clean data model.</p>
 <p>Knockout has two features that make it awesome, dependency tracking to automatically update UI based on model.
 declarative binding to connect components of the UI to the model. As shown in the routing above the default route has a moduleId <code>viewmodels/home</code>.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function" >define</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span>
-        <span class="token string" >"knockout"</span><span class="token punctuation" >,</span>
-        <span class="token string" >"durandal/app"</span><span class="token punctuation" >,</span>
-        <span class="token string" >"viewmodels/toDoItem/list"</span>
-<span class="token punctuation" >]</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>
-        ko<span class="token punctuation" >,</span>
-        app<span class="token punctuation" >,</span>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function">define</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+        <span class="token string">"knockout"</span><span class="token punctuation">,</span>
+        <span class="token string">"durandal/app"</span><span class="token punctuation">,</span>
+        <span class="token string">"viewmodels/toDoItem/list"</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>
+        ko<span class="token punctuation">,</span>
+        app<span class="token punctuation">,</span>
         ToDoItems
-    <span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-    <span class="token string" >"use strict"</span><span class="token punctuation" >;</span>
+    <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token string">"use strict"</span><span class="token punctuation">;</span>
 
-    <span class="token keyword" >var</span> isList <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >observable</span><span class="token punctuation" >(</span><span class="token string" >"list"</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-    <span class="token keyword" >var</span> obj <span class="token operator" >=</span> <span class="token punctuation" >{</span>
-        tasksDueToday<span class="token punctuation" >:</span> <span class="token keyword" >new</span> <span class="token class-name" >ToDoItems</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >,</span>
-    <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+    <span class="token keyword">var</span> isList <span class="token operator">=</span> ko<span class="token punctuation">.</span><span class="token function">observable</span><span class="token punctuation">(</span><span class="token string">"list"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">var</span> obj <span class="token operator">=</span> <span class="token punctuation">{</span>
+        tasksDueToday<span class="token punctuation">:</span> <span class="token keyword">new</span> <span class="token class-name">ToDoItems</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-    obj<span class="token punctuation" >.</span>activate <span class="token operator" >=</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-    <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+    obj<span class="token punctuation">.</span>activate <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-    <span class="token keyword" >return</span> obj<span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>This View-Model uses the define function to pass three modules into its factory function, including the View-Model, <code>list</code>.
+    <span class="token keyword">return</span> obj<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>This View-Model uses the define function to pass three modules into its factory function, including the View-Model, <code>list</code>.
 One property of the list is tasksDueToday which is a <code>new</code> ToDoItems.
 Notice ToDoItems was passed as a module to the factory function using the name list in the dependencies array.</p>
 <p>The corresponding View for the home View-Model is using declarative binding to connect the View-Model’s tasksDueToday property and use dependency tracking to inject the View corresponding to the taskDueToday View-Model.</p>
-<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers"><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>section</span><span class="token punctuation" >></span></span>
-    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>header</span><span class="token punctuation" >></span></span>
-        <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>h1</span><span class="token punctuation" >></span></span>To Do List<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>h1</span><span class="token punctuation" >></span></span>
-    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>header</span><span class="token punctuation" >></span></span>
-    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>div</span> <span class="token attr-name" >class</span><span class="token attr-value" ><span class="token punctuation" >=</span><span class="token punctuation" >"</span>to-do-list<span class="token punctuation" >"</span></span><span class="token punctuation" >></span></span>
+<div class="code-wrapper"><pre class="language-none line-numbers"><code class="language-none line-numbers"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>section</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>header</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>h1</span><span class="token punctuation">></span></span>To Do List<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>h1</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>header</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>to-do-list<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
         <span class="token comment" spellcheck="true">&lt;!--ko compose: tasksDueToday--></span><span class="token comment" spellcheck="true">&lt;!--/ko--></span>
-    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>div</span><span class="token punctuation" >></span></span>
-<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>section</span><span class="token punctuation" >></span></span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The following is an example of a to do list with more features including
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>section</span><span class="token punctuation">></span></span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The following is an example of a to do list with more features including
 creating related tasks, adding labels, filtering by label, retrieving the list and its count.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function" >define</span><span class="token punctuation" >(</span><span class="token punctuation" >[</span>
-       <span class="token string" >"durandal/app"</span><span class="token punctuation" >,</span>
-        <span class="token string" >"models/TaskStatus"</span><span class="token punctuation" >,</span>
-        <span class="token string" >"viewmodels/toDoItem/toDoItem"</span><span class="token punctuation" >,</span>
-        <span class="token string" >"viewmodels/toDoItem/summary"</span><span class="token punctuation" >,</span>
-        <span class="token string" >"viewmodels/toDoItem/new"</span>
-<span class="token punctuation" >]</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>
-        app<span class="token punctuation" >,</span>
-        TaskStatus<span class="token punctuation" >,</span>
-        ToDoItem<span class="token punctuation" >,</span>
-        ToDoItemSummary<span class="token punctuation" >,</span>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function">define</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+       <span class="token string">"durandal/app"</span><span class="token punctuation">,</span>
+        <span class="token string">"models/TaskStatus"</span><span class="token punctuation">,</span>
+        <span class="token string">"viewmodels/toDoItem/toDoItem"</span><span class="token punctuation">,</span>
+        <span class="token string">"viewmodels/toDoItem/summary"</span><span class="token punctuation">,</span>
+        <span class="token string">"viewmodels/toDoItem/new"</span>
+<span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>
+        app<span class="token punctuation">,</span>
+        TaskStatus<span class="token punctuation">,</span>
+        ToDoItem<span class="token punctuation">,</span>
+        ToDoItemSummary<span class="token punctuation">,</span>
         CreateToDoItem
-<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-    <span class="token string" >"use strict"</span><span class="token punctuation" >;</span>
+<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token string">"use strict"</span><span class="token punctuation">;</span>
 
-    <span class="token keyword" >var</span> ctor <span class="token operator" >=</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-        <span class="token keyword" >var</span> self <span class="token operator" >=</span> <span class="token keyword" >this</span><span class="token punctuation" >;</span>
-        self<span class="token punctuation" >.</span>status <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >observable</span><span class="token punctuation" >(</span><span class="token string" >'all'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        self<span class="token punctuation" >.</span>items <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >observableArray</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        self<span class="token punctuation" >.</span>newTask <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >observable</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    <span class="token keyword">var</span> ctor <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">var</span> self <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">;</span>
+        self<span class="token punctuation">.</span>status <span class="token operator">=</span> ko<span class="token punctuation">.</span><span class="token function">observable</span><span class="token punctuation">(</span><span class="token string">'all'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        self<span class="token punctuation">.</span>items <span class="token operator">=</span> ko<span class="token punctuation">.</span><span class="token function">observableArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        self<span class="token punctuation">.</span>newTask <span class="token operator">=</span> ko<span class="token punctuation">.</span><span class="token function">observable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-        self<span class="token punctuation" >.</span>numberOfTasks <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >computed</span><span class="token punctuation" >(</span><span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >==</span> <span class="token string" >'all'</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span>length<span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span> <span class="token keyword" >else</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >filter</span><span class="token punctuation" >(</span><span class="token keyword" >function</span> <span class="token punctuation" >(</span>task<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                    <span class="token keyword" >return</span> task<span class="token punctuation" >.</span><span class="token function" >toDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >==</span> self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-                <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span>length<span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation">.</span>numberOfTasks <span class="token operator">=</span> ko<span class="token punctuation">.</span><span class="token function">computed</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">'all'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span>task<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> task<span class="token punctuation">.</span><span class="token function">toDoItem</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> self<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-        self<span class="token punctuation" >.</span>filteredItems <span class="token operator" >=</span> ko<span class="token punctuation" >.</span><span class="token function" >computed</span><span class="token punctuation" >(</span><span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >==</span> <span class="token string" >'all'</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span> <span class="token keyword" >else</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >filter</span><span class="token punctuation" >(</span><span class="token keyword" >function</span><span class="token punctuation" >(</span>task<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                    <span class="token keyword" >return</span> task<span class="token punctuation" >.</span><span class="token function" >toDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >==</span> self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-                <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation">.</span>filteredItems <span class="token operator">=</span> ko<span class="token punctuation">.</span><span class="token function">computed</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>self<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">'all'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span><span class="token keyword">function</span><span class="token punctuation">(</span>task<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> task<span class="token punctuation">.</span><span class="token function">toDoItem</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> self<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 
-        self<span class="token punctuation" >.</span>getItems <span class="token operator" >=</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>status<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>status <span class="token operator" >===</span> <span class="token string" >'all'</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span><span class="token keyword" >else</span> <span class="token keyword" >return</span> ko<span class="token punctuation" >.</span>utils<span class="token punctuation" >.</span><span class="token function" >arrayFilter</span><span class="token punctuation" >(</span>self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>item<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >var</span> st <span class="token operator" >=</span> item<span class="token punctuation" >.</span><span class="token function" >toDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-                <span class="token keyword" >return</span> <span class="token punctuation" >(</span>st <span class="token operator" >===</span> status<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation">.</span>getItems <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>status<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>status <span class="token operator">===</span> <span class="token string">'all'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token keyword">else</span> <span class="token keyword">return</span> ko<span class="token punctuation">.</span>utils<span class="token punctuation">.</span><span class="token function">arrayFilter</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>item<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">var</span> st <span class="token operator">=</span> item<span class="token punctuation">.</span><span class="token function">toDoItem</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">return</span> <span class="token punctuation">(</span>st <span class="token operator">===</span> status<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-        self<span class="token punctuation" >.</span>getNumberOfItems <span class="token operator" >=</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>status<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>status <span class="token operator" >===</span> <span class="token string" >'all'</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >return</span> self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span>length<span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span> <span class="token keyword" >else</span> <span class="token keyword" >return</span> ko<span class="token punctuation" >.</span>utils<span class="token punctuation" >.</span><span class="token function" >arrayFilter</span><span class="token punctuation" >(</span>self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span> <span class="token punctuation" >(</span>item<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >var</span> st <span class="token operator" >=</span> item<span class="token punctuation" >.</span><span class="token function" >toDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-                <span class="token keyword" >return</span> <span class="token punctuation" >(</span>st <span class="token operator" >===</span> status<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span>length<span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+        self<span class="token punctuation">.</span>getNumberOfItems <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>status<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>status <span class="token operator">===</span> <span class="token string">'all'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">return</span> ko<span class="token punctuation">.</span>utils<span class="token punctuation">.</span><span class="token function">arrayFilter</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>item<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">var</span> st <span class="token operator">=</span> item<span class="token punctuation">.</span><span class="token function">toDoItem</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">return</span> <span class="token punctuation">(</span>st <span class="token operator">===</span> status<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-        <span class="token function" >createNewTask</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        self<span class="token punctuation" >.</span>addTask <span class="token operator" >=</span> addTask<span class="token punctuation" >;</span>
-        self<span class="token punctuation" >.</span>activate <span class="token operator" >=</span> activate<span class="token punctuation" >;</span>
+        <span class="token function">createNewTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        self<span class="token punctuation">.</span>addTask <span class="token operator">=</span> addTask<span class="token punctuation">;</span>
+        self<span class="token punctuation">.</span>activate <span class="token operator">=</span> activate<span class="token punctuation">;</span>
 
-        <span class="token keyword" >function</span> <span class="token function" >activate</span><span class="token punctuation" >(</span>activationData<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>activationData <span class="token operator" >==</span> <span class="token keyword" >null</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >return</span><span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span>
-            self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span>activationData<span class="token punctuation" >.</span>items<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span>
+        <span class="token keyword">function</span> <span class="token function">activate</span><span class="token punctuation">(</span>activationData<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>activationData <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span>activationData<span class="token punctuation">.</span>items<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
 
-        <span class="token keyword" >function</span> <span class="token function" >addTask</span><span class="token punctuation" >(</span>task<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >if</span> <span class="token punctuation" >(</span>task <span class="token operator" >==</span> <span class="token keyword" >null</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                <span class="token keyword" >return</span><span class="token punctuation" >;</span>
-            <span class="token punctuation" >}</span>
-            <span class="token keyword" >var</span> newTask <span class="token operator" >=</span> <span class="token keyword" >new</span> <span class="token class-name" >ToDoItemSummary</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            newTask<span class="token punctuation" >.</span><span class="token function" >activate</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span> toDoItem<span class="token punctuation" >:</span> task <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            self<span class="token punctuation" >.</span>items<span class="token punctuation" >.</span><span class="token function" >push</span><span class="token punctuation" >(</span>newTask<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            <span class="token function" >createNewTask</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            newTask<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >"task:removed"</span><span class="token punctuation" >,</span> removeTask<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span>
+        <span class="token keyword">function</span> <span class="token function">addTask</span><span class="token punctuation">(</span>task<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>task <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">var</span> newTask <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ToDoItemSummary</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            newTask<span class="token punctuation">.</span><span class="token function">activate</span><span class="token punctuation">(</span><span class="token punctuation">{</span> toDoItem<span class="token punctuation">:</span> task <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            self<span class="token punctuation">.</span>items<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span>newTask<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">createNewTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            newTask<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">"task:removed"</span><span class="token punctuation">,</span> removeTask<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
 
-        <span class="token keyword" >function</span> <span class="token function" >createNewTask</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >var</span> newTask <span class="token operator" >=</span> <span class="token keyword" >new</span> <span class="token class-name" >CreateToDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            <span class="token keyword" >var</span> newToDoItem <span class="token operator" >=</span> <span class="token keyword" >new</span> <span class="token class-name" >ToDoItem</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            newToDoItem<span class="token punctuation" >.</span><span class="token function" >activate</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
-                status<span class="token punctuation" >:</span> TaskStatus<span class="token punctuation" >.</span>unstarted<span class="token punctuation" >.</span>label
-            <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            newTask<span class="token punctuation" >.</span><span class="token function" >activate</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>
-                toDoItem<span class="token punctuation" >:</span> newToDoItem
-            <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            self<span class="token punctuation" >.</span><span class="token function" >newTask</span><span class="token punctuation" >(</span>newTask<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-            newTask<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >"task:new:saved"</span><span class="token punctuation" >,</span> addTask<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span>
+        <span class="token keyword">function</span> <span class="token function">createNewTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">var</span> newTask <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">CreateToDoItem</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">var</span> newToDoItem <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ToDoItem</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            newToDoItem<span class="token punctuation">.</span><span class="token function">activate</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+                status<span class="token punctuation">:</span> TaskStatus<span class="token punctuation">.</span>unstarted<span class="token punctuation">.</span>label
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            newTask<span class="token punctuation">.</span><span class="token function">activate</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+                toDoItem<span class="token punctuation">:</span> newToDoItem
+            <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            self<span class="token punctuation">.</span><span class="token function">newTask</span><span class="token punctuation">(</span>newTask<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            newTask<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">"task:new:saved"</span><span class="token punctuation">,</span> addTask<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
 
-        <span class="token keyword" >function</span> <span class="token function" >removeTask</span><span class="token punctuation" >(</span>task<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >var</span> taskToRemove <span class="token operator" >=</span> ko<span class="token punctuation" >.</span>utils<span class="token punctuation" >.</span><span class="token function" >arrayFilter</span><span class="token punctuation" >(</span>
-                self<span class="token punctuation" >.</span><span class="token function" >items</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >,</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span>item<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-                    <span class="token keyword" >return</span> <span class="token punctuation" >(</span>item<span class="token punctuation" >.</span>toDoItem <span class="token operator" >===</span> task<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-                <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >[</span><span class="token number" >0</span><span class="token punctuation" >]</span><span class="token punctuation" >;</span>
+        <span class="token keyword">function</span> <span class="token function">removeTask</span><span class="token punctuation">(</span>task<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">var</span> taskToRemove <span class="token operator">=</span> ko<span class="token punctuation">.</span>utils<span class="token punctuation">.</span><span class="token function">arrayFilter</span><span class="token punctuation">(</span>
+                self<span class="token punctuation">.</span><span class="token function">items</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">return</span> <span class="token punctuation">(</span>item<span class="token punctuation">.</span>toDoItem <span class="token operator">===</span> task<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
 
-            self<span class="token punctuation" >.</span>items<span class="token punctuation" >.</span><span class="token function" >remove</span><span class="token punctuation" >(</span>taskToRemove<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span>
+            self<span class="token punctuation">.</span>items<span class="token punctuation">.</span><span class="token function">remove</span><span class="token punctuation">(</span>taskToRemove<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
 
-        self<span class="token punctuation" >.</span>filterAll <span class="token operator" >=</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span><span class="token string" >'all'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
-        self<span class="token punctuation" >.</span>filterUnstarted <span class="token operator" >=</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span>TaskStatus<span class="token punctuation" >.</span>unstarted<span class="token punctuation" >.</span>label<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
-        self<span class="token punctuation" >.</span>filterStarted <span class="token operator" >=</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span>TaskStatus<span class="token punctuation" >.</span>started<span class="token punctuation" >.</span>label<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
-        self<span class="token punctuation" >.</span>filterComplete <span class="token operator" >=</span> <span class="token keyword" >function</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-            self<span class="token punctuation" >.</span><span class="token function" >status</span><span class="token punctuation" >(</span>TaskStatus<span class="token punctuation" >.</span>complete<span class="token punctuation" >.</span>label<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
-    <span class="token punctuation" >}</span><span class="token punctuation" >;</span>
-    <span class="token keyword" >return</span> ctor<span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div>
+        self<span class="token punctuation">.</span>filterAll <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            self<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span><span class="token string">'all'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+        self<span class="token punctuation">.</span>filterUnstarted <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            self<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span>TaskStatus<span class="token punctuation">.</span>unstarted<span class="token punctuation">.</span>label<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+        self<span class="token punctuation">.</span>filterStarted <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            self<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span>TaskStatus<span class="token punctuation">.</span>started<span class="token punctuation">.</span>label<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+        self<span class="token punctuation">.</span>filterComplete <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            self<span class="token punctuation">.</span><span class="token function">status</span><span class="token punctuation">(</span>TaskStatus<span class="token punctuation">.</span>complete<span class="token punctuation">.</span>label<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> ctor<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div>
                 </p>
             </article>
         </section>

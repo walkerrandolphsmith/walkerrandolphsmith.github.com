@@ -13,31 +13,31 @@
     
     <link rel="canonical" href="http://walkerrandolphsmith.github.com/" />
     
-    <link rel="amphtml" href="http://www.walkerrandolphsmith.com/electron-native-apps-amp-amp/">
-    <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://www.walkerrandolphsmith.com/rss/">
+    <link rel="amphtml" href="http://localhost:3000/electron-native-apps-amp-amp/">
+    <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://localhost:3000/rss/">
     
     <meta name="referrer" content="no-referrer-when-downgrade">
     
-    <link rel="icon" type="image/png" href="http://www.walkerrandolphsmith.com/css/images/profile.png" />
-    <link rel="apple-touch-icon" sizes="57x57" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="72x72" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="114x114" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-114x114.png" />
-    <link rel="apple-touch-icon" sizes="144x144" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-144x144.png" />
+    <link rel="icon" type="image/png" href="http://localhost:3000/css/images/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="http://localhost:3000/css/images/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="http://localhost:3000/css/images/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="http://localhost:3000/css/images/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="http://localhost:3000/css/images/apple-icon-144x144.png" />
     
     <meta property="og:site_name" content="Walker Randolph Smith" />
     <meta property="og:title" content="Electron Native Apps-amp" />
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="http://www.walkerrandolphsmith.com/electron-native-apps-amp" />
+    <meta property="og:url" content="http://localhost:3000/electron-native-apps-amp" />
     <meta property="og:description" content="A introduction to building Election native applications with JavaScript" />
-    <meta property="og:image" content="http://www.walkerrandolphsmith.com/css/images/heroes/default.jpg" />
+    <meta property="og:image" content="http://localhost:3000/css/images/heroes/default.jpg" />
     <meta property="og:image:width" content="1920">
     <meta property="og:image:height" content="1080">
     
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Electron Native Apps-amp">
     <meta name="twitter:description" content="A introduction to building Election native applications with JavaScript">
-    <meta name="twitter:url" content="http://www.walkerrandolphsmith.com/electron-native-apps-amp">
-    <meta name="twitter:image" content="http://www.walkerrandolphsmith.com/css/images/heroes/default.jpg">
+    <meta name="twitter:url" content="http://localhost:3000/electron-native-apps-amp">
+    <meta name="twitter:image" content="http://localhost:3000/css/images/heroes/default.jpg">
     <meta name="twitter:label1" content="Written by">
     <meta name="twitter:data1" content="Walker Randolph Smith">
     <style amp-custom>
@@ -45,6 +45,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 90px;
         }
         h1 {
             margin-left: 20px;
@@ -58,7 +59,7 @@
             margin-right: 20px;
         }
         article {
-            padding: 90px;
+            padding: 25px 90px;
         }
         h2 {
             margin: 50px 0 30px;
@@ -258,6 +259,7 @@
 
         footer {
             padding-left: 90px;
+            padding-bottom: 25px;
         }
     </style>
 
@@ -274,7 +276,7 @@
       },
       "image": {
         "@type": "ImageObject",
-        "url": "http://www.walkerrandolphsmith.com/css/images/heroes/default.jpg",
+        "url": "http://localhost:3000/css/images/heroes/default.jpg",
         "height": 2000,
         "width": 800
       }
@@ -294,19 +296,16 @@
                         <time datetime="October 21, 2016">October 21, 2016</time>
                     </li>
                     <li>
-                        <a href="http://www.walkerrandolphsmith.com/electron-native-apps" title=Electron Native Apps">View the original article.</a>
+                        <a href="http://localhost:3000/electron-native-apps" title=Electron Native Apps">View the original article.</a>
                     </li>
                     <li style="display: none;">
-                        <a href="http://www.walkerrandolphsmith.com/resume/" class="author">
-                            <img src="http://www.walkerrandolphsmith.com/css/images/logo-dark.png" alt="Walker Randolph Smith" data-no-retina="true">
+                        <a href="http://localhost:3000/resume/" class="author">
+                            <img src="http://localhost:3000/css/images/logo-dark.png" alt="Walker Randolph Smith" data-no-retina="true">
                             <span>Walker Randolph Smith</span>
                         </a>
                     </li>
                 </ul>
             </header>
-            <amp-img src="http://www.walkerrandolphsmith.com/css/images/heroes/default.jpg"
-                 width="264" height="96" layout="responsive">
-            </amp-img>
         </section>
         <section>
             <article>
@@ -333,27 +332,27 @@ We will create a directory like</p>
 ├── package.json
 ├── index.js
 └── index.html<span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The <code>index.html</code> file serves as the user interface. In our case we want a document that contains the text “hello world”.</p>
-<div class="code-wrapper"><pre class="language-html line-numbers"><code class="language-html line-numbers"><span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>html</span><span class="token punctuation" >></span></span>
-    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;</span>body</span><span class="token punctuation" >></span></span>
+<div class="code-wrapper"><pre class="language-html line-numbers"><code class="language-html line-numbers"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">></span></span>
         Hello World
-    <span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>body</span><span class="token punctuation" >></span></span>
-<span class="token tag" ><span class="token tag" ><span class="token punctuation" >&lt;/</span>html</span><span class="token punctuation" >></span></span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The <code>index.js</code> file will be used to manage opening a window and loading our user interface.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >const</span> <span class="token punctuation" >{</span> app<span class="token punctuation" >,</span> BrowserWindow <span class="token punctuation" >}</span> <span class="token operator" >=</span> <span class="token function" >require</span><span class="token punctuation" >(</span><span class="token string" >'electron'</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The <code>index.js</code> file will be used to manage opening a window and loading our user interface.</p>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword">const</span> <span class="token punctuation">{</span> app<span class="token punctuation">,</span> BrowserWindow <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'electron'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-<span class="token keyword" >let</span> win<span class="token punctuation" >;</span>
-<span class="token keyword" >const</span> createWindow <span class="token operator" >=</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
-    win <span class="token operator" >=</span> <span class="token keyword" >new</span> <span class="token class-name" >BrowserWindow</span><span class="token punctuation" >(</span><span class="token punctuation" >{</span>width<span class="token punctuation" >:</span> <span class="token number" >800</span><span class="token punctuation" >,</span> height<span class="token punctuation" >:</span> <span class="token number" >600</span><span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<span class="token keyword">let</span> win<span class="token punctuation">;</span>
+<span class="token keyword">const</span> createWindow <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    win <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BrowserWindow</span><span class="token punctuation">(</span><span class="token punctuation">{</span>width<span class="token punctuation">:</span> <span class="token number">800</span><span class="token punctuation">,</span> height<span class="token punctuation">:</span> <span class="token number">600</span><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    win<span class="token punctuation" >.</span><span class="token function" >loadURL</span><span class="token punctuation" >(</span><span class="token template-string" ><span class="token string" >`file://</span><span class="token interpolation" ><span class="token interpolation-punctuation punctuation" >${</span>__dirname<span class="token interpolation-punctuation punctuation" >}</span></span><span class="token string" >/index.html`</span></span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    win<span class="token punctuation">.</span><span class="token function">loadURL</span><span class="token punctuation">(</span><span class="token template-string"><span class="token string">`file://</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>__dirname<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">/index.html`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    win<span class="token punctuation" >.</span>webContents<span class="token punctuation" >.</span><span class="token function" >openDevTools</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+    win<span class="token punctuation">.</span>webContents<span class="token punctuation">.</span><span class="token function">openDevTools</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    win<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >'closed'</span><span class="token punctuation" >,</span> <span class="token punctuation" >(</span><span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
-        win <span class="token operator" >=</span> <span class="token keyword" >null</span><span class="token punctuation" >;</span>
-    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >;</span>
+    win<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'closed'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>
+        win <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-app<span class="token punctuation" >.</span><span class="token function" >on</span><span class="token punctuation" >(</span><span class="token string" >'ready'</span><span class="token punctuation" >,</span> createWindow<span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>First we import portions of electron, the app and BrowserWindow. We declare win to ensure it is not removed
+app<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'ready'</span><span class="token punctuation">,</span> createWindow<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>First we import portions of electron, the app and BrowserWindow. We declare win to ensure it is not removed
 by garbage collection. <code>createWindow</code> is a function that creates a new BrowserWindow, loads the user interface from disk,
 opens Chrome Developer Console, and creates an event listener for when the window is closed. Lastly,
 when the app is ready we invoke the <code>createWindow</code> function.</p>

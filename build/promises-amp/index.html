@@ -13,31 +13,31 @@
     
     <link rel="canonical" href="http://walkerrandolphsmith.github.com/" />
     
-    <link rel="amphtml" href="http://www.walkerrandolphsmith.com/promises-amp-amp/">
-    <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://www.walkerrandolphsmith.com/rss/">
+    <link rel="amphtml" href="http://localhost:3000/promises-amp-amp/">
+    <link rel="alternate" type="application/rss+xml" title="Walker Randolph Smith" href="http://localhost:3000/rss/">
     
     <meta name="referrer" content="no-referrer-when-downgrade">
     
-    <link rel="icon" type="image/png" href="http://www.walkerrandolphsmith.com/css/images/profile.png" />
-    <link rel="apple-touch-icon" sizes="57x57" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="72x72" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="114x114" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-114x114.png" />
-    <link rel="apple-touch-icon" sizes="144x144" href="http://www.walkerrandolphsmith.com/css/images/apple-icon-144x144.png" />
+    <link rel="icon" type="image/png" href="http://localhost:3000/css/images/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="http://localhost:3000/css/images/apple-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="http://localhost:3000/css/images/apple-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="http://localhost:3000/css/images/apple-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="http://localhost:3000/css/images/apple-icon-144x144.png" />
     
     <meta property="og:site_name" content="Walker Randolph Smith" />
     <meta property="og:title" content="Promises-amp" />
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="http://www.walkerrandolphsmith.com/promises-amp" />
+    <meta property="og:url" content="http://localhost:3000/promises-amp" />
     <meta property="og:description" content="From callbacks to promises." />
-    <meta property="og:image" content="http://www.walkerrandolphsmith.com/css/images/heroes/default.jpg" />
+    <meta property="og:image" content="http://localhost:3000/css/images/heroes/default.jpg" />
     <meta property="og:image:width" content="1920">
     <meta property="og:image:height" content="1080">
     
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Promises-amp">
     <meta name="twitter:description" content="From callbacks to promises.">
-    <meta name="twitter:url" content="http://www.walkerrandolphsmith.com/promises-amp">
-    <meta name="twitter:image" content="http://www.walkerrandolphsmith.com/css/images/heroes/default.jpg">
+    <meta name="twitter:url" content="http://localhost:3000/promises-amp">
+    <meta name="twitter:image" content="http://localhost:3000/css/images/heroes/default.jpg">
     <meta name="twitter:label1" content="Written by">
     <meta name="twitter:data1" content="Walker Randolph Smith">
     <style amp-custom>
@@ -45,6 +45,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 0 90px;
         }
         h1 {
             margin-left: 20px;
@@ -58,7 +59,7 @@
             margin-right: 20px;
         }
         article {
-            padding: 90px;
+            padding: 25px 90px;
         }
         h2 {
             margin: 50px 0 30px;
@@ -258,6 +259,7 @@
 
         footer {
             padding-left: 90px;
+            padding-bottom: 25px;
         }
     </style>
 
@@ -274,7 +276,7 @@
       },
       "image": {
         "@type": "ImageObject",
-        "url": "http://www.walkerrandolphsmith.com/css/images/heroes/default.jpg",
+        "url": "http://localhost:3000/css/images/heroes/default.jpg",
         "height": 2000,
         "width": 800
       }
@@ -294,19 +296,16 @@
                         <time datetime="October 29, 2016">October 29, 2016</time>
                     </li>
                     <li>
-                        <a href="http://www.walkerrandolphsmith.com/promises" title=Promises">View the original article.</a>
+                        <a href="http://localhost:3000/promises" title=Promises">View the original article.</a>
                     </li>
                     <li style="display: none;">
-                        <a href="http://www.walkerrandolphsmith.com/resume/" class="author">
-                            <img src="http://www.walkerrandolphsmith.com/css/images/logo-dark.png" alt="Walker Randolph Smith" data-no-retina="true">
+                        <a href="http://localhost:3000/resume/" class="author">
+                            <img src="http://localhost:3000/css/images/logo-dark.png" alt="Walker Randolph Smith" data-no-retina="true">
                             <span>Walker Randolph Smith</span>
                         </a>
                     </li>
                 </ul>
             </header>
-            <amp-img src="http://www.walkerrandolphsmith.com/css/images/heroes/default.jpg"
-                 width="264" height="96" layout="responsive">
-            </amp-img>
         </section>
         <section>
             <article>
@@ -323,15 +322,15 @@ For many people seeing the differences between these techniques will actually fe
 <h2><a name="callbacks" class="anchor" href="#callbacks"></a>callbacks</h2><p>The first technique I learned involved a pattern called callbacks. This term describes a technique of invoking a “callback”
 function that will operate on the results of an asynchronous function invocation when the result is available. As mentioned
 file IO is a great example of asynchronous code. Consider reading a file from disk:</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >const</span> contents <span class="token operator" >=</span> fs<span class="token punctuation" >.</span><span class="token function" >readFile</span><span class="token punctuation" >(</span><span class="token string" >"my-file"</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>contents<span class="token punctuation" >)</span><span class="line-numbers-rows"><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Unlike synchronous functions, <code>undefined</code> will be printed as contents because the file’s contents have not yet been read from disk.
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword">const</span> contents <span class="token operator">=</span> fs<span class="token punctuation">.</span><span class="token function">readFile</span><span class="token punctuation">(</span><span class="token string">"my-file"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>contents<span class="token punctuation">)</span><span class="line-numbers-rows"><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Unlike synchronous functions, <code>undefined</code> will be printed as contents because the file’s contents have not yet been read from disk.
 However if we need to perform an action with contents of the file we can accomplish this with a callback function.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >const</span> action <span class="token operator" >=</span> <span class="token punctuation" >(</span>error<span class="token punctuation" >,</span> contents<span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
-    <span class="token keyword" >if</span><span class="token punctuation" >(</span>error<span class="token punctuation" >)</span> console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>error<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-    <span class="token keyword" >else</span> console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span><span class="token string" >"File was read! "</span><span class="token punctuation" >,</span> contents<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span>
-fs<span class="token punctuation" >.</span><span class="token function" >readFile</span><span class="token punctuation" >(</span><span class="token string" >"my-file"</span><span class="token punctuation" >,</span> action<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span><span class="token string" >"end"</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>In this example <code>action</code> is a callback function that will print the contents of the file when they have <strong>eventually</strong>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword">const</span> action <span class="token operator">=</span> <span class="token punctuation">(</span>error<span class="token punctuation">,</span> contents<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>error<span class="token punctuation">)</span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>error<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">else</span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"File was read! "</span><span class="token punctuation">,</span> contents<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+fs<span class="token punctuation">.</span><span class="token function">readFile</span><span class="token punctuation">(</span><span class="token string">"my-file"</span><span class="token punctuation">,</span> action<span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"end"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>In this example <code>action</code> is a callback function that will print the contents of the file when they have <strong>eventually</strong>
 been retrieved. Understanding this code is not too difficult but is critical to understand the order in which things occur.
 First the callback function, action, is declared. Then the <code>readFile</code> function is invoked. Immediately afterwards
 <code>&quot;end&quot;</code> is printed to the console. Lastly the error or contents are printed to the console despite appearing
@@ -339,15 +338,15 @@ in the script prior to the last console statement. Callbacks allow us to handle 
 One common issue that occurs when using callbacks is described as <code>callback hell</code>. Often we find code in which
 more asynchronous functions are called within the context of a callback function. Sticking with the file IO example lets
 consider reading all files from a directory.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers">fs<span class="token punctuation" >.</span><span class="token function" >readdir</span><span class="token punctuation" >(</span><span class="token string" >'my-dir'</span><span class="token punctuation" >,</span> <span class="token punctuation" >(</span>error<span class="token punctuation" >,</span> files<span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
-    <span class="token keyword" >if</span><span class="token punctuation" >(</span>error<span class="token punctuation" >)</span> <span class="token keyword" >return</span> error<span class="token punctuation" >;</span>
-    files<span class="token punctuation" >.</span><span class="token function" >forEach</span><span class="token punctuation" >(</span>file <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
-        fs<span class="token punctuation" >.</span><span class="token function" >readFile</span><span class="token punctuation" >(</span>file<span class="token punctuation" >,</span> <span class="token punctuation" >(</span>err<span class="token punctuation" >,</span> contents<span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
-            <span class="token keyword" >if</span><span class="token punctuation" >(</span>err<span class="token punctuation" >)</span> <span class="token keyword" >return</span> err<span class="token punctuation" >;</span>
-            console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>contents<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-        <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-    <span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>In this example a callback function is passed to <code>readdir</code> that performs some action once the directory has been read from disk.
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers">fs<span class="token punctuation">.</span><span class="token function">readdir</span><span class="token punctuation">(</span><span class="token string">'my-dir'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>error<span class="token punctuation">,</span> files<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>error<span class="token punctuation">)</span> <span class="token keyword">return</span> error<span class="token punctuation">;</span>
+    files<span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>file <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>
+        fs<span class="token punctuation">.</span><span class="token function">readFile</span><span class="token punctuation">(</span>file<span class="token punctuation">,</span> <span class="token punctuation">(</span>err<span class="token punctuation">,</span> contents<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token keyword">return</span> err<span class="token punctuation">;</span>
+            console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>contents<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>In this example a callback function is passed to <code>readdir</code> that performs some action once the directory has been read from disk.
 Within that callback function, the retrieved files are iterated over and each read, which required another callback function
 to handle the contents of the file read when the operation has completed. There are a few side effects of writing this code as
 seen. It is very difficult to wrap the inner most callback function under test. Over shadowing of variables
@@ -365,42 +364,42 @@ The function is executed immediately by the Promise implementation, passing reso
 some asynchronous work is complete the resolve or reject functions are called. As describe by MDN, a Promise is a proxy
 for a value that has yet to be determined. A promise begins in a pending state and once the asynchronous call has completed
 it is fulfilled with a value or rejected with an error. Upon its fulfillment or rejection a promise is ready to invoke a callback function.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >const</span> handler <span class="token operator" >=</span> <span class="token punctuation" >(</span>err<span class="token punctuation" >,</span> response<span class="token punctuation" >)</span> <span class="token operator" >=</span><span class="token operator" >></span> <span class="token punctuation" >{</span>
-    <span class="token keyword" >if</span><span class="token punctuation" >(</span>err<span class="token punctuation" >)</span> <span class="token keyword" >return</span> err<span class="token punctuation" >;</span>
-    <span class="token keyword" >else</span> <span class="token keyword" >return</span> response<span class="token punctuation" >.</span><span class="token function" >text</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span><span class="token punctuation" >;</span>
-<span class="token function" >fetch</span><span class="token punctuation" >(</span><span class="token string" >'http://resource'</span><span class="token punctuation" >)</span><span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>handler<span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The <code>then</code> and <code>catch</code> function also return a promise so calls to them can be chained.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function" >fetch</span><span class="token punctuation" >(</span><span class="token string" >'http://resource'</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>res <span class="token operator" >=</span><span class="token operator" >></span> res<span class="token punctuation" >.</span><span class="token function" >text</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>text <span class="token operator" >=</span><span class="token operator" >></span> <span class="token function" >convertToXML</span><span class="token punctuation" >(</span>text<span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>xml <span class="token operator" >=</span><span class="token operator" >></span> <span class="token function" >convertToJson</span><span class="token punctuation" >(</span>xml<span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token keyword" >catch</span><span class="token punctuation" >(</span>err <span class="token operator" >=</span><span class="token operator" >></span> console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>err<span class="token punctuation" >)</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Often we find ourselves needing to wait for many asynchronous calls to be resolved before taking action. Consider
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword">const</span> handler <span class="token operator">=</span> <span class="token punctuation">(</span>err<span class="token punctuation">,</span> response<span class="token punctuation">)</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token keyword">return</span> err<span class="token punctuation">;</span>
+    <span class="token keyword">else</span> <span class="token keyword">return</span> response<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'http://resource'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>handler<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The <code>then</code> and <code>catch</code> function also return a promise so calls to them can be chained.</p>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'http://resource'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>res <span class="token operator">=</span><span class="token operator">></span> res<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>text <span class="token operator">=</span><span class="token operator">></span> <span class="token function">convertToXML</span><span class="token punctuation">(</span>text<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>xml <span class="token operator">=</span><span class="token operator">></span> <span class="token function">convertToJson</span><span class="token punctuation">(</span>xml<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token keyword">catch</span><span class="token punctuation">(</span>err <span class="token operator">=</span><span class="token operator">></span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>Often we find ourselves needing to wait for many asynchronous calls to be resolved before taking action. Consider
 making a http request to a resource like the previous example and the response contained ids needed to make subsequent
 http request for more detailed data. We can use <code>Promise.all</code> to ensure every promise has been fulfilled before invoking our
 callback function by passing an array of promises and/or scalar values to the function.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function" >fetch</span><span class="token punctuation" >(</span><span class="token string" >'http://resource'</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>res <span class="token operator" >=</span><span class="token operator" >></span> res<span class="token punctuation" >.</span><span class="token function" >text</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>text <span class="token operator" >=</span><span class="token operator" >></span> <span class="token function" >convertToXML</span><span class="token punctuation" >(</span>text<span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>xml <span class="token operator" >=</span><span class="token operator" >></span> <span class="token function" >convertToJson</span><span class="token punctuation" >(</span>xml<span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>items <span class="token operator" >=</span><span class="token operator" >></span> Promise<span class="token punctuation" >.</span><span class="token function" >all</span><span class="token punctuation" >(</span>
-        items<span class="token punctuation" >.</span><span class="token function" >map</span><span class="token punctuation" >(</span>i <span class="token operator" >=</span><span class="token operator" >></span> <span class="token function" >fetch</span><span class="token punctuation" >(</span><span class="token template-string" ><span class="token string" >`http://resource/details/</span><span class="token interpolation" ><span class="token interpolation-punctuation punctuation" >${</span>i<span class="token punctuation" >.</span>id<span class="token interpolation-punctuation punctuation" >}</span></span><span class="token string" >`</span></span><span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >)</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token keyword" >catch</span><span class="token punctuation" >(</span>err <span class="token operator" >=</span><span class="token operator" >></span> console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>err<span class="token punctuation" >)</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><h2><a name="async-await" class="anchor" href="#async-await"></a>async await</h2><p>Now ES2016 has described a new language feature to help us handle promises with the keywords <code>async</code> and <code>await</code>!
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'http://resource'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>res <span class="token operator">=</span><span class="token operator">></span> res<span class="token punctuation">.</span><span class="token function">text</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>text <span class="token operator">=</span><span class="token operator">></span> <span class="token function">convertToXML</span><span class="token punctuation">(</span>text<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>xml <span class="token operator">=</span><span class="token operator">></span> <span class="token function">convertToJson</span><span class="token punctuation">(</span>xml<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>items <span class="token operator">=</span><span class="token operator">></span> Promise<span class="token punctuation">.</span><span class="token function">all</span><span class="token punctuation">(</span>
+        items<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>i <span class="token operator">=</span><span class="token operator">></span> <span class="token function">fetch</span><span class="token punctuation">(</span><span class="token template-string"><span class="token string">`http://resource/details/</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>i<span class="token punctuation">.</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token keyword">catch</span><span class="token punctuation">(</span>err <span class="token operator">=</span><span class="token operator">></span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><h2><a name="async-await" class="anchor" href="#async-await"></a>async await</h2><p>Now ES2016 has described a new language feature to help us handle promises with the keywords <code>async</code> and <code>await</code>!
 A function can de decorated with the <code>async</code> keyword that indicates it returns a Promise.
 It’s invocation can be decorated with the <code>await</code> keyword which allows us to read and write asynchronous code synchronously.
 The await keyword indicates there is a blocking call and further execution will wait for the promises resolution.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >const</span> getItems <span class="token operator" >=</span> <span class="token keyword" >async</span> <span class="token function" >fetch</span><span class="token punctuation" >(</span><span class="token string" >'http://resource'</span><span class="token punctuation" >)</span>
-    <span class="token punctuation" >.</span><span class="token function" >then</span><span class="token punctuation" >(</span>res <span class="token operator" >=</span><span class="token operator" >></span> res<span class="token punctuation" >.</span>body<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword">const</span> getItems <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'http://resource'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>res <span class="token operator">=</span><span class="token operator">></span> res<span class="token punctuation">.</span>body<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-<span class="token keyword" >const</span> items <span class="token operator" >=</span> <span class="token keyword" >await</span> <span class="token function" >getItems</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>items<span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>In the previous example printing items is not <code>undefined</code>! Now we can write asynchronous code as if it were synchronous.
+<span class="token keyword">const</span> items <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token function">getItems</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>items<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>In the previous example printing items is not <code>undefined</code>! Now we can write asynchronous code as if it were synchronous.
 The subsequent lines are not executed until <code>getItems</code> has resolved or rejected the Promise.
 In the case of a rejection the caller of getItems can be wrapped in a <code>try</code>/<code>catch</code> statement.</p>
-<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword" >try</span> <span class="token punctuation" >{</span>
-    <span class="token keyword" >const</span> items <span class="token operator" >=</span> <span class="token keyword" >await</span> <span class="token function" >getItems</span><span class="token punctuation" >(</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-    console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span>items<span class="token punctuation" >)</span><span class="token punctuation" >;</span>
-<span class="token punctuation" >}</span> <span class="token keyword" >catch</span><span class="token punctuation" >(</span>exception<span class="token punctuation" >)</span> <span class="token punctuation" >{</span>
-    console<span class="token punctuation" >.</span><span class="token function" >log</span><span class="token punctuation" >(</span><span class="token string" >"Oh no an error"</span><span class="token punctuation" >)</span><span class="token punctuation" >;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The synchronous structure has eliminated the every growing indentation of callback hell. Unfortunately this is not part
+<div class="code-wrapper"><pre class="language-js line-numbers"><code class="language-js line-numbers"><span class="token keyword">try</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> items <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token function">getItems</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>items<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span> <span class="token keyword">catch</span><span class="token punctuation">(</span>exception<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Oh no an error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><i class="fa fa-copy"></i></div><p>The synchronous structure has eliminated the every growing indentation of callback hell. Unfortunately this is not part
  of the ES2015 specification so in order to use this feature you’ll need a bit of configuration.
 The async-await node module can be a good candidate if your environment does not support <code>generators</code> because the module
 is built on node-fibers allowing a function to be suspended without blocking Node’s event loop. In my case I was already
