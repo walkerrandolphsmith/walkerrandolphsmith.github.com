@@ -1,5 +1,5 @@
 <section class="hero hero-short">
-    <div class="background" style="background-image: url('{{heroPath this.hero}}');"></div>
+    <div class="background"></div>
    <header class="blog-info transparent">
        <div class="title">
            <a href="{{baseUrl}}"><img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}"></a>

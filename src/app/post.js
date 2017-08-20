@@ -26,7 +26,6 @@ export default (() => {
         const $hero = $('.hero');
 
         const $meter = $('.meter .amount');
-
         const $stick = $('aside');
         const $toc = $('#toc');
         const $tocExpander = $toc.find('header');
@@ -76,7 +75,7 @@ export default (() => {
                 $header.addClass('hidden');
                 const opacity = (lastScrollTop / heroHeight) + 0.3;
                 $background.css({ opacity: opacity });
-                $title.css({ opacity: 1 - opacity });
+                $title.css({ opacity: lastScrollTop === 0 ? 1 : 1 - opacity });
 
             }
 

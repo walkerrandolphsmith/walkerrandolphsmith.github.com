@@ -15,7 +15,7 @@
 
 <meta name="referrer" content="no-referrer-when-downgrade">
 
-<link rel="icon" type="image/png" href="{{baseUrl}}/css/images/profile.png" />
+<link rel="icon" type="image/png" href="{{baseUrl}}/css/images/apple-icon-57x57.png" />
 <link rel="apple-touch-icon" sizes="57x57" href="{{baseUrl}}/css/images/apple-icon-57x57.png" />
 <link rel="apple-touch-icon" sizes="72x72" href="{{baseUrl}}/css/images/apple-icon-72x72.png" />
 <link rel="apple-touch-icon" sizes="114x114" href="{{baseUrl}}/css/images/apple-icon-114x114.png" />

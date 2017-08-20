@@ -13,8 +13,8 @@
     </header>
     {{> drawer}}
     <main class="page-wrapper">
-        <section class="hero">
-            <div class="background" style="background-image: url('{{heroPath this.hero}}');"></div>
+        <section class="hero hero-short">
+            <div class="background"></div>
             <header class="blog-info transparent">
                 <div class="title">
                     <a href="{{baseUrl}}"><img src="{{avatar}}" class="retina" alt="{{this.authorbio.name}}"></a>
@@ -22,6 +22,7 @@
                 {{> postNav}}
             </header>
             <section class="post-item post-title center wrapper">
+                <h1 class="title">{{this.title}}</h1>
                 <ul class="meta">
                     <li class="date">
                         <a href="{{baseUrl}}">
@@ -29,7 +30,6 @@
                         </a>
                     </li>
                 </ul>
-                <h1 class="title">{{this.title}}</h1>
                 <p class="excerpt">
                     {{this.description}}
                 </p>
@@ -194,7 +194,7 @@
         <div class="related-posts">
             {{#if this.previous.path}}
             <a href="{{baseUrl}}/{{this.previous.path}}/" class="previous-post left">
-                <img src="{{baseUrl}}{{heroPath this.previous.hero}}" width="36px" height="36px" alt="{{this.previous.title}}" data-no-retina="true">
+                <i class="arrow left" alt="{{this.previous.title}}" data-no-retina="true"></i>
                 <div class="info">
                     <span>Previous Post</span>
                     <span class="title">{{this.previous.title}}</span>
@@ -210,7 +210,7 @@
                     <span>Next Post</span>
                     <span class="title">{{this.next.title}}</span>
                 </div>
-                <img src="{{baseUrl}}{{heroPath this.next.hero}}" width="36px" height="36px" alt="{{this.next.title}}" data-no-retina="true">
+                <i class="arrow right" alt="{{this.next.title}}" data-no-retina="true"></i>
             </a>
             {{else}}
             <a class="right"></a>

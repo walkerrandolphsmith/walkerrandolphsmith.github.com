@@ -36,13 +36,13 @@ skills:
   level: 3
  -
   name: C#
-  level: 3
+  level: 2
  -
   name: Python
-  level: 2
+  level: 3
  -
   name: Android
-  level: 2
+  level: 1
  -
   name: Pair Programming
   level: 4
@@ -50,7 +50,7 @@ skills:
   name: SQL/NOSQL
   level: 3
 
-frameworks:
+tools:
  -
   name: React
   level: 4
@@ -75,21 +75,22 @@ frameworks:
 
 projects:
  -
+  name: Reactor
+  url: github.com/walkerrandolphsmith/reactor
+  description: Collection of React components managed with Yarn and Lerna. Developed with Storybook.
+ -
   name: VersionOne.Planr
   position: VersionOne.Planr
-  link: VersionOne.Planr
-  url: http://github.com/walkerrandolphsmith/VersionOne.Planr
+  url: github.com/walkerrandolphsmith/VersionOne.Planr
   description: Web application that facilitates 3 amigo sessions. Assets are synced with a VersionOne instance while providing enhanced micro-interactions to create acceptance criteria with Gerkin style semantics.
  -
-  name: Yolo
-  link: Yolo
-  url: http://www.github.com/walkerrandolphsmith.com/yolo
-  description: Android application that allows parents to get informed when their child is in a vehicle so they can choose to remotely lock the device with a one time password to help prevent texting while driving among teen drivers.
+  name: Roku Remote
+  url: github.com/walkerrandolphsmith.com/roku-remote
+  description: React Native application to control one or more Rokus from your Android, iPhone or tablet.
  -
-  name: Hush
-  link: Hush
-  url: http://www.github.com/walkerrandolphsmith.com/hush
-  description: Android application to silence your device when you enter a saved location and un-silence the device when you leave.
+  name: Yolo
+  url: github.com/walkerrandolphsmith.com/yolo
+  description: Android application that allows parents to get informed when their child is in a vehicle so they can choose to remotely lock the device with a one time password to help prevent texting while driving among teen drivers.
 
 education:
  -

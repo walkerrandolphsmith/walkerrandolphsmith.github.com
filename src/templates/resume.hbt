@@ -10,9 +10,6 @@
                         <i class="fa fa-map-marker"></i><span>Atlanta, GA</span>
                     </div>
                 </div>
-                <div class="avatar">
-                    <img src="{{baseUrl}}/css/images/profile.png" alt="{{this.authorbio.name}}" />
-                </div>
             </section>
             <section>
                 <div class="flexbox-container">
@@ -44,7 +41,7 @@
                             {{#each this.projects}}
                             <div class="group">
                                 <h3>{{this.name}}</h3>
-                                <span class="alt"><a href="{{this.url}}">{{this.link}}</a></span>
+                                <span class="alt"><a href="{{this.url}}">{{this.url}}</a></span>
                                 <p class="description">{{this.description}}</p>
                             </div>
                             {{/each}}
@@ -78,10 +75,10 @@
 
                        <section>
                           <header>
-                              <h2>Frameworks</h2>
+                              <h2>Tools</h2>
                           </header>
                           <ol>
-                              {{#each this.frameworks}}
+                              {{#each this.tools}}
                               <li class="group">
                                   <h3>{{this.name}}</h3>
                                   {{mastery this.level}}

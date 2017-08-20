@@ -23,6 +23,7 @@ footer.post-info {
 
     .left, .right {
       display: flex;
+      align-items: center;
       width: 40%;
     }
 
@@ -30,11 +31,28 @@ footer.post-info {
       display: flex;
       justify-content: flex-end;
       text-align: right;
+    }
 
-      img {
-        margin-left: 10px;
-        margin-right: 0;
-      }
+    .arrow {
+      width: 16px;
+      height: 16px;
+      border: solid #939393;
+      border-width: 0 3px 3px 0;
+      display: inline-block;
+      padding: 3px;
+    }
+
+    .right:hover .arrow,
+    .left:hover .arrow {
+      border-color: @gunmetal;
+    }
+
+    .arrow.left {
+      transform: rotate(135deg)
+    }
+
+    .arrow.right {
+      transform: rotate(-45deg)
     }
 
     img {
@@ -122,11 +140,11 @@ footer.post-info {
     .amount {
       display: block;
       height: 100%;
-      background-color: rgb(43,194,83);
+      background-color: @royal;
       background-image: linear-gradient(
               center bottom,
-              rgb(43,194,83) 37%,
-              rgb(84,240,84) 69%
+              darken(@royal, 20%) 37%,
+              @royal 69%
       );
       box-shadow:
               inset 0 2px 9px  @lightestGrayBoxShadow,
