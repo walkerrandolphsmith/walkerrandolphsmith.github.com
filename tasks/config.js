@@ -2,7 +2,7 @@ var pkg = require('./../package.json');
 var renderer = require('./plugins/renderer');
 var highlighter = require('./plugins/highlighter');
 const src = './src';
-const dest = './build';
+const dest = './docs';
 
 const DOMAIN = `http://www.walkerrandolphsmith.com`;
 
