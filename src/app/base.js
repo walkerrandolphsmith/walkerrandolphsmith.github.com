@@ -3,7 +3,6 @@ import jqueryCycle from 'jquery-cycle';
 import chunck from 'lodash.chunk';
 import request from 'superagent';
 import jsonp from 'superagent-jsonp';
-import GoogleAnalytics from './google-analytics';
 
 let hasBeenOpen = false;
 
@@ -85,7 +84,7 @@ const print = () => {
     const contents = `<html>
                     <head>
                         <title>Resume</title>
-                        <link rel="stylesheet" href="${styleSheetUrl}" type="text/css" />
+                        <link rel="stylesheet" href="${styleSheetUrl}" type="text/css" media="print" />
                     </head>
                     <body>
                     ${resume}
