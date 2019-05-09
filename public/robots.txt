@@ -1,0 +1,1 @@
+User-agent: * Sitemap: http://www.walkerrandolphsmith.com/sitemap.xml
