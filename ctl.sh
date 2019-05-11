@@ -18,6 +18,9 @@ function build() {
     --minify-js true \
     --input-dir ./src \
     --output-dir ./public
+  cp ./src/amp.html ./public
+  mkdir ./public/resume
+  cp ./public/index.html ./public/resume/index.html
 }
 
 function up() {

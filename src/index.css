@@ -41,11 +41,12 @@ a {
 }
 
 .cs li {
-  display: inline;
+  display: inline-block;
+  word-break: break-word;
 }
 
 .cs li:not(:last-child):after {
-  content: ",";
+  content: ", ";
 }
 
 footer {
