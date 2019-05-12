@@ -18,18 +18,33 @@ var assets = [
 
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open(cacheName).then(cache => {
-      return cache.addAll(assets).then(() => self.skipWaiting());
-    })
+    caches
+      .open(cacheName)
+      .then(cache => {
+        return cache.addAll(assets).then(() => self.skipWaiting());
+      })
+      .catch(error => {
+        debugger;
+      })
   );
 });
 
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.open(cacheName).then(cache => {
-      return cache.match(event.request).then(res => {
-        return res || fetch(event.request);
-      });
-    })
+    caches
+      .open(cacheName)
+      .then(cache =>
+        cache
+          .match(event.request)
+          .then(res => {
+            return res || fetch(event.request);
+          })
+          .catch(error => {
+            debugger;
+          })
+      )
+      .catch(error => {
+        debugger;
+      })
   );
 });
