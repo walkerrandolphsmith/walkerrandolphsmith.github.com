@@ -12,7 +12,6 @@ var assets = [
   "/static/icons/apple-icon-114x114.png",
   "/static/icons/apple-icon-144x144.png",
   "/static/icons/favicon.ico",
-  "https://fonts.googleapis.com/css?family=Open+Sans",
   "https://fonts.gstatic.com/s/opensans/v16/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2"
 ];
 

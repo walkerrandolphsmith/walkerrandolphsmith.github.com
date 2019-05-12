@@ -1,5 +1,9 @@
 * {
   font-family: "Open Sans", sans-serif;
+  font-display: auto;
+  src: local("Open Sans"),
+    url(https://fonts.gstatic.com/s/opensans/v16/mem8YaGs126MiZpBA-UFVZ0bf8pkAg.woff2)
+      format("woff2");
   line-height: 1.58;
   letter-spacing: -0.003em;
   -webkit-font-smoothing: antialiased;
