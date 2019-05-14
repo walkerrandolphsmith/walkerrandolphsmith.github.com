@@ -2,7 +2,6 @@ var cacheName = "v1::static";
 
 var assets = [
   "/",
-  "/index.css",
   "/manifest.json",
   "/sw.js",
   "/static/icons/android-chrome-192x192.png",
@@ -17,33 +16,18 @@ var assets = [
 
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches
-      .open(cacheName)
-      .then(cache => {
-        return cache.addAll(assets).then(() => self.skipWaiting());
-      })
-      .catch(error => {
-        debugger;
-      })
+    caches.open(cacheName).then(cache => {
+      return cache.addAll(assets).then(() => self.skipWaiting());
+    })
   );
 });
 
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches
-      .open(cacheName)
-      .then(cache =>
-        cache
-          .match(event.request)
-          .then(res => {
-            return res || fetch(event.request);
-          })
-          .catch(error => {
-            debugger;
-          })
-      )
-      .catch(error => {
-        debugger;
+    caches.open(cacheName).then(cache =>
+      cache.match(event.request).then(res => {
+        return res || fetch(event.request);
       })
+    )
   );
 });
