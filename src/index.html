@@ -35,9 +35,13 @@
       }
 
       body {
+        margin: 24px;
+        font-size: 16px;
+      }
+      h1 {
+        font-size: unset;
         margin: 0;
       }
-
       section {
         max-width: 740px;
         padding-left: 20px;
@@ -46,10 +50,6 @@
         margin: 0 auto;
         box-sizing: border-box;
         overflow-wrap: break-word;
-      }
-
-      i {
-        font-size: 0.75rem;
       }
 
       ol,
@@ -73,27 +73,57 @@
       }
 
       .cs li {
-        display: inline-block;
+        display: block;
         word-break: break-word;
-      }
-
-      .cs li:not(:last-child):after {
-        content: ",";
-        display: inline-block;
-        width: 0.5rem;
       }
 
       footer {
         width: 100%;
         text-align: center;
-        background: #f6f9fc;
         height: 150px;
-        clip-path: polygon(0 60%, 100% 0, 100% 100%, 0 100%);
         display: flex;
         align-items: flex-end;
         padding-bottom: 50px;
       }
-
+      .blue {
+        color: #2079C7;
+      }
+      .name {
+        font-size: 24px;
+      }
+      .company:after {
+        content: " — ";
+      }
+      .range {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+      }
+      .row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0px auto;
+      }
+      .column {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 100%;
+        flex: 1;
+      }
+      .column:nth-child(1) ol > li {
+        margin-bottom: 2rem;
+      }
+      .column:nth-child(2) {
+        max-width: 400px;
+      }
+      .column:nth-child(2) section:nth-child(1) {
+        margin-bottom: 100px;
+      }
+      .column:nth-child(2) section:nth-child(1) a {
+        display: block;
+      }
       @media print {
         a:after {
           content: " (" attr(href) ") ";
@@ -157,157 +187,142 @@
     <meta name="twitter:data1" content="Walker Randolph Smith" />
   </head>
   <body>
-    <main>
-      <section>
-        <header>
-          <h1>Walker Randolph Smith</h1>
-          <p>
-            Technology enthusiast, proud Eagle Scout, and software craftsman
-          </p>
-        </header>
-      </section>
-      <section>
-        <h1>Experience</h1>
-        <ol>
-          <li>
-            <span><b>CollabNet</b></span>
-            <span>Software Engineer</span>
-            <span><i>Sept 2018 - Present</i></span>
-            <ul>
-              <li>
-                Developed component library
-              </li>
-              <li>
-                Developed scalable webhooks
-              </li>
-            </ul>
-          </li>
-          <li>
-            <span><b>smash.gg</b></span>
-            <span>Software Engineer</span>
-            <span><i>Nov 2017 - Sept 2018</i></span>
-            <ul>
-              <li>
-                Introduced Cypress and end to end testing practices
-              </li>
-              <li>
-                Developed "Event Check-in" to facilitate real-time data to
-                tournament organizers
-              </li>
-              <li>
-                Developed web application using GraphQL, Apollo, React, and HHVM
-              </li>
-            </ul>
-          </li>
-          <li>
-            <span><b>VersionOne</b></span>
-            <span>Software Engineer</span>
-            <span><i>Dec 2014 - Nov 2017</i></span>
-            <ul>
-              <li>
-                Revived the VersionOne JavaScript SDK
-              </li>
-              <li>
-                Converted propriety module system to the ES2015 module system
-              </li>
-              <li>
-                Developed command line automation tools
-              </li>
-            </ul>
-          </li>
-          <li>
-            <span><b>Bluetube</b></span>
-            <span>Web Developer</span>
-            <span><i>Aug 2013 - Dec 2014</i></span>
-            <ul>
-              <li>
-                Developed web application using C# .NET, Entity Framework, D3,
-                and Angular
-              </li>
-              <li>
-                Socialized module bundling and task runners
-              </li>
-            </ul>
-          </li>
-        </ol>
-      </section>
-      <section>
-        <h1>Education</h1>
-        <ol>
-          <li>
-            <span><b>Columbus State University</b></span>
-            <span>B.S. Computer Science</span>
-            <span><i>Aug 2008 - May 2013</i></span>
-          </li>
-        </ol>
-      </section>
-      <section>
-        <h1>Projects</h1>
-        <ol>
-          <li>
-            <a href="https://versionone-components.netlify.com/"
-              >Component Library</a
-            ><span>: Collection of React components</span>
-          </li>
-          <li>
-            <a href="https://walkerrandolphsmith.com/laces/">Laces</a
-            ><span>: Collection of JavaScript string utilities</span>
-          </li>
-          <li>
-            <a href="https://github.com/walkerrandolphsmith/pyscore">Pyscore</a
-            ><span>: Underscore in Python</span>
-          </li>
-          <li>
-            <a href="https://github.com/walkerrandolphsmith/lighthouse-runner"
-              >Lighthouse Runner</a
-            ><span>: Dockerized audit tool</span>
-          </li>
-        </ol>
-      </section>
-      <section>
-        <h1>Skills</h1>
-        <ul class="cs">
-          <li>JavaScript</li>
-          <li>Git</li>
-          <li>Docker</li>
-          <li>Python</li>
-          <li>GraphQL</li>
-          <li>C#</li>
-          <li>SQL Server</li>
-          <li>MySQL</li>
-          <li>MongoDB</li>
-          <li>Redis</li>
-          <li>Kubernetes</li>
-          <li>NGNIX</li>
-          <li>Istio</li>
-          <li>Terraform</li>
-          <li>Webpack</li>
-          <li>React</li>
-          <li>Apollo</li>
-          <li>Redux</li>
-          <li>React Native</li>
-          <li>Cypress</li>
-          <li>Mocha/AVA/Jest</li>
-          <li>Sinon/Chai</li>
-        </ul>
-      </section>
+    <main class="row">
+      <div class="column">
+        <section>
+          <header>
+            <h1 class="name">Walker Smith</h1>
+            <p>
+              Technology evangelist, proud Eagle Scout, and software craftsman committed to improvement. Values honesty, ownership, mindfulness, and lifelong learning.
+            </p>
+          </header>
+        </section>
+        <section>
+          <h1 class="blue">EDUCATION</h1>
+          <ol>
+            <li>
+              <span class="company"><b>Columbus State University</b></span>
+              <span><i>B.S. Computer Science</i></span>
+              <div class="range"><i>Aug 2008 - May 2013</i></div>
+            </li>
+          </ol>
+        </section>
+        <section>
+          <h1 class="blue">EXPERIENCE</h1>
+          <ol>
+            <li>
+              <span class="company"><b>Digital.ai</b></span>
+              <span><i>Senior Software Engineer</i></span>
+              <div class="range"><i>Sept 2018 - Present</i></div>
+              <div>C#, SQL Server, React, Redux, LESS, CSS Blocks, Cypress,  IIS, Nodejs, NGINX, Git, TeamCity, Docker</div>
+              <ul>
+                <li>
+                  Enabled enterprise integrations and critical customer operations through leading the development and design of scalable webhook capabilities.
+                </li>
+                <li>
+                  Transformed definition of done to include passing end to end tests and automated visual regressions.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <span class="company"><b>smash.gg</b></span>
+              <span><i>Software Engineer</i></span>
+              <div class="range"><i>Nov 2017 - Sept 2018</i></div>
+              <div>PHP in HHVM, Nodejs, GraphQL, Apollo, React, CSS Modules, Cypress, Docker, K8s, GCP, Firebase Queue and Functions</div>
+              <ul>
+                <li>
+                  Increased release confidence by championing end to end testing using Cypress.io.
+                </li>
+                <li>
+                  Reduced online tournament wait times through an “Event Check-in” feature to disqualify no-shows.
+                </li>
+                <li>
+                  Removed human error from Firebase security and rules curation by introducing Bolt Compiler.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <span class="company"><b>VersionOne</b></span>
+              <span><i>Software Engineer</i></span>
+              <div class="range"><i>Dec 2014 - Nov 2017</i></div>
+              <div>C#, SQL Server, Python, MongoDB, React, Redux, LESS</div>
+              <ul>
+                <li>
+                  Reduced user experience inconsistencies through core contributions to component library and leading adoption of the library across various teams and products.
+                </li>
+                <li>
+                  Improved developer experience by implementing hot module replacement and module bundling in a vanilla js codebase.
+                </li>
+                <li>
+                  Reduced manual testing time via creation of command line tools to simulate obscure data requirements.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <span class="company"><b>Bluetube</b></span>
+              <span><i>Software Engineer</i></span>
+              <div class="range"><i>Aug 2013 - Dec 2014</i></div>
+              <div>C#, SQL Server, Objective-C, Java, Angular (1.x), CSS</div>
+              <ul>
+                <li>
+                  Exposed to iOS, Android and web application development.
+                </li>
+                <li>
+                  Integrated direct customer feedback into tight development iterations.
+                </li>
+                <li>
+                  Increased application performance by introducing asset optimization pipelines.
+                </li>
+              </ul>
+            </li>
+          </ol>
+        </section>
+      </div>
+      <div class="column">
+        <section>
+          <a href="https://github.com/walkerrandolphsmith">Github</a>
+          
+          <a href="https://linkedin.com/in/walkerrandolphsmith">LinkedIn</a>
+          <a
+            href="https://stackoverflow.com/users/1585150/walkerrandophsmith?tab=profile"
+            >StackOverflow</a
+          >
+            <a href="mailto:walkerrandolphsmith@gmail.com"
+              >walkerrandolphsmith@gmail.com</a
+            >
+        </section>
+        <section>
+          <h1 class="blue">LANGUAGES</h1>
+          <ul class="cs">
+            <li>JavaScript</li>
+            <li>C#</li>
+            <li>Python</li>
+            <li>SQL</li>
+          </ul>
+        </section>
+        <section>
+          <h1 class="blue">TECHNOLGIES</h1>
+          <ul class="cs">
+            <li>React</li>
+            <li>Redux</li>
+            <li>GraphQL/Apollo</li>
+            <li>Webpack</li>
+            <li>Cypress/Mocha/Jest</li>
+            <li>SQL Server</li>
+            <li>MongoDB</li>
+            <li>Redis</li>
+            <li>Git</li>
+            <li>Docker</li>
+            <li>Kubernetes</li>
+            <li>Serverless</li>
+            <li>RabbitMQ</li>
+            <li>Terraform</li>
+          </ul>
+        </section>
+      </div>
     </main>
     <footer>
-      <section>
-        <a href="https://github.com/walkerrandolphsmith">Github</a>
-        <span>|</span>
-        <a href="https://linkedin.com/in/walkerrandolphsmith">LinkedIn</a>
-        <span>|</span>
-        <a
-          href="https://stackoverflow.com/users/1585150/walkerrandophsmith?tab=profile"
-          >StackOverflow</a
-        >
-        <div>
-          <a href="mailto:walkerrandolphsmith@gmail.com"
-            >walkerrandolphsmith@gmail.com</a
-          >
-        </div>
-      </section>
+      
     </footer>
     <script>
       if ("serviceWorker" in navigator) {
