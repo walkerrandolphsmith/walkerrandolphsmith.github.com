@@ -36,11 +36,16 @@
 
       body {
         margin: 24px;
-        font-size: 16px;
+        font-size: 18px;
       }
       h1 {
         font-size: unset;
         margin: 0;
+        margin-top: 1rem;
+      }
+      h1 + ol, h1 + div {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
       }
       section {
         max-width: 740px;
@@ -51,39 +56,22 @@
         box-sizing: border-box;
         overflow-wrap: break-word;
       }
-
       ol,
       ul {
         list-style: none;
         padding: 0;
+        margin: 0;
       }
-
       ol ul {
         list-style: outside;
         padding-left: 28px;
       }
-
       a {
         margin: 0 2px 0 0;
         color: black;
       }
-
       a:visited {
         color: black;
-      }
-
-      .cs li {
-        display: block;
-        word-break: break-word;
-      }
-
-      footer {
-        width: 100%;
-        text-align: center;
-        height: 150px;
-        display: flex;
-        align-items: flex-end;
-        padding-bottom: 50px;
       }
       .blue {
         color: #2079C7;
@@ -91,12 +79,17 @@
       .name {
         font-size: 24px;
       }
-      .company:after {
-        content: " — ";
+      .moment {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 0.25rem;
       }
-      .range {
-        font-size: 0.75rem;
-        margin-bottom: 0.5rem;
+      .small {
+        font-size: 0.9rem;
+      }
+      .moment b:after {
+        content: " — ";
       }
       .row {
         display: flex;
@@ -112,17 +105,11 @@
         flex-basis: 100%;
         flex: 1;
       }
-      .column:nth-child(1) ol > li {
-        margin-bottom: 2rem;
+      .column:nth-child(1) {
+        max-width: 150px;
       }
-      .column:nth-child(2) {
-        max-width: 400px;
-      }
-      .column:nth-child(2) section:nth-child(1) {
-        margin-bottom: 100px;
-      }
-      .column:nth-child(2) section:nth-child(1) a {
-        display: block;
+      .ml-2 {
+        margin-left: 2rem;
       }
       @media print {
         a:after {
@@ -187,54 +174,73 @@
     <meta name="twitter:data1" content="Walker Randolph Smith" />
   </head>
   <body>
-    <main class="row">
-      <div class="column">
+    <main>
         <section>
           <header>
             <h1 class="name">Walker Smith</h1>
+            <p>walkerrandolphsmith @ gmail.com | https://github.com/walkerrandolphsmith</p>
             <p>
               Technology evangelist, proud Eagle Scout, and software craftsman committed to improvement. Values honesty, ownership, mindfulness, and lifelong learning.
             </p>
           </header>
         </section>
+       
         <section>
-          <h1 class="blue">EDUCATION</h1>
-          <ol>
-            <li>
-              <span class="company"><b>Columbus State University</b></span>
-              <span><i>B.S. Computer Science</i></span>
-              <div class="range"><i>Aug 2008 - May 2013</i></div>
-            </li>
-          </ol>
+          <h1 class="blue">TECHNICAL SKILLS</h1>
+          <div class="row ml-2">
+            <div class="column">
+              <div>Languages:</div>
+              <div>Font-End:</div>
+              <div>Back-End:</div>
+              <div>Infrastructure:</div>
+              <div>Tooling:</div>
+            </div>
+            <div class="column">
+              <div> JavaScript, C#, Python, SQL, GraphQL</div>
+              <div>React, Redux, Apollo, Webopack, LESS, CSS, CSS-in-JS</div>
+              <div>Node.js, SQL Server, MongoDB, RabbitMQ, Serverless</div>
+              <div>Docker, Kubernetes, Terraform, TeamCity, NGNIX</div>
+              <div>Git, Bash, Visual Studio Code, Visual Studio</div>
+            </div>
+          </div>
         </section>
+
         <section>
           <h1 class="blue">EXPERIENCE</h1>
           <ol>
             <li>
-              <span class="company"><b>Digital.ai</b></span>
-              <span><i>Senior Software Engineer</i></span>
-              <div class="range"><i>Sept 2018 - Present</i></div>
-              <div>C#, SQL Server, React, Redux, LESS, CSS Blocks, Cypress,  IIS, Nodejs, NGINX, Git, TeamCity, Docker</div>
+              <div class="moment">
+                <span><b>Senior Software Engineer</b><i>Digital.ai</i></span>
+                <i class="small">Sept 2018 - Present</i>
+              </div>
+              <div class="small">C#, SQL Server, React, Redux, LESS, CSS Blocks, Cypress,  IIS, Nodejs, NGINX, Git, TeamCity, Docker</div>
               <ul>
                 <li>
-                  Enabled enterprise integrations and critical customer operations through leading the development and design of scalable webhook capabilities.
+                  Greatly increase release confidence, improved quality, and altered team norms through instituting automated end-to-end and visual regression testing.
                 </li>
                 <li>
-                  Transformed definition of done to include passing end to end tests and automated visual regressions.
+                  Improve team’s overall core competencies by mentoring on React, Redux, and front-end best practices.
+                </li>
+                <li>
+                 Lead of scalable webhooks feature, empowering critical enterprise integrations.
                 </li>
               </ul>
             </li>
             <li>
-              <span class="company"><b>smash.gg</b></span>
-              <span><i>Software Engineer</i></span>
-              <div class="range"><i>Nov 2017 - Sept 2018</i></div>
-              <div>PHP in HHVM, Nodejs, GraphQL, Apollo, React, CSS Modules, Cypress, Docker, K8s, GCP, Firebase Queue and Functions</div>
+              <div class="moment">
+                <span><b>Software Engineer</b><i>smash.gg</i></span>
+                <i class="small">Nov 2017 - Sept 2018</i>
+              </div>
+              <div class="small">Nodejs, GraphQL, Apollo, React, CSS Modules, Cypress, Docker, K8s, GCP, Firebase Functions</div>
               <ul>
                 <li>
-                  Increased release confidence by championing end to end testing using Cypress.io.
+                  Contributed to defining the role of software engineer in test and established end to end testing practices using Cypress.io.
                 </li>
                 <li>
-                  Reduced online tournament wait times through an “Event Check-in” feature to disqualify no-shows.
+                  Coached agile practices that honed sprint commitments and road maps.
+                </li>
+                <li>
+                  Developed real-time “Event Check-in” enabling entry into online esports market.
                 </li>
                 <li>
                   Removed human error from Firebase security and rules curation by introducing Bolt Compiler.
@@ -242,30 +248,38 @@
               </ul>
             </li>
             <li>
-              <span class="company"><b>VersionOne</b></span>
-              <span><i>Software Engineer</i></span>
-              <div class="range"><i>Dec 2014 - Nov 2017</i></div>
-              <div>C#, SQL Server, Python, MongoDB, React, Redux, LESS</div>
+              <div class="moment">
+                <span><b>Software Engineer</b><i>VersionOne</i></span>
+                <i class="small">Dec 2014 - Nov 2017</i>
+              </div>
+              <div class="small">C#, SQL Server, Python, MongoDB, React, Redux, LESS</div>
               <ul>
                 <li>
-                  Reduced user experience inconsistencies through core contributions to component library and leading adoption of the library across various teams and products.
+                  Introduced React, Redux, Webpack, and LESS into Continuum product.
                 </li>
                 <li>
-                  Improved developer experience by implementing hot module replacement and module bundling in a vanilla js codebase.
+                  Established unit testing in front end and back end via Mocha and Pytest.
                 </li>
                 <li>
-                  Reduced manual testing time via creation of command line tools to simulate obscure data requirements.
+                  Improved user experience through core contributions to React component library; led adoption across multiple teams and products.
+                </li>
+                <li>
+                  Increased developer productivity by implementing hot module replacement.
+                </li>
+                <li>
+                  Significantly reduced manual testing time via creation of command line tools to simulate obscure data requirements.
                 </li>
               </ul>
             </li>
             <li>
-              <span class="company"><b>Bluetube</b></span>
-              <span><i>Software Engineer</i></span>
-              <div class="range"><i>Aug 2013 - Dec 2014</i></div>
-              <div>C#, SQL Server, Objective-C, Java, Angular (1.x), CSS</div>
+              <div class="moment">
+                <span><b>Software Engineer</b><i>Bluetube</i></span>
+                <i class="small">Aug 2013 - Dec 2014</i>
+              </div>
+              <div class="small">C#, SQL Server, Objective-C, Java, Angular (1.x), CSS</div>
               <ul>
                 <li>
-                  Exposed to iOS, Android and web application development.
+                  Expanded working knowledge of iOS, Android and web application development.
                 </li>
                 <li>
                   Integrated direct customer feedback into tight development iterations.
@@ -277,53 +291,51 @@
             </li>
           </ol>
         </section>
-      </div>
-      <div class="column">
         <section>
-          <a href="https://github.com/walkerrandolphsmith">Github</a>
-          
-          <a href="https://linkedin.com/in/walkerrandolphsmith">LinkedIn</a>
-          <a
-            href="https://stackoverflow.com/users/1585150/walkerrandophsmith?tab=profile"
-            >StackOverflow</a
-          >
-            <a href="mailto:walkerrandolphsmith@gmail.com"
-              >walkerrandolphsmith@gmail.com</a
-            >
+          <h1 class="blue">EDUCATION</h1>
+          <ol>
+            <li>
+              <div class="moment">
+                <span><b>Columbus State University</b><i>B.S. Computer Science</i></span>
+                <i class="small">Aug 2008 - May 2013</i>
+              </div>
+            </li>
+          </ol>
         </section>
         <section>
-          <h1 class="blue">LANGUAGES</h1>
-          <ul class="cs">
-            <li>JavaScript</li>
-            <li>C#</li>
-            <li>Python</li>
-            <li>SQL</li>
-          </ul>
+          <h1 class="blue">OPEN SOURCE</h1>
+          <ol>
+            <li>
+              <span><b>VersionOne.Python.SDK:</b></span>
+              <span>Maintainer</span>
+            </li>
+            <li>
+              <span><b>VersionOne valve:</b></span>
+              <span>Maintainer</span>
+            </li>
+            <li>
+              <span><b>VersionOne Component Library:</b></span>
+              <span>Core contributor</span>
+            </li>
+            <li>
+              <span><b>JsonEditor:</b></span>
+              <span>Contributor; Resolved issue</span>
+            </li>
+            <li>
+              <span><b>Quasimatic:</b></span>
+              <span>Contributor; Improved developer experience</span>
+            </li>
+            <li>
+              <span><b>Cypress.io:</b></span>
+              <span>Contributor; Updated documentation</span>
+            </li>
+            <li>
+              <span><b>Kafdrop:</b></span>
+              <span>Contributor; Updated documentation</span>
+            </li>
+          </ol>
         </section>
-        <section>
-          <h1 class="blue">TECHNOLGIES</h1>
-          <ul class="cs">
-            <li>React</li>
-            <li>Redux</li>
-            <li>GraphQL/Apollo</li>
-            <li>Webpack</li>
-            <li>Cypress/Mocha/Jest</li>
-            <li>SQL Server</li>
-            <li>MongoDB</li>
-            <li>Redis</li>
-            <li>Git</li>
-            <li>Docker</li>
-            <li>Kubernetes</li>
-            <li>Serverless</li>
-            <li>RabbitMQ</li>
-            <li>Terraform</li>
-          </ul>
-        </section>
-      </div>
     </main>
-    <footer>
-      
-    </footer>
     <script>
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/sw.js");
