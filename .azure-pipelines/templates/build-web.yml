@@ -1,0 +1,21 @@
+steps:
+  - task: Cache@2
+    displayName: "Cache .next/cache"
+    inputs:
+      key: next | $(Agent.OS) | yarn.lock
+      path: "$(webDirectory)/.next/cache"
+
+  - task: Yarn@3
+    displayName: "Build Web"
+    inputs:
+      arguments: "workspace web build"
+    env:
+      NEXT_PUBLIC_SITE_URL: $(baseURL)
+      BUILD_ID: $(Build.BuildId)
+      NODE_ENV: production
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Web Build Artifact"
+    inputs:
+      PathToPublish: $(webDirectory)/out
+      artifactName: "Web"

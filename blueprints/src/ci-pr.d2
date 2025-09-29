@@ -1,0 +1,59 @@
+dev: Developer {
+    icon: https://icons.terrastruct.com/azure%2FGeneral%20Service%20Icons%2FUser%20Icon.svg
+}
+
+repo: Pull Request {
+    source: (source) feature branch {
+        icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Repos.svg
+    }
+
+    target: (target) main branch {
+        icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Repos.svg
+    }
+
+    source -> target
+}
+
+pipeline: ci pipeline {
+    icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Pipelines.svg
+}
+
+build: build artifact {
+    icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Artifacts.svg
+}
+
+web: Static Web App Environment {
+    icon: https://icons.terrastruct.com/azure%2FWeb%20Service%20Color%2FApp%20Services.svg
+}
+
+api: Function App Deployment Slot {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FFunction%20Apps.svg
+}
+
+e2e: End to End Tests {
+    icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Test%20Plans.svg
+}
+
+audit: Lighthouse {
+    icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Test%20Plans.svg
+}
+
+dev -> repo.source : push commits
+
+repo -> pipeline : triggers pipeline
+
+pipeline -> build : produces build artifacts
+
+pipeline -> web : deploys new version
+
+pipeline -> api : deploys new version
+
+web -> api : linked
+
+pipeline -> e2e : executes cypress
+
+e2e -> web : simulates user
+
+pipeline -> audit : executes lighthouse
+
+audit -> web : audits performance, accessibility, SEO

@@ -1,0 +1,5 @@
+steps:
+  - task: Yarn@3
+    displayName: "Install Dependencies"
+    inputs:
+      arguments: "install"

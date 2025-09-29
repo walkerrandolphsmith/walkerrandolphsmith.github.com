@@ -1,0 +1,8 @@
+steps:
+  - task: Bash@3
+    displayName: "Use Yarn 3.6.0"
+    inputs:
+      targetType: inline
+      script: |
+        corepack enable
+        corepack prepare yarn@3.6.0 --activate

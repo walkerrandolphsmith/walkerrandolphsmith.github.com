@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "plausible.fullname" . }}-db
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{ include "plausible.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "plausible.fullname" . }}-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ include "plausible.fullname" . }}-db
+    spec:
+      containers:
+        - name: plausible-db
+          image: "{{ .Values.image.postgres.repository }}:{{ .Values.image.postgres.tag }}"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plausible-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: '/var/lib/postgresql/data'
+          volumeMounts:
+            - mountPath: /var/lib/postgresql
+              name: db-data
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 60
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: {{ include "plausible.fullname" . }}-db-data

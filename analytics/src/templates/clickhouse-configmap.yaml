@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-config
+  namespace: {{ .Values.namespace }}
+data:
+  logs.xml: |
+{{ .Files.Get "clickhouse/logs.xml" | indent 4 }}
+  ipv4-only.xml: |
+{{ .Files.Get "clickhouse/ipv4-only.xml" | indent 4 }}
+  low-resources.xml: |
+{{ .Files.Get "clickhouse/low-resources.xml" | indent 4 }}
+  users.xml: |
+{{ .Files.Get "clickhouse/users.xml" | indent 4 }}

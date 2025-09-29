@@ -1,0 +1,218 @@
+config service {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+
+summary service {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+cron  {
+  icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+config altered -> config service {
+    label: "read/write \n config"
+}
+
+config service -> config storage {
+    label: "read/write \n config"
+}
+
+config altered -> cron {
+    label: "trigger \n (un)register job"
+}
+
+cron -> cron fired {
+    label: "produce \n cron job fired"
+}
+
+config storage {
+    icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FAzure%20Cosmos%20DB.svg
+}
+
+config altered {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+webhook received sub {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+webhook translator {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+populate workflow -> summary service {
+    label: "read summary"
+}
+webhook received sub -> webhook translator {
+    label: "translate webhook \n into co-scribe events"
+}
+
+webhook translator -> config altered {
+    label: "produce generic \n config altered"
+}
+
+webhook translator -> commit created {
+    label: "produce generic \n commit created"
+}
+
+webhook translator -> release created {
+    label: "produce generic \n release created"
+}
+
+commit created {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+release created {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+commit created {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+cron fired {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+cron fired -> graph builder service {
+    label: "trigger \n data scraping"
+}
+commit created -> graph builder service {
+    label: "trigger \n data scraping"
+}
+release created -> graph builder service {
+    label: "trigger \n data scraping"
+}
+
+summary service -> config service {
+    label: "read config"
+}
+
+graph builder service {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+graph builder service -> config service {
+    label: "read config"
+}
+
+graph service {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+graph storage {
+    icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FAzure%20Cosmos%20DB.svg
+}
+
+graph service -> graph storage {
+    label: "store graph"
+}
+
+graph constructed {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+graph builder service -> graph constructed {
+    label: "produce graph constructed"
+}
+
+graph builder service -> graph service {
+    label: "store graph"
+}
+
+
+graph constructed -> summary service {
+    label: "trigger \n summary generation"
+}
+
+summary service -> openAI {
+    label: "\ngenerate \n summary"
+}
+
+summary service -> summary storage {
+    label: "store summary"
+}
+
+summary service {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+summary created {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+summary service -> summary created {
+    label: "produce \n summary created"
+}
+
+populate workflow {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+
+
+summary created -> populate workflow
+
+populate workflow -> config service {
+    label: "determine what backlogs to write to"
+}
+
+populate workflow -> ADO {
+    label: "write to backlog"
+}
+populate workflow -> Github {
+    label: "write to backlog"
+}
+
+ADO webhook receiver {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+Github webhook receiver {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+ADO -> ADO webhook receiver {
+    label: "receive webhook"
+}
+Github -> Github webhook receiver {
+    label: "receive webhook"
+}
+summary service -> graph service {
+    label: "read graph"
+}
+
+webhook service {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FService%20Fabric%20Clusters.svg
+}
+
+webhook storage {
+    icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FAzure%20Cosmos%20DB.svg
+}
+
+webhook service -> webhook storage {
+    label: "store webhook"
+}
+
+ADO webhook receiver -> webhook service {
+    label: "store webhook"
+}
+Github webhook receiver -> webhook service {
+    label: "store webhook"
+}
+
+summary storage {
+    icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FAzure%20Cosmos%20DB.svg
+}
+
+
+
+webhook received {
+    icon: https://icons.terrastruct.com/azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg
+}
+
+webhook service -> webhook received {
+    label: "trigger webhook received"
+}

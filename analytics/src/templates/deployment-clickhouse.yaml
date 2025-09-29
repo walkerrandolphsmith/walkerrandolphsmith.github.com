@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "plausible.fullname" . }}-events-db
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{ include "plausible.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "plausible.fullname" . }}-events-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ include "plausible.fullname" . }}-events-db
+    spec:
+      containers:
+        - name: plausible-events-db
+          image: "{{ .Values.image.clickhouse.repository }}:{{ .Values.image.clickhouse.tag }}"
+          env:
+            - name: CLICKHOUSE_SKIP_USER_SETUP
+              value: "1"
+          volumeMounts:
+            - name: event-data
+              mountPath: /var/lib/clickhouse
+            - name: event-logs
+              mountPath: /var/log/clickhouse-server
+            - name: clickhouse-config
+              mountPath: /etc/clickhouse-server/config.d
+              readOnly: true
+            - name: clickhouse-users
+              mountPath: /etc/clickhouse-server/users.xml
+              subPath: users.xml
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8123
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: event-data
+          persistentVolumeClaim:
+            claimName: {{ include "plausible.fullname" . }}-event-data
+        - name: event-logs
+          persistentVolumeClaim:
+            claimName: {{ include "plausible.fullname" . }}-event-logs
+        - name: clickhouse-config
+          configMap:
+            name: clickhouse-config
+        - name: clickhouse-users
+          configMap:
+            name: clickhouse-config

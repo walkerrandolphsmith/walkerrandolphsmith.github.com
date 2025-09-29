@@ -1,0 +1,105 @@
+---
+title: 'Context is Everything: How We Built a RAG System to Improve Branded, Culturally Aware Content'
+date: 2025-06-05
+tags: ['RAG', 'LLM', 'retrieval-augmented-generation', 'content-platform']
+draft: false
+excerpt: Large language models are impressive out of the box—but when your CMS powers content written by hundreds of people for a global audience, accuracy and voice consistency aren't optional. Pretrained knowledge wasn't enough. We needed context. Real context.
+---
+
+> **"GPT is good, but it doesn’t know what we know."**  
+> That was the insight that changed how we use LLMs at scale in our content platform.
+
+Our content management system supports hundreds of writers creating content for a global audience—across dozens of languages, with strict brand voice requirements and awareness of cultural and geopolitical nuance.
+
+We weren’t just generating content. We were curating trust, clarity, and precision. And increasingly, our authors were turning to LLMs for help.
+
+But we ran into a problem.
+
+## 🔍 The Problem: When Pretrained Isn’t Enough
+
+Out of the box, GPT and similar models are surprisingly capable. But they’re not trained on our internal editorial guides. They don’t know which terms are preferred by our brand. And they certainly don’t understand which regions require sensitivity around certain topics—because much of that information isn’t even publicly available.
+
+We saw hallucinations, tone mismatches, and subtle errors of implication that could be reputationally risky. LLMs were trying to be helpful, but without access to our internal context, they were guessing.
+
+Worse: our CMS was filled with excellent source material. Past articles, internal references, editorial notes. But LLMs couldn’t see any of it.
+
+## 💡 The Realization: Your CMS is a Knowledge Base
+
+Rather than retrain a model from scratch (which was cost-prohibitive and brittle), we took a different approach: Retrieval-Augmented Generation (RAG).
+
+If the model can’t know everything up front, can we just teach it what it needs to know—right before it writes?
+
+Turns out, yes. But only if you get retrieval right.
+
+## 🛠️ What We Built: A RAG Pipeline Backed by CMS Embeddings
+
+We built a system that turned our CMS into a first-class retrieval layer:
+
+- **Document Chunking**  
+  Each article was chunked using a sliding window to preserve topic continuity across paragraphs, not just arbitrary token limits.
+
+- **Embedding & Indexing**  
+  Chunks were embedded and stored in a **hybrid vector search system**:
+
+  - **Dense retrieval** via ANN (approximate nearest neighbor) for semantic similarity
+  - **Sparse retrieval** via BM25 for keyword accuracy
+
+- **Hybrid Search**  
+  At query time, we blended results from both retrieval systems. This gave us both _contextually relevant_ and _lexically precise_ content references.
+
+- **Prompt Construction**  
+  Retrieved chunks were injected into a carefully structured prompt template that reflected our brand tone, editorial guidance, and task instruction.
+
+- **Response Refinement**  
+  We didn’t just take the model’s first answer. We evaluated it against internal QA criteria and re-queried when needed. Eventually, this step was semi-automated using classification models trained on good/bad completions.
+
+## 🤝 Balancing Scale, Accuracy, and Sensitivity
+
+One of the hardest challenges in scaling AI-generated content wasn’t just technical—it was editorial.
+
+Certain topics demand human judgment. Tone, regional nuance, and cultural sensitivity can’t be fully automated—at least not without risk. So instead of trying to replace editors, we focused on **amplifying them**.
+
+We introduced a **human-in-the-loop review system** that sat downstream of the RAG pipeline. Here’s how it worked:
+
+- **Generated responses were scored** against editorial guidelines using lightweight heuristics and classifiers (e.g. tone, length, citation use).
+- **Content that met a confidence threshold** could move directly to a quick human review with change suggestions.
+- **Content that failed thresholds** was flagged for deeper editorial pass—with the original sources retrieved by the system for fast context.
+- **Feedback from editors** was logged and used to tune retrieval weighting, prompt instructions, and re-query logic.
+
+This gave us the best of both worlds:
+
+- LLMs did the heavy lifting of draft generation and fact synthesis.
+- Editors stayed focused on what only humans do well: voice, ethics, clarity, and emotional nuance.
+- Costs dropped because **editors were reviewing, not writing from scratch**.
+- Quality went up because **retrieved source material matched internal standards and previous work**.
+
+Instead of slowing down creativity, the system created a **feedback loop that got better with time**. Every piece of content improved not just the article, but the pipeline itself.
+
+## 🧠 What We Learned
+
+RAG isn’t just a technical pattern. It’s a lens into how your systems understand themselves.
+
+- **Garbage in, garbage out** still applies—especially when "garbage" means "vague context."
+- CMS metadata (like tags, authorship, and region) helped filter relevant chunks better than naive similarity.
+- Editorial tone isn’t just style—it’s an instruction set. Embedding tone into prompts was critical.
+- RAG became more than a writing aid—it became a real-time way to distill institutional knowledge into every draft.
+
+## ✅ Outcomes
+
+The results were more than just faster content production:
+
+- ✍️ **Consistent tone** across teams and regions
+- 🚫 **Fewer hallucinations** and outdated facts
+- 📈 **Improved editorial satisfaction**, especially among non-native English authors
+- 🔁 **Content reuse** improved, since past articles became more findable and referenceable via retrieval
+
+RAG didn’t replace writers. It made them faster, sharper, and better aligned with our collective voice.
+
+## 📘 Conclusion
+
+Pretrained models are brilliant generalists. But when your platform operates at scale, across cultures and languages, you can’t afford generalizations.
+
+RAG gave us a way to amplify what we already knew. Not just facts—but voice, context, and culture.
+
+It reminded us that LLMs are only as smart as the systems that surround them.  
+And that the best systems don’t just generate content—they generate trust.

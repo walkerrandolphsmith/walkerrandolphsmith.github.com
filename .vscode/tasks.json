@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "func",
+      "label": "func: host start",
+      "command": "host start",
+      "problemMatcher": "$func-node-watch",
+      "isBackground": true,
+      "dependsOn": "yarn build (functions)",
+      "options": {
+        "cwd": "${workspaceFolder}/api"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "yarn build (functions)",
+      "command": "yarn workspace api build",
+      "problemMatcher": "$tsc",
+      "options": {
+        "cwd": "${workspaceFolder}/api"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "yarn install (functions)",
+      "command": "yarn install",
+      "options": {
+        "cwd": "${workspaceFolder}/api"
+      }
+    }
+  ]
+}

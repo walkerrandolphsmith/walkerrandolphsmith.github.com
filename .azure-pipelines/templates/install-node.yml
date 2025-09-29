@@ -1,0 +1,12 @@
+steps:
+  - powershell: |
+      $pkg = Get-Content "./package.json" | ConvertFrom-Json
+      $nodeVersion=$pkg.engines.node
+      Write-Host "node version $nodeVersion"
+      Write-Host "##vso[task.setvariable variable=nodeVersion;]$nodeVersion"
+    displayName: "Set Node Version"
+
+  - task: NodeTool@0
+    displayName: "Install Node"
+    inputs:
+      versionSpec: "$(nodeVersion)"

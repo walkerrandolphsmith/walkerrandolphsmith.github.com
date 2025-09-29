@@ -1,0 +1,36 @@
+namespace: plausible
+
+image:
+  plausible:
+    repository: ghcr.io/plausible/community-edition
+    tag: v3.0.1
+  postgres:
+    repository: postgres
+    tag: 16-alpine
+  clickhouse:
+    repository: clickhouse/clickhouse-server
+    tag: 24.12-alpine
+
+env:
+  baseUrl: "https://analytics.walkersmith.me"
+  tmpDir: "/var/lib/plausible/tmp"
+  mailer:
+    email: "postmaster@sandbox64940a76262d4b8d801bb0f6498a4dbd.mailgun.org	"
+    name: "mailgun"
+    host: "smtp.mailgun.org"
+    port: 587
+    ssl: "true"
+  database:
+    host: plausible-plausible-analytics-db
+    port: 5432
+    name: plausible
+  clickhouse:
+    host: plausible-plausible-analytics-events-db
+    port: 8123
+    database: plausible_events_db
+
+persistence:
+  size: 100Mi
+  accessMode: ReadWriteOnce
+
+resources: {}

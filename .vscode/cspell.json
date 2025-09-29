@@ -1,0 +1,36 @@
+{
+  "version": "0.2",
+  "language": "en",
+  /**
+   * Words always considered correctly spelled
+   * @link https://github.com/streetsidesoftware/vscode-spell-checker#words
+   */
+  "words": [
+    "cobertura",
+    "outdir",
+    "Parens"
+  ],
+  /**
+   * Words always considered incorrectly spelled
+   */
+  "flagWords": [
+    "hte"
+  ],
+  /**
+   * Collection of words to ignore
+   */
+  "ignoreWords": [
+    "stansw"
+  ],
+  /**
+   * Set of file paths that spelling is not evaluate against
+   */
+  "ignorePaths": [
+    "node_modules",
+    "**/node_modules",
+    "**/node_modules/**",
+    "node_modules/**",
+    ".git",
+    "**/dist/"
+  ]
+}

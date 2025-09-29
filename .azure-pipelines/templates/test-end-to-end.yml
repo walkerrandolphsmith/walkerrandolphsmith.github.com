@@ -1,0 +1,28 @@
+parameters:
+  - name: baseURL
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: "End to End Test"
+    inputs:
+      azureSubscription: $(azureDevOpsServiceConnection)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        export CYPRESS_baseUrl=${{parameters.baseURL}}
+        yarn workspace e2e ci:test
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Screenshots"
+    inputs:
+      pathToPublish: "$(System.DefaultWorkingDirectory)/e2e/src/screenshots"
+      artifactName: "Screenshots"
+    condition: failed()
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Videos"
+    inputs:
+      pathToPublish: "$(System.DefaultWorkingDirectory)/e2e/src/videos"
+      artifactName: "Videos"
+    condition: failed()

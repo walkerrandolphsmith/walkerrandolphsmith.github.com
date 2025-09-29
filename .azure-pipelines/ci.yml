@@ -1,0 +1,42 @@
+trigger:
+  - main
+
+variables:
+  - group: ci
+  - template: ./variables.yml
+  - name: baseURL
+    value: https://proud-hill-0bb518e0f.6.azurestaticapps.net/
+
+stages:
+  - stage: Deploy
+    jobs:
+      - job: deploy
+        displayName: Deploy
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - template: ./templates/install-node.yml
+          - template: ./templates/install-yarn.yml
+          - template: ./templates/install-dependencies.yml
+          - template: ./templates/lint.yml
+          - template: ./templates/build-web.yml
+          - template: ./templates/build-api.yml
+          - template: ./templates/deploy-production.yml
+          - template: ./templates/test-end-to-end.yml
+            parameters:
+              baseURL: $(baseURL)
+          - template: ./templates/audit-lighthouse.yml
+            parameters:
+              baseURL: $(baseURL)
+          - task: AzureCLI@2
+            displayName: "Cleanup Ephemeral Environments"
+            inputs:
+              azureSubscription: $(azureDevOpsServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                export SYSTEM_ACCESSTOKEN=$(System.AccessToken)
+                export SYSTEM_TEAMFOUNDATIONCOLLECTIONURI=$(System.TeamFoundationCollectionUri)
+                export SYSTEM_TEAMPROJECT=$(System.TeamProject)
+                yarn workspace ci ci:cleanup-ephemeral-environments
+            condition: succeededOrFailed()

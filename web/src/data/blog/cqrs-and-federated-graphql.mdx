@@ -1,0 +1,89 @@
+---
+title: 'Balancing Transactional Integrity and Scale: Evolving Our CMS with CQRS and Federated GraphQL'
+date: 2025-06-06
+tags: ['cms', 'graphql', 'cqrs', 'content-management', 'engineering']
+excerpt: How we balanced editorial precision and platform-scale delivery by evolving our CMS architecture with CQRS and federated GraphQL, improving editor experience and system scalability.
+---
+
+**Billions of readers. Hundreds of writers. One shared content platform.**
+
+That’s the tension we lived in daily—powering in-app help, documentation, marketing pages, and more. While the read side of our CMS scaled gracefully with caching and eventual consistency, the writing experience began to suffer. Editors needed confidence that they were working on the latest version of a document. But with transactional bottlenecks and outdated reads, our authors sometimes felt like they were typing into a fog.
+
+It was time to rethink how our system balanced editorial precision with platform-scale delivery.
+
+## 🧭 The Starting Point: Split Read and Write, But Not Enough
+
+We already had a dual-path architecture:
+
+- **Transactional write/read model:** ACID-compliant, used by editors and content reviewers.
+- **Eventually consistent read path:** Served billions of content views per month via CDNs and fast caches.
+
+This worked well for readers—but for authors, slow blocking reads, stale UI previews, and content drift added friction.
+
+## ✂️ CQRS to the Rescue
+
+We applied **CQRS (Command Query Responsibility Segregation)** to split the models cleanly:
+
+- The **write model** remained transactional—where edits, reviews, and approvals were persisted with integrity.
+- The **read model** became optimized for speed—materialized views stored in faster data stores, updated asynchronously via change events.
+
+## 🕸️ Federated GraphQL for a Unified, Fast Layer
+
+Instead of exposing each backend via REST or microservice endpoints, we introduced a **federated GraphQL gateway**.
+
+**Why?**
+
+- Authors and editors needed real-time previews of their changes.
+- Product teams wanted to build features without untangling CMS internals.
+- We needed a hot path to fast reads across multiple sources.
+
+With GraphQL federation, we stitched together multiple eventually-consistent sources behind one schema—allowing the editorial UI to fetch just the fields it needed, quickly.
+
+## 🔐 Securing the Gateway: Sidecars to the Rescue
+
+One unexpected challenge we hit was around TLS termination. Apollo Router was written in Rust for performance, but it didn’t natively support TLS termination or integrate cleanly with our existing cert infrastructure.
+
+Rather than rewriting the gateway or embedding TLS support ourselves, we chose to offload responsibility to a sidecar using **Envoy**.
+
+Here’s how it worked:
+
+- Apollo Router ran without TLS on an internal loopback interface.
+- An Envoy sidecar proxy handled TLS termination and forwarded traffic securely to the gateway.
+- We also used Envoy to integrate with our internal auth services, ensuring requests were authenticated before reaching any GraphQL logic.
+
+This gave us:
+
+- 🔒 Secure communication without modifying the core gateway implementation
+- 🔄 Consistency with our platform’s service mesh and observability tools
+- 🔧 A pluggable architecture, where we could swap or update the gateway without touching TLS or auth logic
+
+By leaning on Envoy, we avoided over-engineering the gateway and aligned with infrastructure patterns that already worked well across our stack.
+
+## 🚧 Challenges: Replacing an Entire Layer of the Stack!?
+
+We used composition on the front end to try the new hot read path via GraphQL and fallback gracefully to the legacy method if anything failed. This meant we didn’t have to rewrite the existing logic—just augment it.
+
+The rollout strategy relied on **feature toggles**, which allowed us to:
+
+- Enable the new path by region, gradually and safely.
+- Short-circuit back to the old path instantly in case of any issues.
+- Run side-by-side comparisons during early phases without disrupting users.
+
+## 🧠 Lessons Learned
+
+- **CQRS works**, but only when teams are aligned on update frequencies, failure handling, and monitoring.
+- **Federation isn't just plumbing**—it’s an organizational contract. Invest in naming, ownership, and review processes.
+- **Editorial tools are part of the user experience too.** Your authors deserve fast, confident feedback, just like your end users.
+
+## Final Thoughts
+
+> The best validation came from the people using the system:
+> 📈 Customer satisfaction (CSAT) improved by **25%**, according to in-app survey results after the rollout.
+
+Writers reported faster previews, fewer surprises in published content, and more confidence in collaborative editing. We gave them performance and trust—without forcing a disruptive migration.
+
+Content platforms tend to prioritize scale for readers—but that scale comes from trust and efficiency in how content gets made.
+
+By applying CQRS and federated GraphQL thoughtfully, we gave our authors a better experience, our systems a more scalable design, and our teams a language to reason about complexity.
+
+That balance—between consistency and velocity—is where the real engineering happens.

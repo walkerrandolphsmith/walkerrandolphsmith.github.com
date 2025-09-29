@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Development",
+      "configurations": ["Web", "API", "StaticWebAppCLI"],
+      "stopAll": true
+    }
+  ],
+  "configurations": [
+    {
+      "name": "API",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "preLaunchTask": "func: host start"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Web",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["workspace", "web", "dev"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "StaticWebAppCLI",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["swa"],
+      "console": "integratedTerminal"
+    },
+    {
+      "command": "yarn test",
+      "name": "Tests",
+      "request": "launch",
+      "type": "node-terminal"
+    }
+  ]
+}

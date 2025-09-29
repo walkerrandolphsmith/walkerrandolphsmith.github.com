@@ -1,0 +1,251 @@
+
+
+ep {
+    label: event processor
+}
+
+lpm {
+    label: license plate manager
+    style: {
+        stroke: red
+    }
+}
+
+DNS Zone {
+
+}
+
+papertrail {}
+
+filezilla {}
+
+cameras -> filezilla {
+    label: FTP raw data
+}
+
+ep -> filezilla {
+    label: monitors
+}
+
+wasabi {}
+
+sqlserver {
+    ltiapidb {
+        label: 'LTI API DB -Shared DB'
+        shape: image
+        icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FSQL%20Databases.svg
+    }
+    viloationmanager {
+        label: SQL Queue
+        shape: image
+        icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FSQL%20Databases.svg
+    }
+}
+
+PendingViloationMessage {}
+
+CreateCitationMessage {}
+AgencyApprovedMessage {}
+
+ep -> PendingViloationMessage {
+    label: produce
+}
+
+viloationmanager {
+    label: Violation Manager
+}
+
+viloationmanager -> PendingViloationMessage {
+    label: consume
+}
+
+viloationmanager -> AgencyApprovedMessage {
+    label: produce
+}
+
+
+viloationmanager -> sqlserver.viloationmanager {
+    label: \n\nmanages lifecycle
+}
+
+ltiapi {
+    label: AKA Asset Manager
+}
+
+ltiapi -> sqlserver.ltiapidb {
+    label: configures EP
+}
+
+ltiapi -> AgencyApprovedMessage {
+    label: consumes
+}
+
+gateway -> ltiapi
+
+ltiapi -> CreateCitationMessage {
+    label: hydrates
+}
+
+citationmanager {
+    label: Citation Mangaer
+}
+
+gateway -> citationmanager
+
+citationmanager -> CreateCitationMessage {
+    label: consume
+}
+
+citationmanager -> sqlserver2.citationmanagerdb {
+    label: records the citation
+}
+
+citationmanager -> CitationCreatedMessage {
+    label: produce
+}
+
+sqlserver2 {
+    citationmanagerdb {
+        shape: image
+        icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FSQL%20Databases.svg
+    }
+    lpmdb {
+    label: lpm db
+    shape: image
+    icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FSQL%20Databases.svg
+}
+}
+
+ep -> sqlserver.ltiapidb {
+    label: records processed events
+}
+
+ep -> wasabi {
+    label: moves from fillezilla
+}
+
+
+lpm -> sqlserver2.lpmdb {
+    label: read/write
+}
+
+foldermil
+
+jsreport -> disk {
+    label: writes to
+}
+
+foldermil -> disk {
+    label: reads from 
+}
+
+foldermil -> print spool pool {}
+
+gateway {
+    label: Ocelot API gateway
+}
+
+webserver {
+    label: Web server
+}
+
+webserver -> gateway {
+    label: via HTTP
+}
+
+gateway -> lpm {
+    label: via HTTP
+}
+
+kafka {
+
+}
+
+printermanager {
+    label: printer manager
+}
+
+gateway -> event manager
+
+CitationCreatedMessage {}
+
+queue {
+    shape: image
+    icon: https://icons.terrastruct.com/azure%2FStorage%20Service%20Color%2FQueues%20Storage.svg
+}
+
+cosmosdb {
+    label: Event Store (Projection)
+    shape: image
+    icon: https://icons.terrastruct.com/azure%2FDatabases%20Service%20Color%2FAzure%20Cosmos%20DB.svg
+}
+
+rabbitmq {
+    label: RabbitMQ
+}
+nlets {}
+
+lpm -> nlets {
+    label: via SOAP
+}
+gateway -> viloationmanager
+
+TrafficEventUpdated {}
+
+event manager -> TrafficEventUpdated {
+    label: consumes
+}
+
+event manager -> cosmosdb {
+    label: presist event source
+}
+
+citationmanager -> queue {
+    label: writes print requests jobs
+}
+
+printermanager -> queue {
+    label: polls the queue
+}
+
+gateway -> printermanager
+
+jsreport # hosted at the office
+
+printermanager -> jsreport  
+
+twillio
+
+identity server
+
+
+webserver -> identity server
+
+gateway -> identity server 
+
+elastic
+
+utc {
+    label: Uniform Traffic Citation
+    style: {
+        stroke: red
+    }
+    # points on record
+}
+
+
+
+
+# token acquisition
+# certificate mgmt
+# DNS zone
+# AD domain controoler
+# 1YEAR + Audit + 2027
+# How to show cloud cost budget alerts
+# what to do with maypop data
+#   - calculate potential revenue
+#   - compare cost of migration
+#   - 
+# timelines and milestones
+# 
+

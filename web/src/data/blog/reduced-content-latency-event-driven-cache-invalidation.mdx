@@ -1,0 +1,119 @@
+---
+title: How We Reduced Content Publication Latency by 99% Using Event-Driven Cache Invalidation
+date: 2025-06-05
+tags: ['event-driven', 'performance']
+draft: false
+excerpt: Cache invalidation is hard — but what if it didn’t have to be? We slashed content latency by 99% without ripping out our CDN, and in the process, built a real-time publishing system that unlocked dashboards, workflows, and trust across teams.
+---
+
+Our content platform was built to handle massive scale — serving content across mobile apps, websites, smart devices, to 2 billion customers and billions of requests per month.
+We relied on layers of caching: memory caches for speed, CDN for global reach, and edge caches to offload backend calls.
+On paper, this was a textbook system for low-latency, high-availability delivery.
+
+But something was wrong.
+
+## 🔍 The Problem No One Wanted to Own
+
+Authors would hit “publish,” but their changes wouldn’t go live—at least not right away.
+The content would trickle out slowly, showing up in some places but not others. For teams managing security, compliance, breaking news, or personalized experiences, this delay was more than an annoyance. It was a risk.
+We discovered that the problem wasn’t in a single layer—it was in how multiple layers compounded their **own cache policies**.
+
+The CDN cached content for 30 minutes and the backend layer did the same. The result? Content could remain stale for up to 60 minutes.
+Attempts to fix this with shorter TTLs introduced new problems: higher backend load, more cache churn, and degraded performance. We had optimized for scale—but at the cost of freshness.
+
+## 💡 The Realization: Publishing Is an Event
+
+We asked ourselves: what if cache invalidation wasn’t reactive at all? What if it was intentional?
+
+The insight came from shifting our mental model: instead of relying on TTLs to guess when content might be outdated, we could emit signals the moment it changed.
+
+This wasn’t new. We’d used event-driven architecture for other parts of our stack. But this time, we applied it to publishing itself.
+
+## 🛠️ The Architecture We Built
+
+We introduced a lightweight event system that published messages whenever content was saved, reviewed, or published. These weren’t just arbitrary payloads—they were type-safe, versioned message contracts, distributed via NuGet and NPM packages.
+
+Here’s how it worked:
+
+- When an author saved a draft or published a revision, an event was emitted.
+
+- The event included metadata like content ID, revision ID, locale, content type, and the action (e.g. “Published”).
+
+- Teams could consume these messages and invalidate their caches proactively.
+
+By standardizing the contract and offering shared libraries, we made it easy for product teams to hook into these events without needing to reinvent their own logic.
+
+### Stack Details
+
+Under the hood, our message events were delivered via Azure Service Bus topics. On the consumer side, we published lightweight client libraries in NuGet (for C# services) and NPM (for Node.js apps), embedding the message contracts for type safety.
+
+Cache layers included Akamai at the CDN edge, Redis for regional application cache, and in-memory LRU for hot-path read performance. Instead of tearing them down, we built targeted invalidation pipelines using these event signals.
+
+## 🚀 Results: Fast, Predictable, and Scalable
+
+The impact was immediate:
+
+- Perceived staleness dropped from ~1 hour to under 5 seconds in most critical paths.
+
+- Content authors regained confidence in the publish button.
+
+- Teams no longer had to compromise between fast content and fast performance.
+
+- Cache layers remained intact — we just orchestrated them better.
+
+Perhaps most importantly, this change scaled trust, not just throughput.
+
+## 🎯 Unexpected Wins: Projections, Queues, and Visibility
+
+What we didn’t expect to learn was that this system had a second life.
+
+Because each content event was timestamped and traceable, we could use these messages as the foundation for event sourcing patterns. Teams began building real-time projections of publishing activity:
+
+Editors could view dashboards of what was published, by whom, and when.
+
+Review queues were powered by the event stream to show authors what needed attention.
+
+Auditing and compliance workflows no longer required bespoke integrations — they just subscribed to the stream.
+
+In solving for staleness, we had quietly created a reliable source of truth for publishing state. The same infrastructure we built for cache invalidation also enabled cross-team reporting, workflow tooling, and operational insights.
+
+## 🤝 The Hardest Part Wasn’t the Code
+
+Technically, building the event system was straightforward. Event stream, event store, message schemas, client libraries - done.
+
+But getting four different teams to adopt it was the real work.
+
+Each team owned a piece of the delivery pipeline:
+
+- One owned the backend CMS.
+- One managed the read model of the content
+- One managed the main web application.
+- One controlled mobile app caching.
+- Many shared the edge/CDN layers.
+
+They had different timelines, SLAs, and priorities. And all of them had their own local optimizations for "when content gets updated." No one wanted to own global coordination—because everyone assumed someone else already did.
+
+We had to:
+
+- **Earn trust** that the event system was stable and wouldn't introduce regressions.
+- **Document and evangelize** the contract shape and what each event meant.
+- **Pair with teams** to plug in listeners and verify real-time invalidations.
+- **Create visibility** with dashboards and shared alerts so everyone saw the same “truth” when content changed.
+
+Some teams were skeptical at first. But once they could trace an event to a cache purge within seconds—and see it reflected in production—they bought in.
+
+The turning point was making it **easy to adopt** and **hard to ignore**. The result? Not just faster systems, but faster alignment.
+
+## 🧠 What We Learned
+
+This project wasn’t about eliminating caching — it was about coordinating it.
+
+Too often, cache invalidation is treated as a blunt instrument: lower TTLs, purge everything, or hope the client refreshes. But at scale, that’s not sustainable—or necessary.
+
+By embracing event-driven coordination, we avoided tearing down the very layers that made our platform performant. Instead, we turned content publishing into a system-wide signal—a reliable way to coordinate freshness across a distributed web of services.
+
+## Conclusion
+
+The best architectures don’t just solve the problem you intended—they illuminate new ones you didn’t even know you had.
+
+In our case, cache invalidation became a **gateway to a shared vocabulary across teams**. A system that started as a fix for staleness became a platform for trust—between services and between the people who build them.

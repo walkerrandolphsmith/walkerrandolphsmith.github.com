@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /api
+Disallow: /contactus
+Disallow: /contactuserror
+Disallow: /notfound
+Allow: /
