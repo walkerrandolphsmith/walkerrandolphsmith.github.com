@@ -1,0 +1,97 @@
+---
+title: 'Lighthouse Scores from 48 to 100: Re-Architecting for Speed and SEO with Incremental Static Regeneration'
+date: 2025-06-06
+tags: ['nextjs', 'performance', 'seo', 'incremental-static-regeneration']
+excerpt: Help articles served in flagship products struggled with performance due to runtime rendering and content complexity. Here's how we applied static generation—at scale—to improve reliability, responsiveness, and SEO.
+---
+
+**We build for users at scale—and they notice when it’s slow.**
+
+A Lighthouse score of 48 was more than a poor technical grade. It was a signal that our help experiences across apps were underdelivering in terms of speed, accessibility, and search visibility.
+
+The problem wasn’t the content itself. It was how we delivered it.
+
+## 🧭 The Context: High Variation, High Stakes
+
+Each help article had to adapt to several dimensions:
+
+- Product
+- Language and region
+- Application version
+- Platform (Windows, macOS, web)
+
+This led to a combinatorial explosion of permutations. Each request required evaluating the user context, pulling the right content, and dynamically merging it with UI logic to render correctly.
+
+We handled this via runtime rendering—served through a web server backed by edge caching and some in-memory optimizations. This gave us flexibility, but at a cost:
+
+- JavaScript payloads were too large.
+- Content shifted on load, hurting visual stability.
+- CDN caching struggled to keep up with content diversity.
+- Time to first byte was inconsistent and often poor.
+
+We had outgrown our own architecture.
+
+## 💡 The Strategy: Leaning into Next.js ISR
+
+We revisited our delivery model with one principle: **treat performance as a product feature, not a backend concern**.
+
+Next.js’s **Incremental Static Regeneration (ISR)** gave us the model we needed. We could:
+
+- Pre-render popular article permutations as static HTML.
+- Dynamically regenerate pages on demand when traffic required.
+- Eliminate reliance on runtime merging for most content.
+
+This would shift load off our servers, simplify our caching story, and improve experience across both desktop and web apps.
+
+But we had a challenge ahead.
+
+## ⚠️ The Challenge: Too Many Permutations to Prebuild
+
+Prebuilding every article variation wasn’t feasible—there were hundreds of thousands of possible combinations.
+
+We needed a selective strategy to:
+
+- Identify which permutations to build proactively.
+- Handle less-frequent variants without degrading performance.
+- Avoid rebuilding content unnecessarily.
+
+Our first implementation took a naive approach: short TTLs, opportunistic revalidation, minimal memory caching.
+
+It helped, but it didn’t scale.
+
+## 🧠 What Worked: Observability-Informed Regeneration
+
+We shifted to a demand-driven model informed by usage telemetry:
+
+- **Hot Path Pre-rendering**: The top 5–10% of article permutations were built at deploy time or via background revalidation.
+- **On-Demand ISR**: Rare combinations were rendered on first access, cached at the CDN, and eligible for promotion.
+- **Promotion via Usage Heuristics**: Articles accessed frequently within a short time window were flagged for regeneration and persistent caching.
+- **Memory-Aware LRU Strategy**: We implemented an in-memory cache with tiered eviction, optimized for region and language clustering.
+
+We also introduced diagnostics and tracing to monitor cache effectiveness, regeneration costs, and end-user performance.
+
+## 📈 Outcomes: Not Just Faster, but Smarter
+
+The shift delivered measurable improvements:
+
+- **Lighthouse Score**: Raised from 48 to 100 across key user flows.
+- **TTFB**: Reduced by over 80% for high-traffic paths.
+- **SEO**: Improved crawlability and rankings for public articles.
+- **Developer Velocity**: Simplified logic meant fewer edge cases and easier testing.
+
+Perhaps most importantly, the architecture became more predictable under load, which enabled teams to trust the system again—critical when shipping help experiences at the scale we do.
+
+## 🧠 Lessons Learned
+
+- **Static-first works—even with dynamic content—if you treat variation as a caching problem, not a rendering problem.**
+- **Observability drives good architecture.** Our best decisions came from real usage data, not assumptions.
+- **Performance is a team sport.** Dev, infra, SEO, content authorship—all of it contributes to user-perceived quality.
+
+## 🧭 Closing Thoughts
+
+This wasn’t just a technical rewrite—it was a mindset shift. We moved from a reactive, request-based architecture to a proactive, usage-aware model.
+
+And while the Lighthouse score makes for a nice headline, the real outcome was user trust: faster help, less friction, and an experience that scaled with the products it supports.
+
+Performance, we learned, isn’t just about making things faster.  
+It’s about making them feel effortless.

@@ -1,0 +1,18 @@
+steps:
+  - task: Yarn@3
+    displayName: "Build API"
+    inputs:
+      arguments: "workspace api build"
+
+  - task: ArchiveFiles@2
+    displayName: "Archive API"
+    inputs:
+      rootFolderOrFile: "$(System.DefaultWorkingDirectory)/api/out"
+      includeRootFolder: false
+      archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish API Build Artifact"
+    inputs:
+      PathtoPublish: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+      artifactName: "API"

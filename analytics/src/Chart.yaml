@@ -1,0 +1,16 @@
+apiVersion: v2
+name: plausible-analytics
+description: A Helm chart for deploying Plausible Analytics with PostgreSQL and Clickhouse on Kubernetes
+type: application
+version: 0.1.0
+appVersion: "3.0.1"
+keywords:
+  - plausible
+  - analytics
+  - postgres
+  - clickhouse
+  - kubernetes
+  - helm
+maintainers:
+  - name: Walker Smith
+    email: walkerrandolphsmith@gmail.com

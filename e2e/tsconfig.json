@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "dom"],
+    "module": "es6",
+    "target": "es6",
+    "jsx": "react",
+    "allowJs": true,
+    "types": [
+      "cypress",
+      "node",
+      "cypress-plugin-api",
+      "./src/support/commands.d.ts"
+    ]
+  },
+  "include": ["**/*.ts"]
+}

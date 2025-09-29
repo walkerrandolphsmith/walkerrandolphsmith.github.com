@@ -1,0 +1,156 @@
+---
+title: 'Self-Hosting Plausible Analytics on AKS Behind Azure Front Door'
+date: 2025-07-17
+tags:
+  ['AKS', 'Kubernetes', 'Plausible', 'Azure Front Door', 'cert-manager', 'Helm']
+draft: false
+images: /opimage-plausible.png
+excerpt: Google Analytics felt like too much. I wanted lightweight, privacy-respecting analytics for my portfolio — but also full control. So I built a fully automated Plausible deployment using AKS, Helm, cert-manager, and Azure Front Door. Here’s how it works.
+---
+
+I’ve always had a personal discomfort with handing all my site analytics over to Google. So when I decided to self-host [Plausible Analytics](https://plausible.io/), it wasn’t just about tracking page views — it was about owning my data, understanding the infrastructure better, and seeing how far I could take a modern, privacy-first approach.
+
+My portfolio site was already running as an Azure Static Web App behind Azure Front Door. Adding analytics to it felt like a project worth over-engineering a bit, just to see what was possible. Here's how I pulled it off.
+
+## The Setup
+
+I used an Azure Kubernetes Service (AKS) cluster to host everything. I created the cluster using Terraform, but I won’t get into the exact scripts. Use whatever you like — Bicep, the Azure CLI, your own Terraform flavor. What matters is that you end up with an AKS cluster that supports Workload Identity, has access to an Azure DNS zone, and is reachable behind Azure Front Door.
+
+I installed NGINX as my ingress controller using Helm. The only special values I added were to make sure it respected client IPs and had a wide watch scope:
+
+```bash
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --set controller.service.externalTrafficPolicy=Local \
+  --set controller.watchNamespace=""
+```
+
+This gave me an ingress controller with a public IP that could sit cleanly behind Front Door.
+
+## TLS Done Right (and Automatically)
+
+One of my favorite parts of this project was getting cert-manager to issue and renew TLS certificates automatically without needing to store any secrets. That’s not magic — it’s the result of using a DNS-01 ACME challenge and Azure Workload Identity.
+
+Instead of the more common HTTP-01 challenge (which needs special routing and path-based verification), DNS-01 lets cert-manager create TXT records in your Azure DNS zone. That way, Let’s Encrypt can verify domain ownership without touching your app.
+
+Here’s how I set it up at a high level:
+
+- I created a `ClusterIssuer` resource in Kubernetes that used the DNS-01 method
+- I gave cert-manager a managed identity with **DNS Zone Contributor** permissions
+- No client secrets or keys were stored — cert-manager handled everything through Azure identity
+
+Once that was in place, cert-manager automatically issued a wildcard certificate for `*.walkersmith.me`, and it’s been renewing without issue.
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: X
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      - dns01:
+          azureDNS:
+            managedIdentity:
+              clientID: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+            subscriptionID: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+            resourceGroupName: X
+            hostedZoneName: walkersmith.me
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-walkersmith-me
+  namespace: plausible
+spec:
+  secretName: wildcard-walkersmith-me-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: '*.walkersmith.me'
+  dnsNames:
+    - '*.walkersmith.me'
+    - walkersmith.me
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+  renewBefore: 24h
+```
+
+## Deploying Plausible with Helm
+
+Plausible has a Docker Compose setup you can adapt for Kubernetes, but I chose to Helm-ify the whole thing. I created a Helm chart that deployed:
+
+- The Plausible app
+- Clickhouse (for event storage)
+- PostgreSQL (for config and auth)
+
+All three had persistent volume claims. I didn’t want to lose data on pod restarts or upgrades. Each component had its own PVC, templated in Helm like this:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $fullname }}-db-data
+  namespace: {{ .Values.namespace }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+```
+
+You’d find similar claims for the plausible app itself (`plausible-data`), Clickhouse events (`event-data`), and logs (`event-logs`). If you're planning to self-host Plausible for any length of time, persist your data. Don't skip this.
+
+The dashboard is login-protected, just like the hosted Plausible service. No real surprises here — it works out of the box.
+
+## Ingress, Meet Front Door
+
+Once the app was live inside the cluster, I exposed it via an Ingress resource with a host rule for `analytics.walkersmith.me`. Thanks to cert-manager, that endpoint already had valid HTTPS and worked in the browser.
+
+But my static site wasn’t hitting the AKS ingress directly — it lived behind Azure Front Door.
+
+To ensure that only Azure Front Door could reach the cluster, I locked down ingress traffic at the network layer. I configured a Kubernetes `NetworkPolicy` and also used an Azure NSG (Network Security Group) to restrict traffic to only the known IP ranges used by Front Door. This helps prevent direct access to the public IP of the ingress controller and ensures that analytics traffic flows only through the intended entry point.
+
+Then I configured a Front Door origin like this:
+
+- **Origin type:** Custom
+- **Hostname:** `plausible.walkersmith.me`
+- **Origin host header:** `analytics.walkersmith.me`
+- **Certificate subject name validation:** Enabled
+
+This let me map traffic from Front Door to the AKS ingress based on the host header, and everything "just worked." The request would hit Front Door, get routed to the cluster, and be decrypted via the cert-manager-managed TLS cert.
+
+If you're familiar with Front Door, you’ll recognize the pattern. You're essentially building a multi-origin, host-based router that lets you bring multiple backend services under one domain. In this case, my static site is served as `walkersmith.me`, and analytics live at `analytics.walkersmith.me`.
+
+## Bringing Analytics to the Site
+
+Once all the infrastructure was up, plugging Plausible into the site was easy. Just drop the JavaScript snippet into the HTML:
+
+```html
+<script
+  defer
+  data-domain="walkersmith.me"
+  src="https://analytics.walkersmith.me/js/plausible.js"
+></script>
+```
+
+Since Plausible is hosted at `analytics.walkersmith.me`, and my static site is at `walkersmith.me`, the data-domain value matches what Plausible expects.
+
+Traffic flows from the browser → Azure Front Door → AKS ingress → Plausible app, and I get all the stats without leaking user data to third parties.
+
+## Closing Thoughts
+
+This project was overkill for a personal portfolio, but that was the point. I wanted to see what a clean, modern, and secure analytics stack could look like — with automation at every step and no secrets floating around.
+
+If you're running your own site, this approach is more work than dropping in Google Analytics, but it pays off in control, privacy, and confidence. Your data stays yours. Your traffic doesn't train someone else's machine learning model.
+
+And if nothing else, it's satisfying to see those stats come in from a system you fully own — running behind a global CDN, backed by a production-grade cluster, secured by cert-manager, and all without a single secret in sight.
+
+_Got questions about the setup? Curious about adapting it to your own domain or stack? Reach out. The next step might be even better — serverless analytics, real-time dashboards, who knows._

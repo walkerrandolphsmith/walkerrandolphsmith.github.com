@@ -1,0 +1,26 @@
+{
+  "name": "e2e",
+  "version": "0.1.0",
+  "private": true,
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "scripts": {
+    "ci:test": "cypress run --e2e",
+    "test": "cypress open --e2e --config baseUrl=http://localhost:4280 ",
+    "install": "cypress install",
+    "clear": "cypress cache clear"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "cross-env": "^7.0.3",
+    "cypress": "^12.15.0",
+    "cypress-plugin-api": "^2.11.1",
+    "cypress-recurse": "^1.35.2",
+    "imap-simple": "^5.1.0",
+    "mailparser": "^3.6.5",
+    "nodemailer": "^6.9.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
+  }
+}

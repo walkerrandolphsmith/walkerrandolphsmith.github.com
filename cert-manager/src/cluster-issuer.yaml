@@ -1,0 +1,38 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod  
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: walkerrandolphsmith@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - dns01:
+        azureDNS:
+          managedIdentity:
+            clientID: 940f07d0-3e49-4caf-97d4-b16507315af0
+          subscriptionID: b78350e9-3050-48ce-be2d-d1fa07a1c512
+          resourceGroupName: portfolio
+          hostedZoneName: walkersmith.me
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-walkersmith-me
+  namespace: plausible
+spec:
+  secretName: wildcard-walkersmith-me-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "*.walkersmith.me"
+  dnsNames:
+    - "*.walkersmith.me"
+    - walkersmith.me
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+  renewBefore: 24h

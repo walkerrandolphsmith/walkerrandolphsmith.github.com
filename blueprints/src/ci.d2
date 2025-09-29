@@ -1,0 +1,45 @@
+pr: Pull Request Completed {
+    icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20DevOps.svg
+}
+
+repo: repository (main) {
+    icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Repos.svg
+}
+
+pipeline: ci pipeline {
+    icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Pipelines.svg
+}
+
+build: build artifact {
+    icon: https://icons.terrastruct.com/azure%2FDevOps%20Service%20Color%2FAzure%20Artifacts.svg
+}
+
+web: Static Web App  {
+    icon: https://icons.terrastruct.com/azure%2FWeb%20Service%20Color%2FApp%20Services.svg
+}
+
+api: Function App {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FFunction%20Apps.svg
+}
+
+betaWeb: Static Web App Environment {
+    icon: https://icons.terrastruct.com/azure%2FWeb%20Service%20Color%2FApp%20Services.svg
+}
+
+betaAPI: Function App Deployment Slot {
+    icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FFunction%20Apps.svg
+}
+
+pr -> repo : push merge commit
+
+repo -> pipeline : triggers pipeline
+
+pipeline -> build : produces build artifacts
+
+pipeline -> web : deploys new version
+
+pipeline -> api : deploys new version
+
+pipeline -> betaWeb : removes ephemeral environments
+
+pipeline -> betaAPI : removes ephemeral environments

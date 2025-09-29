@@ -1,0 +1,34 @@
+{
+  "name": "co-scribe",
+  "description": "AI assistant for documenting your product",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "api",
+    "blueprints",
+    "ci",
+    "e2e",
+    "exec",
+    "infra",
+    "lighthouse",
+    "messages",
+    "web"
+  ],
+  "engines": {
+    "node": "18.12.0"
+  },
+  "packageManager": "yarn@3.6.3",
+  "scripts": {
+    "dev": "swa start http://localhost:3000 --api-devserver-url http://localhost:7071 -V silly",
+    "build": "concurrently \"yarn workspace web build\" \"yarn workspace api build\"",
+    "start": "concurrently \"yarn workspace web start\" \"yarn workspace api start\"",
+    "lint": "concurrently \"yarn workspace web lint\" \"yarn workspace api lint\"",
+    "clean:deps": "rimraf **/node_modules ./node_modules/",
+    "clear": "yarn cache clean --force"
+  },
+  "devDependencies": {
+    "@azure/static-web-apps-cli": "^1.1.3",
+    "concurrently": "^8.2.0",
+    "rimraf": "^5.0.1"
+  }
+}

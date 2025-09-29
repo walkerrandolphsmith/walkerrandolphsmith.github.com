@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "plausible.fullname" . }}-app
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{ include "plausible.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "plausible.fullname" . }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ include "plausible.fullname" . }}-app
+    spec:
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 999:999 /var/lib/plausible"]
+          volumeMounts:
+            - name: plausible-data
+              mountPath: /var/lib/plausible
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: plausible
+          image: "{{ .Values.image.plausible.repository }}:{{ .Values.image.plausible.tag }}"
+          command:
+            - sh
+            - -c
+            - >
+              /entrypoint.sh db createdb &&
+              /entrypoint.sh db migrate &&
+              /entrypoint.sh run
+          env:
+            - name: BASE_URL
+              value: {{ .Values.env.baseUrl | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: plausible-secrets
+                  key: DATABASE_URL
+            - name: CLICKHOUSE_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: plausible-secrets
+                  key: CLICKHOUSE_DATABASE_URL
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: plausible-secrets
+                  key: SECRET_KEY_BASE
+            - name: TMPDIR
+              value: {{ .Values.env.tmpDir | quote }}
+            - name: MAILER_EMAIL
+              value: {{ .Values.env.mailer.email | quote }}
+            - name: MAILER_NAME
+              value: {{ .Values.env.mailer.name | quote }}
+            - name: SMTP_HOST
+              value: {{ .Values.env.mailer.host | quote }}
+            - name: SMTP_PORT
+              value: "{{ .Values.env.mailer.port }}"
+            - name: SMTP_SSL
+              value: "{{ .Values.env.mailer.ssl }}"
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: plausible-secrets
+                  key: SMTP_USER
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: plausible-secrets
+                  key: SMTP_PASSWORD
+          volumeMounts:
+            - name: plausible-data
+              mountPath: /var/lib/plausible
+      volumes:
+        - name: plausible-data
+          persistentVolumeClaim:
+            claimName: {{ include "plausible.fullname" . }}-plausible-data

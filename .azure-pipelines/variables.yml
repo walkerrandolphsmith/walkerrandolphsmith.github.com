@@ -1,0 +1,9 @@
+variables:
+  - name: azureDevOpsServiceConnection
+    value: "azure-dev-ops-connector"
+  - name: webDirectory
+    value: $(System.DefaultWorkingDirectory)/web
+  - name: resourceGroupName
+    value: rg-portfolio
+  - name: azureFunctionAppName
+    value: func-portfolio

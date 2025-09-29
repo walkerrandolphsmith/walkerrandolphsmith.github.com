@@ -1,0 +1,5 @@
+steps:
+  - task: Yarn@3
+    displayName: "Lint"
+    inputs:
+      arguments: "workspace web lint"

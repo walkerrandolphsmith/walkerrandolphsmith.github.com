@@ -1,0 +1,41 @@
+steps:
+  # - task: AzureCLI@2
+  #   displayName: "Create Deployment Slot"
+  #   inputs:
+  #     azureSubscription: $(azureDevOpsServiceConnection)
+  #     scriptType: bash
+  #     scriptLocation: inlineScript
+  #     inlineScript: |
+  #       export EPHEMERAL_ENVIRONMENT_URL=$(ephemeralEnvironmentUrl)
+  #       yarn workspace ci ci:api:create-slot
+
+  - task: AzureStaticWebApp@0
+    displayName: Deploy Web
+    inputs:
+      workingDirectory: $(webDirectory)
+      app_location: out
+      output_location: out
+      skip_app_build: true
+      skip_api_build: true
+      is_static_export: true
+      azure_static_web_apps_api_token: $(staticWebAppDeploymentApiToken)
+      deployment_environment: $(System.PullRequest.PullRequestId)
+
+  # - task: AzureFunctionApp@1
+  #   displayName: Deploy API
+  #   inputs:
+  #     azureSubscription: $(azureDevOpsServiceConnection)
+  #     appType: functionApp
+  #     appName: $(azureFunctionAppName)
+  #     deployToSlotOrASE: true
+  #     slotName: $(System.PullRequest.PullRequestId)
+  #     package: $(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip
+
+  # - task: AzureCLI@2
+  #   displayName: "Link Backend"
+  #   inputs:
+  #     azureSubscription: $(azureDevOpsServiceConnection)
+  #     scriptType: bash
+  #     scriptLocation: inlineScript
+  #     inlineScript: |
+  #       yarn workspace ci ci:link-backend

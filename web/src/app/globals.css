@@ -1,0 +1,815 @@
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+@source '../node_modules/pliny';
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Core theme configuration */
+@theme {
+  /* Colors */
+  /* Copied from https://tailwindcss.com/docs/theme#default-theme-variable-reference */
+  --color-primary-50: oklch(0.971 0.014 343.198);
+  --color-primary-100: oklch(0.948 0.028 342.258);
+  --color-primary-200: oklch(0.899 0.061 343.231);
+  --color-primary-300: oklch(0.823 0.12 346.018);
+  --color-primary-400: oklch(0.718 0.202 349.761);
+  --color-primary-500: oklch(0.656 0.241 354.308);
+  --color-primary-600: oklch(0.592 0.249 0.584);
+  --color-primary-700: oklch(0.525 0.223 3.958);
+  --color-primary-800: oklch(0.459 0.187 3.815);
+  --color-primary-900: oklch(0.408 0.153 2.432);
+  --color-primary-950: oklch(0.284 0.109 3.907);
+
+  --color-gray-50: oklch(0.985 0.002 247.839);
+  --color-gray-100: oklch(0.967 0.003 264.542);
+  --color-gray-200: oklch(0.928 0.006 264.531);
+  --color-gray-300: oklch(0.872 0.01 258.338);
+  --color-gray-400: oklch(0.707 0.022 261.325);
+  --color-gray-500: oklch(0.551 0.027 264.364);
+  --color-gray-600: oklch(0.446 0.03 256.802);
+  --color-gray-700: oklch(0.373 0.034 259.733);
+  --color-gray-800: oklch(0.278 0.033 256.848);
+  --color-gray-900: oklch(0.21 0.034 264.665);
+  --color-gray-950: oklch(0.13 0.028 261.692);
+
+  /* Line heights */
+  --line-height-11: 2.75rem;
+  --line-height-12: 3rem;
+  --line-height-13: 3.25rem;
+  --line-height-14: 3.5rem;
+
+  /* Z-index values */
+  --z-60: 60;
+  --z-70: 70;
+  --z-80: 80;
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  a,
+  button {
+    outline-color: var(--color-primary-500);
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid;
+    border-radius: var(--radius-sm);
+    outline-color: var(--color-primary-500);
+  }
+
+  article h1,
+  section h1,
+  aside h1,
+  nav h1 {
+    font-size: 36px;
+    margin-block: 0;
+  }
+}
+
+@layer utilities {
+  .prose {
+    & a {
+      color: var(--color-primary-500);
+      &:hover {
+        color: var(--color-primary-600);
+      }
+      & code {
+        color: var(--color-primary-400);
+      }
+    }
+    & :where(h1, h2) {
+      font-weight: 700;
+      letter-spacing: var(--tracking-tight);
+    }
+    & h3 {
+      font-weight: 600;
+    }
+    & :where(code):not(pre code) {
+      color: var(--color-indigo-500);
+    }
+  }
+
+  .prose-invert {
+    & a {
+      color: var(--color-primary-500);
+      &:hover {
+        color: var(--color-primary-400);
+      }
+      & code {
+        color: var(--color-primary-400);
+      }
+    }
+    & :where(h1, h2, h3, h4, h5, h6) {
+      color: var(--color-gray-100);
+    }
+  }
+}
+
+.task-list-item::before {
+  @apply hidden;
+}
+
+.task-list-item {
+  @apply list-none;
+}
+
+.footnotes {
+  @apply mt-12 border-t border-gray-200 pt-8 dark:border-gray-700;
+}
+
+.data-footnote-backref {
+  @apply no-underline;
+}
+
+.csl-entry {
+  @apply my-5;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
+}
+
+.katex-display {
+  overflow: auto hidden;
+}
+
+.content-header-link {
+  opacity: 0;
+  margin-left: -24px;
+  padding-right: 4px;
+}
+
+.content-header:hover .content-header-link,
+.content-header-link:hover {
+  opacity: 1;
+}
+
+.linkicon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.Section {
+  --sectionAnglePaddingTopBase: calc(
+    var(--sectionAnglePaddingBaseMin) * 1px +
+      (
+        var(--sectionAnglePaddingTopBaseMax) - var(--sectionAnglePaddingBaseMin)
+      ) *
+      (var(--windowWidth) / 737 - 0.50882px)
+  );
+  --sectionAnglePaddingBottomBase: calc(
+    var(--sectionAnglePaddingBaseMin) * 1px +
+      (
+        var(--sectionAnglePaddingBottomBaseMax) -
+          var(--sectionAnglePaddingBaseMin)
+      ) *
+      (var(--windowWidth) / 737 - 0.50882px)
+  );
+  --sectionPaddingTopGutterWidth: var(--gutterWidth);
+  --sectionAnglePaddingTop: calc(
+    var(--sectionAngleHeight) - var(--sectionAngleSin) *
+      var(--sectionPaddingTopGutterWidth) + var(--sectionAnglePaddingTopBase)
+  );
+  --sectionAnglePaddingBottom: calc(
+    var(--sectionAngleHeight) - var(--sectionAngleSin) * var(--gutterWidth) +
+      var(--sectionAnglePaddingBottomBase)
+  );
+  --sectionPaddingTop: calc(
+    var(--sectionPaddingMin) * 1px +
+      (var(--sectionPaddingTopMax) - var(--sectionPaddingMin)) *
+      (var(--windowWidth) / 737 - 0.50882px)
+  );
+  --sectionPaddingBottom: calc(
+    var(--sectionPaddingMin) * 1px +
+      (var(--sectionPaddingBottomMax) - var(--sectionPaddingMin)) *
+      (var(--windowWidth) / 737 - 0.50882px)
+  );
+  --sectionPaddingNormalMax: 128;
+  --sectionAngleSin: var(--angleNormalSin);
+  --sectionAngle: 0;
+  --sectionPaddingSmallMax: 110;
+  --sectionPaddingXSmallMax: 72;
+  --sectionPaddingMin: 72;
+  --sectionPaddingMax: var(--sectionPaddingNormalMax);
+  --sectionPaddingTopMax: var(--sectionPaddingMax);
+  --sectionPaddingBottomMax: var(--sectionPaddingMax);
+  --sectionMarginTop: 0;
+  --sectionMarginBottom: 0;
+  --sectionAngleHeight: calc(var(--windowWidth) * var(--sectionAngleSin));
+  --sectionAnglePaddingBaseMin: 100;
+  --sectionAnglePaddingBaseMax: var(--sectionPaddingMax);
+  --sectionAnglePaddingTopBaseMax: var(--sectionAnglePaddingBaseMax);
+  --sectionAnglePaddingBottomBaseMax: var(--sectionAnglePaddingBaseMax);
+  --sectionAngleMaxHeight: none;
+  --sectionOverflow: hidden;
+  --sectionTransformOrigin: 100% 0;
+  --sectionBackgroundOverflow: visible;
+  position: relative;
+  z-index: 1;
+  margin-top: var(--sectionMarginTop);
+  margin-bottom: var(--sectionMarginBottom);
+  color: var(--textColor);
+  scroll-margin-top: calc(
+    var(--fixedNavHeight) + var(--fixedNavSpacing) - var(--sectionPaddingTop)
+  );
+}
+.Section.Section--noPadding {
+  --sectionPaddingMax: 0;
+  --sectionPaddingTop: 0;
+  --sectionPaddingBottom: 0;
+}
+.Section.Section--noTopPadding {
+  --sectionPaddingTopMax: 0;
+  --sectionPaddingTop: 0;
+}
+.Section.Section--noBottomPadding {
+  --sectionPaddingBottomMax: 0;
+  --sectionPaddingBottom: 0;
+}
+.Section--paddingSmall {
+  --sectionPaddingMax: var(--sectionPaddingSmallMax);
+}
+.Section--paddingXSmall {
+  --sectionPaddingMax: var(--sectionPaddingXSmallMax);
+}
+@media (max-width: 375px) {
+  .Section {
+    --sectionAnglePaddingTopBase: calc(var(--sectionAnglePaddingBaseMin) * 1px);
+    --sectionAnglePaddingBottomBase: calc(
+      var(--sectionAnglePaddingBaseMin) * 1px
+    );
+    --sectionPaddingTop: calc(var(--sectionPaddingMin) * 1px);
+    --sectionPaddingBottom: calc(var(--sectionPaddingMin) * 1px);
+  }
+}
+@media (min-width: 1112px) {
+  .Section {
+    --sectionAnglePaddingTopBase: calc(
+      var(--sectionAnglePaddingTopBaseMax) * 1px
+    );
+    --sectionAnglePaddingBottomBase: calc(
+      var(--sectionAnglePaddingBottomBaseMax) * 1px
+    );
+    --sectionPaddingTop: calc(var(--sectionPaddingTopMax) * 1px);
+    --sectionPaddingBottom: calc(var(--sectionPaddingBottomMax) * 1px);
+  }
+}
+.Section__background {
+  position: relative;
+  height: 100%;
+  max-height: var(--sectionAngleMaxHeight);
+  width: 100%;
+  top: 0;
+  left: 0;
+  transform-origin: var(--sectionTransformOrigin);
+  transform: skewY(var(--sectionAngle));
+  background: var(--backgroundColor);
+  overflow: hidden;
+}
+.dark .Section__background {
+  background: var(--backgroundColorDark);
+}
+.Section__background--isTransparent {
+  background: hsla(0, 0%, 100%, 0.2);
+  backdrop-filter: blur(7px);
+}
+.Section__masked {
+  overflow: var(--sectionOverflow);
+}
+.Section__container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  min-height: var(--sectionMinHeight);
+}
+.Section__layoutContainer {
+  width: 100%;
+  max-width: var(--layoutWidth);
+  margin: 0 var(--columnPaddingNormal);
+}
+@media (min-width: 1024px) {
+  .Section__layoutContainer.fullWidth {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+  }
+}
+.Section__layout {
+  padding: var(--sectionPaddingTop) 0 var(--sectionPaddingBottom);
+}
+.Section--noPadding .Section__layout {
+  padding: 0;
+}
+.Section--angleTop {
+  --sectionPaddingTop: var(--sectionAnglePaddingTop);
+  --sectionAngle: var(--angleNormal);
+}
+.Section--angleBottom {
+  --sectionTransformOrigin: 0 0;
+}
+.Section--angleBoth,
+.Section--angleBottom {
+  --sectionPaddingBottom: var(--sectionAnglePaddingBottom);
+  --sectionMarginBottom: calc(var(--sectionAngleHeight) * -1);
+}
+.Section--angleBoth {
+  --sectionPaddingTop: var(--sectionAnglePaddingTop);
+  --sectionAngle: var(--angleNormal);
+}
+.Section--bleed3 {
+  --sectionPaddingBottom: 0;
+}
+.Section__backgroundMask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: var(--sectionBackgroundOverflow);
+}
+.Section--paddingTopNone {
+  --sectionPaddingTop: 0;
+}
+.Section--paddingTopMedium {
+  --sectionPaddingTop: 80px;
+}
+.Section--paddingTopXXLarge {
+  --sectionPaddingTop: 160px;
+}
+@media (min-width: 600px) {
+  .Section--paddingTopXXLarge {
+    --sectionPaddingTop: calc(90px + 15vw);
+  }
+}
+.Section--paddingBottomNone {
+  --sectionPaddingBottom: 0;
+}
+.Section--paddingBottomSmall {
+  --sectionPaddingBottom: 64px;
+}
+.Section--marginTopLarge {
+  --sectionMarginTop: 20px;
+}
+@media (min-width: 600px) {
+  .Section--marginTopLarge {
+    --sectionMarginTop: 40px;
+  }
+}
+@media (min-width: 900px) {
+  .Section--peekingContent .Section__layout {
+    padding-top: calc(var(--sectionPaddingTop) + 45px);
+  }
+}
+@media (min-width: 900px) {
+  .Section--peekingContent--invoicing .Section__layout {
+    padding-top: calc(var(--sectionPaddingTop) - 65px);
+  }
+}
+
+:root {
+  --gutterWidth: 16px;
+  --font-roboto: 'Roboto', sans-serif;
+  --layoutWidthMax: 1080px;
+  --layoutWidth: var(--layoutWidthMax);
+  --columnCountMax: 1;
+  --columnPaddingNormal: 16px;
+  --backgroundColor: white;
+  --backgroundColor: #0f172a;
+  --angleNormal: -6deg;
+  --angleStrong: -12deg;
+  --angleNormalSin: 0.106;
+  --angleStrongSin: 0.212;
+  --sectionOverflow: hidden;
+  --sectionBackgroundOverflow: visible;
+  --sectionMarginTop: 0;
+  --sectionPaddingBottom: 0;
+  --textColor: #425466;
+  --fixedNavHeight: 60px;
+  --fixedNavSpacing: 48px;
+  --sectionPaddingTopMax: 116;
+  --windowWidth: calc(100vw - var(--scrollbarWidth));
+  --scrollbarWidth: 15px;
+  --heroIllustrationContainerWidth: 90vw;
+  --heroIllustrationContainerHeight: calc((8 * 0.75rem) + (5 * 78px));
+  --heroIllustrationTileWidth: 64px;
+  --heroIllustrationTileHeight: 64px;
+  --heroIllustrationTileIconWidth: 24px;
+  --heroIllustrationTileIconHeight: 24px;
+  --heroIllustrationTemplateRows: repeat(6, 58px);
+  --heroIllustrationTemplateColumns: repeat(5, 58px);
+  --heroIllustrationGridTemplate: 'A1 B1 C1 D1 E1' 'A2 B2 C2 D2 E2'
+    'A3 B3 C3 D3 E3' 'A4 B4 C4 D4 E4' 'A5 B5 C5 D5 E5' 'A6 B6 C6 D6 E6';
+  --swatch-fill-1: #ffc6b5;
+  --swatch-fill-2: #f5d7eb;
+  --swatch-fill-3: #ffdcc8;
+  --swatch-fill-4: #b5ffff;
+  --swatch-fill-5: #7c90f9;
+  --swatch-fill-6: #6dcfff;
+  --swatch-fill-7: #cbc3e9;
+
+  --shiki-background: #0c2e4e;
+  --shiki-tab-border: #0f395e;
+  --shiki-tab-border-selected: #0c2e4e;
+  --shiki-tab-background: #06182c;
+  --shiki-foreground: #ffffff;
+  --shiki-keyword: #8095ff;
+  --shiki-tag: #569cd6;
+  --shiki-string: #ffa956;
+  --shiki-function: #00d4ff;
+  --shiki-number: #ffd96a;
+  --shiki-comment: #a9bcce;
+  --shiki-property: #1abdc0;
+  --shiki-class: #00d924;
+  --shiki-attribute: #00d4ff;
+  --shiki-attr-value: #ffa956;
+  --shiki-punctuation: #a9bcce;
+  --shiki-embedded: #ffffff;
+  --shiki-variable: #ffa956;
+}
+.dark {
+  --swatch-fill-1: #441a14;
+  --swatch-fill-2: #40203a;
+  --swatch-fill-3: #442f2a;
+  --swatch-fill-4: #1d2b2b;
+  --swatch-fill-5: #282b60;
+  --swatch-fill-6: #17475b;
+  --swatch-fill-7: #332e4a;
+
+  --shiki-background: oklch(27.4% 0.006 286.033);
+  --shiki-tab-border: oklch(27.4% 0.006 286.033);
+  --shiki-tab-border-selected: transparent;
+  --shiki-tab-background: oklch(21% 0.006 285.885);
+  --shiki-foreground: #569cd6;
+  --shiki-keyword: #c586c0; /* Lavender blue (cool, readable) */
+  --shiki-tag: #569cd6; /* Softer red-pink, better on blue */
+  --shiki-string: #ffb86c; /* Warm orange, low saturation */
+  --shiki-function: #dcdcaa; /* Vibrant cyan */
+  --shiki-number: #ffe291; /* Muted butter yellow */
+  --shiki-comment: #7e94ab; /* Muted steel blue for subtlety */
+  --shiki-property: #45d7d3; /* Cyan-green, harmonious */
+  --shiki-class: #6dff84; /* Lighter green, works on dark blue */
+  --shiki-attribute: #63f2f1; /* Same as function for unity */
+  --shiki-attr-value: #ffb86c; /* Same as string for clarity */
+  --shiki-punctuation: #7e94ab; /* Match comment for low emphasis */
+  --shiki-embedded: #ffffff; /* Bright white, intentionally prominent */
+  --shiki-variable: #9cdcfe; /* Like string, to avoid confusion */
+}
+
+.dark {
+  background-color: oklch(21% 0.006 285.885);
+}
+.fill-\[rgb\(0\,120\,212\)\] {
+  fill: rgb(0, 120, 212);
+}
+.dark .dark\:fill-\[white\],
+.dark .dark\:fill-\[white\] path {
+  fill: white !important;
+}
+@media (min-width: 1112px) {
+  html {
+    --gutterWidth: calc(var(--windowWidth) / 2 - var(--layoutWidth) / 2);
+  }
+}
+html,
+body,
+* {
+  font-family: var(--font-roboto);
+  text-rendering: optimizeLegibility;
+  font-optical-sizing: auto;
+  font-kerning: auto;
+  box-sizing: border-box;
+}
+
+.font-mono {
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
+}
+
+.custom-breakout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 32px);
+  grid-template-rows: repeat(2, 32px);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --heroIllustrationContainerWidth: 100%;
+    --heroIllustrationContainerHeight: calc((7 * 0.75rem) + (7 * 78px));
+    --heroIllustrationTemplateRows: repeat(6, 78px);
+    --heroIllustrationTemplateColumns: repeat(6, 78px);
+    --heroIllustrationTileWidth: 74px;
+    --heroIllustrationTileHeight: 74px;
+    --heroIllustrationTileIconWidth: 32px;
+    --heroIllustrationTileIconHeight: 32px;
+    --heroIllustrationGridTemplate: 'A1 B1 C1 D1 E1 F1' 'A2 B2 C2 D2 E2 F2'
+      'A3 B3 C3 D3 E3 F3' 'A4 B4 C4 D4 E4 F4' 'A5 B5 C5 D5 E5 F5'
+      'A6 B6 C6 D6 E6 F6';
+  }
+  .custom-grid {
+    margin-left: 0px !important;
+    gap: 0.75rem;
+  }
+}
+.cls-1 {
+  fill: #4dabcf;
+}
+.cls-2 {
+  fill: #4d77cf;
+}
+
+.custom-grid-container {
+  width: var(--heroIllustrationContainerWidth);
+  height: var(--heroIllustrationContainerHeight);
+  padding: 0.75rem;
+  overflow: hidden;
+}
+.custom-grid-tile {
+  width: var(--heroIllustrationTileWidth);
+  height: var(--heroIllustrationTileHeight);
+  min-width: var(--heroIllustrationTileWidth);
+  min-height: var(--heroIllustrationTileHeight);
+}
+
+.custom-grid-tile-icon {
+  width: var(--heroIllustrationTileIconWidth);
+  height: var(--heroIllustrationTileIconHeight);
+  min-width: var(--heroIllustrationTileIconWidth);
+  min-height: var(--heroIllustrationTileIconHeight);
+}
+
+.custom-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-left: 77px;
+  grid-template-columns: var(--heroIllustrationTemplateColumns);
+  grid-template-rows: var(--heroIllustrationTemplateRows);
+  grid-template-areas: var(--heroIllustrationGridTemplate);
+}
+.custom-type-animation-cursor-visible::before {
+  opacity: 1 !important;
+}
+span.custom-type-animation-cursor::before {
+  border-top-left-radius: 5px;
+}
+span.custom-type-animation-cursor::after {
+  content: '';
+}
+
+span.custom-type-animation-cursor-visible::after {
+  content: '|';
+  opacity: unset;
+  animation: cursor 1s infinite;
+}
+.custom-type-animation-cursor::after {
+  opacity: 0;
+}
+@keyframes cursor {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes throbe {
+  0% {
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.105);
+  }
+  100% {
+    transform: scale(0.9);
+  }
+}
+.custom-type-animation-cursor::before {
+  background: linear-gradient(to top left, #7a6ded, #591885);
+}
+
+.custom-type-animation-cursor::after {
+  background: linear-gradient(to top left, #7a6ded, #591885);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --columnCountMax: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --columnCountMax: 4;
+  }
+}
+
+.Section--angleTop {
+  --sectionPaddingTop: var(--sectionAnglePaddingTop);
+  --sectionAngle: var(--angleNormal);
+}
+
+.Section--padBottom {
+  --sectionPaddingBottom: calc(var(--sectionAngleHeight) * 1.25);
+}
+
+.Section__masked {
+  position: relative;
+  overflow: var(--sectionOverflow);
+}
+
+.Section__backgroundMask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: var(--sectionBackgroundOverflow);
+}
+
+.Guides {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  padding: 0 var(--columnPaddingNormal);
+  pointer-events: none;
+}
+
+.Guides__container {
+  display: grid;
+  grid: 1fr / repeat(var(--columnCountMax), 1fr);
+  position: relative;
+  max-width: var(--layoutWidth);
+  height: 100%;
+  margin: 0 auto;
+}
+
+.Guides__guide {
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    var(--guideDashedColor),
+    var(--guideDashedColor) 50%,
+    transparent 0,
+    transparent
+  );
+  background-size: 1px 8px;
+}
+
+.dark .Guides__guide {
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    var(--guideDashedColorDark),
+    var(--guideDashedColorDark) 50%,
+    transparent 0,
+    transparent
+  );
+  background-size: 1px 8px;
+}
+
+@media print {
+  :root {
+    --guideSolidColor: transparent !important;
+  }
+  .Section.Section--noPaddingOnPrint {
+    --sectionPaddingMax: 0;
+    --sectionPaddingTop: 0;
+    --sectionPaddingBottom: 0;
+  }
+}
+
+.Guides__guide:first-of-type,
+.Guides__guide:last-of-type {
+  background: var(--guideSolidColor);
+}
+
+.dark .Guides__guide:first-of-type,
+.dark .Guides__guide:last-of-type {
+  background: var(--guideSolidColorDark);
+}
+
+.Guides__guide:last-of-type {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+}
+
+.Section__container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  min-height: var(--sectionMinHeight);
+}
+
+.Section__layoutContainer {
+  width: 100%;
+  max-width: var(--layoutWidth);
+  margin: 0 var(--columnPaddingNormal);
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 20;
+  }
+}
+
+@keyframes draw-and-reset {
+  0% {
+    stroke-dashoffset: var(--path-length);
+  }
+  100% {
+    stroke-dashoffset: calc(-1 * var(--path-length));
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+#nx {
+  fill: #020617;
+}
+
+.dark #nx {
+  fill: white;
+}
+
+.cd {
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .cd:first-child:hover {
+    transform: translate(-0.5rem, -1rem) rotate(3deg);
+  }
+
+  .cd:hover {
+    transform: translateY(-1rem) rotate(3deg);
+  }
+
+  .cd:not(:first-child) {
+    margin-left: -30px;
+    margin-left: -130px;
+    box-shadow: -3rem 0 3rem -2rem rgba(50, 50, 93, 0.25);
+  }
+
+  .dark .cd:not(:first-child) {
+    box-shadow: -3rem 0 3rem -2rem rgba(0, 0, 0, 0.6);
+  }
+
+  .cd {
+    &:hover,
+    &:focus-within {
+      & ~ .cd {
+        transform: translateX(60px);
+      }
+    }
+  }
+}

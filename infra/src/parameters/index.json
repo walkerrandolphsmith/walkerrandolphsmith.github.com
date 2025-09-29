@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "organizationName": "rosaliedesignstudio",
+    "productName": "portfolio"
+  },
+  "parameters": {
+    "location": {
+      "value": "eastus2"
+    },
+    "subscriptionId": {
+      "value": ""
+    },
+    "resourceGroupName": {
+      "value": "rg-portfolio"
+    },
+    "functionAppName": {
+      "value": "func-portfolio"
+    },
+    "keyVaultCIName": {
+      "value": "ky-[variables('organizationName')]-ci"
+    },
+    "azureDevOpsServiceConnectionId": {
+      "value": "37688b17-b0b7-4ca8-a26a-a6a42f273754"
+    },
+    "tenantId": {
+      "value": "b78350e9-3050-48ce-be2d-d1fa07a1c512"
+    },
+    "staticWebAppName": {
+      "value": "stapp-portfolio"
+    },
+    "storageAccountName": {
+      "value": "stwrsportfolio"
+    },
+    "repositoryURL": {
+      "value": "https://dev.azure.com/organization/project/_git/repo"
+    },
+    "serviceBusNamespace": {
+      "value": "sbns-portfolio"
+    },
+    "serviceBusTopicContactFormSubmission": {
+      "value": "sbt-contact-form-submission"
+    },
+    "communicationServicesName": {
+      "value": "acs-portfolio"
+    },
+    "customDomainName": {
+      "value": "walkerrandolphsmith.com"
+    },
+    "userManagedIdentityClientId": {
+      "value": "e6580d69-ea43-47ee-9316-6fb8265305d0"
+    }
+  }
+}

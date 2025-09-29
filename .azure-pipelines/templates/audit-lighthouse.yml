@@ -1,0 +1,17 @@
+parameters:
+  - name: baseURL
+    type: string
+
+steps:
+  - powershell: |
+      $env:baseURL="${{parameters.baseURL}}"
+      yarn workspace lighthouse ci:audit
+    displayName: "Lighthouse Audit"
+    condition: succeededOrFailed()
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Lighthouse Audit"
+    inputs:
+      pathToPublish: "$(System.DefaultWorkingDirectory)/.lighthouse-runs/"
+      artifactName: "Lighthouse"
+    condition: succeededOrFailed()
