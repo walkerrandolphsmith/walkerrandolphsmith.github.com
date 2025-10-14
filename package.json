@@ -1,6 +1,6 @@
 {
-  "name": "co-scribe",
-  "description": "AI assistant for documenting your product",
+  "name": "portfolio",
+  "description": "portfolio site for walker smith",
   "version": "0.1.0",
   "private": true,
   "workspaces": [
@@ -15,7 +15,7 @@
     "web"
   ],
   "engines": {
-    "node": "18.12.0"
+    "node": "22.20.0"
   },
   "packageManager": "yarn@3.6.3",
   "scripts": {
