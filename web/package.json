@@ -82,7 +82,6 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "exec": "workspace:*",
     "prettier": "^3.0.0",
     "serve": "14.2.0",
     "serwist": "^9.0.14",
