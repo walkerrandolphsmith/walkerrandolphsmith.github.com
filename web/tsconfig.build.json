@@ -3,9 +3,10 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   }
 }

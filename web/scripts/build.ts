@@ -1,5 +1,8 @@
 import { copyFile, readdir } from 'fs/promises'
-import { resolve } from 'path'
+import { dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const run = async () => {
   const webDir = resolve(__dirname, '..', '..', 'web')

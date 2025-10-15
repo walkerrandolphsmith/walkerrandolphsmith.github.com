@@ -1,11 +1,14 @@
 import { existsSync } from 'fs'
 import fs from 'fs/promises'
-import path, { resolve } from 'path'
+import { dirname, join, resolve } from 'path'
+import { fileURLToPath } from 'url'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const webDir = resolve(__dirname, '..', '..', 'web')
-const source = path.join(webDir, 'public', 'logo.png')
-const publicDir = path.join(webDir, 'public')
-const outputPath = path.join(publicDir, 'favicons')
+const source = join(webDir, 'public', 'logo.png')
+const publicDir = join(webDir, 'public')
+const outputPath = join(publicDir, 'favicons')
 
 const maskableIconName = 'maskable_icon_x512.png'
 
@@ -51,10 +54,7 @@ async function run() {
     // Write images
     await Promise.all(
       response.images.map(({ name, contents }) =>
-        fs.writeFile(
-          path.join(outputPath, name),
-          contents as unknown as Uint8Array,
-        ),
+        fs.writeFile(join(outputPath, name), contents as unknown as Uint8Array),
       ),
     )
 
@@ -77,15 +77,15 @@ async function run() {
         }
 
         return fs.writeFile(
-          path.join(publicDir, name),
+          join(publicDir, name),
           content as unknown as Uint8Array,
         )
       }),
     )
 
     await fs.copyFile(
-      path.join(publicDir, maskableIconName),
-      path.join(publicDir, 'favicons', maskableIconName),
+      join(publicDir, maskableIconName),
+      join(publicDir, 'favicons', maskableIconName),
     )
     console.log('✓ Generated favicons successfully')
   } catch (error) {

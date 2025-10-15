@@ -11537,19 +11537,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qr-code-styling-node@npm:^1.5.0":
-  version: 1.5.0
-  resolution: "qr-code-styling-node@npm:1.5.0"
+"qr-code-styling@npm:^1.9.2":
+  version: 1.9.2
+  resolution: "qr-code-styling@npm:1.9.2"
   dependencies:
-    qrcode-generator: ^1.4.3
-  checksum: b910161603c1e02d7f195f6da991cc3e83c8deb52c32dc934ef1f5adcd076308b270e6fd338d399a7b937f38b45a1b0304cb727812ca0354aabfdfc450354257
+    qrcode-generator: ^1.4.4
+  checksum: bc8fa04821efd485e12c3c32485964abfe4ba3173e397f96a870c69626b7b377d660cfbef33ea9e5fd23867eae3073dc2ea88ba2476df6206346481f69052acc
   languageName: node
   linkType: hard
 
-"qrcode-generator@npm:^1.4.3":
-  version: 1.5.0
-  resolution: "qrcode-generator@npm:1.5.0"
-  checksum: e1a7d38583c42e7cabf9716498172c6f1f4267946877fa99f191e338e648b9e4f4b727780b29df750dba717a4dfb3637f197f20b30edf09a380ed18ae79eb7a2
+"qrcode-generator@npm:^1.4.4":
+  version: 1.5.2
+  resolution: "qrcode-generator@npm:1.5.2"
+  checksum: aec3891afddf88054ebdeb3698f24ca30e60a5f3816e3a0812adb50d1efcf571a31909cafdc2c1275f404a0484b1109be917d458ad7f0da058dcdf6f92b95cce
   languageName: node
   linkType: hard
 
@@ -14825,7 +14825,7 @@ __metadata:
     pliny: ^0.4.1
     postcss: 8.4.24
     prettier: ^3.0.0
-    qr-code-styling-node: ^1.5.0
+    qr-code-styling: ^1.9.2
     react: ^19.2.0
     react-dom: ^19.2.0
     react-icons: ^5.5.0
