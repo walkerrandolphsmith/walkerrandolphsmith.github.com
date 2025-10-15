@@ -26,10 +26,10 @@ import TestimonialJosh from '@/components/testimonials/TestimonialJosh'
 import TestimonialKeith from '@/components/testimonials/TestimonialKeith'
 import TestimonialMatthew from '@/components/testimonials/TestimonialMatthew'
 import TestimonialMatthewLemons from '@/components/testimonials/TestimonialMatthewLemons'
+import TestimonialSarah from '@/components/testimonials/TestimonialSarah'
 import TestimonialSruthi from '@/components/testimonials/TestimonialSruthi'
 import TestimonialTom from '@/components/testimonials/TestimonialTom'
 import TestimonialTony from '@/components/testimonials/TestimonialTony'
-import TestimonialSarah from '@/components/testimonials/TestimonialSarah'
 
 import { genPageMetadata } from '../seo'
 

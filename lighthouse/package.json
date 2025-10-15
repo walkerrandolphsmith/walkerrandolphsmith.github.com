@@ -11,6 +11,6 @@
     "esbuild": "^0.18.11",
     "esbuild-register": "^3.4.2",
     "lighthouse": "^10.3.0",
-    "typescript": "^5.1.6"
+    "typescript": "latest"
   }
 }

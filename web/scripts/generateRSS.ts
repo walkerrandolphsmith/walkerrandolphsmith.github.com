@@ -1,8 +1,9 @@
 import { writeFileSync } from 'fs'
-import { escape } from 'pliny/utils/htmlEscaper.js'
-import siteMetadata from '../src/data/sitemetadata'
-import { allBlogs } from '../.contentlayer/generated/index.mjs'
 import { sortPosts } from 'pliny/utils/contentlayer.js'
+import { escape } from 'pliny/utils/htmlEscaper.js'
+
+import { allBlogs } from '../.contentlayer/generated/index.mjs'
+import siteMetadata from '../src/data/sitemetadata'
 
 const outputFolder = process.env.EXPORT ? 'out' : 'public'
 

@@ -13,11 +13,6 @@ const run = async () => {
 
   const robotsTxtFilePath = resolve(webDir, 'public', robotsTxtFileName)
 
-  await copyFile(
-    resolve(webDir, 'src', 'staticwebapp.config.json'),
-    resolve(outputDir, 'staticwebapp.config.json'),
-  )
-
   // await copyFile(
   //   resolve(webDir, 'public', 'manifest.json'),
   //   resolve(outputDir, 'manifest.json'),
@@ -34,7 +29,7 @@ const run = async () => {
 }
 
 run()
-  .then(() => console.log('✅ build generated successfully'))
+  .then(() => console.log('✓ build generated successfully'))
   .then(() => process.exit(0))
   .catch((error: Error) => {
     console.error('❌ Error building:', error)

@@ -224,7 +224,7 @@ export default entries`,
 
 run()
   .then(() =>
-    console.log(`✅ Generated typing animation sequences successfully`),
+    console.log(`✓ Generated typing animation sequences successfully`),
   )
   .then(() => process.exit(0))
   .catch((error: Error) => {

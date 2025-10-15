@@ -1,5 +1,4 @@
 import {
-  Terraform as B1,
   Azure as E3,
   Bash as E4,
   CSharp as E6,
@@ -18,6 +17,7 @@ import {
   Python as D4,
   React as A2,
   Redis as D5,
+  Terraform as B1,
   TypeScript as C6,
 } from 'developer-icons'
 

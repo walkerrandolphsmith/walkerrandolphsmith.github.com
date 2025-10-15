@@ -38,7 +38,7 @@ const run = async () => {
 }
 
 run()
-  .then(() => console.log(`✅ Generated QR code image successfully`))
+  .then(() => console.log(`✓ Generated QR code image successfully`))
   .catch(error => {
     console.error('❌ Error generating QR Code:', error)
   })

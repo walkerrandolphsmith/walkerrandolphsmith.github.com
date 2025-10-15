@@ -1,13 +1,11 @@
-import { withContentlayer } from 'next-contentlayer2'
-
 import configureBundleAnalyzer from '@next/bundle-analyzer'
+import { withContentlayer } from 'next-contentlayer2'
 
 const withBundleAnalyzer = configureBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })
 
 import withSerwistInit from '@serwist/next'
-
 import crypto from 'crypto'
 
 const revision = process.env.BUILD_ID || crypto.randomUUID()
@@ -36,10 +34,10 @@ const nextConfig = {
   env: {
     nextImageExportOptimizer_imageFolderPath: 'public/images',
     nextImageExportOptimizer_exportFolderPath: 'out',
-    nextImageExportOptimizer_quality: 100,
-    nextImageExportOptimizer_storePicturesInWEBP: true,
+    nextImageExportOptimizer_quality: '100',
+    nextImageExportOptimizer_storePicturesInWEBP: 'true',
     nextImageExportOptimizer_exportFolderName: 'nextImageExportOptimizer',
-    nextImageExportOptimizer_generateAndUseBlurImages: false,
+    nextImageExportOptimizer_generateAndUseBlurImages: 'false',
   },
 }
 

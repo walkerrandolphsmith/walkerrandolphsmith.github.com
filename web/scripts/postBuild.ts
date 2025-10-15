@@ -5,7 +5,7 @@ async function run() {
 }
 
 run()
-  .then(() => console.log('✅ Generated RSS feed successfully'))
+  .then(() => console.log('✓ Generated RSS feed successfully'))
   .then(() => process.exit(0))
   .catch((error: Error) => {
     console.error('❌ Error post building:', error)

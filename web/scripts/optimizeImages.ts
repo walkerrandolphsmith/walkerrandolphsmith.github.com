@@ -28,7 +28,7 @@ async function convertToWebP(filePath: string): Promise<void> {
 
   try {
     await sharp(filePath).webp({ quality: 80 }).toFile(outputPath)
-    console.log(`✅ Converted: ${filePath} → ${outputPath}`)
+    console.log(`✓ Converted: ${filePath} → ${outputPath}`)
   } catch (error) {
     console.error(`❌ Failed to convert ${filePath}:`, error)
   }

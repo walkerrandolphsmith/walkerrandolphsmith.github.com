@@ -3,9 +3,9 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "target": "esnext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "strict": true
   }
 }

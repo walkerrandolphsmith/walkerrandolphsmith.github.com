@@ -2,7 +2,6 @@ import '@/app/prism.css'
 
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import {
   allCoreContent,
   coreContent,
@@ -12,7 +11,7 @@ import {
 import Article from '@/components/Article'
 import Footer from '@/components/Footer'
 import GuidedSection from '@/components/GuidedSection'
-import { components } from '@/components/MDXComponents'
+import MDXContent from '@/components/MDXContent'
 import Nav from '@/components/Nav'
 import siteMetadata from '@/data/sitemetadata'
 import sitedata from '@/data/sitemetadata'
@@ -86,6 +85,7 @@ export default async function Page(props: {
   // Filter out drafts in production
   const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
   const postIndex = sortedCoreContents.findIndex(p => p.slug === slug)
+
   if (postIndex === -1) {
     return notFound()
   }
@@ -126,11 +126,7 @@ export default async function Page(props: {
             next={next}
             authorDetails={authorDetails}
           >
-            <MDXLayoutRenderer
-              code={post.body.code}
-              components={components}
-              toc={post.toc}
-            />
+            <MDXContent code={post.body.code} />
           </Article>
         </GuidedSection>
       </div>

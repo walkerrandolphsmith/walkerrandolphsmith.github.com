@@ -87,7 +87,7 @@ async function run() {
       path.join(publicDir, maskableIconName),
       path.join(publicDir, 'favicons', maskableIconName),
     )
-    console.log('✅ Generated favicons successfully')
+    console.log('✓ Generated favicons successfully')
   } catch (error) {
     console.error('❌ Error generating favicons:', error)
   }
