@@ -1,7 +1,6 @@
 import './globals.css'
 
 import { Roboto } from 'next/font/google'
-import Script from 'next/script'
 
 import ResetScrollPosition from '@/components/ResetScrollPosition'
 import sitemetadata from '@/data/sitemetadata'
@@ -87,12 +86,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={roboto.variable}>
       <body className="font-roboto">
-        <Script
-          defer
-          data-domain="walkersmith.me"
-          src="https://analytics.walkersmith.me/js/script.js"
-          strategy="afterInteractive"
-        />
         {children}
         <ResetScrollPosition />
       </body>
