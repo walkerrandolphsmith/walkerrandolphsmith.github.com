@@ -6,6 +6,7 @@ import AwardAzureImage from '../../public/award-azure.webp'
 import AwardScrumImage from '../../public/award-csm.webp'
 import AwardCSUImage from '../../public/award-csu.webp'
 import AwardBSAImage from '../../public/award-eagle-scout.webp'
+import AwardTerraform from '../../public/award-terraform.webp'
 
 const Awards = () => (
   <div className="grid gap-y-8">
@@ -129,6 +130,28 @@ const Awards = () => (
               alt="Azure fundamentals certification logo"
               width={150}
               src={AwardAzureImage}
+              placeholder="blur"
+              loading="lazy"
+              className="grayscale group-hover:grayscale-0 w-[100px] lg:w-[150px]"
+            />
+          </span>
+        </article>
+      </a>
+      <a
+        href="https://www.credly.com/badges/83b9a7be-689c-4145-b9a0-f83487f22b69/linked_in_profile"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="order-1 lg:order-6 cd group relative pl-4 lg:p-6 rounded-[16px] bg-[white] dark:bg-[rgba(39,39,42,1)] flex flex-col transition duration-200 m-0 clear-both w-full lg:min-w-[300px] lg:w-[300px] lg:h-[250px]"
+      >
+        <article className="grid grid-cols-2 items-center lg:items-start">
+          <span className="justify-self-start dark:text-white">
+            Terraform Certified Associate
+          </span>
+          <span className="justify-self-end lg:absolute bottom-1 right-1 pr-4 py-6 flex justify-center items-center">
+            <ExportedImage
+              alt="Terraform certification logo"
+              width={100}
+              src={AwardTerraform}
               placeholder="blur"
               loading="lazy"
               className="grayscale group-hover:grayscale-0 w-[100px] lg:w-[150px]"

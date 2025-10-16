@@ -26,6 +26,7 @@ import TestimonialJosh from '@/components/testimonials/TestimonialJosh'
 import TestimonialKeith from '@/components/testimonials/TestimonialKeith'
 import TestimonialMatthew from '@/components/testimonials/TestimonialMatthew'
 import TestimonialMatthewLemons from '@/components/testimonials/TestimonialMatthewLemons'
+import TestimonialRd from '@/components/testimonials/TestimonialRd'
 import TestimonialSarah from '@/components/testimonials/TestimonialSarah'
 import TestimonialSruthi from '@/components/testimonials/TestimonialSruthi'
 import TestimonialTom from '@/components/testimonials/TestimonialTom'
@@ -52,7 +53,7 @@ const Page = () => (
         <TestimonialDenise offset />
         <TestimonialKeith />
         <TestimonialAnn />
-        <TestimonialDarnell />
+        <TestimonialRd />
         <TestimonialDanny />
         <TestimonialSruthi />
         <TestimonialJerry />
@@ -68,6 +69,7 @@ const Page = () => (
         <TestimonialAndrew />
         <TestimonialTony />
         <TestimonialAlejandro />
+        <TestimonialDarnell />
         <TestimonialMatthewLemons />
         <TestimonialJosh />
         <TestimonialJohn />
