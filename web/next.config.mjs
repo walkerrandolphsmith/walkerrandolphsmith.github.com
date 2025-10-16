@@ -25,6 +25,7 @@ const nextConfig = {
    * @link https://nextjs.org/docs/pages/building-your-application/deploying/static-exports
    */
   output: 'export',
+  trailingSlash: true,
   images: {
     loader: 'custom',
     imageSizes: [10, 16, 32, 48, 64, 96, 128, 256, 384],
