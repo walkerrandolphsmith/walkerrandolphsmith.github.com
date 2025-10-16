@@ -85,6 +85,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={roboto.variable}>
+      <head>
+        <link rel="canonical" href={sitemetadata.siteUrl} />
+      </head>
       <body className="font-roboto">
         {children}
         <ResetScrollPosition />
