@@ -39,7 +39,7 @@
     "hast-util-from-html-isomorphic": "^2.0.0",
     "jsdom": "^26.1.0",
     "kbar": "^0.1.0-beta.45",
-    "next": "^15.5.5",
+    "next": "^16.1.5",
     "next-image-export-optimizer": "^1.8.1",
     "next-mdx-remote": "^5.0.0",
     "pliny": "^0.4.1",
