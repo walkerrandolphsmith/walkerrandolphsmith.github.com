@@ -43,7 +43,7 @@
     "next-image-export-optimizer": "^1.8.1",
     "next-mdx-remote": "^5.0.0",
     "pliny": "^0.4.1",
-    "postcss": "8.4.24",
+    "postcss": "8.5.10",
     "qr-code-styling": "^1.9.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
