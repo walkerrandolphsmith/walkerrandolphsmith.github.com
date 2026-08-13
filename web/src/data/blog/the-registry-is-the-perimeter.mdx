@@ -1,0 +1,238 @@
+---
+title: 'The Registry Is the Perimeter: Image Promotion and Mirroring When CI Can''t Reach Production'
+date: 2026-06-26
+tags: ['AKS', 'Kubernetes', 'supply-chain-security', 'ACR', 'Kyverno', 'GitOps', 'Workload Identity']
+draft: false
+excerpt: |
+  The most consequential architecture decisions are usually the ones the constraints make for you. When we locked our production container registry behind a private endpoint, our public CI agents lost the ability to push to it — and that single network rule forced us to build a real software supply chain: mirror upstream images into the registry, and promote first-party images across an air gap with credential-less, cross-tenant identity. Here's the design, and why I think every regulated platform should converge on something like it.
+---
+
+The most consequential architecture decisions are rarely the ones you make on a whiteboard. They're the ones the constraints make for you.
+
+For us, the constraint was a single line of Terraform:
+
+```hcl
+resource "azurerm_container_registry" "registry" {
+  # ...
+  # Disabled in dev to enable CI agent image push. Image promotion is used
+  # in stage and prod to avoid public network access.
+  public_network_access_enabled = var.public_network_access_enabled
+}
+```
+
+In development, `public_network_access_enabled` is `true`, so our hosted CI agents can authenticate over the internet and push images. In staging and production it's `false`. The registry becomes a private endpoint resource that lives inside the VNet and answers to nothing on the public internet.
+
+That one flag is the whole story. The moment you flip it, your public CI agent pool — which by definition runs *outside* your production network — can no longer reach the production registry to push anything. Not your first-party service images. Not a mirrored copy of `cert-manager`. Nothing.
+
+Most teams treat that as an obstacle to route around. I'd argue it's the best thing that can happen to your supply chain, because it forces you to answer a question you should have been answering all along: **how does any byte of any image legitimately get into the place production pulls from?**
+
+This is the story of how we answered it — and why the answer is two pipelines, not one.
+
+## Why the registry became the perimeter
+
+Before the network lockdown, our AKS cluster pulled images directly from wherever a manifest pointed: Docker Hub, `ghcr.io`, `quay.io`, `registry.k8s.io`. It worked, right up until it didn't, and it failed in exactly the ways you'd predict:
+
+- **No chain of custody.** Nobody could tell you which image digests were running in production, when they were introduced, or who authorized them. A `:v1.0.0` tag pulled today is not guaranteed to be the bytes you pulled last week. Mutable tags are a lie you agree to believe.
+- **Availability coupled to other people's uptime.** Docker Hub rate-limits anonymous pulls. A node replacement at 2 a.m. during a registry brownout is an outage you didn't cause and can't fix.
+- **No admission surface.** Policy engines like Kyverno reason about *image references*. If the reference is an arbitrary public registry, you have nothing clean to enforce against — you're reduced to network-level allowlists.
+- **Compliance you can't defend.** In a regulated environment — CJIS, FedRAMP, PCI, pick your acronym — "we pull arbitrary images from the public internet at runtime" is not a sentence you want to say to an auditor.
+
+So we made a decision that I now consider table stakes for any production cluster handling sensitive data:
+
+> Every image running in the cluster must be pulled exclusively from our own registry. No pod may reference a public or third-party registry, ever.
+
+We enforce it at two layers, and the two layers are load-bearing for each other.
+
+**Layer one is admission control.** A Kyverno `ClusterPolicy` in `Enforce` mode rejects any pod whose image — including init containers — doesn't begin with our registry's login server. It fires before the pod is scheduled, cluster-wide, regardless of namespace or workload kind.
+
+```yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-image-registries
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: acr-only
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      validate:
+        message: 'Images must be pulled from acrprod.azurecr.io'
+        pattern:
+          spec:
+            containers:
+              - image: 'acrprod.azurecr.io/*'
+            initContainers:
+              - image: 'acrprod.azurecr.io/*'
+```
+
+**Layer two is the private endpoint.** Even if a policy were somehow bypassed, there's no network route from the cluster to a public registry once you remove the egress rules — and there's no route from the public internet to the registry, either.
+
+Those two layers turn the registry into a perimeter. And a perimeter only works if you control every door. Which surfaces the two doors we now had to build.
+
+## Two doors, two pipelines
+
+Once the registry is the only legitimate source of images, every image has to *get into it* somehow. There are exactly two kinds of image, and they need two different doors:
+
+1. **Upstream images we don't build** — Istio, cert-manager, ArgoCD, the RabbitMQ operator, external-secrets, reloader, and the long tail of helper images like `k8s-wait-for`. These live on public registries. We need to copy them in. Call this **mirroring**.
+2. **First-party images we do build** — our own services and Helm charts. CI builds these and can push them to *dev* ACR (public access is on there). But dev and prod are separate registries in separate Azure AD tenants, and prod is unreachable from CI. We need to move validated artifacts from dev to prod across that gap. Call this **promotion**.
+
+Mirroring is how the outside world gets in. Promotion is how our own work crosses the air gap. They share a destination and almost nothing else.
+
+## Door one: mirroring from public registries
+
+Mirroring is the easier door conceptually, and it's where most of the *volume* lives. The design goal was that adding a new upstream dependency should be a declarative, reviewable change — not a one-off `skopeo copy` somebody runs from their laptop and forgets.
+
+Every upstream dependency is its own project in the monorepo, and each one declares exactly what it needs in a `mirror-manifest.yaml`:
+
+```yaml
+images:
+  - source: docker.io/istio/proxyv2:1.22.0
+    target: mirror/istio/proxyv2:1.22.0
+  - source: ghcr.io/fluxcd/kustomize-controller:v1.3.0
+    target: mirror/fluxcd/kustomize-controller:v1.3.0
+
+charts:
+  - source: https://istio-release.storage.googleapis.com/charts
+    chart: base
+    version: 1.22.0
+    target: helm/base
+```
+
+A small runner fetches a short-lived registry token, then shells into the upstream `quay.io/skopeo/stable` container and walks the manifest. Images go through `skopeo copy --multi-arch all` (so we mirror the full manifest list, not just one architecture — a mistake that bites you the first time a node pool is ARM). Charts go through `helm pull` / `helm push` into OCI. Everything lands under a `mirror/` or `helm/` prefix so provenance is legible from the reference alone.
+
+The part I want to call out for anyone building this: **wire it into your affected-graph, and back it with a nightly full run.** We drive it with `nx affected` so a PR that bumps one manifest only re-mirrors that one project — fast feedback, no wasted egress. Then a nightly scheduled pipeline runs *every* manifest unconditionally as a safety net, because the failure mode of a missing mirror isn't a red build, it's a production `ImagePullBackOff` three weeks later when a node happens to reschedule a pod whose image quietly fell out of the registry.
+
+The discipline this imposes is real, and it's the point. You cannot deploy a new upstream version until someone has added it to a manifest and the mirror has run. That's not friction — that's a changelog of every third-party artifact your platform depends on, in git, with a reviewer's name attached.
+
+## Door two: promoting across the air gap
+
+Promotion is the harder, more interesting door, because it has to bridge three gaps at once:
+
+- a **network gap** (prod ACR is private; CI can't reach it),
+- a **tenant gap** (dev and prod ACR live in different Azure AD tenants), and
+- a **timing gap** (the image has to be in prod *before* GitOps tells the cluster to pull it).
+
+The network gap dictates the topology immediately: if CI can't push *into* prod, then something *inside* prod has to pull *out of* dev. The promoter has to run in the production cluster, with a production identity, reaching back across the boundary to dev. There's no other shape this can take.
+
+### Credential-less, cross-tenant identity
+
+The naive version of "reach back to another tenant" is a service principal secret stored somewhere. Don't. A static cross-tenant credential is exactly the kind of long-lived secret that turns one compromised pipeline into two compromised tenants. We use Workload Identity Federation end to end, and never mint a secret at all.
+
+The dance is worth understanding because it generalizes far beyond ACR:
+
+```text
+prod pod (workload identity)
+   │
+   │  destination (prod tenant):
+   │    projected SA token ──▶ prod-tenant AAD ──▶ ARM call on prod ACR
+   │
+   │  source (dev tenant):
+   │    same projected SA token, presented as a client_assertion
+   │      ──▶ federated-credential-trusted App Registration in dev tenant
+   │      ──▶ dev-tenant AAD access token
+   │      ──▶ POST /oauth2/exchange on dev ACR  ──▶ ACR refresh token
+   ▼
+copy dev ACR ──▶ prod ACR
+```
+
+The same projected service-account token the AKS webhook mounts into the pod is used two ways: directly, to authenticate to the *destination* tenant; and as a `client_assertion` against a federated-credential-trusted App Registration in the *source* tenant. That dev-tenant App Registration holds nothing but `AcrPull` on dev ACR — it can't even read the subscription, which is why `az acr login` fails for it and we exchange tokens against `/oauth2/exchange` by hand. No secret is stored on either side of the boundary. Rotate-by-design, because there's nothing to rotate.
+
+### Let the platform move the bytes
+
+Here's the detail I think is the most elegant, and the one most teams miss: **the promoter pod never touches the image bytes.**
+
+You'd expect a copy to stream layers through whatever process is doing the copying. The skopeo-based version does exactly that. But for the hot path we use ARM's `ImportImage` action instead:
+
+```text
+CI ──POST /promote {image}──▶ promotion webhook (in prod)
+                                  │
+                                  │ 1. HEAD dev ACR for the manifest
+                                  │      (cross-tenant token exchange, above)
+                                  │      └── 404 → return source_missing
+                                  │
+                                  │ 2. ARM ImportImage on prod ACR,
+                                  │      source creds = the dev ACR refresh token
+                                  ▼
+              prod ACR pulls the bytes from dev ACR over the Azure backbone
+              (control-plane call; the pod does a tiny HEAD and nothing else)
+```
+
+The actual layer transfer happens server-side, registry to registry, over the cloud backbone. The pod issues a control-plane API call and a single data-plane `HEAD` for an existence check. That means the promoter needs almost no bandwidth, no scratch disk, and no large memory footprint — and the bytes never traverse a pod network you'd then have to reason about for data-exfiltration controls. When the platform offers a primitive that moves data without routing it through your code, take it.
+
+### The timing gap, and why one pipeline isn't enough
+
+This is the part that took a production incident to fully appreciate.
+
+We deploy with GitOps. The cluster's desired state lives in a git repo, pinned to **immutable digests** — never tags. CI builds an image, pushes it to dev ACR, then opens a PR that bumps `image: acrprod.azurecr.io/ng/payment-site@sha256:abc...` in the GitOps repo. Flux reconciles, the pod pulls. Clean.
+
+Except: what guarantees `sha256:abc` is *in prod ACR* by the time Flux applies that manifest?
+
+Our first answer was a single bulk promoter — a `CronJob` that walks the dev ACR `_catalog` on a schedule and copies anything missing into prod. Conceptually correct. Operationally, it loses a race. By the time CI opens the GitOps PR referencing `abc`, the cron may not have walked far enough through the catalog to have copied `abc` yet. Flux applies the manifest, the pod tries to pull a digest that isn't there, and you get an `ImagePullBackOff` that resolves itself ten minutes later when the cron catches up. Self-healing is not the same as correct.
+
+The obvious fix is a webhook the CI job calls the instant it pushes: promote *this digest*, now, instead of waiting for a catalog sweep to stumble on it. And the obvious *implementation* of that webhook is synchronous — block until the copy finishes, return `200`, and you've bought your guarantee.
+
+You can't. Not here. The copy is an ARM `ImportImage` of a multi-gigabyte image, and it runs far longer than the ingress gateway's 30-second idle timeout. A synchronous webhook gets cut off mid-copy: the gateway severs the connection, CI sees a `504`, and a promotion that's actually still succeeding server-side has just failed your build. The network won't let the call block. So the call doesn't.
+
+The webhook is fire-and-forget by design: accept the payload, confirm the source digest exists in dev with a fast `HEAD`, enqueue a background promotion job, return `202 Accepted`. CI's request comes back in milliseconds while the ARM copy runs on its own clock. The async shape isn't a convenience we chose — it's the one the ingress timeout left us.
+
+Which re-opens the race we just closed. If CI fires and forgets, nothing blocks the build until the digest lands in prod — so *on paper*, Flux can still apply the manifest before the copy finishes, and we're back to `ImagePullBackOff`. I'm not going to pretend that race doesn't exist. We just don't beat it with a lock.
+
+We beat it with ordering and physics. CI fires the webhook **first**, and only *then* opens the GitOps PR — so the copy starts before the manifest that references it even exists. And the two clocks aren't close. The copy is server-side, registry-to-registry over the Azure backbone: no bytes through our pod, no public egress, a control-plane import on a fast internal path that finishes in seconds. What it's racing is a human reviewing a PR — or, at the absolute floor, Flux's reconcile interval. Seconds against minutes. You don't need a mutex when one runner starts first and moves an order of magnitude faster.
+
+And for the times that assumption is wrong — a backbone hiccup, a copy that retries, a PR that auto-merges faster than anyone reviews it — the cold lane is the backstop. Two lanes, matched to the velocity of what they promote:
+
+| | Hot lane (webhook) | Cold lane (CronJob) |
+|---|---|---|
+| Trigger | `POST /promote` from CI — async (`202` + background job) | Scheduled catalog walk, no CI dependency |
+| Copy mechanism | ARM `ImportImage` (server-side) | `skopeo copy` (streams bytes) |
+| Promotes | First-party images + charts, by digest | The `mirror/` and `helm/` long tail |
+| Guarantee | None on paper — wins by firing first over a fast backbone | Eventual — closes any gap the hot lane missed |
+
+The hot lane lets the *same CI job that pushed the image* kick off its promotion immediately, ahead of the PR, so the digest is in prod long before the cluster ever looks for it. The cold lane does what a scheduled reconciler is good at: sweeping up the low-velocity mirror traffic that has no CI job to front-run it, and standing as the backstop for any hot-lane call that was missed, throttled, or lost its race.
+
+It's the shape of an eager cache populate backed by a periodic reconcile — except the eager path isn't correct because it's synchronous, it can't be; it's correct because it *starts first and runs on a faster wire*. The reconcile guarantees the eventual completeness the race can't. Neither lane is sufficient alone.
+
+### A no-auth endpoint, defended on purpose
+
+The promotion webhook accepts `POST /promote` with no bearer token. The first time I describe this, security folks reach for their phones. Then I walk through the threat model, and they put them down — because the authorization boundary is real, it's just not where you reflexively look for it.
+
+- **The endpoint can only promote what already exists in dev ACR.** Push rights on dev ACR *are* the authorization boundary. Anyone who can put an image there is already a trusted CI identity; gating promotion behind a second token would protect nothing the dev-ACR ACL doesn't already protect.
+- **Promotion is a no-op at the consumption layer.** Deployments pin digests in GitOps. An attacker who triggers a spurious promotion has caused exactly one thing to happen: a SHA that nothing references now also exists in prod ACR. No pod deploys anything new. The git repo, not the registry, decides what runs.
+- **Abuse and cost amplification are bounded at the edge,** by an Istio local rate limiter at the gateway (a flat requests-per-minute cap per source IP), not by application auth.
+- **Non-repudiation comes from structured logs,** not from a token — every call records the payload, source IP, and outcome.
+
+And the honest part: this posture is *contingent*, and we wrote down what would change it. The day dev ACR pushes become less tightly controlled, or a non-repudiation requirement lands, an `[Authorize]` attribute and JWT middleware drop in cleanly. Good security isn't "auth on everything reflexively." It's knowing *where your actual boundary is* and defending that, while leaving a clear seam for the day the threat model moves.
+
+## What the perimeter unlocks
+
+Here's the reframe I'd leave every platform team with: the constraint that felt like it was *taking away* your ability to push to prod is actually *handing you* the single most valuable control point in your supply chain. Once every image — first-party and upstream alike — flows through one registry you own, a whole class of policy becomes not just possible but cheap:
+
+- **Digest pinning at admission.** Reject any pod referencing a mutable tag; require `@sha256:...`. Kyverno can even mutate tags to digests on the way in.
+- **Vulnerability gating.** Scanners annotate images in the registry; a policy rejects pods whose image carries a `HIGH` or `CRITICAL` finding. No vulnerable image reaches a node, no human in the loop.
+- **Signature verification.** Sign images in the registry with Cosign or Notation; verify the signature at admission and reject anything unsigned. This is a hard requirement in some high-assurance profiles and pure upside everywhere else.
+- **A smaller network.** With all image traffic internal, the egress firewall rules that allowed `docker.io`, `ghcr.io`, `quay.io`, and friends can be deleted outright. Fewer rules, cleaner segmentation, a shorter story for the auditor.
+
+And the provenance chain reads end to end, in one breath:
+
+> upstream source → mirror pipeline → dev ACR → promotion → prod ACR → admission control → running pod.
+
+Every arrow is logged. Every artifact is attributable. That's not a compliance checkbox; that's knowing what's running in your production cluster and being able to prove it.
+
+## The takeaway
+
+I've come to believe the network lockdown was the most valuable architectural constraint we were handed, precisely because it refused to let us cheat. You cannot bolt a credible supply chain onto a cluster that pulls from anywhere; you can only get one by making the registry the single door and then being honest about how things get through it.
+
+If you're running a platform that handles anything regulated or sensitive, I'd push you toward the same destination, in roughly this order:
+
+1. **Make your registry the only source.** Admission policy plus a private endpoint, both layers.
+2. **Mirror the world declaratively.** Manifests in git, affected-graph for speed, a nightly full run for safety.
+3. **Promote across the gap with federated identity, never a stored secret.** Let the platform move the bytes server-side.
+4. **Run a fast event-driven lane for correctness and a slow reconciling lane for completeness.** One of each.
+5. **Put your auth boundary where the real control is,** write down what would move it, and leave the seam.
+
+Treat the registry as the perimeter, and the constraints stop being friction. They become the shape of a supply chain you can actually defend.
+
+_Building something similar, or disagree with where I drew the auth boundary? I'd genuinely like to hear it — these designs get better in the open._

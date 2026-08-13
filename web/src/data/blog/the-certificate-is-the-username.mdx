@@ -1,0 +1,178 @@
+---
+title: 'The Certificate Is the Username: Least-Privilege RabbitMQ for Microservices'
+date: 2026-06-26
+tags:
+  [
+    'RabbitMQ',
+    'Kubernetes',
+    'mTLS',
+    'cert-manager',
+    'Least Privilege',
+    'Microservices',
+    'Messaging',
+    'NServiceBus',
+    'GitOps',
+  ]
+draft: false
+excerpt: |
+  Most shared message brokers grow into the same shape: one namespace where every service can see every other service's traffic, and a static username and password per service that someone has to store, inject, and rotate. That's two liabilities — no blast-radius boundary, and a pile of standing secrets — wearing one connection string. Both dissolve if you stop bolting auth onto the broker and start using the authorization and identity primitives it already has: a vhost per app for isolation, and a client certificate whose common name *is* the username, so there's no password anywhere. Here's the design, the part where a component can't present a cert, and the bidirectional shovel topology that lets a monitoring plane cross the isolation boundary on purpose.
+---
+
+This is the eighth post in a series about designs the constraints chose for us, and it's the one where the security posture and the operational cost moved in the *same* direction — which almost never happens, and is worth dwelling on when it does.
+
+The setting is a shared message broker behind a fleet of microservices. Every team that has run one knows the shape it tends to grow into, because it's the path of least resistance: one broker namespace where everything lives together, and every service authenticating with a username and password. That arrangement hides two separate liabilities inside one innocent-looking connection string, and most teams attack them as two unrelated projects. They have the same root cause.
+
+## Two problems wearing one connection string
+
+**Problem one: no blast-radius boundary.** When every service's queues and exchanges share one namespace, the broker's access model can't tell one service's traffic from another's. A compromised or merely buggy service can read another service's messages, publish into another service's queues, or reconfigure topology that isn't its own. There is no isolation boundary, so the blast radius of any single bad actor is the entire messaging fabric.
+
+**Problem two: a standing secret per service.** Every service authenticates with a static username and password. That credential gets stored in a vault, injected into the pod, and assembled into an AMQP connection string. Multiply by the number of services and you have a sprawl of long-lived secrets to store, transmit over the wire, expose to each process, and — the part that actually hurts month over month — rotate. Rotating a broker password is a coordinated redeploy across every service that holds it, which is exactly the kind of toil that quietly never happens.
+
+Teams usually treat these as an RBAC problem and a secrets problem. They're the same problem: the broker is being used as a dumb pipe with authentication bolted on the side, instead of being asked to do the two things it already knows how to do — *authorize* by namespace and *identify* by certificate.
+
+## Least privilege, dimension one: a vhost per app
+
+RabbitMQ's native authorization model is more capable than the shared-namespace default makes it look. A **virtual host** is an isolation boundary — a private namespace for queues, exchanges, and bindings. A **user** holds three permissions — `configure`, `write`, `read` — each expressed as a regular expression over resource names, and *scoped to a single vhost*. Crossing a vhost boundary is impossible without an explicit, separate grant.
+
+So the move is simple and total: give every application its own vhost, and a user whose permissions are scoped to exactly that vhost. A compromised service can now do precisely nothing outside its own namespace, because the broker itself refuses the operation. That's least privilege in the *what-can-it-do* dimension, enforced at the layer that actually moves the messages rather than hoped for at the application layer.
+
+The part that makes this operationally sane rather than a management-UI chore is that you never touch the management UI. The RabbitMQ messaging-topology operator exposes vhosts, users, permissions, queues, exchanges, and bindings as Kubernetes custom resources, so the broker's entire authorization model becomes declarative and reconciled from git:
+
+```yaml
+apiVersion: rabbitmq.com/v1beta1
+kind: Vhost
+metadata:
+  name: order-service-vhost
+spec:
+  name: app-orders                       # this service's private namespace
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rabbitmq
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: Permission
+metadata:
+  name: order-service-permission
+spec:
+  vhost: app-orders
+  user: order-service
+  permissions:                           # scoped to app-orders only
+    configure: ".*"
+    write: ".*"
+    read: ".*"
+  rabbitmqClusterReference:
+    name: rabbitmq
+    namespace: rabbitmq
+```
+
+Read what that buys you beyond security: the answer to "what can `order-service` touch?" is a `Permission` resource in its own chart, reviewed in a pull request, reproducible across environments, and auditable without ever interrogating the live broker. The authorization model *is* the git history. Onboarding a service is a handful of declarative resources, not a runbook executed by hand against production. The security control and the operational ergonomics are the same artifact.
+
+## Least privilege, dimension two: the certificate is the username
+
+Per-vhost isolation answers *what a service can do*. It says nothing about *how the service proves who it is* — and the lazy default there is the password we're trying to delete. So delete it.
+
+Configure the broker for external authentication with `ssl_cert_login_from = common_name`. Now the client presents a TLS client certificate at the AMQP handshake, and the broker derives the username from the certificate's common name. The certificate isn't *accompanying* the identity; it *is* the identity. cert-manager issues a client certificate per application, with the CN set to that app's broker username, signed by the same internal CA that signs the broker's own server certificate — so trust validates in both directions and you get mutual TLS:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: order-service-rabbitmq-client
+spec:
+  secretName: order-service-rabbitmq-client-tls
+  commonName: order-service          # ← the broker reads this as the username
+  duration: 720h                     # 30 days
+  renewBefore: 168h                  # 7 days
+  usages: [client auth, digital signature, key encipherment]
+  privateKey:
+    algorithm: ECDSA
+    size: 384
+    rotationPolicy: Always           # new keypair every renewal
+  issuerRef:
+    name: rabbitmq-ca-issuer          # same CA that signs the broker's server cert
+    kind: ClusterIssuer
+```
+
+The matching `User` is, pointedly, passwordless — the credentials secret carries an empty `passwordHash`, because external auth doesn't use one:
+
+```yaml
+stringData:
+  username: order-service
+  passwordHash: ""                   # identity comes from the cert CN, not a secret
+```
+
+And here's the punchline, the line I'd put on the slide. The application's broker connection string:
+
+```text
+host=rabbitmq.rabbitmq.svc.cluster.local;port=5671;virtualhost=app-orders;UseTLS=true
+  ClientCertificatePath = /etc/rabbitmq-client/tls.crt
+  ClientCertificateKeyPath = /etc/rabbitmq-client/tls.key
+```
+
+There is no username in it. There is no password in it. The identity is a short-lived file mounted into the pod. This is the [secrets-maturity endgame](/blog/its-not-where-the-secret-lives) applied to messaging: you didn't store the bearer secret *better*, you replaced it with a short-lived, attributable, non-portable identity and then there was no secret to store at all. And you got two things from one move — because the same mutual-TLS handshake that proves identity also encrypts the channel, **encryption in transit comes free with the authentication.** It's the [certificate-as-interface](/blog/the-certificate-is-an-interface) pattern again, pointed at the client instead of the server.
+
+The operational dividend is the one that compounds. Rotation stops being an N-service coordinated redeploy and becomes a cert-manager cron: the cert renews every 30 days, with a fresh keypair, with zero human action and — crucially — zero change to the connection string, because the string references a *path*, not a value. The credential that used to be your worst rotation chore is now the thing you never think about.
+
+One production detail worth naming, because it's where the trust chain is actually closed: the app has to *trust* the broker's server certificate, so an init container installs the internal CA into the system trust store before the app starts (the issued secret ships `ca.crt` next to `tls.crt`/`tls.key`), and the client cert is mounted read-only. The identity material and the trust anchor arrive together, from the same CA, rotated by the same controller.
+
+## When a client can't present a certificate
+
+The ideal — every client speaks mutual TLS — meets reality the first time you deploy a packaged component you didn't write. Off-the-shelf images frequently can't do a client-certificate AMQP handshake; they only know username and password. A principal engineer's instinct here is not to abandon the model for that component, and *definitely* not to weaken the broker for everyone to accommodate it. You bridge it.
+
+Run a tiny nginx stream-proxy as a sidecar that terminates the mutual TLS on the component's behalf. It listens plaintext on loopback, dials the broker over `amqps` presenting the client certificate and verifying the broker's server cert — satisfying the broker's `fail_if_no_peer_cert` — and the packaged application does ordinary AMQP over localhost, none the wiser:
+
+```nginx
+stream {
+  server {
+    listen 127.0.0.1:5672;                       # packaged app connects here, plaintext
+    proxy_pass rabbitmq.rabbitmq.svc.cluster.local:5671;
+    proxy_ssl on;
+    proxy_ssl_certificate     /certs/tls.crt;     # presents the client identity
+    proxy_ssl_certificate_key /certs/tls.key;
+    proxy_ssl_trusted_certificate /certs/ca.crt;  # verifies the broker
+    proxy_ssl_verify on;
+  }
+}
+```
+
+The cert-based identity is preserved *at the broker* — which is the only place that matters for the authorization model — while the component that can't speak it stays blissfully ignorant. That is the difference between a design that works in a slide and one that survives contact with the software you don't control.
+
+This also reveals the honest, layered shape of encryption in transit in a real cluster, and it's worth being precise rather than dogmatic. Cert-based mutual TLS is the identity-and-encryption layer for clients that can present a certificate. For the hops that *can't* carry a client cert — broker-internal shovels, the topology operator's HTTP management connection, the monitoring datastore — Istio ambient mesh provides mTLS at the network layer instead. Two mechanisms, each applied where it fits. The certificates were never only about encryption; the mesh could have encrypted those bytes too, and for those hops it does. The certificates were about *identity* — making the broker's username the thing you cryptographically prove rather than the thing you type.
+
+## Crossing the isolation boundary on purpose
+
+Per-vhost isolation is exactly what you want right up until your centralized monitoring-and-recoverability plane needs to see into every app's vhost — which, by design, it cannot. That's the isolation *working*. The mature answer is not to hand that plane a god-user across the whole broker; it's to make every boundary crossing a deliberate, declared, auditable exception.
+
+We use ServiceControl (the recoverability and monitoring plane from the NServiceBus ecosystem), and it integrates with each monitored app through cross-vhost **shovels** — broker-side links that move messages from a queue in one vhost to a queue in another. For each monitored app, declared in the app's own vhost, three flows exist:
+
+- **Monitoring** — the app publishes metrics to a fanout exchange and queue in its vhost; a shovel forwards that queue into the monitoring plane's vhost, where the monitoring instance reads it.
+- **Errors** — a shovel drains the app's `error` queue into the central error queue, so failures across the whole fleet ingest into one place.
+- **Retry, the return path** — the recoverability console issues a retry addressed to the origin endpoint's name; you declare that endpoint's exchange/queue/binding in the central vhost and a shovel forwards the retried message *back* into the app's input queue, in its own vhost.
+
+Errors and metrics flow inward; corrected messages flow back outward. That bidirectional path is what lets an operator replay a failed message from a central console and have it land back in the owning service — observability and recovery, not just observability.
+
+The least-privilege bow on the whole thing: the monitoring plane is granted an explicit `Permission` on each monitored app's vhost, and *only* on the vhosts in its declared list of monitored apps. Its reach is an allowlist in code, per app, reviewable in a chart — the isolation boundary is crossed *visibly and deliberately*, which is the precise opposite of the shared-namespace free-for-all we started from. The exception proves the rule: isolation is the default, and every grant that pierces it is an artifact you can point an auditor at.
+
+I'll be honest about the one residual secret, because the series rule is that a writeup which only lists wins is marketing. The shovels themselves connect with a username-and-password AMQP URI — the monitoring plane's own user — fetched at runtime from the vault by the External Secrets Operator, never baked into an image, and carried over a mesh-encrypted hop. So the system is not *zero* secrets; it is one secret, confined to the broker-internal observability plane, runtime-fetched and minimized, while every first-party application path is certificate-only. That's the [posture I argued for with secrets generally](/blog/its-not-where-the-secret-lives): you don't claim zero, you minimize and confine the irreducible one and you say exactly where it lives.
+
+## The honest edges
+
+- **The internal CA is now a dependency with real blast radius.** It signs both the broker's server cert and every client identity, and every app installs it as a trust anchor. Rotate or lose the root carelessly and every handshake in the system fails at once. Treat the messaging CA like the load-bearing thing it is.
+- **The mTLS proxy sidecar is moving parts.** It's the right pragmatic bridge for a cert-incapable component, but it's another container, another cert mount, and another thing to monitor — a patch, not a freebie.
+- **The monitoring plane's grant is broad *within* each vhost it's allowed into.** It needs to move arbitrary error and retry traffic, so the isolation boundary it respects is the vhost grant, not anything finer-grained inside that vhost. Know where your line actually is.
+- **CN is identity, so identity is a namespace you now manage.** Renaming a service's broker user means reissuing its certificate, and CN uniqueness across the fleet is a constraint you have to hold.
+
+## The takeaway
+
+The reason this design is satisfying is that the security win and the operational win are not a trade — they're the same artifact, because both came from using the broker's own primitives declaratively instead of wrapping a secret-management apparatus around a shared namespace.
+
+1. **Give every app its own vhost.** Isolation at the layer that moves the messages, so a compromised service's blast radius is its own namespace and nothing else.
+2. **Make the certificate the username.** External auth with CN-as-identity deletes the password entirely; the credential becomes a short-lived cert that auto-rotates, and the connection string holds a file path, not a secret.
+3. **Get encryption in transit for free.** The same mutual-TLS handshake that proves identity encrypts the channel — and for the hops that can't present a cert, let the mesh carry the encryption.
+4. **Bridge the components that can't.** A stream-proxy sidecar terminates mTLS for packaged software, preserving the broker-side identity without weakening the broker for everyone.
+5. **Cross isolation on purpose.** A central monitoring plane gets explicit, per-vhost, declared permission and bidirectional shovels — observability as an auditable exception, never an ambient god-user.
+6. **Declare all of it.** Vhosts, users, permissions, and shovels as reconciled resources, so rotation is a controller's cron and "what can this do, who can see it" is answered by reading git.
+
+Stop treating the broker as a pipe with a password taped to it. Ask it to authorize by namespace and identify by certificate — the two things it already does well — and the pile of standing secrets and the missing blast-radius boundary disappear together, leaving a messaging fabric that's both more secure and cheaper to run than the one you started with.
+
+_Running least-privilege messaging with a different identity model — SASL over a token, per-namespace brokers, OAuth2 against the broker — or think I've drawn the monitoring-plane boundary too generously? I'd genuinely like to compare notes. These designs get sharper in the open._

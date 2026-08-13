@@ -1,0 +1,193 @@
+---
+title: 'The Cutover Is a Content Move: Incremental Monorepo Migration Without the Big Bang'
+date: 2026-06-26
+tags:
+  [
+    'Monorepo',
+    'Nx',
+    'CI/CD',
+    'Azure DevOps',
+    'Migration',
+    'Docker',
+    'BuildKit',
+    'Platform Engineering',
+  ]
+draft: false
+excerpt: |
+  I'm not going to try to sell you on monorepos. The interesting problem was never whether to consolidate a fleet of service repos — it's how you survive the multi-year in-between, when half your services live in the monorepo and half are still scattered, and you refuse to maintain two of everything to bridge the gap. We did it by separating where a service's source lives from where its build and deploy shape lives. The payoff: a service reaps monorepo benefits before its code ever moves, and the eventual physical migration collapses into deleting a single build target.
+---
+
+This is the fourth in a series of posts about designs that the constraints dictated rather than the architects. The thread running through all of them is the same instinct — refuse to grant standing authority across a boundary, and pick the topology that falls out of that refusal. This one is about a different kind of boundary: the one between an old multi-repo world and a monorepo you can't finish building for years.
+
+First, the editorial decision, because I think it matters. **I'm deliberately not going to argue for monorepos or for Nx.** Whether a monorepo is the right destination is the most over-written topic in platform engineering, and a principal engineer adds nothing by writing the hundred-and-first "atomic commits and shared tooling" essay. Assume the destination is decided. The decision was made above my pay grade and below my interest. The genuinely hard, genuinely interesting problem is the part nobody blogs about: the **transition**, which for a real organization is not a weekend — it's quarters of living in two worlds at once.
+
+So that's the question this post answers. Not "should you?" but "how do you survive the in-between without paying the integration tax twice?"
+
+## The real pain isn't the destination, it's the in-between
+
+Here is the situation that actually generates pain. You have a dozen first-party services, each in its own repo, each with its own pipeline, each deploying through a legacy push-based environment. You've decided they all belong in one monorepo. And you've done the honest math: each migration is a multi-week effort with owner coordination, and there is no plausible calendar on which all of them land at once. You are going to live in a hybrid estate — some services in, most still out — for a long time.
+
+That hybrid window is where the costs hide, and they are not the costs the monorepo brochures warn you about. Three of them did real damage:
+
+**1. The two-CI-architectures tax.** The obvious bridge is to let each external repo keep its own pipeline but have it *consume shared templates* from the monorepo. It works on day one and rots from there. Now every change to a shared template has to be validated across N external pipelines that all reference it slightly differently. You are maintaining two divergent CI shapes — native-monorepo and external-consuming-templates — and every refactor you do, you do twice and validate N times. The integration tax you were trying to pay down by consolidating, you're now paying *during* consolidation, with interest.
+
+**2. The two-PR dance.** The monorepo's CI triggers on commits to the monorepo's `main`. But when an external repo merges to *its* `main`, no monorepo file changes — so nothing fires, and the service never rebuilds. The workaround teams reach for is grim: merge the real PR in the external repo, then open a *second*, content-free PR in the monorepo — a version bump, a whitespace change, anything — purely to trip the trigger. Every external release now requires a throwaway PR, authored and reviewed by a human, that exists only to move a timestamp. It pollutes the monorepo's history, clogs the review queue, and puts a person in the loop for a thing a machine should do.
+
+**3. Legacy anti-patterns frozen by backwards compatibility.** This is the subtle one, and it's the one that convinced me the naive approaches were dead ends. The external repos' own Dockerfiles and Helm charts are shaped for the legacy environment. One of them passed a private package-feed token straight into the image as `ENV VSS_NUGET_ACCESSTOKEN=…` — which persists in the image layers and shows up in `docker history` for anyone who pulls it. I wanted that fixed yesterday. But the file lived in the external repo, and the external repo still had to deploy to the legacy environment, so the file had to stay backwards-compatible with the thing that was leaking. **The artifact I most needed to modernize was the one I was least free to touch,** because it was load-bearing for the world I was trying to leave. As long as "where the source lives" and "what the build looks like" are welded together, you cannot improve the second without finishing the migration of the first. And the migration takes years.
+
+Sit with that last one, because it's the hinge. Every painful thing in the list comes from the same welded joint: a service's *source location* and its *build-and-deploy shape* are treated as one inseparable thing. Separate them, and all three pains dissolve.
+
+## Proxy projects: move the build, leave the source
+
+The move is to put a skeleton project in the monorepo for a service whose code still lives elsewhere. Call it a **proxy project**. It lives at `monorepo/apps/<service>/`, and it owns exactly the files that define the build-and-deploy shape — and nothing else:
+
+```text
+monorepo/apps/device-manager/
+├── project.json            # monorepo-owned: targets clone, docker-build, docker-push, helm-push, publish
+├── Dockerfile              # monorepo-owned: rewritten for the new environment
+├── charts/application/     # monorepo-owned: new, ESO-based Helm chart
+└── source/                 # gitignored; produced by the `clone` target at build time
+    └── .git/               # idempotency marker
+
+# after `nx run device-manager:clone` overlays the external source:
+├── src/                    # ← pulled from the external repo, original layout preserved
+├── tests/                  # ← pulled from the external repo
+├── DeviceManager.sln       # ← pulled from the external repo
+└── …                       # everything else the external repo ships
+```
+
+The `clone` target shells out to a script that does a shallow, single-branch clone — `git clone --depth 1 --branch main` — of the external repo into `source/`, then moves that content up into the project root, **with the monorepo-owned files taking precedence**. That `--depth 1` is the load-bearing flag: you fetch a single commit's tree, not the full history of a legacy monolith, so checkout time tracks the size of the working set rather than the years of git log behind it. The external repo's source is overlaid *underneath* the Dockerfile, the chart, and the `project.json` that the monorepo controls. The source comes from over there; the shape comes from here.
+
+The reason this is more than a neat trick is what it does to the rest of the pipeline: **nothing else has to know.** The monorepo's existing CI sees the proxy project as just another app. The affected calculation picks it up, the publish pipeline builds and pushes it, the batch-promotion job folds it into the same multi-app gitops PR as everything native. One CI architecture, full stop. The "external app" and the "native app" are the same kind of object from the pipeline's point of view, because the only thing that made them different — who owns the build files — is no longer a difference.
+
+And now the line that gives this post its title. When `device-manager` eventually does its physical migration into the monorepo, here is the entire cutover:
+
+1. Copy the cloned source tree into the project directory.
+2. Commit it.
+3. Delete the `clone` target from `project.json`.
+
+That's it. Every other target — `docker-build`, `docker-push`, `helm-push`, `publish` — keeps working untouched, because they already operated against the project root with the source in place. There is no pipeline to rewrite, no publish flow to re-validate, no lockstep cutover where the old pipeline dies as a new one is born. **The migration stops being an event and becomes a content move.** The single most dangerous moment in a repo migration — re-authoring CI under deadline — was engineered out of existence by making the clone the only thing that distinguishes "not yet migrated" from "migrated."
+
+## The benefit you collect before you've paid
+
+Here's the part I find genuinely delightful, and it's the inverse of pain #3 above. Because the monorepo owns the Dockerfile and the charts *now* — while the source still lives in the external repo — you get to modernize the build and deployment *before* the code moves. The service collects the monorepo's benefits while it's still, technically, an outsider.
+
+Concretely, the proxy project's Dockerfile was free to be rewritten with no obligation to the legacy environment, because the external repo's own Dockerfile is no longer on the critical path for the new world. So the new one drops the `ENV VSS_NUGET_ACCESSTOKEN` leak and mounts the feed token as a BuildKit `--mount=type=secret` instead, where it never lands in a layer. The charts were rewritten too — onto the same ExternalSecrets-based shape as every native app, deploying through the same GitOps flow — without disturbing the old chart the legacy environment is still pulling. The service is, simultaneously, deploying the old way from its own repo *and* the new way from the monorepo, and the two don't touch.
+
+The structural win underneath the convenience: **I fixed the credential leak once, at the platform boundary, instead of N times across N repos.** Centralizing the Dockerfile under a shared `docker-build` script meant the secure pattern became the path of least resistance for every migrated service, and future services inherit it without having to rediscover it. A per-repo security finding turned into a one-time platform pattern. That is the monorepo dividend arriving *before* the monorepo migration — which is exactly backwards from how these projects are usually justified, and exactly right.
+
+If proxy projects answered *who builds an external service* (the monorepo) and *how* (its Nx graph), they left one question open: *when?*
+
+## Signal pipelines: invert the arrow so the external repo owes nothing
+
+Recall pain #2 — a merge to an external repo's `main` fires nothing in the monorepo. We need a real trigger, and the constraint I put on it was strict: **the external repo must depend on nothing in the monorepo.** No shared templates, no `repositories` resource pointing back, no variable groups. Anything the external repo references is something a monorepo refactor can break, and something the eventual migration has to unwind. The coupling has to be the weakest possible.
+
+The answer is a **signal pipeline**: a ~12-line pipeline that lives in the external repo, triggers on its `main`, checks out nothing, builds nothing, and completes in seconds.
+
+```yaml
+# .ci/pipelines/signal.yaml — lives in the EXTERNAL repo, depends on nothing
+trigger:
+  branches:
+    include: [main]
+pr: none
+pool:
+  vmImage: ubuntu-latest
+steps:
+  - checkout: none
+  - script: 'echo "signaling the monorepo publish pipeline..."'
+```
+
+Its entire job is to *emit a completion event*. The monorepo's publish pipeline subscribes to it through a native pipeline-resource trigger:
+
+```yaml
+# in the monorepo's publish pipeline
+resources:
+  pipelines:
+    - pipeline: signal-device-manager
+      source: signal-device-manager
+      trigger:
+        branches:
+          include: [main]
+```
+
+Look at which way the dependency arrow points. The external repo doesn't call the monorepo; the monorepo *subscribes to* the external repo's signal. That inversion is the whole design — it's the same arrow-flip I wrote about in the [GitOps post](/blog/the-cluster-pulls-because-nothing-may-push), applied to build triggering instead of deployment. The external repo emits a fact ("my main advanced") and owes nothing to whoever listens. A monorepo template refactor *cannot* break a pipeline that references no monorepo templates. The two-PR dance is gone, with no human in the trigger loop, and every rebuild is tied to a specific signal run in the history — clean, auditable lineage that a webhook or a cron would not give you.
+
+The signal pipeline is the event-source counterpart to the proxy project's build target: the proxy is *how* the monorepo builds an external app; the signal is *when*.
+
+## Teaching `nx affected` about a trigger it can't see
+
+This is the part I'm proudest of, because it's where a clean idea meets a sharp edge and survives.
+
+The monorepo's entire CI economy runs on `nx affected`: only rebuild the projects a change actually touched. `nx affected` computes that set from a **git diff** — base versus head on *this* repo. Which is precisely the assumption a cross-repo signal violates. When `signal-device-manager` fires, no monorepo file has changed. Run `nx affected` and it correctly reports that nothing is affected — and the external service, the very thing the signal was trying to rebuild, doesn't build.
+
+You could abandon affected for external apps (rebuild everything, or special-case them out of the graph). Both throw away the thing that makes monorepo CI tractable. The better move is to **extend the affected model to accept a second source of "change": the identity of the upstream that triggered the run.**
+
+Azure DevOps hands us `resources.triggeringAlias` — the alias of the signal pipeline that fired, or empty for a direct commit to the monorepo. A resolve step maps that alias to an Nx project name through a static table and exposes it as a variable:
+
+```bash
+# resolve-nx-project-name-from-signal-pipeline.sh
+# Map of upstream signal alias -> Nx project in this monorepo.
+# Keep these keys in sync with the resources.pipelines aliases in the publish pipeline.
+declare -A NX_PROJECT_BY_ALIAS=(
+  ["signal-device-manager"]="device-manager"
+  ["signal-event-ingester"]="event-ingester"
+)
+
+ALIAS="${ALIAS:-}"   # resources.triggeringAlias — empty on a direct monorepo commit
+if [ -z "$ALIAS" ]; then
+  # No upstream signal: leave the var empty so affected falls back to pure git diff.
+  echo "##vso[task.setvariable variable=externalRepoNxProject]"
+  exit 0
+fi
+
+name="${NX_PROJECT_BY_ALIAS[$ALIAS]:-}"
+if [ -z "$name" ]; then
+  # Fail loud — an unmapped alias must never silently build nothing.
+  echo "##vso[task.logissue type=error]No nx project mapped for triggering alias '$ALIAS'."
+  exit 1
+fi
+echo "##vso[task.setvariable variable=externalRepoNxProject]$name"
+```
+
+Then the affected calculation *unions* that force-included project with whatever the git diff found:
+
+```bash
+AFFECTED=$(npx nx show projects --affected --type="$TYPE" --base="$BASE" --head="$HEAD")
+
+# Union nx's git-diff result with the force-included external project (if any),
+# dropping blanks and any unexpanded $(...) macro that slipped through empty.
+COMBINED=$({ echo "$AFFECTED"; echo "$INCLUDE_LIST" | tr ',' '\n'; } \
+  | grep -vE '^$|^\$\(' | sort -u)
+```
+
+The elegance is in the fallback. When a signal fired, the external project is force-included and rebuilds even though no files changed. When the run is a *real* monorepo commit, `triggeringAlias` is empty, the variable is blank, the union adds nothing, and `nx affected` behaves exactly as it always did for native apps — zero regression. One pipeline, one affected model, two legitimate definitions of "changed": *files in this repo moved*, or *an upstream I'm responsible for moved*. I didn't replace the affected graph; I taught it about an input it couldn't observe on its own.
+
+Two small details that signal real-world maturity rather than a demo:
+
+- **Fail loud on an unmapped alias.** A signal that resolves to no project errors the run with an explicit message rather than quietly building nothing — the worst possible failure mode for a trigger is silence.
+- **Tag the build with what it built.** A tiny step emits `##vso[build.addbuildtag]<project>` for every affected project, so the CI run history itself records which external merge produced which monorepo build. The coordination metadata — *which signal caused which build of which service* — lives in the CI layer, queryable, instead of being reconstructed from logs after an incident.
+
+## The honest edges
+
+The series rule is that a design writeup that only lists wins is marketing. So, the warts I'd want a reviewer to push on:
+
+- **The service list lives in two places.** The `resources.pipelines` aliases and the `NX_PROJECT_BY_ALIAS` map must stay in sync; onboarding a service means editing both. The fail-loud resolve step turns a drift between them into a red build rather than a silent no-op, which is the right mitigation, but it's a mitigation, not an elimination.
+- **One boilerplate signal pipeline per external repo.** Onboarding is now "add the proxy project + add the signal pipeline + register both aliases." The signal is twelve lines of nothing, but it's a non-zero, easily-forgotten step.
+- **The `clone` target is a centralized dependency.** It mints a short-lived token from a shared GitHub App to fetch external source. If that identity lapses, *every* proxy project's build breaks at once. The blast radius is bounded — build failures, not data loss — and it's the same machine identity I [wrote about for GitOps](/blog/the-cluster-pulls-because-nothing-may-push), but a single point that fails all external builds together is worth naming out loud.
+- **A schema wart you must not "clean up."** Depending on how the pipeline-resource trigger is expressed, the editor schema and the runtime disagree about whether a value should be a boolean or a quoted string. The form that keeps both happy looks wrong to a tidy-minded reviewer, so it gets a comment explaining why it is the way it is — otherwise someone "fixes" it into an outage.
+
+None of these move the verdict. They're the texture of a system that's actually in production rather than on a slide.
+
+## The takeaway
+
+The thing that made this work was refusing to treat a service as an indivisible unit. A service is not one thing; it's *source* plus a *build-and-deploy shape*, and those two have no business being welded together just because they've always lived in the same repo. Pull them apart and the whole migration changes character:
+
+1. **Separate source location from build shape.** Put the build-and-deploy files in the monorepo as a proxy project; pull the source in at build time and overlay the owned files on top.
+2. **Collapse the cutover into a content move.** Make the `clone` target the *only* thing that distinguishes migrated from not-migrated, so the physical migration is "commit the source, delete one target," with no CI to rewrite or re-validate.
+3. **Collect the benefits early.** Modernize the Dockerfile and charts under monorepo ownership now — close security leaks at the platform boundary, adopt the new deployment shape — without waiting for, or being constrained by, the source's eventual move.
+4. **Invert the trigger arrow.** Let the external repo emit a contentless signal and have the monorepo subscribe, so the external repo depends on nothing and a refactor on your side can never break it.
+5. **Extend your affected model, don't abandon it.** Teach it that an upstream trigger is a legitimate second definition of "changed," force-include the mapped project, and fall back cleanly to pure git-diff for native commits.
+
+I'll leave the monorepo evangelism to other people. What I'd actually defend is this: the value of a consolidation isn't realized at the cutover — it's realized in how cheaply you can move, how early you can collect the benefits, and how little the half-finished state costs you. Build the in-between well, and the big bang you were dreading turns out to be a `git rm` of a single build target.
+
+_Doing incremental monorepo migration with a different seam — submodules, a meta-repo, something I haven't tried? I'd genuinely like to compare notes. These designs get sharper in the open._

@@ -1,0 +1,215 @@
+---
+title: 'The Same Bytes in Every Environment: Runtime Configuration for Frontends Under Immutable Promotion'
+date: 2026-06-26
+tags:
+  [
+    'Frontend',
+    'SPA',
+    'Next.js',
+    'Vite',
+    'Kubernetes',
+    'Helm',
+    'GitOps',
+    'CI/CD',
+    'Configuration',
+  ]
+draft: false
+excerpt: |
+  We build a frontend's container image exactly once, push it to the dev registry, and promote that immutable digest through staging to production without ever rebuilding. It's the same anti-drift guarantee I've argued for everywhere else in this series — and it collides head-on with the single most common frontend habit on earth: baking configuration in at build time. You cannot freeze dev's API URL into a JavaScript bundle and also promote that bundle to prod. So the config has to move to runtime. This is how that works across a static SPA and a server-rendered Next app, why both reduce to the same tiny pattern, and the build-time savings you collect for free.
+---
+
+This is the sixth post in a series about designs the constraints handed us. By now the constraint has a familiar shape — in [The Registry Is the Perimeter](/blog/the-registry-is-the-perimeter) I described why we build a container image once, push it to the dev registry, and then promote the *exact immutable digest* through staging and into production. We never rebuild per environment. The bytes that pass staging are, to the SHA, the bytes that run in prod. That property is the whole point: it's how you make "tested" and "shipped" the same noun.
+
+It also quietly outlaws the most common thing frontend developers do.
+
+> You cannot bake configuration into a build artifact and also promote that one artifact, unchanged, across environments. Pick one.
+
+Almost every frontend toolchain encourages baking. `VITE_API_URL` gets inlined into your chunks at build. `NEXT_PUBLIC_API_URL` gets inlined into your bundle at build. A bare `process.env.API_URL` referenced in client code gets statically replaced at build. The moment you build, the value is frozen into the JavaScript. And if those frozen bytes are the artifact you promote, then the value you promote to production is whatever the *build environment* was — which is dev. Promote that, and prod's UI calls dev's API. Congratulations, you've shipped a hyphen-perfect immutable artifact pointing at the wrong backend.
+
+So you're at a genuine fork, and most teams take the wrong tine without noticing there was a choice:
+
+- **Rebuild per environment** so each gets its own baked values. Now you don't have promotion — you have three separate builds that you *hope* are equivalent, which is exactly the drift the immutable artifact existed to kill.
+- **Promote one artifact** and accept that its baked config is frozen at dev. Broken on arrival.
+
+We took neither. If the artifact must be identical everywhere, then the configuration cannot live *in* it. It has to be painted on at the last possible moment — at runtime, in the browser, before the application's own code runs. This post is about how you do that cleanly, and the surprising fact that it's the *same* tiny pattern whether you're shipping a static SPA or a server-rendered Next app.
+
+## The pattern, stated once
+
+Strip away the framework and every version of this reduces to one move:
+
+> Populate a global on `window` from a small static file or inline script placed in the document `<head>`, **ahead of the application bundle**, so that statically-built assets can rely on it existing. The build produces code that *reads* the global; the environment supplies the *values* at serve time.
+
+That ordering — config in the head, before the app — is the entire trick. It guarantees `window.CONFIG` (or `window.__ENV__`, pick your name) is populated before a single line of your React or your router or your API client evaluates. The bundle is environment-agnostic: it knows there will be an `apiUrl`, not what it is. The environment is the variable, injected outside the artifact.
+
+What changes between frameworks is not the pattern. It's the *delivery mechanism* — how the right values get into that head script — and that's dictated entirely by how your bytes are rendered. Let me show both.
+
+## Delivery one: the static SPA (Vite, CRA, anything that emits files)
+
+A static SPA build is a folder of files served by a web server. The artifact ships with a placeholder config that has safe, empty defaults:
+
+```js
+// public/config.js — shipped in the image, intentionally blank
+window.CONFIG = {
+  apiUrl: '',
+  authUrl: '',
+  gatewayUrl: '',
+  apiPath: '/api',
+};
+```
+
+And `index.html` references it in the head, *before* the application module:
+
+```html
+<head>
+  <!-- populated before the SPA boots; order is load-bearing -->
+  <script src="/config.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <!-- the app evaluates after config.js has set window.CONFIG -->
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+```
+
+Now the runtime override. The image is served by nginx; the placeholder lives at `/usr/share/nginx/html/config.js`. We render the *real* per-environment `config.js` from Helm values into a `ConfigMap`, and mount it directly over the placeholder with a `subPath`:
+
+```yaml
+# configmap.yaml — the real values, templated per environment
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  config.js: |
+    window.CONFIG = {
+      apiUrl: '{{ .Values.config.apiUrl }}',
+      authUrl: '{{ .Values.config.authUrl }}',
+      gatewayUrl: '{{ .Values.config.gatewayUrl }}',
+      apiPath: '/api',
+    };
+```
+
+```yaml
+# deployment.yaml — mount the ConfigMap's file OVER the baked placeholder
+volumeMounts:
+  - name: config-volume
+    mountPath: /usr/share/nginx/html/config.js
+    subPath: config.js
+volumes:
+  - name: config-volume
+    configMap:
+      name: {{ .Release.Name }}-config
+```
+
+That's the whole mechanism. The image never changes between environments; the *mounted file* does. nginx serves the ConfigMap's `config.js`, the head script sets `window.CONFIG` to real values, and the identical bundle that ran in staging now talks to prod's backend because the only thing that differed was a file painted on at mount time.
+
+Note where the config actually *lives*: in `.Values.config`, in the per-environment Helm overlay, in the GitOps repo. Changing an API URL or flipping a toggle is a reviewed change to a values file that [Flux reconciles](/blog/the-cluster-pulls-because-nothing-may-push) — not a rebuild, not a redeploy of new bytes. The placeholder in the image is the local-dev default; every deployed environment overrides it declaratively.
+
+## Delivery two: server-rendered Next.js
+
+Next.js sells a blurred line — between the server and the browser, between build time and runtime. It's a genuinely great developer experience and a fatal trap for immutable artifacts, because the blur erases exactly the distinction promotion depends on. The specific landmine: **`NEXT_PUBLIC_` variables read like runtime configuration and are resolved at build time.** Use them and dev's values get welded into the static chunks exactly like the `VITE_` case — promotion broken. So for runtime config you bypass `NEXT_PUBLIC_` entirely.
+
+Because Next runs an actual Node server in the pod, the delivery splits by where the code executes:
+
+**Server-side** — Server Components, route handlers, `getServerSideProps` — just read `process.env` directly. The server inherits the pod's environment, so there's nothing to inject; the value is read fresh at request time:
+
+```tsx
+// a Server Component — evaluated at runtime, in the pod
+const apiUrl = process.env.APP_API_URL;
+const data = await fetch(`${apiUrl}/data`).then(r => r.json());
+```
+
+**Client-side** — this is where we land right back on the SPA pattern. The per-request server render injects the global into the head before hydration:
+
+```tsx
+// app/layout.tsx — runs on the server, paints config into the head
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const runtimeConfig = {
+    apiUrl: process.env.APP_API_URL ?? 'http://localhost:3000',
+    featureX: process.env.APP_FEATURE_X === 'true',
+  };
+  return (
+    <html>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__ENV__ = ${JSON.stringify(runtimeConfig)};`,
+          }}
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+A single accessor hides which side you're on, so application code never touches `window` or `process.env` directly:
+
+```ts
+export const getConfig = () =>
+  typeof window !== 'undefined'
+    ? (window as any).__ENV__
+    : { apiUrl: process.env.APP_API_URL, featureX: process.env.APP_FEATURE_X === 'true' };
+```
+
+The values arrive the same way as the SPA — a Helm-templated `ConfigMap`, this time mapped to the pod's environment variables rather than mounted as a file:
+
+```yaml
+# configmap.yaml
+data:
+  APP_API_URL: {{ .Values.config.apiUrl | quote }}
+  APP_FEATURE_X: {{ .Values.config.featureX | quote }}
+---
+# deployment.yaml
+envFrom:
+  - configMapRef:
+      name: {{ include "app.fullname" . }}-config
+```
+
+Look at what's invariant across the two frameworks. Different rendering models, different delivery — nginx serving a mounted file versus an SSR server rendering an inline script — but the client experience is byte-identical: a global, set in the `<head>`, before the app's JavaScript runs, populated by the environment from outside the artifact. The SSR server happens to be the thing writing the head script instead of nginx; that's the only real difference.
+
+## The SSG asterisk, and the rule it reveals
+
+It's tempting to file this as "SPAs mount a file, Next injects per request," but that's the wrong abstraction, and Next itself proves it. Run Next with `output: 'export'` and it stops being a server — it emits static HTML and assets, with no per-request render to inject anything. At that moment it's in the SPA's exact boat: ship a placeholder config file, mount the real one over it. No server, no injection, same `subPath` trick.
+
+So the actual rule is cleaner than "per framework":
+
+> The **rendering strategy** dictates the **delivery mechanism**, never the pattern. Static output (SPA, SSG, Next export) ships a placeholder and mounts the real file. Server output (SSR) injects per request. Both end at a global in the head, before the app, painted by the environment.
+
+Choose the delivery to match how your bytes are produced. The pattern underneath doesn't move.
+
+## The benefit you didn't ask for: build once
+
+Here's the part that turns a compliance-driven workaround into something you'd want even without the constraint. When configuration leaves the build, **the build no longer has an environment.** There is one build, not one-per-environment.
+
+Count what that removes. The common pipeline builds the frontend separately for dev, for staging/UAT, and for prod, because each needs its own baked values — three runs of `install → typecheck → bundle → optimize`, which on a real frontend is usually the slowest stage in CI. Collapse that to a single environment-agnostic build and you delete two of the three. In our pipelines that landed around a **two-thirds reduction in frontend build time**, and the saving compounds: every promotion, every hotfix, every "oops, wrong toggle in prod" stops costing a fresh multi-minute build.
+
+But speed is the headline, not the point. The point is correctness. "Rebuild for prod" was always a quiet lie — a second build can differ from the one that passed staging through dependency float, a toolchain hiccup, or a one-character config typo, and you wouldn't know until prod. Building once makes *tested equals shipped* literally true for the frontend, which is the same guarantee the immutable digest gives the backend. We didn't adopt runtime config to save CI minutes; we adopted it to keep the promotion honest, and the CI minutes fell out as a bonus.
+
+And one more shift worth its own sentence: a config change is no longer a code change. Repointing an API URL or toggling a feature is an edit to a Helm value in a GitOps overlay — reviewed, reconciled, no rebuild — with a completely different blast radius than shipping new JavaScript. Decoupling config from the artifact decouples *configuring* from *deploying*.
+
+## The honest edges
+
+The series rule holds: a writeup that only lists wins is marketing. So, the things to get right or get burned by:
+
+- **The head config script is render-blocking, and the file approach has a network bill — name it.** `<script src="/config.js">` is a separate synchronous fetch in the head: the browser eats a round-trip for it *before* it has even discovered it needs to go fetch and parse the React bundle. That's a few milliseconds on a warm connection and a serialized RTT on the critical path to first render on a cold mobile one. You buy it down by inlining the config the way the SSR path already does — no extra request — at the cost of the clean file-mount override, or by keeping `config.js` tiny and same-origin so it's cheap and already warm. Whichever you choose, it runs before the app, so keep it small and dumb: config assignment, nothing else, never a place people do work.
+- **Read config through the accessor, never capture it at import.** A code-split chunk that does `const url = window.CONFIG.apiUrl` at module-eval time is a latent bug waiting on load-order and SSR/CSR duality. Always go through `getConfig()` at call time. Wrap the untyped global in a typed accessor so the rest of the app never sees `window` or `any`.
+- **This is for non-secret config only — and that caveat is load-bearing.** Anything in `window`, or in the HTML document, is world-readable. `window.CONFIG` carries API URLs, feature flags, a theme — never a secret. Secrets stay server-side, fetched with a managed identity from a config/secret store, exactly the [secretless posture I argued for](/blog/its-not-where-the-secret-lives). A runtime-config pattern is not permission to ship secrets to the browser; it's the opposite discipline — it keeps the bundle clean so the only thing the environment paints in is the harmless part. If you ever feel tempted to put a key in `window.__ENV__`, that's the signal you need a server hop, not a bigger global.
+- **A missing override should fail loudly, not silently.** The baked placeholder uses empty or obviously-local defaults so that a forgotten ConfigMap mount surfaces as a blatant smoke-test failure (an empty `apiUrl` breaks immediately) rather than a subtle prod-points-at-localhost mystery.
+
+None of these move the verdict. They're the difference between the pattern working in a demo and working at 2 a.m.
+
+## The takeaway
+
+The constraint was "the same image ships to every environment." It reads like a frontend handicap — you lose the build-time env vars every tutorial reaches for. What it actually does is force a cleaner separation than most teams would adopt voluntarily:
+
+1. **Don't bake config into anything you promote.** Build-time env inlining (`VITE_*`, `NEXT_PUBLIC_*`, replaced `process.env`) and immutable promotion are mutually exclusive. Choose promotion.
+2. **Paint config in at runtime via a global in the head, before the app.** One pattern — `window.CONFIG` / `window.__ENV__` — set ahead of the bundle so static assets can depend on it.
+3. **Let the rendering strategy pick the delivery.** Static output mounts a real file over a placeholder; SSR injects per request. Same pattern, two mechanisms.
+4. **Keep config in the GitOps overlay, not the pipeline.** Helm values reconciled by Flux, so configuring is reviewed, declarative, and decoupled from deploying.
+5. **Build once and collect the rest.** One environment-agnostic build cuts per-environment rebuilds (about two-thirds in our case) and, more importantly, makes *tested equals shipped* true for the frontend too.
+6. **Non-secret only.** The global is for harmless config; secrets stay server-side behind an identity. The clean bundle is a feature, not a limitation.
+
+Build the artifact once, ship the same bytes everywhere, and paint the environment on at the last possible second. The thing that looked like it took your config away handed you a frontend that's tested exactly as it runs — and a CI bill two-thirds smaller for agreeing to it.
+
+_Doing runtime frontend config with a different seam — an edge worker rewriting the head, a config endpoint fetched before render, something I haven't tried? I'd genuinely like to compare notes. These designs get sharper in the open._

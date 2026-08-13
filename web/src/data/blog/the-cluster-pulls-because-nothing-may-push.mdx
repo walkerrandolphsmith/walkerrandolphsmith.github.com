@@ -1,0 +1,198 @@
+---
+title: 'The Cluster Pulls Because Nothing May Push: GitOps by Constraint, Not Preference'
+date: 2026-06-26
+tags:
+  [
+    'AKS',
+    'Kubernetes',
+    'GitOps',
+    'Flux',
+    'GitHub App',
+    'Workload Identity',
+    'External Secrets Operator',
+    'Supply Chain',
+    'CI/CD',
+  ]
+draft: false
+excerpt: |
+  GitOps is usually sold as a workflow aesthetic — declarative, git as the source of truth, tidy rollbacks. That's not why we run it. We run it because we made a deliberate decision that no identity, anywhere, is allowed to push to the production cluster, and once you commit to that, a pull model isn't a preference — it's the only topology the network leaves you. This is the story of how a closed front door forced the cluster to reach out and fetch its own desired state, and the short-lived machine identity we built to let it read git without a human or a standing secret behind it.
+---
+
+This is the third in a series of designs that the constraints made for me rather than the other way around. The first was [The Registry Is the Perimeter](/blog/the-registry-is-the-perimeter), where a private endpoint cut CI off from the production registry and forced a real supply chain. The second was [The Certificate Is an Interface](/blog/the-certificate-is-an-interface), where a consumer that couldn't read a Kubernetes Secret forced a clean extension model for TLS. This one starts from a constraint that sounds even more obstructive than either:
+
+> No identity — human or machine — is permitted to push a deployment to the production cluster.
+
+Most teams treat GitOps as a lifestyle choice you make because the YAML is satisfying. I want to argue something stronger: that if you take cluster security seriously enough, GitOps stops being a choice and becomes the only shape the deployment can take. Push your way to a conclusion you can't push, and pull is what's left.
+
+## There is no push path, on purpose
+
+Start with how someone changes the production cluster today. The only interactive route is `kubectl` over a VPN session authenticated through our identity provider with MFA. That's a human, on a deliberate connection, for emergencies and infrastructure work. It is exactly the posture you want for breaking glass. It is exactly the wrong posture for shipping features every sprint across a dozen services.
+
+So the obvious next move is the one nearly everyone makes: stand up a CI agent *inside* the production network, hand it cluster credentials, and let pipelines deploy. We considered it and refused it, and the reason is the whole point of this post:
+
+> A CI agent that can deploy to production is a standing credential that can mutate running workloads. The day it's compromised, the attacker isn't pushing an image somewhere — they're running arbitrary code in your production cluster.
+
+We were not willing to own that. The production VNet has no CI agent pool, by design, and bringing one into a regulated audit scope was work we explicitly declined. Which leaves us with a cluster that has **no machine identity anywhere allowed to push to it** — not a pipeline, not an agent, nothing. The front door is closed, and we threw away the key on purpose.
+
+The naive fallback — let engineers `kubectl apply` over VPN for routine releases — fails for a second, independent reason that matters just as much as the bottleneck: it produces no durable audit trail. `kubectl apply` and `helm upgrade` leave no record in any external audit system. For a platform where "who deployed what, when, and under whose authorization" is an audit requirement, "an engineer ran a command on their laptop" is not evidence. So manual-over-VPN is out for routine work too — not because it's slow (it is), but because it's unaccountable.
+
+Now look at what's left after you've eliminated every push: a closed cluster, no agent inside it, no human in the routine path. There is exactly one direction authority can flow.
+
+## Inverting the arrow is the whole idea
+
+If nothing may push *into* the cluster, then the only thing that can change the cluster is something *inside* it that reaches *out*, pulls a description of how the cluster should look, and reconciles reality to match. That sentence is GitOps. Not the marketing version — the topological one.
+
+The distinction is about which way the trust arrow points, and it is not cosmetic:
+
+```text
+PUSH model (rejected):
+  CI / agent  ──holds cluster write creds──▶  Production cluster
+  (an external identity has standing authority to mutate running workloads;
+   compromise it, and you own the cluster)
+
+PULL model (forced):
+  Production cluster  ──outbound git poll──▶  Git repository (desired state)
+  (nothing outside holds cluster write access; the cluster's authority over
+   itself is bounded by what's committed to a repo you protect like source code)
+```
+
+Read the blast radius off each diagram. In the push model, a leaked CI credential deploys anything it wants to production. In the pull model, that same leaked credential can do exactly two things: push an image to a registry, and — at most — open a pull request. Neither of those changes a single running pod, because **the cluster only ever applies what's been merged into git**, and git is protected by the same review and approval controls as application source code. The attack surface for "deploy untrusted code to prod" shrinks from "any credential that can reach the cluster" down to "the ability to get a malicious change merged into a protected branch." That's not a tweak. That's a different security model.
+
+And the network surface follows the arrow. The GitOps engine makes outbound git polls and in-cluster Kubernetes API calls — and accepts nothing inbound. There's no API server to expose, no UI to put behind an ingress, no OIDC proxy to operate. The thing that controls production is, from the network's perspective, almost invisible.
+
+## The audit trail you get for free
+
+Here's the dividend nobody puts on the brochure: once desired state lives in git, the audit trail isn't something you build, it's something you *have*.
+
+Every change to what production runs is a commit. The commit records what changed, who authored it, who approved it in review, and when it merged. "Who released version X of service Y to production, and when?" is answered by `git log` on a values file — not by correlating pipeline runs against cluster state after the fact and hoping the retention windows line up.
+
+It also cleanly separates three authorizations that a push pipeline tends to collapse into one:
+
+1. **Build** an image and push it to a registry — CI's authority.
+2. **Promote** a validated digest and open a PR that references it in the desired state — still CI's authority, but now a proposal, not an act.
+3. **Apply** the change to the cluster — gated behind a human merge and the cluster's own reconciliation.
+
+Three distinct events, three distinct audit records, three distinct credentials. No single compromised identity walks code from a developer's branch to a running production pod. That's defense in depth that falls out of the topology rather than being bolted onto it.
+
+## The tool: Flux, kept deliberately small
+
+We use Flux as the reconciler. I'm not going to litigate engine choices here — we needed a pull-based GitOps controller with a small, composable footprint, and that's what we run. What's worth describing is the *discipline* we run it with, because the constraints shaped that too.
+
+**Only the controllers we actually use.** Source, kustomize, helm, and notification controllers — and pointedly *not* the image-automation controllers. Image versions are not auto-bumped by a controller watching a registry. They are pinned as explicit, immutable digests in the repo and changed only by a reviewed PR. A mutable tag is a promise the registry doesn't keep; a digest is the bytes or nothing. (If that argument sounds familiar, it's the same one I made about the registry being the perimeter — the two posts are the same principle at different layers.)
+
+**No web UI, and that's a feature.** We run no GitOps dashboard. A UI means an ingress, TLS termination, a session model, another image in the mirror pipeline, and — if it can approve syncs — a *second* RBAC system to keep aligned with the first. The visibility a UI would give us is covered by the notification controller (alerts to our log workspace and a chat channel on reconcile failures and pending drift) and `flux get` over the same authenticated CLI access every other cluster operation already requires. Convenience, not capability — so we skipped it and kept a single access-control plane.
+
+**The human approval gate survives without a UI.** Production workload services are created suspended:
+
+```yaml
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: payment-site
+  namespace: payments
+spec:
+  suspend: true # production default — drift is detected, not auto-applied
+  interval: 5m
+  chart:
+    spec:
+      chart: payment-site
+      sourceRef:
+        kind: HelmRepository
+        name: charts
+  values:
+    image:
+      # immutable digest, set only by a reviewed promotion PR
+      digest: 'sha256:<pinned-digest>'
+```
+
+Flux detects drift on a suspended resource and alerts on it, but does not apply it. An authorized engineer resumes reconciliation either by committing `suspend: false` — which is itself a reviewed git commit with a full audit trail — or via `flux resume` over the same VPN-and-kubeconfig path used for emergencies. The approval is preserved; it just doesn't need a web app to exist. Notice the elegance: even the act of approving a deploy is a GitOps operation. Self-healing reconciliation is not the same as authorized reconciliation, and suspend-by-default is how we keep the human in the loop without keeping a human in the bottleneck.
+
+**No controller can write to the desired-state repo.** This is the sharp least-privilege detail. Flux reads the repo; it never writes it. The only writer is the CI promotion pipeline, opening digest-bump PRs under its own audited identity. There is no automation with standing write access to the thing that decides what production runs.
+
+Which surfaces the second constraint, the one that's really the back half of this story: if the cluster has to reach out and read a repo, *as whom does it read it?*
+
+## The puller needs an identity — and it can't be a person
+
+Flux needs credentials to read the desired-state repo. The CI pipeline needs credentials to open promotion PRs against it. Both are machine actions, and both have to be satisfied by an identity that is:
+
+- **not a human user** — no person's account standing in for a robot,
+- **least-privilege** — scoped to exactly the one repo it touches, nothing more,
+- **short-lived** — so a leaked token has a bounded blast window, and
+- **auditable** — it shows up in the audit log as a named, purpose-built actor.
+
+The path of least resistance is a personal access token on a bot user, dropped in a vault. It works, and it's a pile of quiet liabilities: the token is a static, long-lived bearer secret; the bot consumes an org seat; the bot account *itself* needs a shared email, password, and MFA device parked somewhere, which is a second secret-management problem wearing the disguise of a solution; and every action it takes shows up in the audit log as a user, not a machine. We'd also previously carried a sprawl of SSH deploy keys to do the same job — multiple keys, multiple secrets, multiple things to rotate.
+
+The answer that satisfies all four properties is a **GitHub App**, and the mechanism is the same federated, short-lived-token instinct that runs through this whole series.
+
+## A machine identity that mints its own short-lived tokens
+
+A GitHub App is a first-class machine identity, not a user account cosplaying as one. It holds a private key. To act, it signs a JWT with that key and exchanges it for an **installation access token that lives for one hour**. It doesn't consume a seat, it needs no shared human credentials, it appears in audit logs as a named application, and it's installed on exactly the repositories it's allowed to touch — for us, a single repo, with `Contents: read/write` (Flux reads; CI pushes branches), `Pull Requests: read/write` (CI opens promotion PRs), and `Metadata: read`. One identity now serves both consumers that previously needed separate credentials.
+
+The wiring reuses machinery from the TLS post: the private key lives in Key Vault, and the External Secrets Operator syncs it into the cluster as a secret Flux consumes natively.
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: keyvault-store
+    kind: ClusterSecretStore
+  target:
+    name: flux-system
+    template:
+      type: Opaque
+      data:
+        githubAppID: '<app-id>'
+        githubAppInstallationID: '<installation-id>'
+        githubAppPrivateKey: '{{ .privateKey }}'
+  data:
+    - secretKey: privateKey
+      remoteRef:
+        key: gitops-app-private-key # the only thing in a vault is the signing key
+```
+
+```yaml
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gitops
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/<org>/gitops
+  ref:
+    branch: main
+  provider: github # Flux signs a JWT, exchanges it for a 1h token, reads the repo
+  secretRef:
+    name: flux-system
+```
+
+Flux signs, exchanges, and reads — handing back a one-hour token instead of carrying a credential that's valid until someone remembers to rotate it. The CI pipeline does the identical JWT exchange before it opens a promotion PR. Same identity, same short-lived tokens, two consumers, one safeguarded key.
+
+## The honest part: it's a smaller secret, not no secret
+
+I won't oversell this, because the prior posts didn't and this one shouldn't either. The App's private key is *still a static secret*. Something has to bootstrap the trust, and here that something is a key in a vault that must be guarded and eventually rotated.
+
+The win is not "we eliminated the secret." The win is what kind of secret it is. A PAT is a bearer credential — present it, and you're in, for as long as it's valid. The App key is a *signing* credential — it never travels as the thing that grants access; it mints hour-long tokens that do. Leak a token, and the exposure closes itself in sixty minutes. The identity is named in the audit log, scoped to one repository, costs no seat, and needs no shadow human account. And it collapsed a fistful of SSH deploy keys down to one managed key.
+
+The fully honest footnote: at our current scale — one desired-state repo, a small team, the key already living in a vault — the practical security delta between this and a fine-grained PAT in the same vault is modest. The App's advantages compound as the number of repos, pipelines, and credential consumers grows. We chose it knowing that, because the seam it establishes is the one we want to grow into, not the one we want to migrate off of later. Good security isn't reflexively choosing the heaviest mechanism; it's choosing the one whose advantages line up with where the system is heading, and saying out loud where the gain is currently thin.
+
+## What inverting the arrow bought us
+
+Step back and the three posts are one argument told at three layers. Make the registry the only door images come through. Make the certificate an interface that consumers subscribe to. Make the cluster pull its own desired state because nothing is allowed to push. Every one of them is the same move: **refuse to hand out standing authority across a boundary, invert who reaches whom, and make the identity that does reach short-lived and federated rather than static and bearer.**
+
+For GitOps specifically, here's the shape I'd push any team handling something sensitive toward:
+
+1. **Decide that nothing outside the cluster may push to it** — no CI agent with cluster creds, no human in the routine path. Make that the constraint, then let it dictate the topology instead of fighting it.
+2. **Let the cluster pull its desired state from a repo you protect like source code.** The audit trail becomes structural — the git log *is* the release history — and a compromised CI credential can no longer mutate a running pod.
+3. **Keep the reconciler small and UI-less.** Only the controllers you use; no second RBAC plane; suspend-by-default on production so the human approval gate survives as a git commit, not a dashboard click.
+4. **Pin immutable digests, and give no controller write access to the desired-state repo.** The only writer is an audited promotion pipeline. Self-healing is not the same as authorized.
+5. **Give the puller a real machine identity** — a short-token, repo-scoped App, not a static PAT on a bot — and be honest that the bootstrap key is still a secret whose advantage is that it signs tokens instead of being one.
+
+The constraint that started this looked like it was taking deployment away from us: you can't push to production. What it actually did was hand us a deployment model where the most dangerous capability in the system — changing what runs in production — is gated behind a repository, a review, and a one-hour token, with no standing credential anywhere that can shortcut the path. The arrow points outward now. That turns out to be the only direction worth trusting.
+
+_Running a pull model with a different machine identity, or drawing the build-versus-deploy authorization line somewhere else? I'd genuinely like to compare notes — these designs get sharper in the open._

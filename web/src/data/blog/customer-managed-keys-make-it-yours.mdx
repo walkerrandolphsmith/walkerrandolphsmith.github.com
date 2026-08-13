@@ -1,0 +1,147 @@
+---
+title: 'Customer-Managed Keys Don''t Make Your Encryption Stronger — They Make It Yours'
+date: 2026-06-26
+tags:
+  [
+    'Security',
+    'Encryption',
+    'Azure Key Vault',
+    'Customer-Managed Keys',
+    'Compliance',
+    'Terraform',
+    'Kubernetes',
+    'HSM',
+  ]
+draft: false
+excerpt: |
+  "Encryption at rest" is the wrong unit of analysis. Azure already encrypts every byte at rest by default, with strong ciphers, before you configure anything — so the compliance box is checked before you start. The requirement that actually had teeth wasn't "is it encrypted," it was "can you prove you control the key, and revoke it." That reframes customer-managed keys away from "a stronger lock" toward something more precise: same cipher, your keyring. Here's the envelope model that makes it true, the four independent dials it gives you, and the part nobody mentions — that you just made Key Vault a tier-0 dependency for every stateful service you own.
+---
+
+This is the seventh post in a series about designs the constraints chose for us. The constraint this time arrived as one line in a compliance regime: the operator must *control* and be able to *demonstrate custody of* the key material protecting data at rest. Not "the data must be encrypted." Control. Custody. Proof.
+
+That distinction is the whole post, because almost everyone — including a sharp junior on my team — reads "encryption at rest" and reaches for the checkbox that's already ticked.
+
+## The box was already checked
+
+Here's what makes this requirement sneaky: Azure encrypts all storage at rest by default. Blobs, queues, SQL, Cosmos, disks — every byte, AES-256, transparent, zero configuration, no opt-in. If the requirement were "encrypt data at rest," you would satisfy it by doing nothing at all. The platform did it for you the moment you provisioned the resource.
+
+So a team reads the control, checks that the data is encrypted, and moves on — having satisfied the *letter* of "is it encrypted?" while completely missing the *question*: who holds the key?
+
+Under the default — platform-managed keys — the answer is Microsoft. Microsoft generates the key, stores it, rotates it, and controls access to it. The data is genuinely, strongly encrypted. You simply have no audit of when the key was used, no lever to revoke it, and no way to stand in front of an auditor and *demonstrate* that you, not your cloud provider, control the boundary protecting your data. For the vast majority of workloads, "we trust Microsoft's key management" is a completely reasonable posture. For a workload where you must *prove* custody, it is not an answer — it's an admission that the custody belongs to someone else.
+
+The requirement was never about encryption. It was about custody. And custody is a different thing than strength.
+
+## The counterintuitive part: customer-managed keys are not stronger encryption
+
+Say it plainly, because it's the claim that makes this topic worth a principal engineer's time: **moving to customer-managed keys (CMK) does not make your encryption stronger.** The cipher is identical. AES-256 under platform-managed keys is exactly as strong as AES-256 under a key you own. Anyone who sells CMK as "harder to break" has misunderstood what changed.
+
+What changed is *who holds the key that unlocks the keys* — and to see why that's the right sentence, you have to look at how the encryption is actually layered.
+
+Azure doesn't encrypt your data directly with the key in your vault. It uses envelope encryption:
+
+```text
+your data
+  └── encrypted with a Data Encryption Key (DEK), AES-256   ← identical under PMK and CMK
+        └── the DEK is wrapped (encrypted) by a Key Encryption Key (KEK)
+              ├── PMK:  the KEK is Microsoft's, in Microsoft's store
+              └── CMK:  the KEK is YOURS, in YOUR Key Vault
+```
+
+The key you manage is the **KEK** — it never touches your data; it only wraps the key that touches your data. You can prove this from the key definition itself. Here is the CMK as we actually declare it, and the tell is the operations list:
+
+```hcl
+resource "azurerm_key_vault_key" "cmk" {
+  name     = each.key
+  key_type = "RSA-HSM"
+  key_size = 3072
+  key_opts = ["wrapKey", "unwrapKey"]   # ← it is a wrapping key, by definition. Not a data cipher.
+
+  rotation_policy {
+    automatic { time_before_expiry = "P30D" }
+    expire_after         = "P1Y"
+    notify_before_expiry = "P30D"
+  }
+}
+```
+
+`wrapKey` and `unwrapKey` are the *only* operations this key can perform. It cannot encrypt a document; it can only encrypt a DEK. That's the entire mechanism, and it's why the security property CMK buys you isn't strength — it's a **kill switch**. Disable or revoke this KEK and every DEK that depends on it can no longer be unwrapped. Every byte goes dark, instantly, regardless of any Azure RBAC, any service-layer access control, any platform action. You hold the only copy of the lever that can render the data inaccessible.
+
+That is custody. And unlike "it's encrypted," custody is *provable*: every wrap and unwrap against your KEK emits an audit event to your Key Vault log, every identity that can touch the key is governed by your RBAC, and the revocation lever is demonstrably in your hand. "Same cipher, your keyring" is the honest one-line summary.
+
+## Four dials, not one decision
+
+Once you stop asking "is it encrypted?" and start asking "what about the key?", the single decision fans out into four independent dials. (If the word *dials* sounds familiar, it's the same lens I used for [secrets](/blog/its-not-where-the-secret-lives) — credential maturity and key maturity turn out to rhyme.) CMK isn't one of these dials; it's what unlocks your ability to turn any of them.
+
+**Dial one — custody: who can revoke.** This is the dial the compliance line is actually about, and the only one PMK pins to zero. Move from PMK to CMK and the keyring moves from the landlord's office to yours: your vault, your RBAC, your per-use audit trail, your revocation. Nothing about the data's encryption changed. Everything about who controls it did.
+
+**Dial two — assurance: what the key is, and where it can go.** This is the *only* dial that touches anything like "strength," and it's worth being precise because it's where the marketing gets sloppy. We provision the KEK as `RSA-HSM`, 3072-bit, backed by a FIPS 140-2 Level 3 Hardware Security Module. That does **not** make the AES-256 protecting your data stronger. What it does is make the *key itself* non-exportable: the key material is generated inside the HSM and never leaves the hardware boundary, even for an operator — even, in the threat model that matters, for an attacker who has compromised the control plane. A software-protected key can, with enough access, be exported and used anywhere. An HSM-bound key cannot leave the box. You haven't strengthened the lock; you've made the master key impossible to photocopy. Different property, and the right one.
+
+**Dial three — lifespan: how long a key is useful if it leaks.** Same dial as the one I argued for with secrets: shorten the window. The rotation policy auto-rotates the KEK 30 days before its one-year expiry. A wrapped DEK that an attacker somehow obtains is only useful while a KEK version that can unwrap it is live and reachable; rotation bounds that and forces periodic re-wrapping with fresh material. The subtlety that makes auto-rotation *safe* rather than an outage: the data-service integrations reference the key by its **versionless** identifier, so a new KEK version is adopted for new wraps while Key Vault retains prior versions to unwrap data sealed under them. Rotate-forward without bricking the past — but only because the integration was wired to the versionless id on purpose.
+
+**Dial four — isolation: blast radius.** A single shared CMK would satisfy the compliance requirement completely. We deliberately don't. Each data store gets its own dedicated key — registry, config store, Cosmos, SQL, storage, file shares, log analytics, and the AKS disk encryption set are eight separate keys, not one. The payoff is independent encryption boundaries: revoking or rotating SQL's key has zero effect on Cosmos, each key's audit trail is scoped to exactly one store, and a key incident is contained to a single service instead of darkening the platform. Per-service keys cost more to manage and buy you a blast radius of one.
+
+## One policy, N mechanisms
+
+Here's the part that's genuinely under-discussed, and where "own your keys" stops being a sentence and becomes a matrix. The *policy* is uniform: every store uses a customer-managed KEK, reached by a per-service user-assigned managed identity with a wrap/unwrap grant — no secrets, every access logged, which is the same [secretless, identity-per-workload](/blog/its-not-where-the-secret-lives) posture the rest of the platform runs on. The *implementation* is different for every single PaaS, because each one consumes a CMK its own way.
+
+**Storage** wants both an inline block and a dedicated companion resource, bound by the versionless id and the identity:
+
+```hcl
+customer_managed_key {
+  key_vault_key_id          = data.azurerm_key_vault_key.cmk.versionless_id
+  user_assigned_identity_id = azurerm_user_assigned_identity.this.id
+}
+```
+
+**SQL** does it through Transparent Data Encryption as a *separate* resource, and — unlike storage — binds a **versioned** key id with `auto_rotation_enabled`, which forces a small but load-bearing detail on the server resource: it must ignore drift on the TDE key, or Terraform and the rotation mechanism fight each other forever.
+
+```hcl
+resource "azurerm_mssql_server_transparent_data_encryption" "this" {
+  server_id             = azurerm_mssql_server.this.id
+  key_vault_key_id      = data.azurerm_key_vault_key.cmk.id   # versioned, here
+  auto_rotation_enabled = true
+}
+# ...and on the server:
+lifecycle { ignore_changes = [transparent_data_encryption_key_vault_key_id] }
+```
+
+**Cosmos** takes the key on the account but adds a gotcha that will cost you an afternoon if you don't know it: the user-assigned identity must be declared as the account's *default* identity, or Cosmos can't reach the key at all:
+
+```hcl
+key_vault_key_id      = data.azurerm_key_vault_key.cmk.versionless_id
+default_identity_type = "UserAssignedIdentity=${azurerm_user_assigned_identity.this.id}"
+```
+
+And **AKS managed disks** can't reference a Key Vault key directly *at all*. You need an indirection — a Disk Encryption Set — and then Kubernetes references *that* by ARM resource id in a StorageClass, so every PVC the CSI driver provisions inherits CMK encryption transparently. It's a two-hop nobody warns you about:
+
+```text
+Key Vault KEK
+   └── Disk Encryption Set  (encryption_type = EncryptionAtRestWithCustomerKey,
+         │                    auto_key_rotation_enabled = true)
+         └── StorageClass    (parameters.diskEncryptionSetID = <DES resource id>)
+               └── PersistentVolumeClaim  → CMK-encrypted disk, no app changes
+```
+
+Four stores, four completely different integration shapes: a companion resource here, a versioned TDE key with a drift exclusion there, a default-identity incantation for Cosmos, an entire indirection object for disks. The audit evidence you hand the auditor is uniform and boring — "every store is CMK, here are the logs." The plumbing that produces it is anything but. The lesson I'd put on a slide for any platform team: *budget for the matrix, not the sentence.* "We own our keys" is one control on paper and a dozen distinct integrations in Terraform, each with its own identity wiring and its own sharp edge.
+
+## The cost nobody puts in the proposal
+
+Series rule: a writeup that only lists wins is marketing. This design has a real, structural cost, and it's the first thing I'd raise in review.
+
+**You just made Key Vault a tier-0 dependency for every stateful service you own.** Under platform-managed keys, key availability was Microsoft's problem and it never appeared on your dependency diagram. Under CMK, the unwrap path runs through *your* vault on the hot path of every encrypted store. A Key Vault outage, a fat-fingered RBAC change, a deleted access grant — any of them can render *all* of it inaccessible. Not deleted. Dark. The data is intact and unreadable until the KEK is reachable again. The kill switch you built to satisfy an auditor is the same lever that bricks production if you lean on it wrong; power and footgun are the same mechanism. The operational consequence is non-negotiable: Key Vault gets treated as the most critical dependency in the platform — alarmed on access failures, change-controlled like nothing else, and never the casual subject of a routine permissions cleanup.
+
+**And the safety rails cut both ways.** Soft delete and purge protection are both enabled with a 90-day retention, which means you cannot irrecoverably destroy a key by accident — and also cannot immediately purge one, with recovery of a soft-deleted key requiring a support engagement inside the window. The property that protects you from yourself is the same property that slows you down in a real incident. That's the correct trade for this data, but it is a trade, and you should walk into it with both halves in view.
+
+## The takeaway
+
+If I could leave a team one reframe, it's this: stop letting "encryption at rest" terminate your thinking, because the platform already finished that sentence for you. The questions that carry weight are downstream of it.
+
+1. **Separate "is it encrypted" from "who holds the key."** The default checks the first box. Only customer-managed keys let you answer — and *prove* — the second.
+2. **Don't sell CMK as stronger encryption.** It's the same cipher. What you gain is custody: an audited, revocable kill switch that you, not your provider, control.
+3. **Turn the four dials deliberately.** Custody (PMK→CMK), assurance (HSM-bound, non-exportable keys), lifespan (auto-rotation on versionless ids), and isolation (a key per store). They're independent; decide each one.
+4. **Budget for the matrix, not the sentence.** "We own our keys" is a dozen different PaaS integrations — versioned vs versionless, companion resources, default-identity quirks, a disk-encryption-set indirection — each with its own identity and its own edge.
+5. **Put Key Vault on the tier-0 dependency list, in ink.** Custody means the unwrap path is yours now, which means its availability is yours too. The lever that proves control is the lever that can take everything down.
+
+Customer-managed keys don't make the lock harder to pick. They move the keyring into your building, put a camera on it, and hand you the only switch that can melt it. That's not stronger encryption. It's ownership — and for the data that demanded it, ownership was the requirement all along.
+
+_Owning your encryption keys with a different split — per-environment vaults, an external HSM, a different rotation cadence — or think I've drawn the isolation boundary wrong? I'd genuinely like to compare notes. These designs get sharper in the open._

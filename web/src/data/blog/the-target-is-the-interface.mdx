@@ -1,0 +1,126 @@
+---
+title: 'The Target Is the Interface: Polymorphic CI and the Encapsulation You Don''t Get a Keyword For'
+date: 2026-06-27
+tags:
+  [
+    'CI/CD',
+    'Nx',
+    'Monorepo',
+    'Platform Engineering',
+    'Software Design',
+    'Build Systems',
+    'DevEx',
+    'Inversion of Control',
+  ]
+draft: false
+excerpt: |
+  Starting a new service, "add CI/CD" sits on the checklist like an obvious chore: copy a pipeline file, bump the stale task versions, rebuild lint and test and publish from a template that was already drifting when you copied it. That chore is a tell. It means you're treating CI as a library you re-assemble in every repo instead of a framework you implement once. The reframe is to stop building pipelines and start implementing an interface: CI calls a fixed vocabulary of target names, your project provides them however it likes, and the whole pipeline becomes polymorphic over your projects. Here's the contract, the encapsulation you get without a keyword, and why the interface is behavior, not just a name.
+---
+
+Another in a collection of posts about designs the constraints chose for us. This one starts with a chore so routine nobody questions it: you spin up a new service, and somewhere between "create the repo" and "add a healthcheck" sits *add CI/CD*.
+
+Watch what happens next, because it's the same every time. You copy a pipeline file from the last project. You fix the paths, bump the task versions that have drifted since you last looked, delete the steps that don't apply and add the ones that do. You rebuild lint, unit tests, integration tests, and the artifact push from a template that was already going stale when you copied it. You start at zero developer experience and climb back to "works," one repo at a time, forever.
+
+That chore is a tell. It means you are treating your CI system as a **library** — something each project re-assembles by hand, calling the same primitives in slightly different, slowly diverging ways. A library you re-assemble in every repo is a library that drifts in every repo.
+
+The reframe is to stop building CI and start *implementing* it.
+
+## CI is a framework, not a library
+
+A library is something you call: you own the control flow and invoke its functions where you need them. A framework is the inverse — it owns the control flow and calls *you*, at the extension points it defines. Don't call us, we'll call you. The entire discipline of using a framework is implementing the interface it will invoke.
+
+Per-project pipeline YAML treats CI as a library. Every repo authors its own orchestration, sequencing lint and build and push in its own hand-rolled way. The project drives — which is exactly why every project is a little different, and every difference is a maintenance liability that ages.
+
+Contract-CI inverts the relationship. The CI system owns the orchestration — the dependency graph, the ordering, the caching, the decision of what to run on which change — and it invokes a fixed vocabulary of named targets on each project: `lint`, `build`, `test`, `publish`. Your project does not author a pipeline. It implements those targets, and the pipeline calls them.
+
+That vocabulary is an interface. `publish` is not a command; it's a contract: *if you want to participate in release, expose a target named `publish` that, when invoked, makes your artifacts exist in the registry.* How you satisfy it is entirely your business.
+
+I'll use Nx as the example because it's what's in front of me, but nothing here is about Nx. Make has phony targets; Bazel has rules; Turborepo and `just` have the same shape. The idea belongs to the task runner as a category, not to any one product — which is the surest sign it's a real idea and not a feature tour.
+
+## The implementor's side: conform, don't construct
+
+Here is a project satisfying the contract. The two targets the CI system actually calls — `publish` and `lint` — are **facades**: their own body does no work. They declare what they compose and let the runner execute it.
+
+```json
+{
+  "targets": {
+    "publish": {                                   // PUBLIC — CI calls this
+      "executor": "nx:run-commands",
+      "options": { "commands": ["aggregate-targets.sh report-service helm-push docker-push"] },
+      "dependsOn": ["helm-push", "docker-push"]    // the real work lives here
+    },
+    "lint": {                                      // PUBLIC — CI calls this
+      "options": { "commands": ["aggregate-targets.sh report-service lint-helm"] },
+      "dependsOn": ["lint-helm"]
+    },
+    "docker-push": {                               // private — only a facade names it
+      "options": { "commands": ["docker-push.sh ..."] },
+      "dependsOn": ["docker-build"]
+    }
+    // helm-push, docker-build, lint-helm, build, test … also private
+  }
+}
+```
+
+Read what `publish` actually *is*. Its command runs a script whose entire job is to announce — `project report-service is running helm-push, docker-push`. The orchestration lives in `dependsOn`: the runner sees that `publish` depends on `helm-push` and `docker-push` and runs them. The facade is a name and a composition, nothing more. (The announcer isn't decoration — it makes the composition legible in the build log, so what a facade fans out to is visible without opening the file. Hold that thought; it earns its keep in a minute.)
+
+Now the effort argument, stated precisely, because this is the part that reframes the chore. Authoring orchestration is **unbounded** work — there is no "done." You maintain the YAML forever, it drifts, the task versions go stale, and every new cross-cutting concern (a new scanner, a new test tier) gets re-plumbed in every repo that owns a copy. Implementing an interface is **bounded** work: a finite set of named targets, each with a known contract, and you are done when they exist and they behave. Better, you start a new project with `lint`, `test`, and `publish` already *working*, because the implementations behind the contract already exist and are reused. You inherit the DX instead of rebuilding it from zero.
+
+The honest version of that win — and the nuance that keeps it from being a sales pitch: the contract buys reuse *when an implementation exists*. A genuinely novel project — a new language, an artifact type nobody here has shipped — still has to implement its `publish` from scratch. But it implements against a *stable interface*, and it still inherits the orchestration: the affected-graph, the ordering, the caching, the invocation. You reimplement a target. You never reinvent the plumbing. The thing that used to be unbounded — the orchestration — is the thing you now never touch.
+
+## The CI side: polymorphism over projects
+
+From the pipeline's vantage, depending on the contract instead of on commands buys one property: **the pipeline is polymorphic over your projects.** CI runs the equivalent of `nx affected --target=publish` and calls `publish` on every changed project. It does not know — and must not care — that one project's `publish` pushes a Docker image and a Helm chart, the next ships an npm package, and a third syncs a static site to a bucket. They are substitutable because they honor the same contract.
+
+That's the Open/Closed Principle at the orchestration layer. Add a new app: zero CI changes, provided it implements the interface. Add a new *language*: still zero, because the contract is technology-agnostic — `publish` says nothing about Docker. The pipeline was written against the interface, so the set of things it can build is open for extension without modifying the pipeline. This is the first principle underneath [one CI architecture for every app](/blog/the-cutover-is-a-content-move): heterogeneous projects, one pipeline, because the pipeline only ever calls the contract and never looks inside.
+
+## Public and private, without a keyword
+
+Look again and you'll see an interface with an inside and an outside — and no language to mark the line between them:
+
+```text
+   CI invokes a fixed vocabulary  ──▶   lint   build   test   publish
+ ───────────────────────────────────────────────────────────────────  ← CI never calls below this line
+   (the encapsulation boundary: convention, not a keyword)
+   publish  ─dependsOn▶ docker-push ─▶ docker-build       private:
+            └dependsOn▶ helm-push                          implementation the
+   lint     ─dependsOn▶ lint-helm (+ lint-csharp, …)       facades compose
+```
+
+`publish`, `lint`, `test`, `build` are public — the names CI calls. `docker-build`, `docker-push`, `helm-push`, `lint-helm` are private — implementation the facades compose. But there is no `private` keyword. `nx run report-service:docker-push` is exactly as callable as `:publish`. The encapsulation is real and it is enforced by *nothing* — it is a convention: CI agrees to call only the facades, and everyone agrees the rest are internal.
+
+Which means the failure mode is **interface erosion**. The day CI — or a developer wiring a one-off job — reaches past the facade and depends on `docker-push` directly, that private target is now de-facto public: change it and you break a caller you didn't know you had. The facade's whole value — the freedom to recompose the private targets without touching CI — evaporates the moment someone bypasses it.
+
+You defend an unenforced interface with legibility and a small surface, not with the tool. Keep the called vocabulary tiny and explicit: CI names four targets, not fourteen. Keep the facade body a no-op, so there is nothing *to* bypass — the orchestration is declarative in `dependsOn`, not a script someone's tempted to call a piece of. And make the composition visible: this is where that announcer earns its keep. `publish is running helm-push, docker-push` in the log means a drift between the facade's promise and its parts is something you *see*, not something you discover when a push silently stops happening. Some runners give you more — Nx's module-boundary rules can constrain who depends on what — and you should use them if you have them. But the discipline is the load-bearing part, because the keyword you want does not exist.
+
+## The contract is behavior, not a name
+
+Here is the part that separates an interface that works from one that only looks like it. A target name is a method signature with no type checker. "`publish`" tells a caller the name; it says nothing about what `publish` must *do* — and the real contract is the behavior: its inputs, its outputs, its side effects, whether it is idempotent, whether it is safe to cache.
+
+That last clause is not academic, because the runner caches on it. Nx — and every runner of its generation — decides whether to skip a target by hashing its declared inputs and outputs. A pure target like `build`, `lint`, or `test` declares its outputs and is cacheable: same inputs, skip the work, replay the result. A side-effecting target like `publish` or `docker-push` must declare *no* cacheable outputs, because "I already pushed this once" is not a result you replay — it's a network effect on a registry. Notice the real facades do exactly this: `publish` and `docker-push` declare nothing to cache, which is the correct and deliberate statement that they are effects, not computations.
+
+So substitutability hides a clause the target name doesn't show: every project's `publish` must honor the *same* behavioral contract — same side-effect semantics, same idempotency, same cache posture. If one project's `publish` is idempotent and another double-pushes on a re-run, the pipeline that treats them as interchangeable will eventually surface the lie — a publish the cache thought was already done, or a duplicate the affected-graph triggered twice. The interface is the name *plus* the behavior, and only the name is written down. The behavior is enforced by your discipline and your cache configuration. The type system of this interface is you.
+
+## The honest edges
+
+The series rule: a writeup that only lists wins is marketing.
+
+- **Encapsulation is convention, not constraint.** The runner will not stop a caller from reaching past a facade. Legibility and a small public surface are mitigations, not guarantees; a determined shortcut still erodes the interface.
+- **The behavioral contract is invisible until it's violated.** A target name "compiles" every time. The contract breaks at runtime — a wrong cache hit, a double publish, a missing artifact — with no compiler to catch it at author time. A new implementation of `publish` needs a review of its *behavior*, not a check that the key exists.
+- **Reuse is conditional.** The contract gives you leverage where an implementation already exists; a truly novel project reimplements its target from scratch. The win was never "zero work" — it was "never rebuild the orchestration."
+- **Facades cost a hop.** "What did `publish` actually run?" is one more level to answer; the announcer pays most of that down, but facades-of-facades bury the real work. Compose one level deep where you can.
+- **The contract is a coupling point you can't casually change.** Once N projects implement `publish`, its *meaning* is a fleet-wide API. Adding a required output or a new ordering rule is a migration across every implementor, not an edit. The stability of the interface is load-bearing — that rigidity is the price of the leverage, and it's worth naming before you lean on it.
+
+## The takeaway
+
+The reframe that does the work is small and it changes everything downstream: a CI system is a framework you implement, not a library you re-assemble.
+
+1. **Implement the contract; don't author the pipeline.** Your `project.json` (or `Makefile`, or `BUILD` file) is the set of hooks the framework invokes. Conform to it and inherit the orchestration.
+2. **Depend on target names, not commands.** That indirection is the entire reason the pipeline can be polymorphic over heterogeneous, even technology-agnostic, projects.
+3. **Treat public/private as an interface you defend, not one the tool enforces.** Small called vocabulary, no-op facades, visible composition — because there is no keyword.
+4. **Make the contract behavioral, not nominal.** Declare inputs and outputs so cacheability is correct, and hold every implementation to the same side-effect and idempotency semantics. The name is necessary and not sufficient.
+5. **Reuse the plumbing always; reimplement an interface only when you must.** And accept that the contract, once widely implemented, is an API you migrate rather than edit.
+
+The next time "add CI" shows up on a new project's checklist as an obvious chore, treat it as the warning it is: you are about to rebuild a framework as a library, by hand, one stale YAML file at a time. Don't. The pipeline already exists. Your project just needs to implement its interface.
+
+_Doing this with a different runner — Bazel, Turborepo, Make, plain `just` — or enforcing the public/private boundary in a way the tool actually checks rather than trusts? I'd genuinely like to compare notes. These designs get sharper in the open._

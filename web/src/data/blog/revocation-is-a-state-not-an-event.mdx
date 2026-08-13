@@ -1,0 +1,169 @@
+---
+title: 'Revocation is a State, Not an Event: Eliminating Local Trust with Federated Authorization'
+date: 2026-06-27
+tags:
+  [
+    'Identity',
+    'Azure AD',
+    'RBAC',
+    'Kubernetes',
+    'Terraform',
+    'Zero Trust',
+    'Workload Identity',
+    'RabbitMQ',
+  ]
+draft: false
+excerpt: |
+  The hardest problem in access management isn't granting it; it's proving that it's gone. If a system relies on localized credentials—a Kubernetes certificate, a SQL password, a RabbitMQ user—revocation becomes a distributed systems problem where a missed script leaves a fired employee or a compromised service with standing access. Our constraint was absolute: revocation must be instant, guaranteed, and globally effective the second a directory state changes. We achieved it by eliminating local credentials entirely. Every human, every microservice, and every database federates to a single source of truth. Here is the architecture of a zero-key system.
+---
+
+This is the twelfth post in a series about designs the constraints chose for us. Until now, we’ve looked at constraints in the supply chain and the network. This one is about the constraint of time, specifically the delta between when someone loses authorization and when the system actually stops letting them in.
+
+The constraint that forced our identity architecture is one that auditors love and engineers hate:
+
+> The system must guarantee that if a human leaves or a service is compromised, their access across all planes—Kubernetes, databases, message queues—is severed instantly, with no orphaned credentials left behind.
+
+Most organizations answer this with automation. They write offboarding scripts that iterate through systems, deleting users and rotating keys. That is an operational expense disguised as a security strategy. Scripts fail. APIs timeout. And worse, some credentials—like standard Kubernetes `kubeconfig` certificates—are mathematically impossible to revoke before they expire because they are validated offline by the API server.
+
+If your revocation strategy relies on hunting down localized credentials, you don't have an access system. You have a collection of loose keys.
+
+The only way to satisfy the constraint is a structural reframe: **Authorization must be evaluated dynamically at the perimeter of the resource, but managed in exactly one place.** No system is allowed to possess a local concept of identity. Everything must federate.
+
+Here is what that looks like across both sides of the identity coin: humans and machines.
+
+## Human Identity: Groups are the Only Interface
+
+For human operators, the rule is absolute: **no human identity is ever granted a role assignment directly.**
+
+If you bind `Alice` to the `Reader` role on a resource group, Alice's identity is now hardcoded into the Azure control plane. If Alice changes teams, someone has to remember to unbind her. 
+
+Instead, human authorization is strictly group-membership exclusive. We create an Entra ID (Azure AD) group called `platform-engineers`, and we assign the RBAC role to the *group*. The entire state of that group—its existence, its role assignments, and its exact membership—is managed in Terraform.
+
+```hcl
+# The group is a resource. Membership is state, not a side effect.
+resource "azuread_group" "platform_engineers" {
+  display_name     = "platform-engineers"
+  security_enabled = true
+}
+
+# The role binds to the GROUP's object id — never to a person.
+resource "azurerm_role_assignment" "platform_engineers_reader" {
+  scope                = data.azurerm_resource_group.this.id
+  role_definition_name = "Reader"
+  principal_id         = azuread_group.platform_engineers.object_id
+}
+```
+
+Three properties fall out of that binding, and they are the whole point:
+
+- **There is exactly one lever.** Alice's access to everything the group can reach is her one line in the group's membership. Remove it and the next token Azure mints for her carries none of the group's claims — not "after the offboarding job runs," but at her next request.
+- **The blast radius of a grant is legible.** "What can a platform engineer do?" is answered by reading one Terraform module, not by interrogating N resources for stray bindings. A role bound to a human is invisible until you go hunting; a role bound to a group is a diff in a pull request.
+- **The audit is the git history.** Who could do what, when it changed, who approved it — `git log` on the role-assignment module. There is no second system of record to reconcile against reality, because the code *is* the record and Terraform makes reality match it.
+
+Now the property that makes this more than tidy bookkeeping: because the role is evaluated against the directory *at request time*, revocation has no propagation step. You don't push a revocation out to the fleet. The resource pulls the truth on the next call. The contrast is the entire thesis:
+
+```text
+Local-credential model — revocation is an EVENT:
+  remove access ──▶ run the offboarding script ──▶ hope it reached every system:
+                    kubeconfig?  sql login?  rabbit user?  that one VM?
+                    (every system the script missed = standing access, indefinitely)
+
+Federated model — revocation is a STATE:
+  remove group membership ──▶ (nothing to push anywhere)
+                              next request to ANY resource ──▶ re-checked against directory ──▶ denied
+```
+
+That guarantee holds only if the resource has no local credential to fall back on. Which is exactly where the work is — and where the next three examples live.
+
+## Gating Humans: Three Resources, One Lever
+
+### The Kubernetes control plane, and the certificate that defeats you
+
+This is the example the whole post turns on, because Kubernetes gives you two doors and only one of them obeys the directory.
+
+The front door is Entra-integrated. The cluster's AAD configuration names a group as cluster admin — `admin_group_object_ids = [group-aks-admins]` — and a human running `kubectl` presents an Entra token whose group claims the API server checks on every request. Revoke the membership and the next call gets a `403`. Per-request evaluation, no local state. Exactly what we want.
+
+The back door is the local `clusterAdmin` kubeconfig — a client certificate the API server validates *offline* against the cluster CA. It consults nothing. It asks no directory. It is valid until the cluster CA rotates, which is measured in years. A kubeconfig someone exported eighteen months ago and a fired admin's laptop are the same threat: a credential that ignores every revocation you have ever made. You cannot turn it off by changing a group, because it was never asking.
+
+There is exactly one lever that closes that door, and we throw it:
+
+```hcl
+# The flag that decides whether "revocation is a state" is true or just a slogan.
+local_account_disabled = true
+```
+
+The cluster no longer issues the cert-based `clusterAdmin` kubeconfig at all. Every human is forced through the Entra plane, where revocation is a state. With the back door bricked, the offline-validated certificate — the canonical orphaned credential, the one thing this whole architecture exists to eliminate — simply doesn't exist to leak.
+
+And it's worth being honest that throwing this lever is frightening, because it *feels* one-way. The day you set it, you delete your own safety net: there is no longer a local cert to rescue you if the Entra integration is misconfigured or the directory is unreachable, and the path back in moves up a layer — to the Azure control plane, where you'd re-enable local accounts with `az aks update`, authenticating with the very directory identity you're now trusting absolutely. It is not literally irreversible; ARM can undo it. But the rescue path now runs *through* the thing you just bet everything on, and that is a different feeling than keeping a cert in a drawer. That fear is the correct fear. It is the precise, physical sensation of removing a local credential and meaning it — and if flipping `local_account_disabled` doesn't make you a little nervous, you haven't actually closed the door. You've left the kubeconfig in the drawer and called it zero trust.
+
+### SQL Server, and the password that exists to be unusable
+
+SQL is the cleaner example, because the local credential here isn't merely disabled — it has been turned into a deliberate joke. The server runs with Azure AD authentication as the *only* accepted mechanism, its administrator is not a person but the `sql-admins` group bound by object id, and the local admin password that the resource still technically requires is set to a literal, unusable string, because nothing will ever present it.
+
+```hcl
+resource "azurerm_mssql_server" "this" {
+  # A real value is required by the API and can never be used to log in.
+  administrator_login_password = "unusable-when-azuread-authentication-only-is-true"
+
+  azuread_administrator {
+    login_username              = "sql-admins"          # a group, not a human
+    object_id                   = var.group_sql_admins_id
+    azuread_authentication_only = true                  # SQL logins are off, entirely
+  }
+}
+```
+
+Read that and the thesis is in one resource. There is no SQL password to leak, rotate, or forget to rotate — the one that exists is inert by construction. There is no local login to deprovision. Access to the database *is* group membership, checked against the directory when the connection opens. Remove a DBA from the group and their next connection — not their next session, their next connection — is refused by the server, with no script, no key rotation, and nothing left behind on the SQL side to clean up. The unusable password isn't a quirk; it's the point made concrete. The only way in is the directory.
+
+### RabbitMQ, and the systems that don't speak your directory
+
+The first two examples were Azure-native — the resource speaks Entra fluently. The harder, more honest case is the system that has its own identity plane and has never heard of your directory. A message broker like RabbitMQ ships with users, permissions, and tags in its own internal database. The lazy integration is to create local broker users for your operators — and now you have a second identity island that a directory change will never reach. A fired operator's broker login outlives their Entra account by exactly as long as it takes someone to remember it exists.
+
+The bridge is the broker's OAuth2 / OIDC plugin. Point it at the same Entra tenant as a trusted token issuer and it stops keeping its own passwords: it validates the Entra-signed JWT a client presents and maps the token's claims — group, scope, role — onto its own tags and permissions. The identity stays in the directory; only the *mapping* from directory-claim to broker-permission lives in the broker. Revoke the group membership and the next token the operator can obtain simply doesn't carry the claim the broker is looking for. You've dragged a non-Azure system onto the one plane. (This is the human/operator path; first-party *services* reach the broker by [cert-CN identity](/blog/the-certificate-is-the-username) instead — same principle, different credential.)
+
+And the honest edge underneath it: this only works for systems that *can* federate. Every system that can't — a legacy appliance with a baked-in local admin, a vendor tool with its own user list and no SSO on your tier — is an identity island, and each island is a revocation gap you are now obligated to track by hand. The goal is not "zero islands," which isn't reachable. It's to bridge every system that offers a plug, and to keep an explicit, short, reviewed list of the ones that don't — because an un-enumerated local identity store is the orphaned-credential problem wearing a vendor's logo.
+
+## Machine Identity: One Identity per Service, Zero Secrets
+
+Humans federate through groups. Services federate through workload identity, and the rule is the mirror image of the human one: **no service ever shares an identity, and no service ever holds a secret.**
+
+The cluster runs with its OIDC issuer and workload identity enabled. Each service gets its own user-assigned managed identity, and that identity trusts exactly one Kubernetes service account, by subject name:
+
+```hcl
+resource "azurerm_federated_identity_credential" "payment_service" {
+  parent_id = azurerm_user_assigned_identity.payment_service.id
+  audience  = ["api://AzureADTokenExchange"]
+  issuer    = data.azurerm_kubernetes_cluster.this.oidc_issuer_url
+  subject   = "system:serviceaccount:payments:payment-service"   # exactly one SA
+}
+```
+
+There is no client secret in that resource. The pod's projected service-account token — minted by the cluster's OIDC issuer for that specific SA — is exchanged for an Entra token for the managed identity, and Azure issues it only if the presented token's subject matches the federated credential's subject *exactly*. The trust lives in the subject binding, not in a stored string. It's the same federation move I used for [cross-tenant image promotion](/blog/the-registry-is-the-perimeter), pointed inward at the cluster's own workloads.
+
+Two properties, both the machine echo of the human side:
+
+- **Per-service identity is per-service blast radius.** `payment-service` holds its own managed identity with its own role assignments — `AcrPull` here, one Key Vault there, this Cosmos container and no other. A compromised service reaches exactly what its identity was granted and nothing a sibling holds. The most common quiet mistake in this space is sharing one identity across microservices to "keep it simple": the moment two services share a managed identity, the blast radius of either is the union of both, permanently.
+- **Revocation is a state here too.** Delete the federated credential, or remove the role assignment, and the next token exchange fails. There is no secret to rotate across N services, because there was never a secret — there was a subject binding, and you changed it in one place.
+
+## The Honest Edges
+
+The series rule: a writeup that only lists wins is marketing.
+
+- **The directory is now tier-0.** You have collapsed every plane's authorization onto one source of truth, which means an Entra outage is, in principle, a global authorization outage. That's the same trade I named for [customer-managed keys and Key Vault](/blog/customer-managed-keys-make-it-yours): the single source of truth is also the single point of failure. You buy guaranteed revocation with a hard dependency you must monitor like the tier-0 system it now is.
+- **"Instant" means "next request," bounded by token lifetime.** Revocation is effective when the resource next evaluates a token, not mid-flight. A token already issued lives until it expires — minutes to an hour — so a determined session can survive a revocation by that window. If mid-session eviction matters, you turn the [lifespan dial](/blog/its-not-where-the-secret-lives) down with short token lifetimes; you don't get true zero. Call it near-instant and mean it.
+- **Break-glass moves up a layer, and becomes the thing you guard hardest.** With local cluster accounts disabled, your emergency path when the directory is degraded is no longer a kubeconfig in a drawer — it's the Azure control plane itself: an empty-by-default emergency admin group you populate under change control, and, in the worst case, the subscription-level ability to re-enable local accounts via ARM. You didn't eliminate the break-glass credential; you promoted it from a cluster certificate to control-plane access. That access is now the most dangerous object you own — tightest storage, loudest alerting on use, most aggressive review — because it's the one credential that can still bypass the directory.
+- **The audit is only as clean as your group hygiene.** Nested groups create transitive membership that a flat read won't show; a group that looks empty can carry members through a nested group three hops away. Federation makes "who has access" answerable — it doesn't make it answerable if you let group nesting hide the answer.
+
+## The Takeaway
+
+Revocation being a *state* rather than an *event* is the property the whole design exists to produce, and every rule here serves it:
+
+1. **Bind roles to groups, never to humans.** Membership is the only lever; the role-assignment module is the audit.
+2. **Give every service its own identity and zero secrets.** Federate by subject binding. Per-service identity is per-service blast radius; shared identity is shared blast radius.
+3. **Kill the offline-validated credential.** `local_account_disabled = true`, AAD-only SQL, an OAuth bridge for anything with its own user list. The cert, password, or local user that ignores the directory is the entire game — find it and close it.
+4. **Evaluate authorization at the resource, at request time.** Then revocation is a directory state change you make once and never push anywhere, and a missed system stops being a way in.
+5. **Name the costs.** The directory is tier-0, "instant" is bounded by token lifetime, and break-glass is the exception you guard hardest. A federated system that pretends it has no single point of failure is lying to its auditor.
+
+The question that started this wasn't "how do we grant access?" Anyone can grant access. It was "how do we prove, the instant the directory says so, that it's gone — everywhere, with nothing left behind?" You can't answer that by getting better at deleting credentials. You answer it by never creating the local ones in the first place, so there's nothing to chase. Revocation stops being a script you hope ran. It becomes a fact the next request discovers.
+
+_Running federated authorization with a different source of truth — Okta, a SPIFFE control plane, short-lived SSH certificates instead of kubeconfig — or think I've underweighted the tier-0 outage risk? I'd genuinely like to compare notes. These designs get sharper in the open._

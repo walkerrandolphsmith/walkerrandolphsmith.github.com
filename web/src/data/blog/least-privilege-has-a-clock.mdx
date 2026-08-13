@@ -1,0 +1,149 @@
+---
+title: 'Least Privilege Has a Clock: Why the App That Runs Forever Should Never Hold DDL'
+date: 2026-06-27
+tags:
+  [
+    'Least Privilege',
+    'Kubernetes',
+    'Database Migrations',
+    'Workload Identity',
+    'EF Core',
+    'Helm',
+    'SQL',
+    'Security',
+  ]
+draft: false
+excerpt: |
+  We think of least privilege as a question of who: which principal gets which grant. But the right to change a database's schema is needed for a few seconds during a deploy, and the common pattern—run migrations from the application on startup—hands that right to a process that runs forever and faces the internet. That's a privilege scoped correctly by principal and catastrophically by time. The fix is to give migrations their own identity and their own lifecycle, so the capability to drop a table only exists on a surface that serves no traffic and then evaporates. Least privilege has a second axis, and it's the clock.
+---
+
+Another in a collection of posts about designs the constraints chose for us. This one is about a permission almost every application holds and almost none should: the right to alter its own database's schema.
+
+Here's the shape of the problem. The overwhelmingly common way to run database migrations in a .NET service is to call `Database.Migrate()` on startup, or to bake `dotnet ef database update` into the container entrypoint so the app migrates and then begins serving. For that to work, the application's database identity needs **DDL** — `CREATE`, `ALTER`, `DROP`. And because the application process runs continuously, it holds DDL continuously.
+
+Sit with the asymmetry there. The schema actually changes for a few seconds, once, during a deploy. But the *capability* to change it now lives for the entire lifetime of the pod — weeks, months — attached to the single most internet-exposed process you run. An identity service is a login endpoint; it is, by job description, the thing attackers reach first. A SQL injection or an RCE against a runtime that holds DDL doesn't just read or exfiltrate data. It drops tables. It alters columns out from under you. It installs a trigger that quietly forwards every credential. The blast radius of a compromised *web process* now includes *schema destruction*, for no reason other than deploy convenience.
+
+We usually reason about least privilege on one axis: *who* gets *what*. This is the same principle on a second axis nobody draws: **when.** A capability that is only needed during one phase of the lifecycle should not be reachable during the others. Least privilege has a clock.
+
+## The split: two identities, two phases
+
+The fix is to stop migrating from the application and give migrations their own identity, their own pod, and their own lifecycle. Concretely, there are two workload identities, each federated to its own Kubernetes service account by subject name:
+
+```hcl
+# Runtime identity — what the long-running app authenticates as.
+resource "azurerm_federated_identity_credential" "app" {
+  subject = "system:serviceaccount:identity:app-runtime-sa"
+  # ...issuer = the cluster OIDC issuer
+}
+
+# Migrations identity — a separate UMI, separate SA, separate trust.
+resource "azurerm_federated_identity_credential" "migrations" {
+  subject = "system:serviceaccount:identity:app-migrations-sa"
+  # ...
+}
+```
+
+The migrations run as a Kubernetes `Job` — one per EF Core `DbContext`, because this service keeps its identity tables and its operational token store as two contexts against the same database. Each Job runs the compiled migrations bundle, authenticating to SQL as the **DDL-capable** migrations identity, and then it is gone:
+
+```yaml
+spec:
+  ttlSecondsAfterFinished: 300      # the pod evaporates after it completes
+  template:
+    spec:
+      serviceAccountName: app-migrations-sa   # → the migrations UMI (db_ddladmin)
+      restartPolicy: Never
+      containers:
+        - command: ["./efbundle"]
+          args: ["--connection", "$(DB_CONNECTION)"]
+          # token-based, federated; no password anywhere in the string
+          # Authentication=Active Directory Workload Identity;User Id=<migrations-client-id>
+```
+
+The application `Deployment` runs as the *other* identity — the one with only `db_datareader` and `db_datawriter`, never DDL — and it refuses to start until the migration Jobs have finished, via init containers that block on Job completion:
+
+```yaml
+spec:
+  template:
+    spec:
+      serviceAccountName: app-runtime-sa      # → the runtime UMI (datareader/datawriter)
+      initContainers:
+        - name: wait-migrations-identity      # one barrier per context
+          args: ["job", "identity-migrations-identity"]
+        - name: wait-migrations-tokenstore
+          args: ["job", "identity-migrations-tokenstore"]
+      containers:
+        - name: app
+          # Authentication=Active Directory Workload Identity;User Id=<runtime-client-id>
+```
+
+That init-container barrier needs to *observe* the Jobs, so the runtime service account gets a deliberately tiny Kubernetes RBAC grant — `get`, `list`, `watch` on `jobs`, and nothing else. Least privilege all the way down: the only cluster permission the app gains from this design is the ability to watch the thing it's waiting on.
+
+Here is the whole point, on one timeline:
+
+```text
+DEPLOY PHASE (seconds)               RUNTIME PHASE (weeks / months)
+──────────────────────               ──────────────────────────────
+migrations Job pod                   app Deployment — 24/7, internet-facing
+  identity: migrations UMI             identity: runtime UMI
+  SQL role: db_ddladmin                SQL role: db_datareader + db_datawriter
+  can: CREATE / ALTER / DROP           can: SELECT / INSERT / UPDATE / DELETE
+  serves no traffic, no port           serves every login request
+  evaporates (ttlSecondsAfterFinished) the attack surface
+        │                                       │
+        └── DDL is exercised only here          └── DDL is never reachable from here
+```
+
+The dangerous capability and the exposed surface have been moved into different phases of time. That separation is the design.
+
+## What this kills: `Database.Migrate()` on boot
+
+The thing this design refuses is the default, and naming *why* is the staff-level part — because auto-migrate-on-startup quietly couples three things that should be independent:
+
+- **Schema authority and runtime authority.** Migrate-on-boot forces the runtime to hold DDL, which is the entire problem above. Splitting the phase splits the grant.
+- **Migration and replica count.** Run `Database.Migrate()` in an app that scales to N replicas and you have N pods racing to apply the same migrations to the same database on startup — a well-known way to get partial applies, lock contention, and the occasional corrupted migration history, because the ORM does not coordinate that race for you. A single pre-Deployment Job applies migrations exactly once, before any replica starts. The phase split buys correctness, not just security.
+- **Deploy success and schema readiness.** With the barrier, the app *cannot* boot against a schema that hasn't been migrated yet; the init container blocks until the Job reports success. Migrate-on-boot has no such guarantee across replicas — the first pod might still be migrating while the second starts serving against a half-built schema.
+
+So the article isn't "use two identities." It's "stop running migrations inside the process that serves traffic," and the identity split is one of several good properties that fall out of doing so.
+
+## Two planes, and the grant lives on the harder one
+
+A subtlety worth making explicit, because it connects to the rest of how this platform authenticates. *Everything* here federates through workload identity — SQL, Key Vault, blob, config store are all token-based, with no password in any connection string. It's the same [secretless, federated posture](/blog/revocation-is-a-state-not-an-event) I've described elsewhere, now pointed at the database.
+
+But notice where the migrate-vs-run distinction can and can't be expressed. Cloud IAM (Azure RBAC) decides *which identity exists and what Azure resources it can touch* — and it has no concept of "DDL on this database's schema." That distinction only exists inside the database's own authorization model. So the split is enforced one plane down, in SQL, by projecting each cloud identity into a database user and granting it differently:
+
+```sql
+-- Run out-of-band against the database. The cloud identity becomes a DB user;
+-- the role it lands in is what actually separates migrate from run.
+CREATE USER [app-migrations] FROM EXTERNAL PROVIDER;     -- the migrations UMI
+ALTER ROLE db_ddladmin   ADD MEMBER [app-migrations];    -- + the data roles it needs to seed
+
+CREATE USER [app-runtime] FROM EXTERNAL PROVIDER;        -- the runtime UMI
+ALTER ROLE db_datareader ADD MEMBER [app-runtime];
+ALTER ROLE db_datawriter ADD MEMBER [app-runtime];       -- and never db_ddladmin
+```
+
+The identity is federated and passwordless; the *authorization* is a database `GRANT` applied out of band — the same shape as the [Key Vault topology I described last time](/blog/state-holds-the-schema-not-the-secret), where the schema is in code but the sensitive state is injected separately. The cloud plane says who you are; the database plane says what you may do once you're in. The runtime user is a strict subset that excludes exactly one verb class: the one that changes the shape of the data.
+
+## The honest edges
+
+The series rule: a writeup that only lists wins is marketing. And the most important honesty here is a precision that, left unsaid, would make the whole post overclaim.
+
+- **The DDL capability does not disappear between deploys — its *reachability* does.** The migrations identity is a standing Azure identity with standing `db_ddladmin`. I did not make schema-mutation rights ephemeral; that would be a different and harder design. What I made ephemeral is the *surface that holds them*: DDL is only ever exercised by a short-lived Job pod that serves no traffic, listens on no port, and is gone in minutes. The win is not "DDL ceases to exist." It's "DDL is never mounted into the internet-facing runtime." Say the smaller, true thing.
+- **The migration Job is now a high-value target for its short life.** For the seconds it runs, a pod with schema rights exists in the cluster. It is small, traffic-less, and brief — but it's real. The mitigations are the same ones the design already implies: it pulls a pinned image digest, it runs under its own narrowly-scoped identity, and it doesn't outlive its task.
+- **The out-of-band grant is a bootstrapping chicken-and-egg.** Someone, or some pipeline, has to run `CREATE USER ... FROM EXTERNAL PROVIDER` and the `ALTER ROLE`s before the first migration Job can authenticate — and that bootstrap principal transiently needs rights to create database users. That's a real one-time step, and it's the kind of thing that has to be owned and documented, not discovered during an incident.
+- **Rollback is now your problem, explicitly.** Migrate-on-boot let you pretend forward-only was fine because there was nowhere to put a down-migration. A dedicated Job makes the migration a first-class deploy step — which means a failed migration is a failed deploy with the barrier holding the old app in place, and you need a real answer for reverting schema, not a hope.
+- **Ordering among contexts is on you.** Two `DbContext`s against one database means two Jobs and two barriers; if the contexts share tables or foreign keys, their apply order matters and the chart has to encode it. One database, multiple schemas, is more coordination than the single-context demo implies.
+
+## The takeaway
+
+Least privilege is usually taught as a static question — draw the principals, draw the grants, minimize. The thing that's easy to miss is that the same capability can be correctly scoped to a principal and still be catastrophically scoped in time.
+
+1. **Add the clock to your least-privilege model.** Ask not only *who needs this* but *for how long, and during which phase*. DDL is a deploy-phase capability; treat it like one.
+2. **Stop migrating from the process that serves traffic.** Move migrations to a dedicated pre-Deployment Job with its own identity, so the runtime never holds schema rights.
+3. **Give the two phases two identities.** Migrations get DDL on a surface that evaporates; the runtime gets `datareader`/`datawriter` and never `db_ddladmin`.
+4. **Pay the orchestration bill on purpose.** A barrier (init containers that block on the Jobs) buys you single-apply correctness and "never boot against an unbuilt schema" — the same coupling migrate-on-boot hides.
+5. **Enforce the split where it actually lives.** Cloud IAM federates the identity; the database `GRANT` is what separates migrate from run. Apply it out of band and own that step.
+
+The capability to reshape your data is the most dangerous one your application touches, and it is needed for the smallest slice of time. Scope it to that slice. Let the thing that runs forever hold only the verbs it needs forever — and let the verb that drops a table live on a pod that's already gone.
+
+_Doing migration/runtime separation differently — a sidecar that migrates and exits, a separate ops cluster, expand-contract so the runtime never needs DDL at all? I'd genuinely like to compare notes. These designs get sharper in the open._

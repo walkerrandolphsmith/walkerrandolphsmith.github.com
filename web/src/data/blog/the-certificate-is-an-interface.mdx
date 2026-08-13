@@ -1,0 +1,240 @@
+---
+title: 'The Certificate Is an Interface: An Open/Closed Approach to Secretless TLS Beyond Kubernetes'
+date: 2026-06-26
+tags:
+  [
+    'AKS',
+    'Kubernetes',
+    'cert-manager',
+    'External Secrets Operator',
+    'Workload Identity',
+    'Application Gateway',
+    'TLS',
+    'GitOps',
+    'ACME',
+  ]
+draft: false
+excerpt: |
+  The consumer that terminates our public TLS can't read a Kubernetes Secret, can't speak ACME, and lives in a different control plane than the issuer that produces the certificate. That constraint is usually answered with a human, a runbook, and a commercial CA. We answered it with an interface instead: cert-manager issues, the Kubernetes Secret is the contract, and every consumer — inside the cluster or outside it — subscribes to that contract without the issuer ever knowing they exist. Here's the design, and why Open/Closed turns out to be an infrastructure principle, not just an OO one.
+---
+
+I've written before that the best architectural decisions are the ones the constraints make for you. The supply-chain pipeline I described in [The Registry Is the Perimeter](/blog/the-registry-is-the-perimeter) existed because a single network flag made it exist. This is the same kind of story, told at a different layer of the stack — and it lands on a principle that should be familiar to anyone who has read a SOLID acronym off a whiteboard, even if they've never once applied it to a certificate.
+
+The constraint this time is deceptively small:
+
+> The component that terminates our public TLS cannot read a Kubernetes Secret.
+
+That's it. That's the whole forcing function. And it's worth sitting with, because the instinct it provokes — "fine, I'll write something that copies the cert over there" — is exactly the instinct that produces brittle, hand-rolled, two-sources-of-truth certificate management that pages someone at 3 a.m. every ninety days.
+
+## Two consumers, one certificate, zero overlap
+
+We terminate TLS in two places, and they could not be more different in how they expect to receive a certificate.
+
+**Azure Application Gateway** is the public perimeter. Client TLS terminates there so the real Layer-3 client IP is observable before anything is forwarded inward. Application Gateway is an Azure-native resource: it has no idea Kubernetes exists. It reads a certificate as a **PKCS#12 bundle from Key Vault**, referenced by a secret URI and authorized through a user-assigned managed identity. The certificate must already be in Key Vault before the HTTPS listener can even be configured.
+
+**Istio's ingress gateway** terminates TLS at the cluster boundary for the north-south leg. It is Kubernetes-native to the bone: it reads a `kubernetes.io/tls` Secret, mounted into the gateway by credential name. It has never heard of Key Vault and never needs to.
+
+Both consumers need the same certificate — same CA, same SANs, renewed before expiry, available in the exact shape each one expects. One wants PEM in etcd. One wants PKCS#12 in an Azure vault. Neither can read the other's store. And the thing that issues certificates lives in a third place again — an ACME account at a public CA.
+
+Three control planes. One certificate. Forever, with nobody touching it.
+
+## The wrong answer is a copy job
+
+The tempting answer is the literal one: buy a cert from a commercial CA, export the PFX, drop it in Key Vault, base64 the PEM into a Secret, and write a calendar reminder for eighty-five days out. Or, one rung up the sophistication ladder: keep the commercial CA but automate the distribution with a script that fans the cert out to both stores.
+
+Both are the same mistake wearing different clothes. They make **the certificate's distribution a thing you imperatively orchestrate**, which means every new consumer is a new branch in that orchestration, every renewal is an event you have to get right, and you now own two (or three) copies of the truth with no single place that is authoritative. The commercial-CA-plus-runbook version also reintroduces the one thing I least want in a regulated platform: a long-lived credential and a human in the renewal path.
+
+The right answer is to stop thinking about distribution as a verb and start thinking about the certificate as a **contract**.
+
+## The principle: the certificate is an interface
+
+Here is the whole design in one sentence, and everything after this is just the implementation:
+
+> cert-manager is closed for modification. The Kubernetes Secret it produces is the interface. Every consumer is an implementation that subscribes to that interface, and you extend the system by adding subscribers — never by changing the issuer.
+
+That's the Open/Closed Principle, and it is exactly as load-bearing in infrastructure as it is in a class hierarchy. The issuer does one job: take a `Certificate` resource and produce a fresh, valid `kubernetes.io/tls` Secret, keeping it that way forever. It does not know what reads that Secret. It does not know how many things read it, or in what format, or in which cloud. The day we add a fourth consumer, cert-manager's configuration does not change by a single character.
+
+When you draw the boundary there, the two incompatible consumers stop being a problem to be bridged and become two implementations of one interface. Istio is the implementation that happens to read the interface natively. Application Gateway is the implementation that needs an adapter. The adapter is a deployment concern, not an issuance concern — and that separation is the whole ballgame.
+
+## The closed core: cert-manager, DNS-01, and not a single stored secret
+
+The issuance core is cert-manager with a `ClusterIssuer` pointed at Let's Encrypt, validating ownership over a **DNS-01 ACME challenge** against Azure DNS.
+
+The choice of DNS-01 over the more common HTTP-01 is not incidental — it's forced by the same inverted topology that put Application Gateway out front. HTTP-01 requires the ACME solver pod to be reachable from the public internet, on port 80, at the domain being validated. In a cluster where the public perimeter is Application Gateway, the backend leg is forced through a firewall for IDPS inspection, and pod networking is an ambient mesh, routing a Let's Encrypt validation request to a transient solver pod is a Rube Goldberg machine that breaks the first time someone tightens a network rule. DNS-01 sidesteps all of it: validation happens at the DNS layer, completely independent of cluster networking state. cert-manager writes a `_acme-challenge` TXT record, Let's Encrypt reads it, done.
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-platform
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: platform@example.com
+    privateKeySecretRef:
+      name: letsencrypt-platform-account-key
+    solvers:
+      - selector:
+          dnsZones:
+            - example.com
+        dns01:
+          azureDNS:
+            subscriptionID: <subscription-id>
+            resourceGroupName: <resource-group>
+            hostedZoneName: example.com
+            environment: AzurePublicCloud
+            managedIdentity:
+              clientID: <cert-manager-workload-identity-client-id>
+```
+
+Note what is *not* in that manifest: a client secret. The `managedIdentity.clientID` is a workload identity federation — cert-manager's service account exchanges a projected token for an Azure access token at runtime and writes the TXT record with a managed identity holding **DNS Zone Contributor** on the zone. There is no service-principal password, no JSON key file, nothing to rotate, nothing to leak. The same secretless posture I insisted on for cross-tenant image promotion applies here, and for the same reason: a stored credential is a liability you pay interest on until the day it's compromised.
+
+The output of all this is mundane and that's the point — a `Certificate` resource produces a `kubernetes.io/tls` Secret, and cert-manager renews it at thirty days remaining on a ninety-day Let's Encrypt cert, automatically, with no human and no downtime. That Secret is the interface. Everything downstream is a subscriber.
+
+## Subscriber one: Istio, for free
+
+Istio is the implementation that costs nothing, because the interface is its native tongue. The ingress gateway references the cert-manager Secret by credential name and presents it on 443. There is no glue, no sync, no adapter. When cert-manager rotates the underlying Secret, Istio picks up the new material on its next reconcile. This is what "consuming the interface directly" looks like — zero code, because the contract was already in the shape the consumer wanted.
+
+If every consumer looked like Istio, there would be no article to write. The interesting consumers are the ones that don't.
+
+## Subscriber two: Application Gateway, via an adapter you didn't write
+
+Application Gateway can't read a Secret, so we don't make it. We add a subscriber that watches the interface and adapts it into the form Application Gateway *can* read. That subscriber is the External Secrets Operator, and the beautiful part is that ESO is the same operator we already run to pull secrets *into* the cluster — here it runs in reverse, pushing one out.
+
+A `ClusterSecretStore` gives ESO a workload-identity-authenticated handle on Key Vault (again: no stored credential), and a `PushSecret` watches the cert-manager Secret and projects it into Key Vault — transforming PEM into the PKCS#12 bundle Application Gateway expects on the way:
+
+```yaml
+apiVersion: external-secrets.io/v1alpha1
+kind: PushSecret
+metadata:
+  name: push-example-com-tls
+  namespace: istio-system
+spec:
+  refreshInterval: 1h
+  secretStoreRefs:
+    - name: keyvault-push-store
+      kind: ClusterSecretStore
+  selector:
+    secret:
+      name: example-com-wildcard-tls # the cert-manager interface
+  template:
+    engineVersion: v2
+    mergePolicy: Replace
+    data:
+      # PEM cert+key → PKCS#12, exactly the shape App Gateway reads from Key Vault
+      cert.p12: '{{ fullPemToPkcs12 (index . "tls.crt" | toString) (index . "tls.key" | toString) | b64dec }}'
+  data:
+    - match:
+        secretKey: cert.p12
+        remoteRef:
+          remoteKey: cert/app-gateway-example-com-tls
+```
+
+That `fullPemToPkcs12` template is the entire adapter. It is the impedance-matching layer between a Kubernetes-native producer and an Azure-native consumer, expressed declaratively, in git, reviewed in a PR, and synchronized by an operator we were already running. Application Gateway's Terraform never references the cluster at all — it just reads a Key Vault secret URI:
+
+```hcl
+ssl_certificate {
+  name                = "example-com-tls"
+  key_vault_secret_id = "https://${kv_name}.vault.azure.net/secrets/app-gateway-example-com-tls"
+}
+```
+
+The producer publishes to the interface. ESO adapts and republishes to a second store. The consumer reads its native store and is none the wiser that a Let's Encrypt certificate, issued by an ACME flow it's never heard of, just landed in its listener. Loose coupling, top to bottom.
+
+## Subscriber three: the proof that it's actually Open/Closed
+
+Anyone can design a system that handles the two consumers they have today. The test of Open/Closed is what adding the *third* consumer costs. For us the third consumer was Azure Firewall, which performs TLS inspection on the backend leg and needs the inspection CA as a PKCS#12 bundle in Key Vault.
+
+Here is the entire change that integrated it:
+
+```yaml
+apiVersion: external-secrets.io/v1alpha1
+kind: PushSecret
+metadata:
+  name: push-firewall-tls-ca
+  namespace: cert-manager
+spec:
+  refreshInterval: 1h
+  secretStoreRefs:
+    - name: keyvault-push-store
+      kind: ClusterSecretStore
+  selector:
+    secret:
+      name: firewall-tls-inspection-ca
+  template:
+    engineVersion: v2
+    mergePolicy: Replace
+    data:
+      cert.p12: '{{ fullPemToPkcs12 (index . "tls.crt" | toString) (index . "tls.key" | toString) | b64dec }}'
+  data:
+    - match:
+        secretKey: cert.p12
+        remoteRef:
+          remoteKey: cert/firewall-tls-inspection-ca
+```
+
+Another subscriber. Zero lines changed in cert-manager, zero in the ClusterIssuer, zero in any existing consumer. A new thing needed certificate material in a particular store and format, so it subscribed to the interface and brought its own adapter. _That_ is the property you're buying with this design: the cost of the Nth consumer is the cost of describing the Nth consumer, and nothing else. The core stays closed; the edges stay open.
+
+## End-to-end, and the detail that bites you
+
+Terminating TLS at the perimeter is not the same as encrypting end to end, and a principal engineer's job is to not let "we have HTTPS" hide a plaintext hop. So the certificate the interface produces does double duty.
+
+The full path, with TLS context at every hop:
+
+```text
+Client
+  → [TLS: public LE cert]           Firewall
+  → [TLS: public LE cert]           App Gateway   (frontend termination)
+  → [TLS: LE cert, SNI = the SAN]   Istio ingress (re-encrypted backend leg)
+  → [mTLS: mesh identity]           east-west traffic
+```
+
+Application Gateway re-encrypts to the Istio backend and **validates Istio's certificate against the ISRG Root X1** trusted root — the Let's Encrypt root — so the inner leg is genuinely authenticated, not just opportunistically encrypted. This is where the subtle, real-world gotcha lives, and it's the kind of thing the interface metaphor papers over if you're not careful:
+
+> The SNI hostname Application Gateway sends on the backend leg must _exactly_ match a SAN on the certificate cert-manager issued via DNS-01.
+
+It has to, by construction — the cert was only validated for the names it was issued for, and SNI-based certificate selection plus hostname validation will reject a mismatch. So the backend host name in the gateway config and the `dnsNames` on the `Certificate` resource are two ends of one invariant that lives in two different repositories. Break it on either side and you get a backend health probe that fails a TLS handshake for reasons that are not obvious from either file alone. The interface is clean; the contract still has a clause you have to honor on both sides.
+
+## Rotation is a property, not an event
+
+The thing I'm proudest of is that nobody renews anything, ever, and the system has no concept of an expiry deadline because expiry is handled before it's ever close.
+
+```text
+Let's Encrypt (90-day cert)
+   │  cert-manager renews at 30 days remaining
+   ▼
+Kubernetes Secret (the interface)  ──▶ Istio picks up new material on reconcile
+   │
+   └─▶ ESO PushSecret (1h refresh) ──▶ Key Vault (PKCS#12)
+                                          │
+                                          ▼
+                                       App Gateway (polls Key Vault ~4h) ──▶ rotates listener cert
+```
+
+A renewal triggers a fresh DNS-01 challenge, produces a new Secret, and propagates through every subscriber on its own cadence. No human notices. No listener goes stale long enough to matter. The commercial-CA workflow I described earlier has five manual steps in its renewal path; this one has zero.
+
+And now the honest part, because a design write-up that only lists strengths is marketing, not engineering: **the second hop can lie to you.** The Kubernetes Secret and Key Vault are eventually consistent across a PushSecret, which means there is a window — and a failure mode — where cert-manager has rotated the interface but ESO has not yet propagated it, leaving Key Vault holding a certificate that's older than the cluster's. If the PushSecret controller is wedged, that window is unbounded. The interface decoupling that makes the design extensible is the same decoupling that makes "is every subscriber actually current?" a question you must answer with monitoring rather than assume. We alert on PushSecret sync status and on Key Vault certificate age for exactly this reason. The seam is a strength and a thing to watch, and pretending it's only the former is how you get surprised.
+
+## What the seam quietly unlocked
+
+Two consequences fell out of this design that I didn't set out to build, which is usually the sign you drew the boundary in a good place.
+
+**The only secret in the system is the certificate itself.** Read back through every component: cert-manager authenticates to Azure DNS with workload identity, ESO authenticates to Key Vault with workload identity, Application Gateway authenticates to Key Vault with a managed identity. There is not one stored password, service-principal secret, or static key anywhere in the issuance-and-distribution path. The system handles secret *material* end to end while containing zero secret *credentials*. That's not an accident of this problem; it's what you get when every trust relationship is an identity federation instead of a shared string.
+
+**DNS-01 forced our DNS into code, and that turned out to be the bigger win.** To validate over DNS-01, Azure DNS has to be authoritative, which meant every zone became a Terraform resource. The certificate automation was the reason; the audit trail was the dividend. Every record is now a reviewed PR, `terraform plan` surfaces any record that exists in the cloud but not in code as a drift signal, and "prove no unauthorized DNS record has ever existed" became a `git log` instead of an archaeology project. A control we adopted to issue certificates quietly hardened the public attack surface of the whole platform.
+
+## The takeaway
+
+The constraint that started this — "the thing that terminates our public TLS can't read a Kubernetes Secret" — reads like a nuisance to be scripted around. It's actually an invitation to find the right interface, and once you do, the incompatibility between your consumers stops being friction and becomes the reason the design is good.
+
+If you're building certificate lifecycle for a platform with more than one consumer, I'd push you toward the same shape:
+
+1. **Make one component the issuer, and give it exactly one job** — produce a fresh certificate and keep it fresh. Close it for modification.
+2. **Treat the artifact it produces as an interface,** not as a file you copy. The Kubernetes Secret is the contract every consumer subscribes to.
+3. **Adapt at the edges, declaratively.** A consumer that needs a different store or format gets a subscriber with an adapter — PushSecret, a template, a transform — that the issuer never has to know about.
+4. **Federate every identity; store no credential.** The only secret in the pipeline should be the cert, and even that should be minted by automation, never typed by a person.
+5. **Monitor the seams you decoupled,** because eventual consistency is a feature you have to verify, not assume.
+
+Open/Closed was never really about classes. It's about where you put the boundary so that growth is addition instead of edit. Put it at the certificate, call the certificate an interface, and the next consumer — the one you haven't met yet — is already supported.
+
+_Drawing the boundary somewhere else, or monitoring the PushSecret seam in a way you like better? I'd genuinely like to compare notes — these designs get sharper in the open._

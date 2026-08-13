@@ -1,0 +1,197 @@
+---
+title: 'Explicitly Open on Top of Closed: East-West Least Privilege in an Ambient Mesh'
+date: 2026-06-26
+tags:
+  [
+    'Istio',
+    'Ambient Mesh',
+    'Kubernetes',
+    'mTLS',
+    'SPIFFE',
+    'Zero Trust',
+    'Least Privilege',
+    'Network Security',
+  ]
+draft: false
+excerpt: |
+  The constraint was "encryption in transit, end to end, between services — and prove it." The lazy answer is "it's all inside the cluster, the network is trusted." That sentence is the whole problem: a cluster network is not a trust boundary, it's a flat room where any compromised pod can reach anything you didn't explicitly stop. Satisfying the encryption constraint properly hands you something more valuable than encryption — a verifiable workload identity — and in an ambient mesh that single identity does two jobs at once: it encrypts the tunnel and it authorizes the call. This is how to follow that one identity through the system, why the default has to be deny-all, and where NetworkPolicy still belongs underneath it.
+---
+
+This is the ninth post in a series about designs the constraints chose for us. I'm going to skip the part where I sell you a service mesh — assume that argument is settled and an ambient mesh is what you're running. The interesting work starts a layer below "why you'd want one," at the security architecture most mesh write-ups wave at and move past.
+
+The constraint that drove this one was specific: every byte of service-to-service traffic must be encrypted in transit, end to end, and we must be able to *demonstrate* it. Not "mostly TLS." Not "encrypted at the edge and trusted inside." Encrypted on every internal hop, mutually authenticated, provable to someone who doesn't take your word for it.
+
+The answer most teams reach for first is the one that quietly fails the requirement: *it's all inside the cluster, the internal network is trusted.* That is the flat-network fallacy, and it's worth being blunt about. A Kubernetes pod network is not a security boundary. It's a large shared room in which, absent something stopping it, any pod can open a connection to any other pod and — if the traffic is plaintext — read it off the wire. "Internal" is a topology word, not a trust word. A single compromised workload, a leaked image, one SSRF, and the trusted internal network is the attacker's lateral-movement highway.
+
+So the constraint actually forces three things at once: encrypt every hop, authenticate both ends, and default-deny who may talk to whom. The thesis of this post is that in an ambient mesh those are not three projects. They are one mechanism.
+
+## The reframe: encryption and authorization are the same mechanism
+
+Here's the position I'd defend in front of anyone: **the thing that encrypts the tunnel is the thing that authorizes the call.** Not two systems you bolt together — one verifiable workload identity that does both jobs. Get the encryption requirement right and you don't *also* have to build an authorization system; you've already minted the credential that authorization runs on. Everything below is just following that one identity through the system.
+
+### The identity: SPIFFE
+
+istiod issues every pod a short-lived X.509 certificate whose identity encodes the pod's namespace and service account, in SPIFFE form:
+
+```text
+spiffe://cluster.local/ns/app/sa/api-gateway
+```
+
+That string is not a label the pod asserts about itself — it's a cryptographic identity minted by the control plane and rooted in the cluster CA. It cannot be spoofed by setting a header or an environment variable; you either hold the key the control plane issued to that service account in that namespace, or you don't. Hold onto two facts, because the rest of the architecture hangs off them: this identity is (1) the key material for mTLS, and (2) the principal in authorization policy. One artifact, two roles.
+
+### The data plane: ztunnel
+
+In ambient mode there is no sidecar in your pod. Instead, a per-node DaemonSet — **ztunnel** — transparently intercepts the pod's traffic at L4. Your application makes a plain HTTP call to another service and has no idea anything happened. Ztunnel looks up the workload's SPIFFE identity, wraps the connection in mTLS over HBONE (the mesh's tunnel protocol), and terminates at the ztunnel on the destination node, enforcing L4 authorization on the way.
+
+This is where the encryption constraint is *satisfied transparently*. No per-service TLS configuration, no certificate handling in application code, no sidecar injected into every workload. The compliance line that leadership handed you — "encrypt all internal traffic" — is met by a node agent the apps never see. And because that tunnel is mutually authenticated by SPIFFE rather than opportunistically encrypted, you now have, for free, a trustworthy answer to *who is calling whom*. That answer is the substrate for everything in the second half of this post. The encryption didn't just protect the bytes; it produced an identity you can authorize against.
+
+### The L7 enforcement point: waypoint
+
+Ztunnel handles L4 — identity and port. When you need L7 — HTTP path, method, headers — a **waypoint** proxy enters the path, but *only* for namespaces that have an HTTP-aware policy; ztunnel handles everything else. This is the ambient efficiency story and a real design lever: you pay for L7 proxying only where you actually enforce L7, instead of running a sidecar in every pod whether it needs one or not.
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: waypoint
+  namespace: app
+  labels:
+    istio.io/waypoint-for: service
+spec:
+  gatewayClassName: istio-waypoint
+  listeners:
+    - name: mesh
+      port: 15008
+      protocol: HBONE
+```
+
+### The east-west call flow
+
+Put the pieces in motion and a single service-to-service call looks like this — with the application oblivious at both ends:
+
+```text
+1. Pod A makes a plain HTTP call to Service B
+2. ztunnel (node A) intercepts it, looks up Pod A's SPIFFE identity
+3. an mTLS HBONE tunnel is established to ztunnel (node B)
+4. if Service B's namespace has an HTTP-aware policy, the waypoint enforces L7
+5. ztunnel (node B) delivers plain HTTP to Pod B
+```
+
+Encryption and the identity check happen in the infrastructure. The code on both ends never sees a certificate, never sets up TLS, never knows it was authorized. That is the property you want: security that doesn't depend on every application remembering to do it.
+
+## The payload: the default has to be deny-all
+
+Transparent mTLS satisfies the *encryption* half of the constraint. The *least-privilege* half is a posture decision, and it's the one that actually separates a hardened cluster from a soft one. The posture is: closed by default.
+
+Two controls establish it. First, mesh-wide strict mutual TLS, so there is no plaintext fallback between pods at all:
+
+```yaml
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default-strict
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT     # plaintext between pods is rejected, not downgraded
+```
+
+`STRICT` means a pod that tries to speak plaintext to another pod is refused. The only exceptions are explicit and workload-scoped — for example, the ingress gateway runs `PERMISSIVE` because external clients genuinely can't speak mesh mTLS. That's the discipline worth internalizing: not a blanket loosening, but a single named exception you can point at and justify.
+
+Second, and this is the heart of it, a default-deny authorization baseline at the waypoint. The Istio idiom for "deny everything" is subtle and worth getting right: an `ALLOW` policy *with no rules* allows nothing, because nothing matches — so an empty ALLOW policy is your default-deny.
+
+```yaml
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: app
+spec:
+  targetRef:                    # attached to the waypoint
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: waypoint
+  # no rules → nothing is allowed → default deny
+```
+
+On top of that closed baseline, every legitimate flow is an explicit allow that names the **SPIFFE principal** permitted to reach which hosts:
+
+```yaml
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-from-api-gateway
+  namespace: app
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: waypoint
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/app/sa/api-gateway"   # ← the identity, not an IP
+      to:
+        - operation:
+            hosts:
+              - "orders.app.svc.cluster.local"
+              - "billing.app.svc.cluster.local"
+              - "inventory.app.svc.cluster.local"
+```
+
+Read what's load-bearing there, because it closes the loop on the thesis: the allow rule authorizes a *workload identity*, not an IP address that changes every redeploy. The same SPIFFE identity that proved itself to establish the encrypted tunnel is the literal string you write into the authorization rule. Encryption and authorization, one identity.
+
+And here is the framing I'd tattoo on the wall: **this is not an allowlist bolted on top of an open network — it is explicitly opened paths on top of a closed one.** The difference is entirely in the default, and the default is everything. In a deny-all model the *absence* of a rule means *no*: a service you forget to wire up simply cannot be reached, which is a loud, safe failure you catch on the first deploy. In the open-by-default world the absence of a rule means *reachable by everyone*, which is a silent, dangerous failure you catch in the incident review. Least privilege is not a pile of rules — it's a default posture, and the rules are the enumerable, auditable set of exceptions to it. (It's the same shape as the deny-all broker authorization I described for [RabbitMQ](/blog/the-certificate-is-the-username): closed namespace, explicit identity-based allows. The pattern rhymes across every layer because the principle is layer-independent.)
+
+One practical grace note from running this: you can write the allow-list ahead of the services. An entry for a host that doesn't exist yet is simply inert until the service appears — so the policy can lead the deployment rather than chase it, and nobody is ever tempted to "temporarily open things up" while waiting for a service to land.
+
+## Namespaces: a boundary you defend, not a folder
+
+The question that always comes up: at what granularity do you segment? In ambient the answer has teeth, because the namespace is *baked into the identity* (`ns/<namespace>/sa/...`) and is the attachment point for waypoints and policy. A namespace is therefore a trust and policy boundary, full stop — so use it as one.
+
+The decision rule I give teams: **use a namespace to draw a line you intend to defend** — a different blast radius, a different policy regime, a different team or tenant trust level. Use **labels** for things that are merely related and need describing. A namespace is a unit of isolation; a label is a unit of taxonomy. Over-namespace for org-chart tidiness and you dilute the word — now you have forty "boundaries," none of which represents real isolation. Under-namespace and you collapse distinct trust zones into one room.
+
+But here's the nuance that the real configuration taught me, and it's the part that claims authority: segmentation granularity is a *spectrum*, not a binary. You do not have to put every microservice in its own namespace to get least privilege. With a deny-all at the waypoint and per-principal allows, you can do fine-grained, service-to-service least privilege *inside a single namespace*, using the **service-account principal** (`ns/app/sa/orders`) as the unit — which is exactly the shape above, where one `app` namespace is segmented internally by who-may-call-whom at the identity level. So:
+
+- **Namespace** is the coarse unit — it isolates whole trust zones (tenants, teams, environments) and gives you a clean policy and identity scope.
+- **Service-account principal** is the fine unit — it isolates individual services within a zone.
+
+Choose the grain by what you're actually defending. Cross-tenant or cross-team isolation is a namespace; service-to-service least privilege within one team's domain is a principal-scoped policy. Reaching for a namespace when a principal-scoped rule is the right grain is over-engineering; trying to do cross-tenant isolation with service-account rules alone is under-building. Knowing which is which is the job.
+
+## Do NetworkPolicies still fit? Yes — underneath.
+
+This is the question that separates someone who read the Istio docs from someone who has operated this, so let me answer it directly. Mesh `AuthorizationPolicy` and Kubernetes `NetworkPolicy` are not competitors; they're different layers with different trust models, and you want both.
+
+- **AuthorizationPolicy** is identity-based (SPIFFE principal), operates at L4/L7, is enforced by ztunnel and the waypoint, and survives IP churn because it never mentions an IP. Its blind spot: it only governs traffic the mesh actually captures, and it assumes the mesh data path is intact.
+- **NetworkPolicy** is selector-based (pod labels, namespaces, IP blocks), operates at L3/L4, and is enforced by the CNI *independently of the mesh*. Its blind spot: it has no concept of identity — it cannot express "the `api-gateway` service account may call `billing`," only "pods with these labels may reach these pods."
+
+Now the part that matters: each closes a gap the other structurally cannot. A deny-all `AuthorizationPolicy` does *nothing* against a pod that isn't in the mesh, against traffic that bypasses ztunnel, or against egress leaving the cluster — because none of that reaches the mesh enforcement point. `NetworkPolicy` is the floor that holds even when the mesh doesn't apply: it constrains uncaptured workloads, system namespaces, and especially egress, and it keeps holding if the mesh data path is degraded. Conversely, `NetworkPolicy` can't give you identity-based service-to-service authorization at all.
+
+So the mature posture is layered: **`NetworkPolicy` as the coarse L3/L4 backstop — default-deny egress, namespace isolation, fencing off anything not in the mesh — beneath the identity-aware `AuthorizationPolicy` that does the real service-to-service least privilege.** The identity layer is the star; the network layer is the unglamorous floor you'd be negligent to skip, precisely because the identity layer's one assumption — "traffic is captured by the mesh" — is the assumption an attacker will try to break.
+
+## The honest edges
+
+Series rule: a write-up that only lists wins is marketing.
+
+- **Mesh bypass is the elephant.** Every identity-based control above assumes traffic is captured by ztunnel. A pod deployed outside the mesh, or a node-level escape, sidesteps SPIFFE authorization entirely. That is not a footnote — it's the reason the `NetworkPolicy` floor exists, and the reason you should alert on workloads that aren't mesh-captured rather than assume they are.
+- **The waypoint is a real hop.** It adds latency and cost. Put it where you enforce L7 and let the cheaper ztunnel L4 path serve the rest; resist waypointing every namespace reflexively.
+- **Deny-all has an operational tax, and it's the point.** Every new legitimate flow is an explicit policy change in a reviewed PR. That means "service A can't reach service B yet" is a *normal* first-deploy state, not a bug — teams have to expect the closed default and know how to open a path, or they'll experience least privilege as an outage.
+- **Identity is only as good as your service-account hygiene.** If a dozen workloads share one service account, their SPIFFE principals collapse into one and per-service least privilege evaporates. The whole model assumes disciplined service-account-per-workload; that discipline is now a security control, not a style preference.
+- **Every STRICT exception is a small hole — keep them nameable.** The ingress `PERMISSIVE` carve-out is fine because it's explicit, scoped, and justified. The day you can't enumerate your exceptions is the day STRICT stopped meaning anything.
+
+## The takeaway
+
+The constraint read like a confidentiality requirement — encrypt the internal traffic. Satisfying it properly turned out to hand us the lever for an access-control requirement too, because in an ambient mesh the credential that encrypts is the credential that authorizes.
+
+1. **Stop treating the cluster network as a trust boundary.** It's a flat room. Encrypt every hop and authenticate both ends, or assume anything inside can read and reach anything else.
+2. **Let one identity do both jobs.** SPIFFE workload identity is the mTLS key material *and* the authorization principal — build on that unification instead of bolting two systems together.
+3. **Make the default deny-all.** An empty-rule ALLOW policy at the waypoint, plus STRICT mTLS, then explicit identity-based allows. Open paths on top of closed — never an allowlist on top of open.
+4. **Authorize identities, not IPs.** `ns/app/sa/<service>` in the allow rule survives every redeploy and means what it says; an IP allowlist is a lie that drifts.
+5. **Use namespaces as boundaries, principals as the fine grain.** Namespace to isolate trust zones; service-account principal to do least privilege within one. Match the grain to what you're defending.
+6. **Keep a NetworkPolicy floor underneath.** Identity-based authz assumes mesh capture; the CNI layer holds when that assumption breaks, especially on egress. Defense in depth across two layers, not faith in one.
+
+Encrypt to authorize, default to closed, and segment by the identity you already minted. The requirement that looked like "turn on encryption" was really an invitation to make every service-to-service call something you can both protect and prove — and the same certificate does both.
+
+_Running east-west security with a different model — Cilium identity instead of a mesh, per-namespace brokers, an L7 policy engine I haven't named — or think I've drawn the waypoint-versus-ztunnel line wrong? I'd genuinely like to compare notes. These designs get sharper in the open._

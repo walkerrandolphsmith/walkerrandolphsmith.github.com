@@ -1,0 +1,122 @@
+---
+title: 'The Floor Under the Mesh: A Network Layer That Holds When Identity Doesn''t'
+date: 2026-06-26
+tags:
+  [
+    'Network Security',
+    'Azure',
+    'Terraform',
+    'Defense in Depth',
+    'Zero Trust',
+    'Kubernetes',
+    'Infrastructure as Code',
+    'Istio',
+  ]
+draft: false
+excerpt: |
+  Last time I argued that in an ambient mesh, identity is the control — deny-all by default, authorize the SPIFFE principal, encrypt transparently. Then I admitted the load-bearing assumption: all of it only works for traffic the mesh actually captures. This post is about the layer that holds when that assumption is false. The honest question a principal asks in 2026 is whether an L3/L4 network layer is a relic now that you have an identity mesh — and the answer is no, because the network's virtue is precisely that it assumes nothing about your workloads. It's the identity-agnostic floor, it ships open by default, and closing it is a piece of software engineering with real failure modes — not a firewall ticket.
+---
+
+This is the tenth post in a series about designs the constraints chose for us, and it's the deliberate bookend to the last one. In [Explicitly Open on Top of Closed](/blog/explicitly-open-on-top-of-closed) I made the case that in an ambient mesh, identity is the control: a deny-all baseline, authorization against the SPIFFE principal, mTLS that happens transparently. I also flagged the elephant — every one of those controls assumes the traffic was captured by ztunnel. A pod that isn't in the mesh, a node-level escape, a VM that was never enrolled: none of them are governed by an identity policy they never pass through.
+
+So here's the question a principal actually has to answer in 2026, and it's a fair one to be suspicious of: *if I have an identity mesh, is an L3/L4 network layer just a relic I'm keeping around out of habit?* Subnets, NSGs, firewall rules — that's 2012 cloud networking. Does leaning on it date me?
+
+The answer is no, and the reason is the whole post: **the network layer's value is exactly that it assumes nothing about your workloads.** It doesn't know what a pod is, doesn't care about a service account, can't be defeated by escaping the mesh — because it was never inside the mesh's trust model to begin with. That makes it the wrong tool for expressing "service A may call service B," and the right tool for being the floor that holds when the layer above it fails. Defense in depth isn't redundancy. It's composing layers whose assumptions break *differently*.
+
+## Your private network is open by default
+
+Start with the fact that reframes everything, because it's the network-layer twin of the "internal is a topology word, not a trust word" point from the mesh post. People say "it's in a private VNet" as if that means isolated. It doesn't. The cloud ships your virtual network with a default rule — in Azure, priority 65000 — that **allows all VNet-to-VNet traffic.** Every subnet can reach every other subnet, unsolicited, until you say otherwise. Your "private" network is internally flat.
+
+Notice the inversion against the mesh, because it's the crux. The mesh you *build* starts closed: deny-all, then explicit opens. The network you're *given* starts open, and you have to actively close it — an explicit deny that overrides the platform's own default-allow:
+
+```hcl
+# Azure's default rule at priority 65000 ALLOWS all VNet-to-VNet traffic.
+# This explicit deny overrides it — no unsolicited lateral movement between subnets.
+resource "azurerm_network_security_rule" "deny_all_vnet_inbound" {
+  name                       = "deny-all-vnet-inbound"
+  priority                   = 4090
+  direction                  = "Inbound"
+  access                     = "Deny"
+  source_address_prefix      = "VirtualNetwork"
+  # ...
+}
+```
+
+That one rule is a posture statement: *I do not trust the network just because it's mine.* A principal knows which layers are closed-by-construction and which are open-by-default-and-you-must-close-them, and never confuses "private" for "segmented." The whole flat east-west plane the mesh post warned about exists at the VNet level too, and the fix is the same shape — deny by default, allow by exception — applied one layer down, where it holds even for traffic the mesh never sees.
+
+## Two layers, two trust models
+
+Here is the systems argument, and it's the part that separates a principal from someone administering firewalls. The mesh and the network are not competing implementations of the same control. They authorize on different things and assume different things, and that difference is the entire point of running both.
+
+- **The mesh authorizes identity.** Its principal is `ns/app/sa/orders`; its assumption is that the traffic passed through ztunnel and presented a verifiable SPIFFE certificate. It is expressive and precise — and it has exactly one load-bearing assumption, which is also its single point of failure: capture.
+- **The network authorizes location.** Its principal is a subnet, an IP, a service tag; its assumption is *nothing about the workload at all.* It is coarse and identity-blind — and that bluntness is its virtue, because it keeps enforcing for a pod that escaped the mesh, a VM that was never in it, a compromised node, a workload someone forgot to enroll.
+
+The design rule that falls out: **you want your outermost floor to make the fewest assumptions,** because it's the thing standing when a richer layer's assumptions break. Identity is the scalpel — precise, expressive, and dependent on the patient being on the table. The network is the blunt wall that doesn't care whether anything upstream is healthy. Asking "which one should I use?" is the wrong question. The mesh does identity-grained service-to-service authorization; the network is the dumb, durable boundary underneath it that an attacker has to defeat *before* they even get to try defeating identity. Neither is sufficient; together they're depth.
+
+## Closing the default is not free — and the bill is instructive
+
+Here's where it stops being a tutorial and starts being engineering. The moment you override the platform's east-west allow, you break every legitimate flow that was silently riding it. Override the VNet-allow in front of a Kubernetes subnet and you'll take down the webhook callbacks, the kubelet path, in-cluster DNS, the mesh control-plane's own xDS push — all of which were quietly depending on the default-open you just deleted.
+
+So you re-allow them, explicitly, by port and source. The rules end up carrying their own confession:
+
+```text
+allow-k8s-webhook-callbacks   "Required because custom deny-all-vnet-inbound
+allow-k8s-coredns             overrides Azure's default VNet allow and breaks
+allow-istiod-xds              AKS webhook callbacks / DNS / mesh control plane."
+```
+
+That cost *is* the value. A deny-all default converts every legitimate intra-cluster flow into an explicit, named, auditable rule — so your allowed surface stops being "whatever the platform decided" and becomes an enumerable list you wrote on purpose. But it is real work and a real outage risk: miss one flow and you break the platform, not the attacker. And notice the co-design — the network floor re-allows precisely the mesh's own plumbing (HBONE on 15008, control-plane xDS on 15012, the data-plane health port). The two layers aren't stacked obliviously; the floor is cut to fit the mesh sitting on top of it. Running both well means designing them together, not bolting one onto the other.
+
+## The hard part is packets, not rules
+
+If anything in this domain *un*-dates you, it's this: forcing egress through a firewall is a one-line intention and a genuinely hard implementation, because a **stateful** firewall drops any flow it didn't see both halves of. Every forced path has to be symmetric or it silently black-holes, and reasoning about that across a set of middleboxes is distributed-systems work that happens to be expressed in packets.
+
+The canonical trap is a dual-homed appliance — one interface taking inbound directly on a public IP, another doing forced, filtered egress:
+
+```text
+NIC 1 (inbound): client ──▶ public IP ──▶ appliance        (SYN never touches the firewall)
+NIC 2 (egress):  appliance ──▶ 0.0.0.0/0 UDR ──▶ firewall ──▶ internet
+
+The trap: put a 0.0.0.0/0 → firewall route on NIC 1 too, and the *response*
+to an inbound session gets sent to the firewall — which has no TCP state for a
+connection whose SYN arrived via the public IP. The firewall drops it. The
+session hangs. Nothing in any log says "asymmetric routing."
+```
+
+The fix — split ingress and egress across interfaces so each path stays symmetric, and add explicit return-path routes so replies retrace their request — is the kind of thing you only design correctly after you've been burned by it. The same class of bug shows up everywhere forced-tunneling meets statefulness: a private-endpoint reply must return through the same firewall the request was routed through, or the stateful box drops the half-open flow. And the platform-specific gotchas compound it — a v2 application gateway evaluates NSGs *before* its internal rewrite lands the packet on an instance NIC, so the rule's destination has to be `*`; a cloud firewall that doesn't SNAT private-to-private traffic means your downstream NSG source must be the *original* subnet, not the firewall. None of that is "configure an NSG." It's modeling packet paths, NAT behavior, statefulness, and evaluation order across a distributed system. That skill doesn't age.
+
+## The network, as software
+
+The part that actually strengthens the position — and answers the "does IaC on traditional networking date me" worry directly — is that none of this is click-ops. The entire posture is a default plus an enumerable set of exceptions, each carrying its rationale *in the code*, which turns network security into something you can review, diff, and prove.
+
+Three patterns from this layer that are software-engineering moves, not networking ones:
+
+**Invariants encoded where they can't be violated.** Private endpoints are passive — they answer connections, they never initiate them. So the private-endpoint subnet denies *all outbound*. The invariant "this thing never calls out" isn't documented in a wiki and hoped for; it's enforced by the topology. A principal puts invariants where they're structurally true.
+
+**Exceptions designed around their own failure modes.** A break-glass access rule sits count-gated and empty by default, kept as a *separate* resource adjacent to the baseline specifically so that flipping it on during an incident never destroys and recreates the baseline rule. That's infrastructure designed with an awareness of how infrastructure changes fail — the kind of judgment that only comes from having run the apply at 3 a.m.
+
+**The network rule that defers to identity.** This is the bow on the whole argument. A rule permitting operator access to private endpoints over the VPN trusts that *the gateway already authenticated the client with Entra ID and MFA before assigning it a pool address* — and says so, explicitly comparing itself to how the cluster-subnet rules trust the workload identity above them. The L3 rule is not pretending to do identity. It is the enforcement floor underneath a decision an identity layer already made. That's the relationship in one resource: the network doesn't replace identity, it composes with it — each layer trusting the one above for what it's good at, and enforcing what it itself is good at.
+
+That's also the compliance story the rest of this series keeps landing on: "prove no lateral movement is possible" is answered by reading one deny rule; "why can this legacy datacenter reach our databases?" is answered by reading the exception that names itself temporary. The evidence is the code.
+
+## The honest edges
+
+- **Coarse is the trade, not a bug — but don't fight it.** The network cannot express "service account `orders` may call `billing`." If you try to do identity-grained authorization with IP rules, you'll build a brittle lattice that drifts on every redeploy. Use the network for what it is: a stable, coarse floor. Do the fine-grained, identity-aware work in the mesh.
+- **A deny-all default is a standing liability you maintain.** Every new legitimate flow is a rule you must remember to add, and a missed one is a self-inflicted outage. The closed posture is correct and it makes the network an active participant you keep current, not a thing you set and forget.
+- **Asymmetric routing is a permanent tax, not a one-time setup.** Every new forced path through a stateful middlebox is a fresh chance to black-hole a return flow. Symmetric routing is a discipline you re-earn with each change.
+- **Service tags are someone else's allowlist.** `GatewayManager`, `AzureLoadBalancer`, `AzureCloud` are broad, opaque, cloud-managed ranges. They're convenient and they're a blind spot — you're trusting the provider's definition of those sets.
+- **A "temporary" exception is permanent until proven otherwise.** The rule that names itself temporary is only as temporary as your discipline to delete it. An exception with no expiry date and no owner is a permanent hole wearing a temporary label, and it's the first thing an auditor — or an attacker — should find.
+
+## The takeaway
+
+The network layer is not a relic you keep out of habit. It's the identity-agnostic floor whose entire job is to hold when the layer above it doesn't, and the reason to run it *alongside* a modern mesh rather than *instead of* one is that the two fail differently.
+
+1. **Treat "private" as a topology word, not a trust one.** Your VNet ships open east-west; closing it is an explicit override of the platform default, and a posture statement.
+2. **Match the layer to its trust model.** Identity in the mesh for service-to-service authorization; location in the network for the coarse floor that assumes nothing and therefore survives a mesh bypass.
+3. **Expect the closed default to cost you.** It converts every legitimate flow into a named, auditable rule — that's the value and the maintenance burden in one move.
+4. **Respect statefulness.** Forced egress is one line of intent and a hard problem of symmetric paths; the real skill is reasoning about packet flow across middleboxes, and it doesn't age.
+5. **Write the network as software.** Encode invariants where they can't be violated, design exceptions around how applies fail, and let the rules defer to identity where identity already decided. The posture, and its proof, is the code.
+
+Is "VNet, subnets, deny-by-default" deep enough to be principal work in 2026? Only if you stop seeing it as networking and start seeing it as the bottom layer of a defense-in-depth system — the one with the fewest assumptions, the widest blast radius if it's wrong, and the job of holding the line when the clever layer above it is bypassed. The primitives are old. Knowing why you still need them, and composing them with the identity layer instead of against it, is not.
+
+_Running the floor differently — Cilium host policy instead of cloud NSGs, eBPF egress control, a different take on where identity stops and the network starts? I'd genuinely like to compare notes. These designs get sharper in the open._
