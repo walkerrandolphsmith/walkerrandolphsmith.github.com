@@ -15,3 +15,11 @@ export const externalNavLinks = [
 
 export const inlineNavLinkClassName =
   'hidden lg:inline text-black dark:text-white hover:opacity-70 transition-opacity'
+
+export const navBarClassName =
+  'flex justify-center z-20 w-full h-20 fixed top-0 transition duration-300 ease-in-out print:hidden'
+
+// A frosted, near-opaque bar with a bottom border keeps the nav text readable
+// over every section, including the dark blue bands.
+export const navBarBackgroundClassName =
+  'bg-white/90 dark:bg-[oklch(21%_0.006_285.885)]/90 backdrop-blur-md border-b border-zinc-200 dark:border-white/10'

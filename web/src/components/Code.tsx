@@ -3,7 +3,7 @@ import CodeTabs from './CodeTabs'
 import MultiSequence from './MultiSequence'
 
 const Code = () => (
-  <TabProvider initialTab="ml">
+  <TabProvider initialTab="gitops">
     <div className="relative w-full font-mono">
       <div className="text-left mb-8 rounded-md border border-[var(--shiki-tab-border)]">
         <div className="tab-container text-left">

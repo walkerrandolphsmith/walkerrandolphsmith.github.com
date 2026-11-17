@@ -48,6 +48,10 @@ const Narrative = () => (
       angleTop
       angleBoth
       padBottom
+      bleedTop="#f6f9fc"
+      bleedTopDark="oklch(27.4% .006 286.033)"
+      bleedBottom="white"
+      bleedBottomDark="oklch(27.4% .006 286.033)"
       background="#0a2540"
       backgroundDark="oklch(21% .006 285.885)"
       guideSolidColor="rgba(66,71,112,0.3)"

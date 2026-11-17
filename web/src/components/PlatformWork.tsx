@@ -10,14 +10,18 @@ type Result = {
 
 const results: Result[] = [
   {
-    headline: '999 zero-downtime releases in one quarter',
-    text: 'I replaced stop-the-site releases with a GitOps delivery model. Each of the 71 legacy releases needed an outage.',
+    headline: '14x more releases, from outages to zero downtime',
+    text: 'I replaced releases that each needed an outage with a GitOps delivery model. In one quarter, teams made 999 zero-downtime releases, versus 71 legacy releases.',
     company: 'Blue Line Solutions',
   },
   {
-    headline: 'Builds from 12 to 4 minutes across 45 services',
-    text: 'I rebuilt verification so that teams can release AI-generated code safely at volume. I moved 45 service pipelines into an NX monorepo. Each change gets an ephemeral environment with its own data and a full set of quality gates.',
+    headline: 'Verification that scales with AI-assisted code',
+    text: 'I scaled verification so that teams can release AI-assisted code safely. Each change gets an ephemeral environment with environment and request isolation. A custom CI queue batches changes to raise CI throughput.',
     company: 'Blue Line Solutions',
+    writeUp: {
+      href: '/blog/environment-vs-request-isolation',
+      dataTestId: 'read-ephemeral-environments',
+    },
   },
   {
     headline: '6x faster CI',

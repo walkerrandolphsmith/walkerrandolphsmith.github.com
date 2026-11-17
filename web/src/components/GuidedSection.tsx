@@ -20,11 +20,24 @@ const GuidedSection = ({
   noPadding = false,
   noTopPadding = false,
   noBottomPadding = false,
+  bleedTop = null,
+  bleedBottom = null,
+  bleedTopDark = null,
+  bleedBottomDark = null,
 }) =>
   createElement(
     as,
     {
-      className: `Section relative z-10 ${angleTop ? 'Section--angleTop' : ''} ${angleBoth ? 'Section--angleBoth' : ''} ${angleBottom ? 'Section--angleBottom' : ''} ${padBottom ? 'Section--padBottom' : ''} ${noPaddingOnPrint ? 'Section--noPaddingOnPrint' : ''} ${noPadding ? 'Section--noPadding' : 'Section--paddingNormal'} ${noBottomPadding ? 'Section--noBottomPadding' : ''} ${noTopPadding ? 'Section--noTopPadding' : ''} ${printHidden ? 'print:hidden' : ''}`,
+      className: `Section relative z-10 ${bleedTop ? 'Section--bleed' : ''} ${angleTop ? 'Section--angleTop' : ''} ${angleBoth ? 'Section--angleBoth' : ''} ${angleBottom ? 'Section--angleBottom' : ''} ${padBottom ? 'Section--padBottom' : ''} ${noPaddingOnPrint ? 'Section--noPaddingOnPrint' : ''} ${noPadding ? 'Section--noPadding' : 'Section--paddingNormal'} ${noBottomPadding ? 'Section--noBottomPadding' : ''} ${noTopPadding ? 'Section--noTopPadding' : ''} ${printHidden ? 'print:hidden' : ''}`,
+      style: bleedTop
+        ? ({
+            ['--bleedTop' as string]: bleedTop,
+            ['--bleedBottom' as string]: bleedBottom ?? bleedTop,
+            ['--bleedTopDark' as string]: bleedTopDark ?? bleedTop,
+            ['--bleedBottomDark' as string]:
+              bleedBottomDark ?? bleedBottom ?? bleedTop,
+          } as React.CSSProperties)
+        : undefined,
     },
     <div
       className="Section__masked"

@@ -6,6 +6,8 @@ import { LiaFileDownloadSolid } from 'react-icons/lia'
 import {
   externalNavLinks,
   inlineNavLinkClassName,
+  navBarBackgroundClassName,
+  navBarClassName,
   primaryNavLinks,
 } from './navLinks'
 import ThemeToggle from './ThemeToggle'
@@ -59,7 +61,6 @@ const overlayItemClassName =
 
 const NavInteractive = ({ isResumePage = false }) => {
   const [open, setOpen] = useState(false)
-  const [isScrolledPastTop, setIsScrolledPastTop] = useState(false)
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault()
@@ -71,26 +72,6 @@ const NavInteractive = ({ isResumePage = false }) => {
     const scrollControlFunction = open ? disableScroll : enableScroll
     scrollControlFunction()
   }, [open])
-
-  useEffect(() => {
-    let ticking = false
-
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setIsScrolledPastTop(window.scrollY > 0)
-          ticking = false
-        })
-        ticking = true
-      }
-    }
-
-    window.addEventListener('scroll', onScroll)
-    onScroll()
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-    }
-  }, [])
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -150,7 +131,7 @@ const NavInteractive = ({ isResumePage = false }) => {
 
   return (
     <div
-      className={`flex justify-center z-20 w-full h-20 bg-transparent fixed top-0 transition duration-300 ease-in-out print:hidden ${open || isScrolledPastTop ? 'bg-white dark:bg-[oklch(21%_0.006_285.885)]' : ''}`}
+      className={`${navBarClassName} ${open ? 'bg-white dark:bg-[oklch(21%_0.006_285.885)]' : navBarBackgroundClassName}`}
     >
       <div className={`Section__layoutContainer ${open ? 'h-100vh' : ''}`}>
         <span tabIndex={open ? 0 : -1} onFocus={handleFocusFirst} />

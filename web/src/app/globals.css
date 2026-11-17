@@ -297,6 +297,23 @@ input:-webkit-autofill:focus {
 .dark .Section__background {
   background: var(--backgroundColorDark);
 }
+/* An angled section shows its neighbors in the triangles outside its skewed
+   background: the section above in the top triangle and the section below in
+   the bottom triangle. */
+.Section--bleed {
+  background: linear-gradient(
+    to bottom,
+    var(--bleedTop) 50%,
+    var(--bleedBottom) 50%
+  );
+}
+.dark .Section--bleed {
+  background: linear-gradient(
+    to bottom,
+    var(--bleedTopDark) 50%,
+    var(--bleedBottomDark) 50%
+  );
+}
 .Section__background--isTransparent {
   background: hsla(0, 0%, 100%, 0.2);
   backdrop-filter: blur(7px);

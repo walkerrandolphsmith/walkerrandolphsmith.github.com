@@ -1,12 +1,15 @@
 import { CiDark } from 'react-icons/ci'
 import { LiaFileDownloadSolid } from 'react-icons/lia'
 
-import { inlineNavLinkClassName, primaryNavLinks } from './navLinks'
+import {
+  inlineNavLinkClassName,
+  navBarBackgroundClassName,
+  navBarClassName,
+  primaryNavLinks,
+} from './navLinks'
 
 const NavSkeleton = ({ isResumePage = false }) => (
-  <div
-    className={`flex justify-center z-20 w-full h-20 bg-transparent fixed top-0 transition duration-300 ease-in-out print:hidden`}
-  >
+  <div className={`${navBarClassName} ${navBarBackgroundClassName}`}>
     <div className={`Section__layoutContainer`}>
       <span tabIndex={-1} />
       <nav
