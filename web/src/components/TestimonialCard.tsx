@@ -38,23 +38,21 @@ const TestimonialCard = ({
         <div className="w-24 h-24 min-h-24 min-w-24 max-h-24 max-w-24 rounded-full bg-[#f6f9fc] dark:bg-[oklch(21%_.006_285.885)]">
           <TestimonialAvatar src={image} alt={`Image of ${name}`} />
         </div>
-        <section className="flex-1 min-w-0 grid gap-y-1">
-          <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-            <p className="text-2xl font-medium leading-tight text-zinc-950 dark:text-white tracking-[-0.05em]">
-              {level} · {company}
-            </p>
-            <Link
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${name} on LinkedIn`}
-              data-test="view-profile"
-              className="shrink-0 pt-1 text-base font-medium text-[#7a6ded] hover:opacity-70 transition-opacity"
-            >
-              LinkedIn ↗
-            </Link>
-          </div>
+        <section className="flex-1 min-w-0 flex flex-col items-start gap-y-1">
+          <p className="text-2xl font-medium leading-tight text-zinc-950 dark:text-white tracking-[-0.05em]">
+            {level} · {company}
+          </p>
           <div className="text-lg text-zinc-700 dark:text-gray-300">{name}</div>
+          <Link
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${name} on LinkedIn`}
+            data-test="view-profile"
+            className="text-base font-medium text-[#7a6ded] hover:opacity-70 transition-opacity"
+          >
+            LinkedIn ↗
+          </Link>
         </section>
       </div>
     </header>
