@@ -1,7 +1,7 @@
 import {
   TbGitPullRequest,
   TbMessages,
-  TbStairsUp,
+  TbPresentation,
   TbUsersGroup,
 } from 'react-icons/tb'
 
@@ -41,14 +41,32 @@ const LevelingUp = () => (
         />
       </div>
       <div className="grid gap-y-2 ml-4 content-start">
-        <TbStairsUp color="white" size="36" aria-hidden="true" />
+        <TbPresentation color="white" size="36" aria-hidden="true" />
         <h3 className="text-xl font-semibold relative tracking-[-0.05em] text-white">
-          SRE role and career ladder
+          Talks and workshops
         </h3>
         <p className="tracking-[0.2px] text-[#adbdcc]">
-          At Blue Line Solutions, I set up the SRE role, an on-call rotation,
-          and a 5-level career ladder. Every new engineer met every 30-60-90 day
-          milestone.
+          I led a hands-on Redux workshop at{' '}
+          <a
+            href="https://2017.connect.tech/#speakers"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={linkClassName}
+            data-test="view-react-connect-tech"
+          >
+            Connect.Tech
+          </a>
+          , the largest multi-framework conference in the US, and spoke at{' '}
+          <a
+            href="https://www.meetup.com/react-atl/events/228038882/?eventOrigin=group_events_list"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={linkClassName}
+            data-test="view-react-atl"
+          >
+            React ATL
+          </a>
+          , a 4K-member meetup.
         </p>
       </div>
       <div className="grid gap-y-2 ml-4 content-start">
@@ -66,7 +84,7 @@ const LevelingUp = () => (
           excludeLeftPadding
           openExternally
           href="https://github.com/walkerrandolphsmith/contributions"
-          title="View contributions"
+          title="See all contributions"
           dataTestId="view-contributions"
           color="text-[#adbdcc]"
           darkColor="text-[#adbdcc]"
@@ -94,29 +112,6 @@ const LevelingUp = () => (
         />
       </div>
     </section>
-    <p className="px-4 tracking-[0.2px] text-[#adbdcc]">
-      Talks: functional programming at the{' '}
-      <a
-        href="https://www.meetup.com/react-atl/events/228038882/?eventOrigin=group_events_list"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={linkClassName}
-        data-test="view-react-atl"
-      >
-        React ATL meetup
-      </a>{' '}
-      (4K members) and a Redux workshop at{' '}
-      <a
-        href="https://2017.connect.tech/#speakers"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={linkClassName}
-        data-test="view-react-connect-tech"
-      >
-        Connect.Tech
-      </a>
-      .
-    </p>
   </div>
 )
 

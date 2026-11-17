@@ -101,33 +101,21 @@ const tabs = {
     id: 'library',
     name: 'token-credential.ts',
     sequence: [
-      {
-        lines: ['export function chooseStrategy(info: ServiceInfo) {'],
-        speed: 88,
-      },
+      { lines: ['export function chooseStrategy('], speed: 88 },
+      { lines: [120, '  info: ServiceInfo,'], speed: 88 },
+      { lines: ['): TokenCredentialFactory {'], speed: 88 },
       { lines: [120, '  if (info.shouldUseManagedIdentity) {'], speed: 88 },
-      { lines: [120, '    if (info.usePersonalIdentity) {'], speed: 88 },
       {
-        lines: [120, "      // Local development uses the developer's login"],
+        lines: [120, '    // Developer login locally, managed identity in AKS'],
+        speed: 88,
+      },
+      { lines: [120, '    return info.usePersonalIdentity'], speed: 88 },
+      {
+        lines: [120, '      ? localDevelopmentTokenCredentialFactory()'],
         speed: 88,
       },
       {
-        lines: [120, '      return localDevelopmentTokenCredentialFactory()'],
-        speed: 88,
-      },
-      { lines: [120, '    }'], speed: 88 },
-      {
-        lines: [
-          120,
-          '    // AKS pods use a managed identity, no static secret',
-        ],
-        speed: 88,
-      },
-      {
-        lines: [
-          120,
-          '    return userManagedIdentityTokenCredentialFactory(info)',
-        ],
+        lines: [120, '      : userManagedIdentityTokenCredentialFactory(info)'],
         speed: 88,
       },
       { lines: [120, '  }'], speed: 88 },
