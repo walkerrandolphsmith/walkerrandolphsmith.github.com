@@ -23,6 +23,8 @@ Some providers make the point for you. One key management API rejects API key au
 
 ## The decision: privilege on demand
 
+I considered a standing controller in the cluster and rejected it, because it would hold that privilege for its whole lifetime. I chose reconcilers that hold privilege only while they run.
+
 The alternative is to treat the reconciler as a program that a person runs, not a service that runs itself. Nothing runs on a schedule or in a pipeline. An operator decides to reach for the tool, points it at an environment, and reads the output.
 
 The tool runs under the operator's own identity. Each run mints a short-lived token from the operator's own login session with the cloud, the build platform, or the external provider. No personal access token and no stored credential appears anywhere. The privilege exists only while a person is signed in, only for the life of the token, and only on the machine where they run it.
@@ -30,6 +32,20 @@ The tool runs under the operator's own identity. Each run mints a short-lived to
 The design gains more than a smaller exposure window. Every change lands in the provider's audit log under a person's name, so the question "who changed this grant?" has a direct answer. The tool also cannot act when nobody is watching, which matters for state where a wrong change takes access away from a production workload.
 
 The cost is real. Nothing converges continuously. Drift stays in place until somebody runs the tool. The controls for that cost come from making the read side cheap. Each reconciler has two verbs, `plan` and `apply`, and `plan` is always read-only and is the default target. Anyone who can read the state can ask whether it has drifted, at any time, without the rights to change it.
+
+## Azure DevOps: the biggest win
+
+Reconcilers cover a few external systems, and the CI/CD system, Azure DevOps, is the biggest win. Terraform creates the service connection that pipelines use to reach Azure. But much of the state around the pipelines lives only inside Azure DevOps: build definitions, release pipelines, environments and their approval checks, and the grants that the connection's identity needs inside Azure DevOps itself. Before the reconcilers, people created most of that state by hand in the portal, and the first run of a new pipeline often waited for someone to click "Permit" on a protected resource.
+
+Three reconcilers split the work. The first keeps the build definitions in place. Each definition exists, points at the right pipeline file and folder, and is authorized on the agent queues that its file uses. The reconciler reads those queues from the pipeline file itself, so that part of the desired state cannot go stale. A small manifest holds only what cannot be derived, such as historical definition names and the variables that a run may set at queue time.
+
+The second reconciler owns the release path for each service: a release pipeline, a production environment with an approval check, and the authorizations that the release pipeline needs on each service connection it uses. The approval policy is defined once. `plan` shows drift in an existing check, and `apply` updates that check in place instead of only creating missing ones.
+
+The third reconciler owns the Azure DevOps side of the service connection's permissions: its role on the package feed, the build permissions it needs to view and cancel runs, and which pipelines may use the connection.
+
+The drift here is ordinary. Someone renames or moves a definition in the portal. A new release pipeline appears with no authorization yet. Someone edits an approval check by hand. `plan` shows each of these against the repository, and `apply` converges them. `apply` only adds grants and authorizations, and it never deletes a definition. Each set of pipelines is derived from the repository, so a new pipeline comes under management without an edit to the desired state.
+
+On-demand runs fit this work. The changes happen when a team adds a service or a pipeline, not continuously. The rights involved, editing pipelines and administering protected resources, are among the most sensitive in the CI/CD system. Each run authenticates with an Entra token from the operator's own Azure CLI session, never with a personal access token.
 
 ## A safety model for the person who holds the keys
 
