@@ -12,10 +12,11 @@ const CodeTabs = () => {
         <button
           key={tab.id}
           onClick={() => setSelectedTab(tab.id)}
-          className={`titledtab rounded-tl-md rounded-tr-md p-2 text-sm cursor-pointer ${
+          aria-pressed={selectedTab === tab.id}
+          className={`titledtab rounded-tl-md rounded-tr-md px-3 py-2 text-sm cursor-pointer border-t-2 transition-colors ${
             selectedTab === tab.id
-              ? 'bg-[var(--shiki-background)] text-white font-medium border-[var(--shiki-tab-border-selected)]'
-              : 'bg-[var(--shiki-background)] text-[#adbdcc] border border-[var(--shiki-tab-border)]'
+              ? 'bg-[var(--shiki-background)] text-white font-semibold border-[#00d4ff]'
+              : 'bg-transparent text-[#8ea2b8] border-transparent hover:text-white'
           }`}
         >
           {tab.name}
