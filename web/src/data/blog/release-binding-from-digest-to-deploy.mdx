@@ -91,7 +91,7 @@ The useful way to test a system like this is by equivalence class. The standard 
 
 Some of those classes may have no live instance at any given time. They still deserve test fixtures. A shape that the schema allows and the tests do not cover is a shape that will break the first time someone needs it.
 
-## What a staff engineer should watch
+## What to watch
 
 The dangerous failure in this model is silent. If a binding names an artifact that no catalog ever contains, for example because of a typo, that artifact never resolves as fresh. Nothing patches, and nothing reports an error. At runtime it looks exactly like "not built in this run". A referential lint that checks every artifact name in every binding against the set of real projects is not optional. It is the only place this error can be caught.
 

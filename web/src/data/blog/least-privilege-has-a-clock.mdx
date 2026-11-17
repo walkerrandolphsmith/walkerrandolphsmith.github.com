@@ -92,7 +92,7 @@ It is tempting to describe this pattern as "ephemeral DDL". That overstates it. 
 
 The accurate claim is that the internet-facing runtime never has DDL rights. That claim is smaller, and it is defensible under questioning. In security reviews and in audits, the smaller true claim is worth more than the larger one that falls apart on the first follow-up question.
 
-## What a staff engineer should watch
+## What to watch
 
 The out-of-band SQL grant is the piece most likely to drift, because it often lives outside the infrastructure code that reviewers read. If someone adds the runtime user to `db_ddladmin` to unblock a deploy, the whole design is undone with one statement and no visible change to the Kubernetes manifests. That grant deserves the same review and the same source control as any Terraform role assignment, and a periodic check of database role membership is cheap insurance.
 

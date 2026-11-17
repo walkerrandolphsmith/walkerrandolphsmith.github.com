@@ -66,7 +66,7 @@ The private endpoint subnet in this design denies all outbound traffic. That loo
 
 That pattern is one of the most useful habits in network design. When something should never happen, find the layer where it cannot happen, and enforce it there.
 
-## What a staff engineer should watch
+## What to watch
 
 Start with the narrative. Teams that adopt a service mesh often start to treat network rules as legacy. The argument sounds modern and is wrong in a specific way: the mesh only governs traffic it captures. The network floor is what still stands for anything outside that set, and it is worth defending in design reviews before someone deletes it as redundant.
 

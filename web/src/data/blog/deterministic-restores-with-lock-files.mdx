@@ -85,7 +85,7 @@ An authorization error during local restore is not a lock-file problem. It is a 
 
 A merge conflict in a lock file is a conflict in a generated artifact. Merging the JSON by hand produces a file that matches neither side. Resolve the project file first, discard the conflicted lock content, restore again, and commit the generated result. That cost was accepted as part of the decision, and tooling for it was deferred until the cost becomes a real problem.
 
-## What a staff engineer should watch
+## What to watch
 
 The diff noise will draw complaints. A pull request that changes one direct package and moves forty lines of lock file looks like a defect. It is the audit trail working. One direct version change can correctly move dozens of transitive resolutions, and the lock file diff is the only place where a human sees them, including the change that nobody expected. It is worth explaining this early, before someone proposes excluding lock files from review.
 

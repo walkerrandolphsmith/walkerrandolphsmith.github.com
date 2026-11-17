@@ -73,12 +73,12 @@ A language that every service must adopt on day one rarely gets adopted. An over
 
 The default also means that the trigger behavior for classic services does not change. A project maps to the release with the same name, exactly as it did before the language existed.
 
-## What a staff engineer should watch
+## What to watch
 
 A design like this lives or dies by its specification. One durable reference document that defines the parts, the shapes, the evaluator, the referential edges, the two paths, and the boundaries is what lets a new engineer extend the system without reading every script. Machine-checkable schemas for the catalog and the binding make that document enforceable.
 
 Tests should follow equivalence classes rather than services. One fixture for each shape, such as the standard application, chart-only, image-only, composed, fan-out, sibling releases, mirror-only, and environment-scoped, covers the behavior. Keep fixtures for shapes that have no current instance. Those are the shapes most likely to break when someone finally needs them.
 
-Watch for the urge to add expressiveness. Per-overlay approvals, conditional pins, and environment-specific artifact names are all reasonable requests. Each one makes the language harder to read and the review of a promotion pull request harder to trust. A small language is valuable because it is small. The staff-level job is often to protect that, and to show that a request can be met by splitting a release or adding a binding instead of growing the syntax.
+Watch for the urge to add expressiveness. Per-overlay approvals, conditional pins, and environment-specific artifact names are all reasonable requests. Each one makes the language harder to read and the review of a promotion pull request harder to trust. A small language is valuable because it is small. The real job is often to protect that, and to show that a request can be met by splitting a release or adding a binding instead of growing the syntax.
 
 The payoff is a delivery system that people can reason about. The meaning of a release lives in one place, every reference is checked, and the boundaries are written down. That is much easier to defend in an incident review than a folder of scripts that each know a little.

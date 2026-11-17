@@ -58,7 +58,7 @@ Managed disks for AKS cannot reference a key vault key directly. They need a Dis
 
 "We own our keys" is one control on paper and a dozen distinct integrations in Terraform. The integrations differ in versioned or versionless key IDs, companion resources, default identity settings, and whole intermediate objects. Plan the effort for the whole matrix, not for the one sentence.
 
-## What a staff engineer should watch
+## What to watch
 
 Keep the claim precise. Customer-managed keys do not make data harder to decrypt by brute force. The cipher and the DEKs are the same. Teams that describe them as "stronger encryption" set up the wrong expectations with leadership and with auditors. The accurate description is an audited, revocable custody control.
 

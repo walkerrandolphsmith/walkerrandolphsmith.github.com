@@ -68,7 +68,7 @@ Environment differences belong in the configuration of one target, selected by t
 
 If one project's publish is idempotent and another's pushes twice, the affected graph and the cache will expose the difference at some point, and usually at an inconvenient one. In this model, the discipline of the team is the type system.
 
-## What a staff engineer should watch
+## What to watch
 
 The model is easy to state and easy to erode, and most of the erosion is quiet. The signals are worth knowing before they become habits.
 
@@ -78,6 +78,6 @@ Direct calls to private targets are another. They are usually harmless on the da
 
 Watch also for a side-effecting target that declares outputs. That target will eventually be skipped by the cache at the exact moment that it needed to run. This is one of the rare cases where a small lint, one that checks that publish-like targets declare no outputs, turns a convention into a check with very little cost.
 
-The honest weakness of the model is that the contract lives in convention and documentation, not in a compiler. That is acceptable while the public vocabulary stays small, because a short list of names is easy to teach and easy to review. It gets harder as the vocabulary grows. The staff-level job is to keep the vocabulary short, to say no to new public targets that only one project needs, and to make the behavior behind each name explicit enough that a new team can implement it without reading every other project.
+The honest weakness of the model is that the contract lives in convention and documentation, not in a compiler. That is acceptable while the public vocabulary stays small, because a short list of names is easy to teach and easy to review. It gets harder as the vocabulary grows. The ongoing job is to keep the vocabulary short, to say no to new public targets that only one project needs, and to make the behavior behind each name explicit enough that a new team can implement it without reading every other project.
 
 The next time "add CI" appears on a checklist as an obvious chore, treat it as a warning. It usually means that someone is about to rebuild a framework as a library, one copied YAML file at a time. The pipeline already exists. The project only needs to implement its interface.

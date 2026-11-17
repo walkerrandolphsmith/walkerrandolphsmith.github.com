@@ -80,7 +80,7 @@ A cross-tenant authentication failure almost always means the federated credenti
 
 One alert is not a failure. When the production registry flags a new CVE on an image that passed its scan last month, the system is working. Both registries scan, and production scans promoted images again against the current vulnerability database. New findings on bytes that did not change are normal. Decide whether the workload uses the vulnerable component, and if it does, change the pinned version and let the chain run again.
 
-## What a staff engineer should watch
+## What to watch
 
 The steady pressure on this design is the request for one firewall exception. It is always for a good reason, and it is always faster than adding a manifest entry. Each exception bypasses the scan and reintroduces the third-party dependency the policy removed. The policy only holds if the answer stays the same every time, and a clear, short path for mirroring is what makes that answer acceptable to teams.
 
