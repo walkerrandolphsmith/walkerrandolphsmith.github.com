@@ -31,9 +31,9 @@ const Hero = () => (
               style={{ maxWidth: '700px' }}
               className="text-2xl text-zinc-900 dark:text-gray-400 tracking-normal mb-4 m:mb-8 mt-8 lg:mb-12 text-center px-2 hidden sm:block"
             >
-              I build CI/CD, test environments, and observability for
-              engineering teams. In one quarter, teams made 999 zero-downtime
-              production releases on my GitOps model.
+              I replaced stop-the-site releases with GitOps delivery. Teams made
+              999 zero-downtime releases in one quarter, versus 71 legacy
+              releases that each needed an outage.
             </p>
             <span className="mt-2 mb-8 flex flex-row flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-2">
               <span>

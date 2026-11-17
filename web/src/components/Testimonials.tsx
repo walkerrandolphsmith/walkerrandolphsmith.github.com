@@ -19,15 +19,11 @@ export const TestimonialGroup = ({ title, children }) => (
 const Testimonials = ({ includeCallToAction = false, children }) => (
   <div id="recommendations" className="grid gap-y-8 scroll-mt-24">
     <header className="px-8 grid gap-y-4">
-      <SectionHeader
-        title="Recommended by engineering leaders"
-        byline="29 people recommend my work. 7 are engineering leaders and 3 are Staff Engineers."
-        isLight
-      />
+      <SectionHeader title="Recommended by engineering leaders" isLight />
       {includeCallToAction && (
         <CallToAction
           href="/recommendations"
-          title="Read all 29 recommendations"
+          title="Read all recommendations"
           dataTestId="browse-recommendations"
           includeArrow
           excludeLeftPadding
