@@ -1,0 +1,112 @@
+---
+title: 'Split the Environment Along the Network Boundary'
+date: 2026-11-17
+tags: ['infrastructure', 'CI/CD', 'GitOps', 'platform engineering']
+draft: false
+excerpt: |
+  A design for per-pull-request environments made sense until every data plane went private and the cluster API joined the private network. This post walks through the reversal: why the original premises failed, how the lifecycle now splits at the network boundary between CI and a controller in the cluster, and how a pull-request label states what data an environment needs.
+---
+
+An [earlier post](/blog/environment-vs-request-isolation) compared environment isolation with request isolation for testing pull requests. This post is about what happens to an environment design when the network changes under it. It covers a decision that was made, a decision that was reversed when its premises changed, and the rule that replaced it.
+
+## The original design
+
+The goal was simple to state. A pull request should be able to get a working environment before it merges, so that smoke and end-to-end tests run against the change and not against `main` after the fact. Two pull requests with different pending schema migrations cannot share a database, so each environment also needs isolated data.
+
+The first decision chose an imperative model. CI provisioned each story environment directly with `kubectl`, `helm`, and the cloud CLI. The GitOps controller managed only staging and production. A small, fixed set of pre-provisioned data slots solved data isolation, with a lease table to say which story held which slot.
+
+The reasons were good. Declaring short-lived environments in the GitOps repository would add commits for every story and every build. Bot-written paths would need ownership rules so that humans did not edit them. Every environment change would wait for the GitOps polling interval. An imperative model avoided all of that, and it needed no new component in the cluster. The decision rejected declaring environments in git for exactly those reasons. It also rejected one branch per environment, because branches diverge, conflict, and become impossible to reason about.
+
+## What changed
+
+The changes that mattered were not about environments.
+
+Every stateful data plane became private. The infrastructure modules for every stateful store turned public network access off, and they did it as a fixed setting, not a variable. The cluster's API server joined the private network as well.
+
+The imperative flow touched exactly those systems. It created namespaces and installed charts through the cluster API, restored a data slot from a baseline, and injected connection details. A hosted CI agent, which runs outside the private network, can reach none of them. The imperative design therefore did not merely prefer a self-hosted agent pool inside the network. It required that pool for every provision, every update, and every teardown, for every service.
+
+Meanwhile, a separate decision had already priced that pool. The self-hosted pool was small, it scaled from zero so it started cold, and the traffic that it moved was metered. That decision concluded that only the few smoke suites that genuinely needed a network position should run there. It routed the rest to free, parallel hosted agents on purpose.
+
+Put the two together and the conflict is plain. The environment design would move the whole lifecycle onto the exact pool that the other decision worked to keep small, and it would do so at pull-request frequency. One decision's cost model had invalidated the other decision's premises. Nothing was wrong with either record on the day it was written.
+
+There was a security cost as well. Provisioning from CI means that CI holds long-lived credentials, or broad federated scopes, for the cluster and for the data planes. A compromised pipeline would then reach both.
+
+## The question, restated
+
+The question was no longer "imperative or declarative" in the abstract. It became more specific: given that the only actor with a network position to touch the data plane is the cluster itself, where does each part of the environment lifecycle run?
+
+Network position is the binding constraint. Every other consideration follows from it. Hosted CI compute is free and parallel, and the self-hosted pool is metered and cold. Data isolation between concurrent pull requests is still the hard part. Environment history should outlive the retention window of a pipeline log. No new long-lived secret is acceptable.
+
+## Options
+
+The simplest option kept the imperative model. It needs no new component, and provisioning is synchronous and visible in one pipeline log. It also runs only from the self-hosted pool, it puts cluster and data plane credentials in CI's hands, and it leaves no reviewable record of what each environment ran.
+
+One branch per environment in the GitOps repository would isolate each environment completely. It would also mean one source object, one deploy key, and one webhook per branch, and histories that drift from `main` and never get rebased. The original decision rejected it, and nothing had changed to rehabilitate it.
+
+A synchronous webhook was also on the table. The platform already had a working example of the pattern: CI could not reach a private registry, so it called a service in the cluster, and that service promoted images with its own workload identity. Reusing that shape would give data preparation a reference implementation and no custom resource to design. But restoring a database takes minutes, which fits an asynchronous reconcile better than an HTTP request with a timeout. A webhook would also put the ordering guarantee back in CI's hands, and it would leave no resource that anyone could inspect afterward.
+
+The remaining option declared environments in git and moved data preparation into a controller in the cluster, driven by a custom resource.
+
+## The decision
+
+That option was chosen. Its rule is short enough to apply without the document open:
+
+> Anything CI can do from a hosted agent, CI does by writing to git. Anything that needs a network position inside the private network, a controller in the cluster does, driven by custom resources from that same git.
+
+Environments become paths in the GitOps repository. Each slot is a directory with an overlay and one sync object that points at the existing source. A new slot is a new directory, not a new branch. This reverses the original rejection of declared environments and keeps its rejection of branches.
+
+The slots remain a small, fixed pool. Each slot's persistence is pre-provisioned by Terraform, and creating databases and storage per pull request is neither fast nor cheap. The pre-provisioning, not the namespace, sets the ceiling.
+
+## The lease lives in git
+
+CI needs to know which slot it holds before it can write anything, so the lease store has hard requirements. It must be writable from a hosted agent, transactional, auditable, and free of secrets. Every managed database and storage service meets the last three. They all fail the first, because they sit behind the same private endpoints that started this. Git meets all four. Hosted agents already reach it, it is transactional at the level of a ref, every change is audited by construction, and CI already holds an app identity that writes to that repository.
+
+The claim protocol runs on a hosted agent. It resets to `main`, then reaps: for each lease holder, it asks the source control host whether that pull request is still open, and frees the slot if it is not. If this pull request already holds a slot, it reuses it, so a re-run is idempotent. Otherwise it takes the first free slot. If none is free, it fails and prints the lease table, so the engineer can see what holds what.
+
+An earlier draft of this protocol said that a rejected push was the compare-and-swap. That was wrong in a way that is worth recording. The main branch of the GitOps repository requires a pull request for every change, and CI's identity cannot push to it directly. The protocol assumed a capability that the toolchain had never used. The merge is the compare-and-swap. Two claims for the same slot produce two pull requests that change the same line. The first merges, and the second cannot. That gives the same answer through the sanctioned path, without depending on a bypass.
+
+## Data is prepared on claim
+
+A custom resource declares the desired state of one slot's persistence: which claim it serves, what data intent it has, and, when needed, the source to copy from. The controller holds a workload identity whose role assignments Terraform scopes to the slot's resources, and it reconciles the resource against the live data plane.
+
+Preparation happens when a pull request claims a slot, not when the previous holder releases it. A slot is never assumed clean because its previous holder was supposed to tidy up. If a CI run dies between claim and release, which is the common case and not the exotic one, the next claimant still gets correct data. The trigger is the claim reference in the resource's spec, not a release hook, for that reason.
+
+Ordering uses primitives that the GitOps controller already provides. The slot's application sync depends on its data sync, and the data sync health-checks the custom resource. Because the resource reports a standard ready condition, the application rollout, and the migration hooks that run with it, wait until preparation succeeds. No new ordering mechanism was needed.
+
+## The pull request states what data it needs
+
+Where the preparation runs is one question. Who chooses the data, and through what interface, is another. The person who knows what data they want is the author of the pull request, at the moment they ask for a slot. Different changes want different answers on the same day. A schema migration that passes against an empty table proves little about a real one. A functional suite that creates its own records wants nothing in the way. A defect reproduction needs one specific dataset. A styling change wants whatever is already there, as fast as possible.
+
+So the author picks one of four data intents with a pull-request label, and each intent states its cost. `latest` seeds the slot from what staging holds now, and it is the most expensive. `snapshot` seeds it from a named source, and its cost depends on that source. `empty` starts with no data, and migrations and the suite create everything. `no-op` accepts what the slot already holds, costs nothing, and is the default when no label is present.
+
+A few small rules keep the interface honest. The labels share a prefix, so they cannot collide with a general label like "empty". Exactly one data label is allowed, and two is a hard failure that names both, because a precedence rule is something nobody remembers under pressure. CI resolves the label at claim time and writes the intent into the custom resource in the same commit as the image digest pins. The GitOps controller fetches a revision, not a file, so the cluster never sees one pull request's builds beside another claim's data intent.
+
+The default is the behavior that already existed, so the interface can go live before the controller does. That creates an obligation: the default path must never depend on the controller. A slot with no controller deployed must still deploy and still run its suites, or `no-op` was never really the default.
+
+The `latest` intent also forces an honest look at the controller's grant. It must read staging persistence. The grant becomes asymmetric: read on staging, write only on slot resources, and nothing on production.
+
+## What the reversal kept
+
+The new decision supersedes the old one, but most of the old one survives. Its analysis of data isolation between branches, its lease table, and its fixed data slots all carry forward. Its rejection of branch-per-environment stands. What changed is the actor and the control plane: from CI acting imperatively, to git declaring and the cluster reconciling.
+
+Reversing a decision in the open has a cost, and it is worth paying. The superseded record stays in place with a note that points forward and explains which premises failed. A reader who finds the old record later learns why it was right at the time and why it stopped being right.
+
+## Risks and controls
+
+A controller is a component that someone must build, ship, and operate, with its own upgrade path, failure modes, and on-call surface. The original design avoided that entirely. That avoidance was its main virtue, and this decision spends it deliberately. The synchronous webhook stays documented as the fallback if the controller proves too costly.
+
+Declared environments bring back the polling delay that the original decision named. A slot deploy can wait for the GitOps controller's next interval until a webhook receiver triggers reconciliation on push, and that receiver is work this decision creates.
+
+Bot-written paths need ownership rules so that humans do not edit them. The slot set is fixed, so this churn does not grow with pull-request volume, but it is not zero.
+
+Lease contention degrades to a retry loop. That is acceptable at a handful of concurrent pull requests. Git is not a general-purpose lock service, and the lease must not become one.
+
+A fixed pool queues. When every slot is held, the next pull request waits. That is a deliberate cost ceiling, but developers see it, and it will create pressure to add slots.
+
+## What to watch
+
+The confirmation checks are concrete. No step that runs on a hosted agent should call the cluster API or a data plane CLI. Every leased slot's resource should report ready, with its prepared claim equal to its requested claim. Two claims forced to race should produce one winner and one retry. A claim killed after its lease merges should leave the next claim re-preparing, not inheriting the previous data. The lease file's history should reconstruct slot occupancy without any pipeline log.
+
+The decision also names when to revisit it. Hosted agents that can join a private network would make the split between hosted and self-hosted compute less important. A GitOps controller with its own story for data preparation could remove the need for a custom one. Sustained demand for more than a handful of slots would point toward per-pull-request databases.
+
+The broader lesson is about reading decisions together. A cost model in one record can be a premise in another, and a change to the network can quietly invalidate both. For any environment design, the useful checks are which actor has the network position to do each step, which identity that actor holds, where the record of each environment lives, and who chooses its data. When those answers follow the network boundary, the design survives the next change to the network.

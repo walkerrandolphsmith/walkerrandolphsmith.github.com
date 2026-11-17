@@ -1,0 +1,86 @@
+---
+title: 'Why a Monorepo Still Publishes Packages'
+date: 2026-11-17
+tags: ['CI/CD', 'platform engineering', 'developer experience']
+draft: false
+excerpt: |
+  In a monorepo, the shared library is right there on disk, and a direct project reference takes one line. This post explains why that reference can be the wrong choice, how a package boundary cuts the build graph and lets each consumer adopt changes on its own schedule, and why the merge gate asks the feed a question instead of reading the diff.
+---
+
+A monorepo puts every application and every shared library in one tree. In a .NET codebase, a consumer can reference a shared library with one line in its project file, and every build uses the code that is on disk. No publish step, no version number, and no feed. It looks like the main reason to have a monorepo at all.
+
+That reference can be rejected on purpose. Shared libraries can still ship as versioned NuGet packages to a private feed, and applications in the same repository can consume them by version, exactly as if they lived somewhere else. This post explains why that is a reasonable choice and how to make the publish cycle tolerable.
+
+## Where shared code came from
+
+Before the monorepo, shared code moved between repositories as git submodules. A submodule lets a consumer pin a specific commit, which is useful. But the pin is a bare commit hash. It gives no signal whether an update breaks the consumer, adds a capability, or only fixes a bug. Every clone also has to fetch the submodules, which slows CI.
+
+Moving into one repository removed the clone cost and offered a new option: reference the shared project directly. That option has an obvious benefit and two costs that are easy to miss.
+
+## What a direct reference costs
+
+A direct reference makes every library change reach every consumer on its next build. Nobody decides to adopt the change. It simply arrives. A refactor in a shared library is now a change to every application that uses it, whether or not those applications were ready.
+
+It also changes the build graph. Monorepo build tools decide what to rebuild by walking the dependency graph from the changed files. With direct references, every consumer sits inside the library's graph. One edit to a widely used library marks every application that depends on it as affected, and CI rebuilds all of them. The more successful a shared library becomes, the more expensive every change to it gets.
+
+## The decision: a package boundary
+
+Packages replace both submodules and direct references. Each shared library has a version in its project file. CI packs it and publishes it to the private feed. Each consumer pins an exact version and upgrades when it is ready.
+
+Semantic versioning carries the meaning of a change, so a consumer knows the cost of an upgrade before reading any code. Each consumer adopts on its own schedule. And the affected calculation stops at the package boundary. When a library changes, the pull request pipeline calculates the affected set for library projects only, and only the library builds. Its consumers are not in its graph, so they do not rebuild.
+
+At one point the tree showed this directly. One shared library had three consumers on three different versions, and all three builds were green. That is not drift. Each application took newer versions when it was ready, and kept working on the version it had until then. With direct references, all three would have rebuilt on every edit to the library, and all three would have had to absorb every change at the same moment.
+
+A version update also says something that a commit hash cannot. Moving a submodule moves a hash. Moving a package from one minor version to the next tells the consumer, before they read any code, that the upgrade is additive and safe.
+
+## The gate reads the feed, not the diff
+
+Versioning only works if the version changes whenever the library does. That cannot be a convention, because conventions fail quietly. It is a merge gate.
+
+Every pull request that touches a shared library runs a version check. The check does not read the diff. It reads the version from the project file and asks the feed one question: does this exact package and version already exist? If the feed answers that it exists, the gate fails and tells the author to increment the version. If the feed answers that it does not, the gate passes. The script retries transient errors, such as rate limits and server errors. Any other unexpected answer fails the gate, because a check that cannot get an answer should not approve a merge.
+
+This design has consequences that surprise people once. A change to a library's README still needs a version bump. The README change makes the library affected, so the gate runs, and the feed already has the current version. The rule is simple and has no exceptions: an affected library must carry a version that the feed has never seen.
+
+Two open pull requests can claim the same next version. The feed decides. The first one to merge and publish wins, and the other pull request's gate turns red on its next run, so its author bumps again. Published versions never change. Each publish also creates a git tag for that package and version, which joins the feed's history to the repository's history.
+
+## The bump describes the consumer's work
+
+The size of a diff does not choose the bump. One question does: what must a consumer do after the upgrade?
+
+If the consumer must do nothing, it is a patch. Bug fixes, refactors, security updates, and performance work belong here, along with changes to documentation. If the consumer must do nothing but a new capability is now available, it is a minor version. New public types and members are the common case. A compatible expansion of behavior is also minor. For example, an authorization check that now accepts one more role changes no signatures, and existing callers see no difference. If the consumer must change their code, it is a major version.
+
+A house convention keeps majors rare. Internal libraries aim never to ship a breaking change. The new API goes in next to the old one, the old path keeps a shim, and the old path is removed only after the last consumer moves. A major version is the escape hatch, not the routine.
+
+The model commit for a library change contains the code, the version bump, and a changelog entry, in one commit and one review. The version is part of the change, not a release task for later.
+
+## Escape hatches for the publish cycle
+
+The decision accepts one real cost. Consumers see only published versions, so testing a library change against a real consumer seems to need a publish for every edit. Escape hatches pay that cost back, and each one has a clear point where it stops being appropriate.
+
+The first is a temporary project reference for the local loop. While developing a library against a consumer, the developer swaps the consumer's package reference for a project reference to the library's working tree. Inside the monorepo, the relative path is stable, so the library and the application build and debug together with no setup. The swap also rewrites the consumer's committed lock file. Both edits must be reverted before pushing, because a committed swap breaks the locked restore for every clone with a different layout. The swap never leaves the developer's machine.
+
+The second is a beta package for shared environments. A staging deployment builds from a clean clone and resolves every dependency from the feed, so it cannot see a developer's working tree. A beta is a real package of unmerged code that the feed can resolve. Every pull request build already packs a version with a build-number suffix, but it does not push that package. Publishing a beta takes a human action: someone queues the pull request pipeline manually and sets one variable at queue time. The consumer then pins the beta explicitly.
+
+Prerelease rules keep betas contained. A version with a prerelease suffix is invisible to ordinary resolution, so only an explicit pin can reach it. The author bumps the version before publishing any beta, so that when the pull request merges, the stable version supersedes every beta of that number. A beta's scope is the pull request that created it.
+
+## Risks and controls
+
+The publish cycle is slower than a direct reference, and that slowness is the price of the boundary. The escape hatches are the control, and they only work if they stay temporary. A committed project reference or a beta pin that outlives its pull request turns an escape hatch into a hidden dependency on code that may never have merged.
+
+Independent adoption has a cost as well. Consumers on older versions are a feature until a fix needs to reach all of them. A security fix in a shared library does not arrive automatically. Someone must move each consumer's pin. The boundary makes adoption a choice, which also makes failing to adopt a choice.
+
+Shims accumulate. The convention of never breaking consumers means that old paths stay until the last consumer moves. Without someone tracking which consumers still use the old path, the shim becomes permanent.
+
+The gate depends on the feed. If the feed is unavailable, library pull requests cannot merge. Failing closed is the right behavior, but it is a dependency worth knowing about when the feed has a bad day.
+
+## What to watch
+
+Watch the spread of versions across consumers. Different pins are healthy. A consumer that is several minor versions behind, or still on an old major line, is a signal that an upgrade is harder than the version number claims.
+
+Watch for beta pins and project references in main. Either one in a consumer on the main branch is a defect, and a simple check in CI can find both.
+
+Watch for major versions. If they start to appear often, the house convention has stopped working, and the cost of consumer adoption has moved back to every team at once.
+
+Finally, watch the question that new contributors ask most: "why can't I just reference the project?" The answer belongs in the documentation, next to the escape hatches, because the direct reference will always be one line away.
+
+For any shared library in a monorepo, the useful checks are which consumers rebuild when it changes, how a consumer learns the cost of an upgrade, what the merge gate actually asks, and how a developer tests an unpublished change. When the answers are only the library, the version number, the feed, and a temporary swap or an explicit beta, the monorepo keeps its convenience without letting every change reach everyone at once.
