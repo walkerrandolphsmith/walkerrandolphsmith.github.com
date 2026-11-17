@@ -57,11 +57,8 @@ const LevelingUp = () => (
           Upstream fixes
         </h3>
         <p className="tracking-[0.2px] text-[#adbdcc]">
-          I fixed a years-old memory leak in jsreport. The known workaround was
-          a dedicated strategy that skips the Chrome pool and uses 5.5x more
-          CPU. The fix kept the pool, so there are no cold starts, latency and
-          CPU use stay low, and memory no longer runs away. I also contribute to
-          Cypress, Azure Functions, JsonEditor, Kafdrop, and react-treeview.
+          I fixed a years-old memory leak in jsreport. The fix kept the Chrome
+          pool and avoided a workaround that used 5.5x more CPU.
         </p>
         <CallToAction
           justify="justify-start"

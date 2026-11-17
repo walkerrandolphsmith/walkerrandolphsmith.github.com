@@ -96,6 +96,43 @@ export const getHighlightedTokens = (
 // short enough to fit the editor width. Typing is fast enough that a reader
 // sees the full snippet within a few seconds.
 const tabs = {
+  library: {
+    lang: 'ts',
+    id: 'library',
+    name: 'token-credential.ts',
+    sequence: [
+      { lines: ['export interface TokenCredentialFactory {'], speed: 88 },
+      { lines: [120, '  readonly name: string'], speed: 88 },
+      { lines: [120, '  build(): TokenCredential'], speed: 88 },
+      { lines: ['}'], speed: 88 },
+      {
+        lines: ['export function chooseStrategy(info: ServiceInfo) {'],
+        speed: 88,
+      },
+      { lines: [120, '  if (info.usePersonalIdentity) {'], speed: 88 },
+      {
+        lines: [120, "    // Local development uses the developer's own login"],
+        speed: 88,
+      },
+      {
+        lines: [120, '    return localDevelopmentTokenCredentialFactory()'],
+        speed: 88,
+      },
+      { lines: [120, '  }'], speed: 88 },
+      {
+        lines: [300, '  // AKS pods use a managed identity, no static secret'],
+        speed: 88,
+      },
+      {
+        lines: [
+          300,
+          '  return userManagedIdentityTokenCredentialFactory(info)',
+        ],
+        speed: 88,
+      },
+      { lines: ['}'], speed: 88 },
+    ],
+  },
   terraform: {
     lang: 'hcl',
     id: 'terraform',
@@ -150,43 +187,6 @@ const tabs = {
       { lines: [120, '  workloadIdentityClientId: "<client-id>"'], speed: 88 },
       { lines: ['appConfig:'], speed: 88 },
       { lines: [120, '  environment: Production'], speed: 88 },
-    ],
-  },
-  library: {
-    lang: 'ts',
-    id: 'library',
-    name: 'token-credential.ts',
-    sequence: [
-      { lines: ['export interface TokenCredentialFactory {'], speed: 88 },
-      { lines: [120, '  readonly name: string'], speed: 88 },
-      { lines: [120, '  build(): TokenCredential'], speed: 88 },
-      { lines: ['}'], speed: 88 },
-      {
-        lines: ['export function chooseStrategy(info: ServiceInfo) {'],
-        speed: 88,
-      },
-      { lines: [120, '  if (info.usePersonalIdentity) {'], speed: 88 },
-      {
-        lines: [120, "    // Local development uses the developer's own login"],
-        speed: 88,
-      },
-      {
-        lines: [120, '    return localDevelopmentTokenCredentialFactory()'],
-        speed: 88,
-      },
-      { lines: [120, '  }'], speed: 88 },
-      {
-        lines: [300, '  // AKS pods use a managed identity, no static secret'],
-        speed: 88,
-      },
-      {
-        lines: [
-          300,
-          '  return userManagedIdentityTokenCredentialFactory(info)',
-        ],
-        speed: 88,
-      },
-      { lines: ['}'], speed: 88 },
     ],
   },
 }
