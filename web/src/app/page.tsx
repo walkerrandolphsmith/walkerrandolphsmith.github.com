@@ -10,7 +10,7 @@ import PlatformWork from '@/components/PlatformWork'
 import Testimonials, { TestimonialGrid } from '@/components/Testimonials'
 import TestimonialAndrew from '@/components/testimonials/TestimonialAndrew'
 import TestimonialDaniel from '@/components/testimonials/TestimonialDaniel'
-import TestimonialHepci from '@/components/testimonials/TestimonialHepci'
+import TestimonialDenise from '@/components/testimonials/TestimonialDenise'
 import TestimonialIan from '@/components/testimonials/TestimonialIan'
 import TestimonialJered from '@/components/testimonials/TestimonialJered'
 import TestimonialRd from '@/components/testimonials/TestimonialRd'
@@ -37,7 +37,7 @@ const Narrative = () => (
         <TestimonialGrid>
           <TestimonialIan />
           <TestimonialJered />
-          <TestimonialHepci />
+          <TestimonialDenise />
           <TestimonialRd />
           <TestimonialAndrew />
           <TestimonialDaniel />

@@ -1,14 +1,6 @@
 import BlurredBackgroundFilter from './BlurredBackgroundFilter'
 import CallToAction from './CallToAction'
 import DataSourceIllustration from './DataSourceIllustration'
-import { testimonialAnchor } from './TestimonialCard'
-
-const recommenders = [
-  { name: 'Ian Culling', role: 'CTO, Digital.ai' },
-  { name: 'Jered Aasheim', role: 'Partner, Microsoft' },
-  { name: 'Rupinder Dhariwal', role: 'Staff Engineer, Google' },
-  { name: 'Hepci Addakula', role: 'Principal Engineering Manager, Microsoft' },
-]
 
 const Hero = () => (
   <>
@@ -36,7 +28,7 @@ const Hero = () => (
               Microsoft, 53% of the Fortune 100 at Digital.ai, and 200+ law
               enforcement agencies at Blue Line Solutions.
             </p>
-            <span className="mt-2 mb-8 flex flex-row flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-2">
+            <span className="mt-2 mb-16 flex flex-row flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-2">
               <span>
                 <CallToAction
                   title="See platform results"
@@ -58,26 +50,6 @@ const Hero = () => (
                 />
               </span>
             </span>
-            <p
-              style={{ maxWidth: '700px' }}
-              className="mb-16 px-2 text-base leading-relaxed text-zinc-700 dark:text-gray-400 text-center"
-              data-test="hero-recommenders"
-            >
-              <span className="font-medium text-zinc-950 dark:text-white">
-                Recommended by:
-              </span>{' '}
-              {recommenders.map((recommender, index) => (
-                <span key={recommender.name}>
-                  {index > 0 && ' · '}
-                  <a
-                    href={`#${testimonialAnchor(recommender.name)}`}
-                    className="underline decoration-zinc-300 dark:decoration-gray-600 underline-offset-4 hover:text-zinc-950 dark:hover:text-white"
-                  >
-                    {recommender.role}
-                  </a>
-                </span>
-              ))}
-            </p>
           </div>
           <div className="lg:ml-32">{<DataSourceIllustration />}</div>
         </div>

@@ -25,6 +25,11 @@ const results: Result[] = [
     company: 'Microsoft',
   },
   {
+    headline: 'CJIS audit passed and final NLETS approval',
+    text: 'I locked down identity with a separate tenant and the network with private endpoints. Istio encrypts traffic end to end, Flux deploys from inside the network, and managed identity replaced 150+ static credentials.',
+    company: 'Blue Line Solutions',
+  },
+  {
     headline: 'Publication time from 2 hours to 1 minute',
     text: 'I led the design and rollout of an event-driven system across five organizations at Microsoft.',
     company: 'Microsoft',
@@ -34,17 +39,12 @@ const results: Result[] = [
     },
   },
   {
-    headline: 'No billable event dropped in a national migration',
-    text: 'I owned the move of a national traffic enforcement platform from an end-of-life data center to AKS. It processes millions of IoT events each day.',
-    company: 'Blue Line Solutions',
-  },
-  {
-    headline: '30% fewer rollbacks',
-    text: 'I designed ephemeral environments for full end-to-end tests across a distributed system.',
-    company: 'Microsoft',
+    headline: 'Webhooks for hundreds of engineering teams',
+    text: 'I led the webhooks feature at Digital.ai. Hundreds of engineering teams used it to automate their delivery workflows on a platform that served 53% of the Fortune 100.',
+    company: 'Digital.ai',
     writeUp: {
-      href: '/blog/environment-vs-request-isolation',
-      dataTestId: 'read-ephemeral-environments',
+      href: '/blog/webhooks-for-the-fortune-500',
+      dataTestId: 'read-webhooks',
     },
   },
 ]
@@ -54,7 +54,7 @@ const PlatformWork = () => (
     <header className="px-8 grid gap-y-4">
       <SectionHeader
         title="Selected platform work"
-        byline="Measured results from my platform work at Blue Line Solutions and Microsoft."
+        byline="Measured results from my platform work at Blue Line Solutions, Microsoft, and Digital.ai."
       />
     </header>
     <ul className="grid sm:grid-cols-[repeat(2,1fr)] lg:grid-cols-[repeat(3,1fr)] gap-x-8 gap-y-12">

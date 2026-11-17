@@ -56,7 +56,7 @@ const jobs = [
     ],
   },
   {
-    title: 'Software Engineer',
+    title: 'Senior Software Engineer',
     company: 'smash.gg',
     dates: '2017 – 2018',
     highlights: [

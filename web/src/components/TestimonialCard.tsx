@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import TestimonialAvatar from './TestimonialAvatar'
 
-export const testimonialAnchor = (name: string) =>
+const testimonialAnchor = (name: string) =>
   `recommendation-${name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')

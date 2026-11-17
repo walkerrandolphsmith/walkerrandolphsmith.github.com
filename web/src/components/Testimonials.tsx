@@ -1,11 +1,8 @@
 import CallToAction from './CallToAction'
 import SectionHeader from './SectionHeader'
+import TestimonialGrid from './TestimonialGrid'
 
-export const TestimonialGrid = ({ children }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 mb-12">
-    {children}
-  </div>
-)
+export { TestimonialGrid }
 
 export const TestimonialGroup = ({ title, children }) => (
   <section className="grid gap-y-8">

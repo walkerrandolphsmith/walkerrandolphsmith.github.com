@@ -43,7 +43,7 @@ const companyById = {
     link: 'https://digital.ai',
   },
   smashgg: {
-    title: 'Software Engineer',
+    title: 'Senior Software Engineer',
     name: 'smash.gg',
     description:
       'I led the Event Check-in feature that moved the company from in-person to online esports. I defined the Software Engineer in Test role and hired two engineers to automate critical user flows with Cypress.',
