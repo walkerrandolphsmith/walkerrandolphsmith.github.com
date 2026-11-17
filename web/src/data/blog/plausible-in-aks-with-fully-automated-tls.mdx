@@ -33,11 +33,7 @@ My favorite part of this project: cert-manager issues and renews TLS certificate
 
 The more common HTTP-01 challenge needs special routing and path-based verification. DNS-01 is different. With DNS-01, cert-manager creates TXT records in your Azure DNS zone. Let’s Encrypt can then verify domain ownership without access to your app.
 
-The high-level setup:
-
-- I created a `ClusterIssuer` resource in Kubernetes that used the DNS-01 method
-- I gave cert-manager a managed identity with **DNS Zone Contributor** permissions
-- I stored no client secrets or keys. cert-manager used Azure identity for everything
+I created a `ClusterIssuer` resource in Kubernetes that used the DNS-01 method. Then I gave cert-manager a managed identity with DNS Zone Contributor permissions. I stored no client secrets or keys, because cert-manager used Azure identity for everything.
 
 After that, cert-manager automatically issued a wildcard certificate for `*.walkersmith.me`. It has renewed the certificate with no problems since then.
 
@@ -84,11 +80,7 @@ spec:
 
 ## Deploying Plausible with Helm
 
-Plausible supplies a Docker Compose setup that you can adapt for Kubernetes. I decided to put everything in a Helm chart instead. The chart deployed:
-
-- The Plausible app
-- Clickhouse (for event storage)
-- PostgreSQL (for configuration and auth)
+Plausible supplies a Docker Compose setup that you can adapt for Kubernetes. I decided to put everything in a Helm chart instead. The chart deployed the Plausible app, Clickhouse for event storage, and PostgreSQL for configuration and auth.
 
 All three used persistent volume claims, so pod restarts or upgrades do not lose data. Each component had its own PVC, templated in Helm as follows:
 
@@ -118,12 +110,7 @@ But my static site did not send traffic directly to the AKS ingress. The site wa
 
 I wanted only Azure Front Door to reach the cluster, so I restricted ingress traffic at the network layer. A Kubernetes `NetworkPolicy` and an Azure NSG (Network Security Group) allow traffic only from the known Front Door IP ranges. This blocks direct access to the public IP of the ingress controller. Analytics traffic can use only the intended entry point.
 
-Then I configured a Front Door origin as follows:
-
-- **Origin type:** Custom
-- **Hostname:** `plausible.walkersmith.me`
-- **Origin host header:** `analytics.walkersmith.me`
-- **Certificate subject name validation:** Enabled
+Then I configured a custom Front Door origin with the hostname `plausible.walkersmith.me` and the origin host header `analytics.walkersmith.me`, with certificate subject name validation enabled.
 
 With this origin, Front Door sent traffic to the AKS ingress based on the host header, and everything worked. Each request went to Front Door, then to the cluster. The TLS certificate from cert-manager secured the connection.
 
@@ -153,4 +140,4 @@ If you run your own site, this approach is more work than Google Analytics. But 
 
 It is also satisfying to see statistics come in from a system that you fully own. It runs behind a global CDN on a production-grade cluster, secured by cert-manager, with no secrets.
 
-_Do you have questions about the setup, or do you want to adapt it to your own domain or stack? Contact me. Possible next steps include serverless analytics and real-time dashboards._
+Do you have questions about the setup, or do you want to adapt it to your own domain or stack? Contact me. Possible next steps include serverless analytics and real-time dashboards.

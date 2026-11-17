@@ -9,7 +9,7 @@ excerpt: |
   We built for that reality: a webhook engine that changes agile events into immediate integration signals.
 ---
 
-> **“Integration isn’t a feature. It’s infrastructure.”**  
+> “Integration isn’t a feature. It’s infrastructure.”  
 > That change in thinking caused us to redesign how VersionOne communicates with external systems.
 
 VersionOne supports product planning and agile execution for some of the largest enterprises in the world. These include a significant part of the Fortune 500. These teams do more than manage work. They coordinate very large systems of people, tools, and platforms.
@@ -18,48 +18,31 @@ More and more, those systems were not isolated. They needed to communicate with 
 
 Our customers needed to know, immediately and reliably, when something changed.
 
-So we built **webhook subscriptions**: a flexible, secure, and expressive system. It sends outbound HTTP calls when events occur in VersionOne.
+So we built webhook subscriptions, a flexible and secure system that sends outbound HTTP calls when events occur in VersionOne.
 
 ## The Problem: Agile at Enterprise Scale Means Complexity
 
-Our customers use many tools, from CRM to CI/CD and from issue tracking to observability. Something changes in VersionOne: a story moves forward, someone resolves a defect, or a test fails. That change is often the _start_ of a workflow, not the end.
+Our customers use many tools, from CRM to CI/CD and from issue tracking to observability. Something changes in VersionOne: a story moves forward, someone resolves a defect, or a test fails. That change is often the start of a workflow, not the end.
 
 Before this work, integration meant polling our API or building brittle connectors. That did not scale, and it was not real-time.
 
 ## What We Built: A Webhooks System with Enterprise DNA
 
-This was more than a wrapper around a pub/sub model. We designed webhook subscriptions for the complexity of enterprise product teams:
+This was more than a wrapper around a pub/sub model. We designed webhook subscriptions for the complexity of enterprise product teams.
 
-- **Fine-Grained Event Modeling**  
-  Webhooks can fire on two core event types:
+Webhooks fire on two core event types. `AssetCreated` fires when someone creates a new object, such as a Story, Defect, or Test. `AssetChanged` fires when any attribute of an object changes.
 
-  - `AssetCreated` – when someone creates a new object (such as a Story, Defect, or Test)
-  - `AssetChanged` – when any attribute of an object changes
+Triggering is selective. You can get a notification for any Story status change, or only when the status of a Story in Project A, owned by Susan, changes. The `attributes` field limits the trigger to specific fields, and `filter` with `with` expresses detailed conditions. `userContext` makes the subscription respect project-level security boundaries.
 
-- **Selective Triggering**  
-  You can get a notification for _any_ Story status change.  
-  You can also get a notification _only_ when the _status_ of a Story in _Project A_, owned by _Susan_, changes.  
-  These features make this possible:
+Payloads are customizable. You select the fields that you need with `select`, and we send a projection of that asset directly in the `snapshot` of the webhook. Payloads stay clean and contain only what you asked for.
 
-  - `attributes` – trigger only on specific fields
-  - `filter` + `with` – express detailed conditions
-  - `userContext` – respect project-level security boundaries
+Each webhook includes a `sequenceId`. External systems use it to put events back in order if they arrive out of order. We also monitor delivery success. After repeated failures, we disable the subscription to stop noisy integrations.
 
-- **Customizable Payloads**  
-  Select the fields that you need (`select`). We send a projection of that asset directly in the `snapshot` of the webhook. Payloads stay clean, relevant, and matched to your needs.
-
-- **Retry Logic & Delivery Guarantees**  
-  Each webhook includes a `sequenceId`. External systems use it to put events back in order if they arrive out of order. We also monitor delivery success. After repeated failures, we disable the subscription to stop noisy integrations.
-
-- **Authorization & Metadata**  
-  You can configure a webhook with an `authorizationHeader` to meet security requirements. Each payload includes the `instigator`, the person who made the change, with name, email, role, and more.
+You can configure a webhook with an `authorizationHeader` to meet security requirements. Each payload includes the `instigator`, the person who made the change, with name, email, role, and more.
 
 ## How It Works: From Change to Callback
 
-A real use case:
-
-**Trigger**: The Status of a Story in Project X, owned by Susan, changes.  
-**Event Definition**:
+In a real use case, the trigger is a change to the Status of a Story in Project X, owned by Susan. The event definition looks like this:
 
 ```json
 {
@@ -75,37 +58,19 @@ A real use case:
 }
 ```
 
-**Result**: The system sends a webhook to the external system of the customer, with this data:
-
-- Who triggered it (Susan)
-- What changed (Status from "In Progress" to "Done")
-- When (timestamp + sequence)
-- Snapshot details (Story name, Owner info)
+When the status changes, the system sends a webhook to the external system of the customer. The payload says who triggered it (Susan) and what changed (Status from "In Progress" to "Done"). It also includes when the change happened, as a timestamp and sequence, and snapshot details such as the Story name and owner information.
 
 The customer system can act on that event immediately. It can update dashboards, start workflows, notify teams, and sync with downstream tools.
 
 ## What It Enables
 
-This was more than writing JSON to a URL. It enabled modern automation in the ecosystems of our customers:
-
-**Real-time sync** with tools such as Jira, GitHub, Jenkins, and ServiceNow
-
-**Alerting & notifications** in Slack, Teams, or custom UIs
-
-**Automated workflows** across QA, release management, and compliance
-
-Better **traceability**, with system-of-record updates sent to the right people
+This was more than writing JSON to a URL. It enabled modern automation in the ecosystems of our customers. Customers synced VersionOne in real time with tools such as Jira, GitHub, Jenkins, and ServiceNow. They sent alerts and notifications to Slack, Teams, or custom UIs. They automated workflows across QA, release management, and compliance. Traceability also improved, because system-of-record updates went to the right people.
 
 ## Scaling for the Enterprise
 
-We built webhook subscriptions with limits, but we designed them to grow:
+We built webhook subscriptions with limits, but we designed them to grow. Each instance started with 5 active subscriptions, with a design that allows more. Delivery used a simple, secure model of HTTP with a token. Configuration was fully self-service, so teams could define their own rules. Underneath, the feature used the same event pipeline infrastructure that we trust internally.
 
-- 5 active subscriptions per instance at the start, with a design that allows more
-- Simple, secure HTTP + token delivery model
-- Fully self-service configuration, so teams can define their own rules
-- The same event pipeline infrastructure that we trust internally
-
-Critically, we designed this feature **contract-first**. We knew that customers would build systems on it. So it had to be **predictable**, **observable**, and **future-proof**.
+Critically, we designed this feature **contract-first**. We knew that customers would build systems on it. So it had to be predictable, observable, and ready for future change.
 
 ## What We Learned
 
@@ -115,17 +80,11 @@ You cannot add security at the end. `userContext` and `authorizationHeader` were
 
 Observability matters. Sequence IDs, retry counts, and clear status codes help teams debug fast.
 
-No single integration fits all customers. The more **composable** your system is, the more powerful it becomes for other people.
+No single integration fits all customers. The more composable your system is, the more powerful it becomes for other people.
 
 ## Outcomes
 
-**Real-time updates** in mission-critical systems
-
-**Secure, audit-friendly delivery**
-
-**High customer adoption**, especially among enterprise customers with many integrations
-
-**Event reuse** across multiple endpoints, from development workflows to executive reports
+Customers got real-time updates in mission-critical systems, with delivery that was secure and easy to audit. Adoption was high, especially among enterprise customers with many integrations. Customers also reused events across multiple endpoints, from development workflows to executive reports.
 
 Our customers wanted more than updates. They wanted awareness. They wanted VersionOne to take an active part in their ecosystem, not only store work items.
 
@@ -133,7 +92,7 @@ Webhook subscriptions made that possible.
 
 ## Conclusion
 
-Software for the Fortune 500 does not operate alone. It is part of an ecosystem of platforms, tools, and people. Each of them needs awareness, context, and control.
+Software for the Fortune 500 does not operate alone. It is part of an ecosystem of platforms, tools, and people, and each of them needs to know what changed.
 
 We changed events into integrations and changes into callbacks. This gave customers a new way to connect VersionOne to the rest of their tools.
 

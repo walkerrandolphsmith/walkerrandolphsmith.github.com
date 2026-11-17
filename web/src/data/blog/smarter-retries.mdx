@@ -16,7 +16,7 @@ Badly designed retries can overload healthy services and use unnecessary resourc
 In one system, a downstream API failed for only a few seconds. Clients started to retry, all with the same short, fixed delay. They all retried at the same moment, again and again, in sync. A short disruption became a long outage. The clients did not help the service recover. They kept it down.
 
 ## The Foundation: Exponential Backoff
-Advanced retry techniques start with the basic concept of **exponential backoff**.
+Advanced retry techniques start with the basic concept of exponential backoff.
 
 Exponential backoff is a retry strategy where the delay between attempts increases over time. For example, you retry after 1 second, then 2 seconds, then 4 seconds, and so on. The goal is to give a failing service or connection more time to recover before each new attempt.
 
@@ -25,7 +25,7 @@ It works because most transient failures behave this way. A broken system does n
 But exponential backoff alone is not sufficient.
 
 ## Why Synchronized Retries Are Dangerous
-Thousands of clients can retry the same request at the same intervals. Even if those intervals increase, the retries still occur in coordinated bursts. These synchronized requests can overload the target system, especially if it is already recovering from stress. This pattern is the **thundering herd** problem.
+Thousands of clients can retry the same request at the same intervals. Even if those intervals increase, the retries still occur in coordinated bursts. These synchronized requests can overload the target system, especially if it is already recovering from stress. This pattern is the thundering herd problem.
 
 To prevent this, add randomness to your retry intervals. This randomness is called **jitter**. One client waits 1.7 seconds before the next attempt, and another waits 2.3 seconds, instead of exactly 2 seconds. Jitter spreads the retry traffic across time. It decreases the chance that a flood of requests arrives at the same moment.
 
@@ -59,7 +59,7 @@ Failover events in a clustered database system take time. After the primary node
 ## Designing Retry Logic for the Real World
 In many systems, developers write retry logic as an afterthought: a `catch` block with a hardcoded loop and a `sleep`. That can pass local testing, but it fails in production.
 
-A better approach is to separate **what triggers a retry** from **how long you wait between attempts**. Do not hardcode these two decisions together. You can retry for some errors and not for others. You can start with exponential backoff and then change to a fixed delay. You can also use a `Retry-After` header when it is available.
+A better approach is to separate what triggers a retry from how long you wait between attempts. Do not hardcode these two decisions together. You can retry for some errors and not for others. You can start with exponential backoff and then change to a fixed delay. You can also use a `Retry-After` header when it is available.
 
 When these parts are modular, you can combine policies. You can adapt to new failure modes without a rewrite of your logic. You can tune systems based on observation, not guesses.
 
@@ -68,6 +68,6 @@ Retries are more than error recovery. They are control flow. When used badly, th
 
 Smarter retries start with exponential backoff. They improve with jitter. They become mature when they listen to status codes, headers, and what the system tells them.
 
-Do not treat retry logic as boilerplate. It is a critical part of the resilience of your application. It needs thought, structure, and care.  
+Do not treat retry logic as boilerplate. It is a critical part of the resilience of your application. It needs careful design.  
 
 When you build retries well, they do their job: they help the system recover instead of causing damage.

@@ -6,7 +6,7 @@ draft: false
 excerpt: Large language models work well out of the box. Our CMS holds content from hundreds of writers for a global audience, so accuracy and a consistent voice are requirements. Pretrained knowledge was not enough. We needed real context.
 ---
 
-> **"GPT is good, but it doesn’t know what we know."**  
+> "GPT is good, but it doesn’t know what we know."  
 > That insight changed how we use LLMs at scale in our content platform.
 
 Our content management system supports hundreds of writers. They create content for a global audience in dozens of languages. The content must follow strict brand voice rules and respect cultural and geopolitical differences.
@@ -33,65 +33,35 @@ That works, but only if retrieval is correct.
 
 ## What We Built: A RAG Pipeline Backed by CMS Embeddings
 
-We built a system that made our CMS a first-class retrieval layer:
+We built a system that made our CMS a first-class retrieval layer. The pipeline works in this order:
 
-- **Document Chunking**  
-  We split each article into chunks with a sliding window. The window kept each topic continuous across paragraphs instead of cutting at arbitrary token limits.
-
-- **Embedding & Indexing**  
-  We embedded the chunks and stored them in a **hybrid vector search system**:
-
-  - **Dense retrieval** via ANN (approximate nearest neighbor) for semantic similarity
-  - **Sparse retrieval** via BM25 for keyword accuracy
-
-- **Hybrid Search**  
-  At query time, we blended the results from both retrieval systems. The blend gave us content references that were _contextually relevant_ and _lexically precise_.
-
-- **Prompt Construction**  
-  We inserted the retrieved chunks into a structured prompt template. The template contained our brand tone, editorial guidance, and task instruction.
-
-- **Response Refinement**  
-  We did not accept the first answer from the model. We evaluated it against internal QA criteria and sent the query again when necessary. Later, classification models trained on good and bad completions did part of this step automatically.
+1. We split each article into chunks with a sliding window. The window kept each topic continuous across paragraphs instead of cutting at arbitrary token limits.
+2. We embedded the chunks and stored them in a hybrid vector search system. Dense retrieval through ANN (approximate nearest neighbor) search finds semantic similarity, and sparse retrieval through BM25 gives keyword accuracy.
+3. At query time, we blended the results from both retrieval systems. The blend gave us content references that were relevant in context and precise in their wording.
+4. We inserted the retrieved chunks into a structured prompt template. The template contained our brand tone, editorial guidance, and task instruction.
+5. We did not accept the first answer from the model. We evaluated it against internal QA criteria and sent the query again when necessary. Later, classification models trained on good and bad completions did part of this step automatically.
 
 ## Balancing Scale, Accuracy, and Sensitivity
 
 A difficult problem in scaling AI-generated content was editorial, not technical.
 
-Some topics need human judgment. Automation of tone, regional differences, and cultural sensitivity is risky. So we did not try to replace editors. We focused on **making editors more effective**.
+Some topics need human judgment. Automation of tone, regional differences, and cultural sensitivity is risky. So we did not try to replace editors. We focused on making editors more effective.
 
-We added a **human-in-the-loop review system** after the RAG pipeline. It worked as follows:
+We added a human-in-the-loop review system after the RAG pipeline. The system scored each generated response against editorial guidelines with simple heuristics and classifiers, for example for tone, length, and citation use. Content above a confidence threshold went directly to a quick human review with change suggestions. Content below the threshold went to a full editorial review, and the system attached the original retrieved sources to give editors fast context. The system also logged editor feedback, and we used it to tune retrieval weights, prompt instructions, and re-query logic.
 
-- **The system scored generated responses** against editorial guidelines with simple heuristics and classifiers (for example, tone, length, and citation use).
-- **Content above a confidence threshold** went directly to a quick human review with change suggestions.
-- **Content below the threshold** went to a full editorial review. The system attached the original retrieved sources to give editors fast context.
-- **The system logged editor feedback.** We used it to tune retrieval weights, prompt instructions, and re-query logic.
+With this system, LLMs did most of the work of draft generation and fact synthesis. Editors focused on voice, ethics, clarity, and emotional tone. Costs decreased because editors reviewed drafts instead of writing from scratch. Quality increased because the retrieved source material matched internal standards and previous work.
 
-The results:
-
-- LLMs did most of the work of draft generation and fact synthesis.
-- Editors focused on voice, ethics, clarity, and emotional tone.
-- Costs decreased because **editors reviewed drafts instead of writing from scratch**.
-- Quality increased because **retrieved source material matched internal standards and previous work**.
-
-The system did not slow down creative work. It created a **feedback loop that improved over time**. Each piece of content improved the article and also the pipeline.
+The system did not slow down creative work. It created a feedback loop that improved over time. Each piece of content improved the article and also the pipeline.
 
 ## What We Learned
 
 RAG is more than a technical pattern. It shows how well your systems understand their own data.
 
-- **Garbage in, garbage out** still applies. Here, "garbage" means vague context.
-- CMS metadata (such as tags, authorship, and region) filtered relevant chunks better than similarity alone.
-- Editorial tone is more than style. It is a set of instructions. We had to put tone into the prompts.
-- RAG became more than a writing aid. It put institutional knowledge into every draft in real time.
+Garbage in, garbage out still applies. Here, "garbage" means vague context. CMS metadata such as tags, authorship, and region filtered relevant chunks better than similarity alone. We also learned that editorial tone is more than style. It is a set of instructions, so we had to put tone into the prompts. In the end, RAG became more than a writing aid. It put institutional knowledge into every draft in real time.
 
 ## Outcomes
 
-The results went beyond faster content production:
-
-- **Consistent tone** across teams and regions
-- **Fewer hallucinations** and outdated facts
-- **Higher editorial satisfaction**, especially among authors whose first language is not English
-- **More content reuse**, because retrieval made past articles easier to find and reference
+The results went beyond faster content production. Tone became consistent across teams and regions. Drafts had fewer hallucinations and outdated facts. Editorial satisfaction increased, especially among authors whose first language is not English. Teams also reused more content, because retrieval made past articles easier to find and reference.
 
 RAG did not replace writers. It made them faster and more accurate, and it aligned them with our shared voice.
 
@@ -99,6 +69,6 @@ RAG did not replace writers. It made them faster and more accurate, and it align
 
 Pretrained models are excellent generalists. But our platform operates at scale, across cultures and languages, so general answers are not sufficient.
 
-RAG let us use what we already knew: facts, voice, context, and culture.
+RAG let us use what we already knew about our facts, our voice, and the cultures we write for.
 
 LLMs are only as smart as the systems around them. The best systems generate content that readers trust.
