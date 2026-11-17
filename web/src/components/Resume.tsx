@@ -9,25 +9,53 @@ import { ResumeNav } from './Nav'
 
 const bulletListClassName = `list-disc leading-normal marker:text-[#4468b1] dark:marker:text-violet-500 pl-5 gap-y-1 text-md print:text-[14px]`
 const bulletClassName = `font-light text-zinc-600 dark:text-gray-400`
+const datesClassName = `text-md print:text-[14px] text-gray-600 dark:text-gray-400 leading-[28px] whitespace-nowrap`
 
-const jobs = [
+const Highlights = ({ highlights = [] }: { highlights?: string[] }) =>
+  highlights.length > 0 ? (
+    <ul className={bulletListClassName}>
+      {highlights.map(highlight => (
+        <li key={highlight} className={bulletClassName}>
+          {highlight}
+        </li>
+      ))}
+    </ul>
+  ) : null
+
+type Role = { title: string; dates: string; highlights: string[] }
+type Job = {
+  company: string
+  dates: string
+  title?: string
+  highlights?: string[]
+  // A company with more than one role lists each role under one heading.
+  roles?: Role[]
+}
+
+const jobs: Job[] = [
   {
-    title: 'Staff Engineer, then Director of Engineering',
     company: 'Blue Line Solutions',
     dates: '2025 – Present',
-    highlights: [
-      'Joined as Staff Engineer and was promoted to Director of Engineering within 8 months.',
-      'Directed engineering for NewGuard, a CJIS-compliant SaaS platform for 200+ law enforcement agencies across the US.',
-      'Owned the migration of a national traffic enforcement platform from an end-of-life data center to AKS. The platform processes millions of IoT events each day. The migration dropped no billable event and had no downtime outside regular maintenance windows.',
-      'Passed a CJIS audit and secured final NLETS approval. Provisioned isolated Azure tenants with Terraform and enforced data-boundary controls that keep CJIS data inside the environment.',
-      'Replaced stop-the-site releases with a GitOps delivery model with image promotion pipelines and human approval gates. Delivered 999 automated zero-downtime production releases in one quarter, versus 71 legacy releases that each required an outage.',
-      'Grew the engineering organization by an engineering manager and two software engineers. Established the SRE role, an on-call rotation, and a 5-level role progression ladder. Every new engineer met every 30-60-90 day milestone.',
-      'Replaced ~150 static secrets across 15+ services with managed identity and certificate authentication through a shared library. Automated every remaining rotation and put single sign-on in front of all internal tools.',
-      'Built the observability layer from nothing: 19 Grafana dashboards and ~20 Prometheus alert rules. The alerts caught citations issued on paid tickets, silent certificate-rotation failures, and stalled FTP intake before any customer did.',
-      'Cut print runs from 12–15 hours to 2 hours.',
-      'Fixed a years-old memory leak in jsreport that crashed print servers. The fix kept the Chrome pool and avoided the known workaround, which used 5.5x more CPU.',
-      'Made AI-generated code safe to release at volume. Consolidated 45 service pipelines into an NX monorepo and cut build times 67%, from 12 to 4 minutes.',
-      'Added on-demand ephemeral environments with isolated data for every change. Added an integration test suite for the full platform and static analysis, unit, visual, end-to-end, and SBOM quality gates.',
+    roles: [
+      {
+        title: 'Director of Engineering',
+        dates: '2025 – Present',
+        highlights: [
+          'Direct engineering for NewGuard, a CJIS-compliant SaaS platform for 200+ law enforcement agencies across the US. Promoted from Staff Engineer within 8 months.',
+          'Led the CJIS audit to final NLETS approval. Each environment has its own tenant, a VNet with private endpoints, and Istio encryption end to end, so CJIS data stays inside it.',
+          'Grew the engineering organization by an engineering manager and two software engineers, from identifying the need through hiring and onboarding. Established the SRE role, an on-call rotation, and a 5-level career ladder. Every new engineer met every 30-60-90 day milestone.',
+        ],
+      },
+      {
+        title: 'Staff Engineer',
+        dates: '2025',
+        highlights: [
+          'Migrated a nationally deployed platform that processes millions of IoT events each day to AKS with zero dropped events. Led the year-long move off an end-of-life data center. Proved each step with new performance, reliability, and data-loss tests in on-demand ephemeral environments with isolated data.',
+          'Increased releases 14x and removed release downtime with a GitOps delivery model. Teams made 999 automated releases in one quarter, versus 71 legacy releases that each required an outage.',
+          'Cut build times 67%, from 12 to 4 minutes, by consolidating 45 service pipelines into an Nx monorepo. Custom CI queue batching and isolated ephemeral environments let teams release AI-generated code safely at volume.',
+          'Removed 150+ static secrets across 15+ services with managed identity and auto-rotating certificates through a shared library. Put single sign-on in front of all internal tools.',
+        ],
+      },
     ],
   },
   {
@@ -35,11 +63,11 @@ const jobs = [
     company: 'Microsoft',
     dates: '2021 – 2025',
     highlights: [
-      'Architected and implemented a distributed event-driven platform across 3 organizations. It powers CMS systems for support.microsoft.com, Office, and Windows, with 2B+ users and 1B+ requests each month.',
+      'Architected and implemented a distributed event-driven platform across five organizations, including the AI and data teams. It powers CMS systems for support.microsoft.com, Office, and Windows, with 2B+ users and 1B+ requests each month.',
       'Reclaimed about 1,300 developer hours each year by making CI 6x faster.',
       'Reduced rollbacks by 30% with ephemeral environments that enable full end-to-end testing across a distributed system.',
-      'Improved Lighthouse scores from 48 to 100 and cut page load time by 5 seconds with Incremental Static Regeneration at 2B+ user scale.',
-      'Reduced content publication latency from 2 hours to 1 minute. Led the design and rollout of an event-driven system across five organizations.',
+      'Improved Lighthouse scores from 48 to 100 and cut page load time by 5 seconds at 2B+ user scale. Used Incremental Static Regeneration driven by system events.',
+      'Reduced content publication latency from 2 hours to 1 minute. Led the design and rollout of the new event-driven system.',
       'Launched a Work in Progress series for 50+ engineers. Contributors and reviewers learn from each other across teams.',
       'Led a team of six to build a RAG pipeline that enforces editorial standards for help content. It improved customer satisfaction scores and opened governed contributions from the technical writing team to all Microsoft employees.',
     ],
@@ -70,7 +98,12 @@ const jobs = [
     title: 'Software Engineer',
     company: 'VersionOne',
     dates: '2014 – 2017',
-    highlights: [],
+    highlights: [
+      'Brought React to the team as an early adopter.',
+      'Turned a vanilla JavaScript codebase with implicit script loading into a tested, modular build. Introduced unit, integration, and Cypress end-to-end tests, linting, ES modules, and webpack.',
+      'Set up CI to run every test suite, including the first unit tests for a Python backend that had none.',
+      'Delivered Delivery at a Glance, which showed rework on items that returned to development, release composition, and work items split across release boundaries.',
+    ],
   },
 ]
 
@@ -84,7 +117,7 @@ const community = [
 const skills = [
   [
     'Architecture & Design',
-    'Distributed Systems, Microservices, Monorepo (NX), Cloud Architecture',
+    'Distributed Systems, Microservices, Monorepo (Nx), Cloud Architecture',
   ],
   [
     'Cloud & Infrastructure',
@@ -117,7 +150,7 @@ const skills = [
   ],
   [
     'CI/CD',
-    'Azure DevOps, GitHub Actions, NX (affected builds), Skopeo, OCI Artifacts, Kustomize, Bash',
+    'Azure DevOps, GitHub Actions, Nx (affected builds), Skopeo, OCI Artifacts, Kustomize, Bash',
   ],
   [
     'Languages & Frameworks',
@@ -178,38 +211,52 @@ const Resume = () => (
             WORK EXPERIENCE
           </h2>
           <div className={`grid gap-y-6`}>
-            {jobs.map(job => (
-              <div key={job.company} className={`grid grid-col gap-y-1`}>
-                <div className={`flex justify-between items-start gap-y-0`}>
-                  <div className={`grid grid-col gap-y-0`}>
+            {jobs.map(job =>
+              job.roles ? (
+                <div key={job.company} className={`grid grid-col gap-y-3`}>
+                  <div className={`flex justify-between items-start`}>
                     <h3
                       className={`font-bold text-lg print:text-[18px] text-zinc-700 dark:text-gray-300`}
                     >
-                      {job.title}
-                    </h3>
-                    <p
-                      className={`font-light text-lg print:text-[16px] text-zinc-600 dark:text-gray-400`}
-                    >
                       {job.company}
-                    </p>
+                    </h3>
+                    <p className={datesClassName}>{job.dates}</p>
                   </div>
-                  <p
-                    className={`text-md print:text-[14px] text-gray-600 dark:text-gray-400 leading-[28px] whitespace-nowrap`}
-                  >
-                    {job.dates}
-                  </p>
+                  {job.roles.map(role => (
+                    <div key={role.title} className={`grid grid-col gap-y-1`}>
+                      <div className={`flex justify-between items-start`}>
+                        <h4
+                          className={`font-semibold text-md print:text-[16px] text-zinc-700 dark:text-gray-300`}
+                        >
+                          {role.title}
+                        </h4>
+                        <p className={datesClassName}>{role.dates}</p>
+                      </div>
+                      <Highlights highlights={role.highlights} />
+                    </div>
+                  ))}
                 </div>
-                {job.highlights.length > 0 && (
-                  <ul className={bulletListClassName}>
-                    {job.highlights.map(highlight => (
-                      <li key={highlight} className={bulletClassName}>
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
+              ) : (
+                <div key={job.company} className={`grid grid-col gap-y-1`}>
+                  <div className={`flex justify-between items-start gap-y-0`}>
+                    <div className={`grid grid-col gap-y-0`}>
+                      <h3
+                        className={`font-bold text-lg print:text-[18px] text-zinc-700 dark:text-gray-300`}
+                      >
+                        {job.title}
+                      </h3>
+                      <p
+                        className={`font-light text-lg print:text-[16px] text-zinc-600 dark:text-gray-400`}
+                      >
+                        {job.company}
+                      </p>
+                    </div>
+                    <p className={datesClassName}>{job.dates}</p>
+                  </div>
+                  <Highlights highlights={job.highlights} />
+                </div>
+              ),
+            )}
           </div>
         </section>
 
