@@ -67,8 +67,27 @@ const TrendingArticles = () => (
     <section className="mx-4 md:mx-6 max-w-screen-xl">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 mb-12">
         <ArticleCard
+          slug="blog/one-registry-for-production"
+          tags={['supply chain', 'CI/CD', 'Azure', 'AKS', 'security']}
+          title="One Registry for Production: Promoting Images Across a Trust Boundary"
+        >
+          Production pulls images from one private registry and from nowhere
+          else. Every image passes a scan before it runs. This post shows how
+          images move from a development tenant to production, and how to debug
+          the chain when it breaks.
+        </ArticleCard>
+        <ArticleCard
+          slug="blog/nothing-holds-a-secret"
+          tags={['security', 'identity', 'Azure', 'AKS']}
+          title="Nothing Holds a Secret: Identity Instead of Keys"
+        >
+          A connection string gives its access to anyone who holds it. Workload
+          identity federation replaces keys with short-lived proofs. This post
+          also shows how to handle the places where federation is not possible.
+        </ArticleCard>
+        <ArticleCard
           slug="blog/environment-vs-request-isolation"
-          tags={['Ephemeral environments', 'CI/CD']}
+          tags={['infrastructure', 'CI/CD']}
           title="From Preview Links to Full Ephemeral Environments: Scalable Testing in Microservice Architectures"
         >
           Each pull request gets its own copy of the full system. Engineers,
@@ -76,32 +95,13 @@ const TrendingArticles = () => (
           post shows the steps to set up these environments for microservices.
         </ArticleCard>
         <ArticleCard
-          slug="blog/decouple-deployments-from-releases"
-          tags={['Releases', 'CI/CD']}
-          title="Decoupling Deployments from Releases: Turning Technical Decisions into Business Strategy"
+          slug="blog/ci-is-a-framework-not-a-library"
+          tags={['CI/CD', 'platform engineering', 'developer experience']}
+          title="CI Is a Framework, Not a Library"
         >
-          A deployment puts code in production. A release makes a feature
-          available to customers. When teams keep the two apart, engineering
-          deploys on its own schedule and the business decides when each feature
-          goes live.
-        </ArticleCard>
-        <ArticleCard
-          slug="blog/reduced-content-latency-event-driven-cache-invalidation"
-          tags={['Event-driven architecture', 'Performance']}
-          title="How We Reduced Content Publication Latency by 99% Using Event-Driven Cache Invalidation"
-        >
-          Published content took up to 2 hours to reach readers because of
-          layered caches. An event-driven invalidation system cut that time to 1
-          minute without a CDN replacement.
-        </ArticleCard>
-        <ArticleCard
-          slug="blog/hidden-cost-of-ignoring-dead-letter-queue"
-          tags={['Reliability', 'Distributed systems']}
-          title="The Hidden Cost of Ignoring Your Dead Letter Queue"
-        >
-          A dead letter queue holds the messages that a system failed to
-          process. This post shows how an ignored queue raises costs and slows
-          healthy queues, and what to do instead.
+          When each repository builds its own pipeline, every pipeline drifts. A
+          better model lets CI own the control flow and call a small, stable set
+          of target names that each project implements.
         </ArticleCard>
       </div>
     </section>
