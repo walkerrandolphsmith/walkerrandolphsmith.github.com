@@ -92,39 +92,38 @@ export const getHighlightedTokens = (
   }))
 }
 
-// Each tab types at most 12 lines, the height of the editor.
+// Each tab types at most 12 lines, the height of the editor. Lines stay
+// short enough to fit the editor width.
 const tabs = {
   terraform: {
     lang: 'hcl',
     id: 'terraform',
-    name: 'environment.tf',
+    name: 'cluster.tf',
     sequence: [
-      { lines: ['module "environment" {'], speed: 60 },
+      { lines: ['resource "azurerm_kubernetes_cluster" "this" {'], speed: 60 },
       {
-        lines: [300, '  source = "./modules/isolated-environment"'],
+        lines: [300, '  # Pods get Entra tokens through workload identity'],
+        speed: 70,
+      },
+      { lines: [300, '  oidc_issuer_enabled       = true'], speed: 70 },
+      { lines: [300, '  workload_identity_enabled = true'], speed: 70 },
+      {
+        lines: [300, '  # Entra RBAC decides who can reach the cluster'],
         speed: 70,
       },
       {
-        lines: [300, '  # A separate tenant isolates the identity plane'],
-        speed: 80,
-      },
-      { lines: [300, '  tenant_id = var.environment_tenant_id'], speed: 70 },
-      {
-        lines: [300, '  # Private endpoints isolate the network plane'],
-        speed: 80,
-      },
-      { lines: [300, '  vnet_address_space = ["10.20.0.0/16"]'], speed: 70 },
-      {
-        lines: [300, '  private_endpoints  = ["acr", "key_vault", "sql"]'],
+        lines: [300, '  azure_active_directory_role_based_access_control {'],
         speed: 70,
       },
-      { lines: [300, '  public_network_access_enabled = false'], speed: 70 },
+      { lines: [300, '    azure_rbac_enabled = true'], speed: 70 },
+      { lines: [300, '  }'], speed: 70 },
+      { lines: [300, '  api_server_access_profile {'], speed: 70 },
       {
-        lines: [300, '  # ACR serves image pulls only inside the VNet'],
-        speed: 80,
+        lines: [300, '    virtual_network_integration_enabled = true'],
+        speed: 70,
       },
-      { lines: [300, '  acr_exclusive_pull = true'], speed: 70 },
-      { lines: ['}'], speed: 60 },
+      { lines: [300, '  }'], speed: 70 },
+      { lines: ['}'], speed: 70 },
     ],
   },
   gitops: {
@@ -132,60 +131,64 @@ const tabs = {
     id: 'gitops',
     name: 'production.yaml',
     sequence: [
-      { lines: ['apiVersion: kustomize.toolkit.fluxcd.io/v1'], speed: 60 },
-      { lines: ['kind: Kustomization'], speed: 60 },
-      { lines: ['metadata:'], speed: 60 },
-      { lines: [300, '  name: api-production'], speed: 80 },
-      { lines: ['spec:'], speed: 60 },
-      { lines: [300, '  dependsOn:'], speed: 80 },
-      { lines: [300, '    - name: api-staging'], speed: 80 },
       {
-        lines: [300, '  sourceRef: { kind: OCIRepository, name: releases }'],
+        lines: ['# Production runs the exact image that passed staging.'],
+        speed: 60,
+      },
+      { lines: ['# Promotion changes values, never the build.'], speed: 70 },
+      { lines: ['image:'], speed: 70 },
+      { lines: [300, '  registry: example.azurecr.io'], speed: 70 },
+      { lines: [300, '  repository: api'], speed: 70 },
+      { lines: [300, '  digest: "sha256:0000...0000"'], speed: 70 },
+      { lines: [300, '  pullPolicy: IfNotPresent'], speed: 70 },
+      { lines: ['serviceAccount:'], speed: 70 },
+      {
+        lines: [300, '  # Workload identity, so the pod keeps no secret'],
         speed: 70,
       },
-      { lines: [300, '  path: ./production'], speed: 80 },
-      { lines: [300, '  images:'], speed: 80 },
-      { lines: [300, '    - name: example.azurecr.io/api'], speed: 80 },
-      {
-        lines: [300, '      newTag: 1.42.0 # the image that passed staging'],
-        speed: 80,
-      },
+      { lines: [300, '  workloadIdentityClientId: "<client-id>"'], speed: 70 },
+      { lines: ['appConfig:'], speed: 70 },
+      { lines: [300, '  environment: Production'], speed: 70 },
     ],
   },
   library: {
     lang: 'ts',
     id: 'library',
-    name: 'auth-client.ts',
+    name: 'token-credential.ts',
     sequence: [
+      { lines: ['export interface TokenCredentialFactory {'], speed: 60 },
+      { lines: [300, '  readonly name: string'], speed: 70 },
+      { lines: [300, '  build(): TokenCredential'], speed: 70 },
+      { lines: ['}'], speed: 70 },
       {
-        lines: ["import { DefaultAzureCredential } from '@azure/identity'"],
-        speed: 60,
-      },
-      {
-        lines: [300, '// Each service gets tokens from its managed identity.'],
-        speed: 80,
-      },
-      { lines: [300, '// No service keeps a static secret.'], speed: 80 },
-      {
-        lines: [300, 'const credential = new DefaultAzureCredential()'],
+        lines: ['export function chooseStrategy(info: ServiceInfo) {'],
         speed: 70,
       },
-      { lines: [300, 'const scope = process.env.API_SCOPE'], speed: 70 },
+      { lines: [300, '  if (info.usePersonalIdentity) {'], speed: 70 },
       {
-        lines: [300, 'export const callApi = async (url: string) => {'],
+        lines: [300, "    // Local development uses the developer's own login"],
         speed: 70,
       },
       {
-        lines: [300, '  const { token } = await credential.getToken(scope)'],
+        lines: [300, '    return localDevelopmentTokenCredentialFactory()'],
         speed: 70,
       },
-      { lines: [300, '  return fetch(url, {'], speed: 70 },
+      { lines: [300, '  }'], speed: 70 },
       {
-        lines: [300, '    headers: { Authorization: `Bearer ${token}` },'],
+        lines: [
+          300,
+          '  // AKS pods use a managed identity, not a static secret',
+        ],
         speed: 70,
       },
-      { lines: [300, '  })'], speed: 70 },
-      { lines: ['}'], speed: 60 },
+      {
+        lines: [
+          300,
+          '  return userManagedIdentityTokenCredentialFactory(info)',
+        ],
+        speed: 70,
+      },
+      { lines: ['}'], speed: 70 },
     ],
   },
 }
