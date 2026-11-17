@@ -2,15 +2,19 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 
+import { POSTS_PER_PAGE } from '@/app/blog/pagination'
 import Articles from '@/components/Articles'
 import sitedata from '@/data/sitemetadata'
 
 import { allBlogs } from '../../../../../.contentlayer/generated'
 
-const POSTS_PER_PAGE = 3
+// Count the same published posts that the page renders, so every
+// generated page has posts.
+const totalPageCount = () =>
+  Math.ceil(allCoreContent(sortPosts(allBlogs)).length / POSTS_PER_PAGE)
 
 export const generateStaticParams = async () => {
-  const totalPages = Math.ceil(allBlogs.length / POSTS_PER_PAGE)
+  const totalPages = totalPageCount()
   const paths = Array.from({ length: totalPages }, (_, i) => ({
     page: (i + 1).toString(),
   }))
@@ -20,7 +24,7 @@ export const generateStaticParams = async () => {
 
 export async function generateMetadata({ params }): Promise<Metadata> {
   const pageNumber = parseInt(params.page, 10)
-  const totalPages = Math.ceil(allBlogs.length / POSTS_PER_PAGE)
+  const totalPages = totalPageCount()
 
   if (pageNumber <= 0 || pageNumber > totalPages || isNaN(pageNumber)) {
     return {}
