@@ -4,11 +4,11 @@ import Code from './Code'
 
 const Hero = () => (
   <>
-    <section className="hero relative mb-0 mt-12 lg:mb-40 lg:mt-32 max-w-screen-xl">
+    <section className="hero relative mb-0 mt-12 lg:mb-40 lg:mt-24 max-w-screen-xl">
       <>
         <div className="relative text-center flex flex-col items-center lg:flex-row lg:items-center justify-around lg:justify-start overflow-hidden">
-          <div className="flex items-center 2xl:justify-center flex-col px-0 lg:pt-8">
-            <p className="dark:text-gray-300 text-2xl md:text-3xl font-medium text-zinc-700 tracking-[-0.02em] mt-24 text-center">
+          <div className="flex items-center 2xl:justify-center flex-col px-0">
+            <p className="dark:text-gray-300 text-2xl md:text-3xl font-medium text-zinc-700 tracking-[-0.02em] mt-24 lg:mt-16 text-center">
               Walker Smith
             </p>
             <h1
@@ -21,13 +21,11 @@ const Hero = () => (
             </h1>
             <p
               style={{ maxWidth: '700px' }}
-              className="text-xl sm:text-2xl text-zinc-900 dark:text-gray-400 tracking-normal mb-4 m:mb-8 mt-8 lg:mb-12 text-center px-4"
+              className="text-xl sm:text-2xl text-zinc-900 dark:text-gray-400 tracking-normal mb-4 m:mb-8 mt-8 lg:mt-6 lg:mb-8 text-center px-4"
             >
-              I architect large platforms and make them fast and safe for
-              engineering teams to change. My work serves 2B+ users at Microsoft
-              and 53% of the Fortune 100 at Digital.ai. At Blue Line Solutions,
-              it powers nationally deployed public safety programs for law
-              enforcement.
+              I make large platforms fast and safe for teams to change. They
+              serve 2B+ Microsoft users, 53% of the Fortune 100, and nationwide
+              public safety programs.
             </p>
             <span className="mt-2 mb-16 flex flex-row flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-2">
               <span>
