@@ -1,6 +1,8 @@
 import { CiDark } from 'react-icons/ci'
 import { LiaFileDownloadSolid } from 'react-icons/lia'
 
+import { inlineNavLinkClassName, primaryNavLinks } from './navLinks'
+
 const NavSkeleton = ({ isResumePage = false }) => (
   <div
     className={`flex justify-center z-20 w-full h-20 bg-transparent fixed top-0 transition duration-300 ease-in-out print:hidden`}
@@ -11,21 +13,29 @@ const NavSkeleton = ({ isResumePage = false }) => (
         className="h-20 flex items-center justify-between px-8"
         aria-label="Primary"
       >
-        <div className="flex items-center gap-x-8">
-          <a href="/" tabIndex={0}>
-            Home
+        <div className="flex items-center gap-x-6">
+          <a href="/" className="font-medium" tabIndex={0}>
+            Walker Smith
           </a>
-          {isResumePage ? (
+          {primaryNavLinks.map(link => (
+            <a
+              key={link.href}
+              href={link.href}
+              className={inlineNavLinkClassName}
+            >
+              {link.label}
+            </a>
+          ))}
+          {isResumePage && (
             <a
               href="/Walker_Smith_Resume.pdf"
               download
+              title="Download resume"
               className={`group w-12 h-12 min-w-12 min-h-12 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[oklch(27.4%_.006_286.033)] rounded-sm cursor-pointer`}
               data-test="download-resume"
             >
               <LiaFileDownloadSolid />
             </a>
-          ) : (
-            <a href="/resume">Resume</a>
           )}
           <button
             tabIndex={0}
@@ -40,7 +50,7 @@ const NavSkeleton = ({ isResumePage = false }) => (
           aria-expanded={false}
           aria-controls="overlay-nav"
           aria-label="Toggle menu"
-          className="h-[36px] cursor-pointer"
+          className="lg:hidden h-[36px] cursor-pointer"
         >
           <span
             aria-hidden="true"

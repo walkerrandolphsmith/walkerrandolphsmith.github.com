@@ -48,7 +48,7 @@ const TrendingArticles = () => (
     <header className="px-8 grid gap-y-4">
       <SectionHeader
         title="Writing about platform work"
-        byline="How I build ephemeral environments, separate deployments from releases, and handle failed messages at scale."
+        byline="I write about platform engineering and developer experience."
         isLight
       />
       <CallToAction

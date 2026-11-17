@@ -3,6 +3,11 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { LiaFileDownloadSolid } from 'react-icons/lia'
 
+import {
+  externalNavLinks,
+  inlineNavLinkClassName,
+  primaryNavLinks,
+} from './navLinks'
 import ThemeToggle from './ThemeToggle'
 
 const keys: Record<number, boolean | undefined> = {
@@ -49,6 +54,9 @@ function enableScroll() {
   )
 }
 
+const overlayItemClassName =
+  'flex items-center w-full justify-center h-full min-h-full rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-600 py-3 px-4 dark:text-white'
+
 const NavInteractive = ({ isResumePage = false }) => {
   const [open, setOpen] = useState(false)
   const [isScrolledPastTop, setIsScrolledPastTop] = useState(false)
@@ -57,6 +65,8 @@ const NavInteractive = ({ isResumePage = false }) => {
     event.preventDefault()
     setOpen(value => !value)
   }
+  const closeMenu = () => setOpen(false)
+
   useEffect(() => {
     const scrollControlFunction = open ? disableScroll : enableScroll
     scrollControlFunction()
@@ -148,23 +158,36 @@ const NavInteractive = ({ isResumePage = false }) => {
           className="h-20 flex items-center justify-between px-8"
           aria-label="Primary"
         >
-          <div className="flex items-center gap-x-8 text-black dark:text-white">
-            <Link href="/" tabIndex={open ? -1 : 0} aria-hidden={open}>
-              Home
+          <div className="flex items-center gap-x-6 text-black dark:text-white">
+            <Link
+              href="/"
+              className="font-medium"
+              tabIndex={open ? -1 : 0}
+              aria-hidden={open}
+            >
+              Walker Smith
             </Link>
-            {isResumePage ? (
+            {primaryNavLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={inlineNavLinkClassName}
+                tabIndex={open ? -1 : 0}
+                aria-hidden={open}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {isResumePage && (
               <a
                 href="/Walker_Smith_Resume.pdf"
                 download
+                title="Download resume"
                 className={`group w-12 h-12 min-w-12 min-h-12 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[oklch(27.4%_.006_286.033)] rounded-sm cursor-pointer`}
                 data-test="download-resume"
               >
                 <LiaFileDownloadSolid />
               </a>
-            ) : (
-              <Link href="/resume" tabIndex={open ? -1 : 0} aria-hidden={open}>
-                Resume
-              </Link>
             )}
             <ThemeToggle tabIndex={open ? -1 : 0} ariaHidden={open} />
           </div>
@@ -176,7 +199,7 @@ const NavInteractive = ({ isResumePage = false }) => {
             ref={el => {
               if (el) navItemRefs.current[0] = el
             }}
-            className="w-12 h-12 min-w-12 min-h-12 max-w-12 max-h-12 cursor-pointer flex items-center justify-center"
+            className="lg:hidden w-12 h-12 min-w-12 min-h-12 max-w-12 max-h-12 cursor-pointer flex items-center justify-center"
           >
             <span
               aria-hidden="true"
@@ -196,94 +219,44 @@ const NavInteractive = ({ isResumePage = false }) => {
           ref={menuRef}
         >
           <ul className="flex-col items-center flex w-full" role="menu">
-            <li className="h-16 w-full" role="none">
-              <Link
-                role="menuitem"
-                href="/"
-                title="home"
-                className="flex items-center w-full justify-center h-full min-h-full rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-600 py-3 px-4 dark:text-white"
-                tabIndex={open ? 0 : -1}
-                ref={el => {
-                  if (el) navItemRefs.current[1] = el
-                }}
-              >
-                Home
-              </Link>
-            </li>
-            <li className="h-16 w-full" role="none">
-              <Link
-                role="menuitem"
-                href="/resume"
-                title="resume"
-                className="flex items-center w-full justify-center h-full min-h-full rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-600 py-3 px-4 dark:text-white"
-                tabIndex={open ? 0 : -1}
-                ref={el => {
-                  if (el) navItemRefs.current[2] = el
-                }}
-              >
-                Resume
-              </Link>
-            </li>
-            <li className="h-16 w-full" role="none">
-              <Link
-                role="menuitem"
-                href="/recommendations"
-                title="recommendations"
-                className="flex items-center w-full justify-center h-full min-h-full rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-600 py-3 px-4 dark:text-white"
-                tabIndex={open ? 0 : -1}
-                ref={el => {
-                  if (el) navItemRefs.current[3] = el
-                }}
-              >
-                Recommendations
-              </Link>
-            </li>
-            <li className="h-16 w-full" role="none">
-              <Link
-                role="menuitem"
-                href="/blog"
-                title="blog"
-                className="flex items-center w-full justify-center h-full min-h-full rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-600 py-3 px-4 dark:text-white"
-                tabIndex={open ? 0 : -1}
-                ref={el => {
-                  if (el) navItemRefs.current[4] = el
-                }}
-              >
-                Blog
-              </Link>
-            </li>
-            <li className="h-16 w-full" role="none">
-              <Link
-                role="menuitem"
-                href="https://linkedin.com/in/walkerrandolphsmith"
-                title="Linkedin"
-                className="flex items-center w-full justify-center h-full min-h-full rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-600 py-3 px-4 dark:text-white"
-                target="_blank"
-                rel="noopener noreferrer"
-                tabIndex={open ? 0 : -1}
-                ref={el => {
-                  if (el) navItemRefs.current[5] = el
-                }}
-              >
-                Linkedin
-              </Link>
-            </li>
-            <li className="h-16 w-full" role="none">
-              <Link
-                role="menuitem"
-                href="https://github.com/walkerrandolphsmith"
-                title="Github"
-                className="flex items-center w-full justify-center h-full min-h-full rounded-md cursor-pointer hover:bg-slate-100 dark:hover:bg-gray-600 py-3 px-4 dark:text-white"
-                target="_blank"
-                rel="noopener noreferrer"
-                tabIndex={open ? 0 : -1}
-                ref={el => {
-                  if (el) navItemRefs.current[6] = el
-                }}
-              >
-                Github
-              </Link>
-            </li>
+            {[{ href: '/', label: 'Home' }, ...primaryNavLinks].map(
+              (link, index) => (
+                <li key={link.href} className="h-16 w-full" role="none">
+                  <Link
+                    role="menuitem"
+                    href={link.href}
+                    className={overlayItemClassName}
+                    tabIndex={open ? 0 : -1}
+                    onClick={closeMenu}
+                    ref={el => {
+                      if (el) navItemRefs.current[index + 1] = el
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ),
+            )}
+            {externalNavLinks.map((link, index) => (
+              <li key={link.href} className="h-16 w-full" role="none">
+                <Link
+                  role="menuitem"
+                  href={link.href}
+                  className={overlayItemClassName}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabIndex={open ? 0 : -1}
+                  onClick={closeMenu}
+                  ref={el => {
+                    if (el)
+                      navItemRefs.current[primaryNavLinks.length + 2 + index] =
+                        el
+                  }}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
 
             <li className="h-16 w-full flex justify-center mt-12" role="none">
               <a
@@ -293,8 +266,12 @@ const NavInteractive = ({ isResumePage = false }) => {
                 className={`group inline-block w-[fit-content] h-[fit-content] min-w-max justify-start m-0 text-blue-1000 border-blue-900 dark:border-violet-500 dark:text-white px-3 items-center cta font-medium text-base transition-opacity transition-colors border hover:opacity-70 rounded-2xl`}
                 data-test="download-resume"
                 tabIndex={open ? 0 : -1}
+                onClick={closeMenu}
                 ref={el => {
-                  if (el) navItemRefs.current[7] = el
+                  if (el)
+                    navItemRefs.current[
+                      primaryNavLinks.length + externalNavLinks.length + 2
+                    ] = el
                 }}
               >
                 Download Resume

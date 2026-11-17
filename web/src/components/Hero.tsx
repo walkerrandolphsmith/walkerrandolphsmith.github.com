@@ -31,9 +31,10 @@ const Hero = () => (
               style={{ maxWidth: '700px' }}
               className="text-2xl text-zinc-900 dark:text-gray-400 tracking-normal mb-4 m:mb-8 mt-8 lg:mb-12 text-center px-2 hidden sm:block"
             >
-              I replaced stop-the-site releases with GitOps delivery. Teams made
-              999 zero-downtime releases in one quarter, versus 71 legacy
-              releases that each needed an outage.
+              I architect large platforms and make them fast and safe for
+              engineering teams to change. My work serves 2B+ users at
+              Microsoft, 53% of the Fortune 100 at Digital.ai, and 200+ law
+              enforcement agencies at Blue Line Solutions.
             </p>
             <span className="mt-2 mb-8 flex flex-row flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-2">
               <span>

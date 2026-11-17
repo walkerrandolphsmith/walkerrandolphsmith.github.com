@@ -80,7 +80,7 @@ const Company = ({ title, name, description, isActive, logo, card, link }) => (
 )
 
 const Experience = () => (
-  <div className="grid gap-y-8">
+  <div id="experience" className="grid gap-y-8 scroll-mt-24">
     <header className="px-8 grid">
       <SectionHeader title="Experience" byline="" isLight />
     </header>
