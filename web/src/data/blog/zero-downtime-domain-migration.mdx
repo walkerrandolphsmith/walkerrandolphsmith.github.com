@@ -1,92 +1,92 @@
 ---
-title: '🛡️ Zero-Downtime Domain Migration: A Story of Rebranding This Site'
+title: 'Zero-Downtime Domain Migration: A Story of Rebranding This Site'
 date: 2025-06-27
 tags: ['Azure', 'DNS', 'SEO', 'Azure Front Door']
 draft: false
 excerpt: |
-  What if you could change your entire domain, modernize your brand, and preserve every single backlink — with zero downtime? I just pulled it off using Azure Front Door, smart DNS strategy, and canonical best practices. Here’s how you can too.
+  You can change your full domain, modernize your brand, and keep every backlink, with zero downtime. I did it with Azure Front Door, a careful DNS strategy, and canonical best practices. This post shows how you can do it too.
 ---
 
-## 🚀 TL;DR
+## TL;DR
 
-I recently migrated my personal site from the long-time domain `walkerrandolphsmith.com` to the cleaner, sharper `walkersmith.me`.
+I moved my personal site from my old domain, `walkerrandolphsmith.com`, to the shorter `walkersmith.me`.
 
-✅ Zero downtime  
-✅ Seamless redirects  
-✅ Preserved SEO ranking  
-✅ Full HTTPS coverage
+Zero downtime  
+Seamless redirects  
+Preserved SEO ranking  
+Full HTTPS coverage
 
-## 🎯 Why Migrate?
+## Why Migrate?
 
-The domain `walkerrandolphsmith.com` served me well for over a decade — but it was long, hard to spell, and easy to forget. The new domain, `walkersmith.me`, is shorter, more memorable, and better aligned with my personal brand.
+I used the domain `walkerrandolphsmith.com` for more than ten years. But it was long, difficult to spell, and easy to forget. The new domain, `walkersmith.me`, is shorter, easier to remember, and better aligned with my personal brand.
 
-But this wasn’t just a vanity change. I needed to preserve uptime, avoid search ranking penalties, and make sure that every old link kept working.
+But this was more than a cosmetic change. I had to keep the site available, prevent search ranking penalties, and make sure that every old link continued to work.
 
-## 🧩 What Was in Place
+## What Was in Place
 
-My site is hosted on **Azure Static Web Apps**. The old domain was managed through **App Service Domains** with an **Azure DNS Zone**.
+**Azure Static Web Apps** hosts my site. I managed the old domain through **App Service Domains** with an **Azure DNS Zone**.
 
-Since Azure App Service Domains doesn’t support `.me` top-level domains (TLDs), I purchased `walkersmith.me` via **GoDaddy**.
+Azure App Service Domains does not support `.me` top-level domains (TLDs). So I bought `walkersmith.me` through **GoDaddy**.
 
-I considered pointing the new domain’s APEX (`@`) to the static IP of the Azure Static Web App — but that would have bypassed Azure Front Door, limited performance and security, and created duplicate content across domains (a big SEO risk).
+I considered pointing the APEX (`@`) of the new domain to the static IP of the Azure Static Web App. But that would bypass Azure Front Door and limit performance and security. It would also create duplicate content across domains, which is a big SEO risk.
 
-So I needed a robust, HTTPS-secure solution that gracefully redirected all traffic — including paths — to the new domain.
+So I needed a robust solution, secured with HTTPS. It had to redirect all traffic, including paths, to the new domain.
 
-## ♟️ The Strategy
+## The Strategy
 
-### 1️⃣ Set Up Azure Front Door in Front of the Old Site
+### 1. Set Up Azure Front Door in Front of the Old Site
 
 Azure Front Door (AFD) became the global edge entry point.
 
 - Created a **Front Door profile**
-- Added both `walkerrandolphsmith.com` and `www.walkerrandolphsmith.com` as **custom domains**
-- Verified domain ownership and waited for **TLS certificates** to be issued automatically
+- Added `walkerrandolphsmith.com` and `www.walkerrandolphsmith.com` as **custom domains**
+- Verified domain ownership and waited for the automatic issue of **TLS certificates**
 - In the **Azure DNS Zone**, I pointed:
-  - `@` (APEX) to the Front Door’s endpoint via **alias A record**
-  - `www` to the Front Door via **CNAME**
+  - `@` (APEX) to the Front Door endpoint with an **alias A record**
+  - `www` to the Front Door with a **CNAME**
 
-Result: zero downtime, secure traffic, and a performant global edge.
+Result: zero downtime, secure traffic, and a fast global edge.
 
-### 2️⃣ Move `walkersmith.me` DNS from GoDaddy to Azure
+### 2. Move `walkersmith.me` DNS from GoDaddy to Azure
 
 - Created a **new Azure DNS Zone** for `walkersmith.me`
-- Added both `walkersmith.me` and `www.walkersmith.me` as **custom domains** in Front Door
-- Completed domain validation and waited for HTTPS certificates to provision
+- Added `walkersmith.me` and `www.walkersmith.me` as **custom domains** in Front Door
+- Completed domain validation and waited for the HTTPS certificates
 - In the Azure DNS Zone:
 
-  - Pointed `@` to the same AFD endpoint via **alias A**
-  - Pointed `www` to the AFD endpoint via **CNAME**
+  - Pointed `@` to the same AFD endpoint with an **alias A** record
+  - Pointed `www` to the AFD endpoint with a **CNAME**
 
-  > This step is **critical** to get right. Instead of immediately switching nameservers in GoDaddy, I **first repeated everything from Step 1 for `walkersmith.me`**:
+  > This step is **critical**. I did not switch the nameservers in GoDaddy immediately. I **first repeated all of Step 1 for `walkersmith.me`**:
 
-  > 🛠️ I used commands like `nslookup -type=CNAME walkersmith.me ns1-08.azure-dns.com` to verify that all DNS records were correctly resolving through Azure’s authoritative name servers before flipping anything live.
+  > I used commands such as `nslookup -type=CNAME walkersmith.me ns1-08.azure-dns.com`. They verified that all DNS records resolved correctly through the authoritative Azure name servers before I made any change live.
 
 - Updated GoDaddy nameservers
 
-This guaranteed no downtime during the switch and allowed Azure Front Door to immediately handle traffic once GoDaddy delegated authority.
+This prevented downtime during the switch. Azure Front Door could handle traffic immediately after GoDaddy delegated authority.
 
-### 3️⃣ Wait for Propagation 🧘
+### 3. Wait for Propagation
 
-Name server changes can take up to **48 hours**, but changes typically propagate within an hour.
+Name server changes can take up to **48 hours**, but they usually propagate within an hour.
 
-In the meantime:
+During that time:
 
-- The old domain (`walkerrandolphsmith.com`) was already flowing through Front Door
-- The new domain (`walkersmith.me`) was ready behind the scenes
-- Once propagation completed, AFD began handling both domains seamlessly
+- The old domain (`walkerrandolphsmith.com`) already sent traffic through Front Door
+- The new domain (`walkersmith.me`) was ready in the background
+- After propagation completed, AFD handled both domains seamlessly
 
-### 4️⃣ Redirect with Rule Sets (301s)
+### 4. Redirect with Rule Sets (301s)
 
 - Created a **Rule Set** named `redirect-legacy` in AFD
 - Added a rule to:
   - Match requests where the `Host` is `walkerrandolphsmith.com` or `www.walkerrandolphsmith.com`
   - Apply a **301 redirect** to the same path on `walkersmith.me`
 
-💡 This ensures deep links like `/blog` or `/about` redirect correctly — not just the homepage.
+This makes sure that deep links such as `/blog` or `/about` redirect correctly, not only the homepage.
 
-### 5️⃣ Canonical Tags
+### 5. Canonical Tags
 
-In the Next.js app, I added a `<link rel="canonical">` tag for each page using dynamic metadata:
+In the Next.js app, I added a `<link rel="canonical">` tag to each page with dynamic metadata:
 
 ```ts
 export const metadata = genPageMetadata({
@@ -95,11 +95,11 @@ export const metadata = genPageMetadata({
 })
 ```
 
-This signals to search engines which version of the content is primary and avoids duplicate indexing penalties.
+This tells search engines which version of the content is primary. It prevents duplicate indexing penalties.
 
-## 🧪 Verifying the Redirects
+## Verifying the Redirects
 
-You can use these tools to verify:
+Use these tools to verify:
 
 - `nslookup walkersmith.me` → Shows Azure DNS nameservers
 - `curl -I -L -v http://walkerrandolphsmith.com/blog` → Follows:
@@ -107,28 +107,26 @@ You can use these tools to verify:
   - 301 redirect to `walkersmith.me/blog`
   - 200 response from the new domain
 
-✅ Everything working — cleanly, transparently.
+Everything works, cleanly and transparently.
 
-## 📣 Announcing the Move
+## Announcing the Move
 
-Posted to social with:
+I posted this to social media:
 
-> 🚀 New domain, same mission.  
-> 👉 https://walkersmith.me  
-> 🔁 Don’t worry — `walkerrandolphsmith.com` still works and redirects automatically.  
+> New domain, same mission.  
+> https://walkersmith.me  
+> Don’t worry. `walkerrandolphsmith.com` still works and redirects automatically.  
 > #Nextjs #React #Azure #DeveloperLife
 
-## 🔚 Final Thoughts
+## Final Thoughts
 
-Domain migrations are often stressful, risky, and filled with SEO pitfalls.
+Domain migrations are often stressful and risky, with many SEO problems.
 
-But by leveraging:
+But you can modernize your brand **without breaking a single link** if you use:
 
-- ✅ Azure Front Door
-- ✅ Smart DNS delegation
-- ✅ Canonical metadata
-- ✅ Verified 301 redirects
-
-You can modernize your brand **without breaking a single link**.
+- Azure Front Door
+- Careful DNS delegation
+- Canonical metadata
+- Verified 301 redirects
 
 **No downtime. No ranking drop.**
