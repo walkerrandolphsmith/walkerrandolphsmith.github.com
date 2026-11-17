@@ -3,9 +3,9 @@ import Link from 'next/link'
 import CallToAction from './CallToAction'
 import SectionHeader from './SectionHeader'
 
-const ArticleCard = ({ slug, tags, title, children, offset = false }) => (
+const ArticleCard = ({ slug, tags, title, children }) => (
   <div
-    className={`break-inside-avoid mb-12 group flex flex-col relative rounded-[8px] bg-white bg-white dark:bg-[rgba(39,39,42,0.9)] shadow-[0px_18px_36px_-18px_rgba(0,0,0,0.1),0px_30px_45px_-30px_rgba(50,50,93,0.25)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] overflow-hidden ${offset ? 'mt-12 sm:mt-24 md:mt-32' : ''}`}
+    className={`break-inside-avoid mb-12 group flex flex-col relative rounded-[8px] bg-white bg-white dark:bg-[rgba(39,39,42,0.9)] shadow-[0px_18px_36px_-18px_rgba(0,0,0,0.1),0px_30px_45px_-30px_rgba(50,50,93,0.25)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] overflow-hidden`}
   >
     <div className="relative overflow-hidden m-[4px] mb-0 rounded-[4px] p-8 pb-0">
       <div className="flex flex-col gap-4">
@@ -33,7 +33,7 @@ const ArticleCard = ({ slug, tags, title, children, offset = false }) => (
       <CallToAction
         title="Read article"
         href={slug}
-        dataTestId="view-profile"
+        dataTestId="read-article"
         includeArrow
         excludeLeftPadding
         color="text-[#7a6ded]"
@@ -47,9 +47,8 @@ const TrendingArticles = () => (
   <div className="grid gap-y-8">
     <header className="px-8 grid gap-y-4">
       <SectionHeader
-        title="Trending Articles"
-        byline="I write about building thoughtful systems, writing maintainable code,
-        and solving real-world engineering problems at scale."
+        title="Writing about platform work"
+        byline="How I build ephemeral environments, separate deployments from releases, and handle failed messages at scale."
         isLight
       />
       <CallToAction
@@ -64,51 +63,43 @@ const TrendingArticles = () => (
       />
     </header>
     <section className="mx-4 md:mx-6 max-w-screen-xl">
-      <div className={`columns-1 md:columns-2 gap-8 mb-12`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 mb-12">
         <ArticleCard
-          offset
-          slug="blog/context-is-everything"
-          tags={['RAG', 'LLM', 'Machine Learning']}
-          title="Context is Everything: How We Built a RAG System to Improve
-                Branded, Culturally Aware Content"
+          slug="blog/environment-vs-request-isolation"
+          tags={['Ephemeral environments', 'CI/CD']}
+          title="From Preview Links to Full Ephemeral Environments: Scalable Testing in Microservice Architectures"
         >
-          Large language models are impressive out of the box—but when your CMS
-          powers content written by hundreds of people for a global audience,
-          accuracy and voice consistency aren&apos;t optional. Pretrained
-          knowledge wasn&apos;t enough. We needed context. Real context.
+          Each pull request gets its own copy of the full system. Engineers,
+          product managers, and marketers test the change before it merges. This
+          post shows the steps to set up these environments for microservices.
+        </ArticleCard>
+        <ArticleCard
+          slug="blog/decouple-deployments-from-releases"
+          tags={['Releases', 'CI/CD']}
+          title="Decoupling Deployments from Releases: Turning Technical Decisions into Business Strategy"
+        >
+          A deployment puts code in production. A release makes a feature
+          available to customers. When teams keep the two apart, engineering
+          deploys on its own schedule and the business decides when each feature
+          goes live.
         </ArticleCard>
         <ArticleCard
           slug="blog/reduced-content-latency-event-driven-cache-invalidation"
-          tags={['Event Driven Archtecture', 'Performance']}
-          title="⚡How We Reduced Content Publication Latency by 99% Using
-                Event-Driven Cache Invalidation"
+          tags={['Event-driven architecture', 'Performance']}
+          title="How We Reduced Content Publication Latency by 99% Using Event-Driven Cache Invalidation"
         >
-          Cache invalidation is hard — but what if it didn&apos;t have to be? We
-          slashed content latency by 99% without ripping out our CDN, and in the
-          process, built a real-time publishing system that unlocked dashboards,
-          workflows, and trust across teams.
+          Published content took up to 2 hours to reach readers because of
+          layered caches. An event-driven invalidation system cut that time to 1
+          minute without a CDN replacement.
         </ArticleCard>
         <ArticleCard
-          slug="blog/cqrs-and-federated-graphql"
-          tags={['CQRS', 'GraphQL', 'Performance', 'Envoy']}
-          title="Balancing Transactional Integrity and Scale: Evolving Our CMS
-                with CQRS and Federated GraphQL"
+          slug="blog/hidden-cost-of-ignoring-dead-letter-queue"
+          tags={['Reliability', 'Distributed systems']}
+          title="The Hidden Cost of Ignoring Your Dead Letter Queue"
         >
-          Billions of readers. Hundreds of writers. One shared content platform.
-          How we balanced editorial precision and platform-scale delivery by
-          evolving our CMS architecture with CQRS and federated GraphQL,
-          improving editor experience and system scalability.
-        </ArticleCard>
-        <ArticleCard
-          slug="blog/incremental-static-regeneration"
-          tags={['Next.js', 'SEO', 'Performance']}
-          title="🚀 Lighthouse Scores from 48 to 100: Re-Architecting for Speed
-                and SEO with Incremental Static Regeneration"
-        >
-          Help articles served in flagship products struggled with performance
-          due to runtime rendering and content complexity. Here&apos;s how we
-          applied static generation—at scale—to improve reliability,
-          responsiveness, and SEO.
+          A dead letter queue holds the messages that a system failed to
+          process. This post shows how an ignored queue raises costs and slows
+          healthy queues, and what to do instead.
         </ArticleCard>
       </div>
     </section>

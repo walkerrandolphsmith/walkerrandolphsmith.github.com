@@ -1,7 +1,7 @@
 import Footer from '@/components/Footer'
 import GuidedSection from '@/components/GuidedSection'
 import Nav from '@/components/Nav'
-import Testimonials from '@/components/Testimonials'
+import Testimonials, { TestimonialGroup } from '@/components/Testimonials'
 import TestimonialAldo from '@/components/testimonials/TestimonialAldo'
 import TestimonialAlejandro from '@/components/testimonials/TestimonialAlejandro'
 import TestimonialAnaya from '@/components/testimonials/TestimonialAnaya'
@@ -50,36 +50,43 @@ const Page = () => (
       padBottom
     >
       <Testimonials>
-        <TestimonialDenise offset />
-        <TestimonialKeith />
-        <TestimonialAnn />
-        <TestimonialRd />
-        <TestimonialDanny />
-        <TestimonialSruthi />
-        <TestimonialJerry />
-        <TestimonialHolly />
-        <TestimonialCynthia />
-        <TestimonialTom />
-        <TestimonialHanna />
-        <TestimonialSarah />
-        <TestimonialIan />
-        <TestimonialMatthew />
-
-        <TestimonialHepci />
-        <TestimonialAndrew />
-        <TestimonialTony />
-        <TestimonialAlejandro />
-        <TestimonialDarnell />
-        <TestimonialMatthewLemons />
-        <TestimonialJosh />
-        <TestimonialJohn />
-        <TestimonialDonella />
-        <TestimonialDave />
-        <TestimonialAldo />
-        <TestimonialEyoel />
-        <TestimonialAnaya />
-        <TestimonialDaniel />
-        <TestimonialJered />
+        <TestimonialGroup title="Engineering leaders">
+          <TestimonialIan />
+          <TestimonialJered />
+          <TestimonialHepci />
+          <TestimonialAnn />
+          <TestimonialDenise />
+          <TestimonialKeith />
+          <TestimonialDarnell />
+        </TestimonialGroup>
+        <TestimonialGroup title="Staff Engineers">
+          <TestimonialRd />
+          <TestimonialAndrew />
+          <TestimonialTony />
+        </TestimonialGroup>
+        <TestimonialGroup title="Software engineers">
+          <TestimonialDanny />
+          <TestimonialJohn />
+          <TestimonialDave />
+          <TestimonialSruthi />
+          <TestimonialAlejandro />
+          <TestimonialTom />
+          <TestimonialMatthewLemons />
+          <TestimonialCynthia />
+          <TestimonialEyoel />
+          <TestimonialAnaya />
+          <TestimonialAldo />
+        </TestimonialGroup>
+        <TestimonialGroup title="Product, design, and sales partners">
+          <TestimonialDaniel />
+          <TestimonialMatthew />
+          <TestimonialJerry />
+          <TestimonialDonella />
+          <TestimonialHanna />
+          <TestimonialHolly />
+          <TestimonialSarah />
+          <TestimonialJosh />
+        </TestimonialGroup>
       </Testimonials>
     </GuidedSection>
     <GuidedSection

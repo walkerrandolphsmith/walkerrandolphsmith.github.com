@@ -9,6 +9,7 @@ const TestimonialRd = ({ offset = false }) => (
     name="Rupinder Dhariwal"
     level="Staff Engineer"
     company="Google"
+    sharedCompany="smash.gg and VersionOne"
     url="https://www.linkedin.com/in/rupinderdhariwal/"
   >
     <div className="flex flex-col gap-2">

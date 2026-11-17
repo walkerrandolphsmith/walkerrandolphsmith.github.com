@@ -1,22 +1,33 @@
 import CallToAction from './CallToAction'
 import SectionHeader from './SectionHeader'
 
+export const TestimonialGrid = ({ children }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 mb-12">
+    {children}
+  </div>
+)
+
+export const TestimonialGroup = ({ title, children }) => (
+  <section className="grid gap-y-8">
+    <h3 className="px-4 md:px-2 text-[28px] leading-[36px] font-medium text-zinc-950 dark:text-white tracking-[-0.05em]">
+      {title}
+    </h3>
+    <TestimonialGrid>{children}</TestimonialGrid>
+  </section>
+)
+
 const Testimonials = ({ includeCallToAction = false, children }) => (
-  <div className="grid gap-y-8">
+  <div id="recommendations" className="grid gap-y-8 scroll-mt-24">
     <header className="px-8 grid gap-y-4">
       <SectionHeader
-        title="What colleagues, leaders, and partners are saying"
-        byline="Hear directly from those who've worked alongside me — from
-        cross-functional peers to executive stakeholders. These testimonials
-        reflect a track record of technical leadership, mentorship, and driving
-        scalable solutions across complex systems. Each speaks to the impact,
-        collaboration, and trust built throughout my engineering career."
+        title="Recommended by engineering leaders"
+        byline="29 people recommend my work. 7 are engineering leaders and 3 are Staff Engineers."
         isLight
       />
       {includeCallToAction && (
         <CallToAction
           href="/recommendations"
-          title="Browse all"
+          title="Read all 29 recommendations"
           dataTestId="browse-recommendations"
           includeArrow
           excludeLeftPadding
@@ -26,9 +37,7 @@ const Testimonials = ({ includeCallToAction = false, children }) => (
         />
       )}
     </header>
-    <section className="mx-4 md:mx-6 max-w-screen-xl">
-      <div className={`columns-1 md:columns-2 gap-8 mb-12`}>{children}</div>
-    </section>
+    <div className="mx-4 md:mx-6 max-w-screen-xl grid gap-y-8">{children}</div>
   </div>
 )
 

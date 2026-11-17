@@ -11,13 +11,15 @@ const roboto = Roboto({
   variable: '--font-roboto',
 })
 
+const homeTitle =
+  'Walker Smith | Staff Engineer, Developer Experience and Platform'
+
 export const metadata = {
   canonical: sitemetadata.siteUrl,
   metadataBase: sitemetadata.metadataBase,
   manifest: './manifest.webmanifest',
-  title: 'Walker Smith',
-  description:
-    'Professional Resume Site - 10 years specializing in front end architecture and distributed systems serving 2 billion customers.',
+  title: homeTitle,
+  description: sitemetadata.description,
   robots: {
     index: true,
     follow: true,
@@ -30,7 +32,7 @@ export const metadata = {
     },
   },
   openGraph: {
-    title: sitemetadata.title,
+    title: homeTitle,
     description: sitemetadata.description,
     url: './',
     siteName: sitemetadata.title,
@@ -40,7 +42,7 @@ export const metadata = {
   },
   themeColor: '#ffffff',
   twitter: {
-    title: sitemetadata.title,
+    title: homeTitle,
     card: 'summary_large_image',
     images: [sitemetadata.socialBanner],
   },

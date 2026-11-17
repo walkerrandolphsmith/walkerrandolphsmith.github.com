@@ -4,7 +4,7 @@ const sitedata = {
   author: 'Walker Smith',
   headerTitle: 'Walker Smith',
   description:
-    'Professional Resume Site - 10 years specializing in front end architecture and distributed systems serving 2 billion customers.',
+    'Staff Engineer for developer experience and platform. I build CI/CD, test environments, and observability for engineering teams.',
   language: 'en-us',
   theme: 'system',
   siteUrl: 'https://walkersmith.me',
