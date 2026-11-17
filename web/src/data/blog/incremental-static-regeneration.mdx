@@ -41,7 +41,7 @@ It helped, but it did not scale.
 
 ## What Worked: Observability-Informed Regeneration
 
-We changed to a demand-driven model based on usage telemetry. The top 5–10% of article permutations were the hot path, and we built them at deploy time or through background revalidation. Rare combinations were rendered on demand at first access and cached at the CDN. When users accessed an article frequently in a short time window, the system flagged it for regeneration and persistent caching, which promoted it toward the hot path. Behind this, an in-memory LRU cache with tiered eviction kept memory use under control. We optimized it for clusters of region and language.
+We changed to a demand-driven model based on usage telemetry. An ensemble of strategies chose which content to prebuild. It picked the most referenced and most searched content, and it used create and update timestamps so that newer files stayed warm. The top 5–10% of article permutations were the hot path, and we built them at deploy time or through background revalidation. Rare combinations were rendered on demand at first access and cached at the CDN. When users accessed an article frequently in a short time window, the system flagged it for regeneration and persistent caching, which promoted it toward the hot path. Behind this, an in-memory LRU cache with tiered eviction kept memory use under control. We optimized it for clusters of region and language.
 
 We also added diagnostics and tracing. They monitored cache effectiveness, regeneration costs, and end-user performance.
 

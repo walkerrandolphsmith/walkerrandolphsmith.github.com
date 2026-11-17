@@ -26,13 +26,13 @@ Engineers often ask, “What’s the point of monitoring DLQs if the messages ar
 
 High-performing teams tag each message with metadata about why it failed, such as a validation error, an external timeout, a downstream 500, or a business rule violation. An on-call or SRE rotation owns DLQ visibility. The engineers on that rotation do more than purge the queue. They file tickets, propose schema changes, or reclassify events. The team also reviews DLQ patterns every week, not only during incidents. These reviews find blind spots in schema changes, services that behave incorrectly, and customer edge cases.
 
-Compare that with a team that says, “We have 3 million messages in our DLQ, but it’s fine. We just dump it monthly.” This is not fine. It is a liability that you postpone. Your DLQ shows you the limits of the failure modes of your system. If you do not look, you do not see them.
+Now imagine a team that says, “We have 3 million messages in our DLQ, but it’s fine. We just dump it monthly.” This is not fine. It is a liability that you postpone. Your DLQ shows you the limits of the failure modes of your system. If you do not look, you do not see them.
 
 ## Guardrails before retry
 
 One of the most destructive patterns in production systems is naive re-queuing of poison messages. The idea is to replay everything in the DLQ back into the main queue, because maybe the failures were transient.
 
-Sometimes they are. Usually they are not. When they are not, this recovery method becomes a feedback loop of decay. Consumers process the poison messages again and again, and each attempt uses CPU, memory, and I/O. Your autoscaling starts to handle them, and that costs money. Healthy consumers now share the queue with 100k retries, so throughput decreases for customers whose workflows can succeed. Eventually, bad messages outnumber good ones. You reach a **DLQ feedback inversion**, where the system spends more time failing than succeeding.
+Sometimes they are. Usually they are not. When they are not, this recovery method becomes a feedback loop of decay. Consumers process the poison messages again and again, and each attempt uses CPU, memory, and I/O. Your autoscaling starts to handle them, and that costs money. Picture healthy consumers that share the queue with 100k retries. Throughput decreases for customers whose workflows can succeed. Eventually, bad messages outnumber good ones. You reach a **DLQ feedback inversion**, where the system spends more time failing than succeeding.
 
 A safer pattern starts with quarantine that has a purpose. The DLQ is more than a holding pen. It is a second-tier pipeline with its own processors, budgets, and SLAs. Before you put a message back in the main queue, classify it. Find out if it is a known bug or a transient error, enrich it with retry context and circuit breaker status, and rate-limit it so that it never floods your healthy stream. If one source or event type floods the DLQ, open the circuit upstream, so that this failure fails fast and independently of the rest of the system.
 
@@ -40,7 +40,7 @@ A safer pattern starts with quarantine that has a purpose. The DLQ is more than 
 
 The cost is more than CPU cycles. A DLQ that nobody reads costs revenue and customer trust.
 
-Consider e-commerce order processing. A malformed payment token sends 20% of Black Friday messages to the DLQ. You do not see this until refunds increase sharply and customer service gets too many calls. Email delivery fails in a different way. A temporary DNS issue causes millions of failed email sends. You put them back in the queue automatically, but by then the message window has expired, and the customer never receives the password reset or shipping notice. In fulfillment, a small schema change in shipping carrier data causes mismatched barcodes. The packages ship, but the system never marks them complete, so operations thinks that they are delayed or lost.
+The scenarios below are illustrations, not figures from a real system. Consider an e-commerce system that processes orders. A malformed payment token sends 20% of Black Friday messages to the DLQ. You do not see this until refunds increase sharply and customer service gets too many calls. Email delivery fails in a different way. A temporary DNS issue causes millions of failed email sends. You put them back in the queue automatically, but by then the message window has expired, and the customer never receives the password reset or shipping notice. In fulfillment, a small schema change in shipping carrier data causes mismatched barcodes. The packages ship, but the system never marks them complete, so operations thinks that they are delayed or lost.
 
 In each case, the DLQ held the signal, but no process was in place to read it.
 

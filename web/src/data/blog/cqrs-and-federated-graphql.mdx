@@ -9,7 +9,7 @@ One shared content platform serves billions of readers and hundreds of writers.
 
 Our platform delivers in-app help, documentation, marketing pages, and more. Caching and eventual consistency let the read side of our CMS scale well. But the writing experience became worse. Editors needed to know that they worked on the latest version of a document. Transactional bottlenecks and outdated reads made our authors feel that they typed into a fog.
 
-We had to change how our system balanced editorial precision with delivery at platform scale.
+We had to change how our system balanced editorial precision with delivery at platform scale. I worked on this change as a senior engineer.
 
 ## The Starting Point: Split Read and Write, But Not Enough
 
@@ -27,7 +27,7 @@ We did not expose each backend through REST or microservice endpoints. We added 
 
 Authors and editors needed real-time previews of their changes. Product teams wanted to build features without knowledge of CMS internals. We also needed a hot path for fast reads across multiple sources.
 
-GraphQL federation put multiple eventually consistent sources behind one schema. The editorial UI could then fetch only the fields it needed, quickly.
+GraphQL federation put multiple eventually consistent sources behind one schema. Two teams owned the subgraphs behind it. The editorial UI could then fetch only the fields it needed, quickly.
 
 ## Securing the Gateway: Sidecars to the Rescue
 
@@ -60,7 +60,7 @@ Editorial tools are also part of the user experience. Your authors need fast, re
 > The best validation came from the people who use the system:
 > Customer satisfaction (CSAT) increased by **25%**, according to in-app survey results after the rollout.
 
-Writers reported faster previews, fewer surprises in published content, and more confidence in collaborative editing. We gave them performance and trust without a disruptive migration.
+Editor previews went from delays of up to an hour to nearly real time. Writers reported faster previews, fewer surprises in published content, and more confidence in collaborative editing. We gave them performance and trust without a disruptive migration.
 
 Content platforms usually give priority to scale for readers. But that scale depends on trust and efficiency in how people make the content.
 
