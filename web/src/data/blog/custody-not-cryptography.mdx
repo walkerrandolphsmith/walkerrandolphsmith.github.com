@@ -1,0 +1,73 @@
+---
+title: 'Custody, Not Cryptography: What Customer-Managed Keys Actually Change'
+date: 2026-11-15
+tags: ['security', 'Azure', 'infrastructure']
+draft: false
+excerpt: |
+  Azure already encrypts every byte at rest with AES-256. Customer-managed keys do not make that encryption stronger. They change who holds the key that unlocks the keys, which gives the operator an audited revocation switch and makes the key vault a tier-0 dependency. This post covers the model, the decision, and the per-service integration work that the one-line policy hides.
+---
+
+By default, Azure encrypts storage at rest, including blobs, queues, SQL databases, Cosmos DB, and managed disks, with AES-256. The encryption is transparent and needs no configuration. If a requirement only said "encrypt data at rest", you would meet it by doing nothing.
+
+So why do regulated platforms make customer-managed keys mandatory? Because the requirement is usually not about encryption. It says that the operator must control the key material and be able to demonstrate that control to an auditor. Under platform-managed keys, the cloud provider generates, stores, and rotates the key. You cannot show which operations used which key, because the usage log belongs to the provider. You cannot make the data inaccessible on demand. And telling an auditor that you trust the provider's key management is an admission that custody belongs to someone else.
+
+The requirement was never about the strength of the encryption, because the platform already provides strong encryption. It is about custody, which is a different property.
+
+## Envelope encryption in one picture
+
+Customer-managed keys use the same cipher. What changes is who holds the key that protects the other keys. That becomes clear once the layers are named.
+
+A data encryption key, or DEK, encrypts your bytes with AES-256. That layer is identical under platform-managed and customer-managed keys. A key encryption key, or KEK, encrypts ("wraps") the DEK itself. Under platform-managed keys, the provider owns the KEK. Under customer-managed keys, the KEK lives in your key vault. The KEK only ever wraps DEKs. It never touches your data.
+
+The lever is revocation. If you disable the KEK, nothing can unwrap any DEK, and every byte that depends on it becomes unreadable, regardless of any role assignment on the data store.
+
+You can see that the customer-managed key is a wrapping key from its definition. Its permitted operations are the evidence:
+
+```hcl
+resource "azurerm_key_vault_key" "storage_cmk" {
+  name         = "storage-cmk"
+  key_vault_id = azurerm_key_vault.example.id
+  key_type     = "RSA-HSM"              # generated in an HSM, not exportable
+  key_opts     = ["wrapKey", "unwrapKey"] # a wrapping key, not a data cipher
+}
+```
+
+The key cannot encrypt a document. It can only encrypt a DEK. Every wrap and unwrap also produces an audit event in your vault, which is what makes custody provable rather than asserted.
+
+## The decision
+
+Platform-managed keys are the right default for most workloads. They need no configuration, the encryption is strong, and they add no operational overhead. They fail on exactly one property: the provider holds the key material, so there is no usage audit, no revocation control, and nothing to demonstrate to an auditor.
+
+Customer-managed keys in a key vault provide those properties. The vault is yours, along with its access control, an audit event on every key use, and a revocation switch. HSM-backed keys cannot leave the hardware. A dedicated key for each store gives each one an independent encryption boundary, so one revocation or one compromise affects one store.
+
+The decision was to use customer-managed, HSM-backed keys for every store that may hold sensitive data, with a dedicated key per store.
+
+The consequence that deserves the most attention is that the key vault is now in the critical path of every encrypted service. The revocability that proves custody is the same control that can make production unusable if someone uses it wrongly. A vault outage, or a mistaken access change on the vault, can make all encrypted data inaccessible. Nothing is deleted. The data stays unreadable until the KEK is reachable again. The switch works in both directions.
+
+## One policy, a different mechanism per service
+
+The policy is uniform. Every store uses a customer-managed KEK, and a per-service managed identity reaches that KEK. The implementation is different for every platform service, because each one consumes a customer-managed key in its own way.
+
+Storage accounts take the key through a `customer_managed_key` block plus a separate companion resource, bound to the key's versionless ID and a user-assigned identity. Versionless matters. It means that when the key rotates, new wraps use the new version automatically, while the vault keeps earlier versions available to unwrap data they sealed. Automatic rotation is only safe because the binding is versionless on purpose.
+
+SQL uses Transparent Data Encryption as a separate resource that binds a versioned key ID with automatic rotation enabled. That combination forces a `lifecycle { ignore_changes = [...] }` entry on the server for the key ID. Without it, Terraform and the rotation fight forever, each changing the key ID back to its own idea of the right value.
+
+Cosmos DB takes the key on the account by versionless ID, but the account must also declare the user-assigned identity as its default identity. Without that setting, the account cannot reach the key at all. This one rule can cost an afternoon if you do not know it.
+
+Managed disks for AKS cannot reference a key vault key directly. They need a Disk Encryption Set as an intermediate object, and then a Kubernetes StorageClass that references that set by resource ID, so that persistent volume claims inherit customer-managed encryption. Nothing in the policy sentence warns you about those two hops.
+
+"We own our keys" is one control on paper and a dozen distinct integrations in Terraform. The integrations differ in versioned or versionless key IDs, companion resources, default identity settings, and whole intermediate objects. Plan the effort for the whole matrix, not for the one sentence.
+
+## What a staff engineer should watch
+
+Keep the claim precise. Customer-managed keys do not make data harder to decrypt by brute force. The cipher and the DEKs are the same. Teams that describe them as "stronger encryption" set up the wrong expectations with leadership and with auditors. The accurate description is an audited, revocable custody control.
+
+Treat the key vault as tier-0 from the day the first store depends on it. That means monitoring key availability and access failures as production signals, protecting the vault's access control as carefully as the data stores themselves, and enabling soft delete and purge protection so that a mistaken deletion does not become permanent data loss. A runbook for "the KEK is unreachable" should exist before anyone needs it, and it should make clear that the data is unreadable, not gone.
+
+Rehearse revocation. A control that has never been exercised is a control you hope works. Disabling a key in a non-production environment and confirming that the store becomes unreadable, and then readable again, is the evidence an auditor wants and the confidence the on-call engineer needs.
+
+Watch the drift exclusions. The `ignore_changes` entry on the SQL server is necessary, but it also means Terraform will not notice if the key binding changes for some other reason. Every drift exclusion should carry a comment that explains why it exists, and the team should have another way to check that the binding is still correct.
+
+Finally, read key membership from code, not from documents. The set of stores that have dedicated keys tends to vary by environment and change over time. A list in a design document will be out of date before the next review. The key vault module is the source of truth.
+
+The default answers whether data is encrypted. Only customer-managed keys let you answer, and prove, who holds the key. That answer comes with a tier-0 dependency that the team now owns, and it is worth saying so in the same sentence.

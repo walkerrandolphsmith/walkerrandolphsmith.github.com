@@ -1,0 +1,83 @@
+---
+title: 'CI Is a Framework, Not a Library'
+date: 2026-11-08
+tags: ['CI/CD', 'platform engineering', 'developer experience']
+draft: false
+excerpt: |
+  Every new service checklist has an "add CI/CD" step, and that step is a warning sign. When each repository assembles its own pipeline, the pipeline drifts in every repository. A better model lets CI own the control flow and call a small, stable vocabulary of target names that each project implements.
+---
+
+Most service templates have a step called "add CI/CD" somewhere between "create the repository" and "add a health check". The usual way to do it is familiar. You copy the pipeline file from the last project and change the paths. You update the task versions that went stale. Then you rebuild lint, test, and publish from a template that had already drifted by the time you copied it.
+
+That step looks like routine work, but it is a design signal. It shows that the organization treats CI as a library, a set of primitives that every project assembles again by hand. Each project calls the same primitives in a slightly different way, and the differences grow over time. A library that you assemble again in every repository drifts in every repository.
+
+## Who owns the control flow
+
+The difference between a library and a framework is about control flow. You call a library, so your code decides what happens and in what order. A framework calls you, at extension points that it defines. The short version is "don't call us, we'll call you."
+
+Apply that to CI and the pipeline owns the control flow. It asks a task runner which projects a change affected. Then it calls a fixed vocabulary of targets on each of those projects: lint, build, test, and publish. The target name is the contract. In this model, `publish` is not a command. It is a promise that the project exposes a target with that name, and that when the target runs, the artifacts of the project exist in the registry. The name works like a method signature.
+
+Each project satisfies the contract in its own way. One project composes a few shell commands. Another uses a custom executor. A third is written in a different language and ships a binary instead of a container image. The pipeline never looks inside any of them. The task runner owns the orchestration that teams otherwise rebuild in every repository: the graph of affected projects, the execution order, the cache, and the calls.
+
+None of this is specific to one tool. Nx has targets, Make has phony targets, and Bazel has rules. Turborepo and just have the same shape. When the same structure appears across a whole category of tools, that is good evidence that it is a real idea and not a feature of one product.
+
+## Bounded work and unbounded work
+
+The strongest argument for the framework model is about the kind of effort that it asks for. To author orchestration is unbounded work. Versions go stale, templates drift, and each new concern, such as a new scanner or a new artifact type, needs new plumbing in every repository. To implement an interface is bounded work. The set of named targets is finite, and the work is done when each target exists and behaves as the contract requires.
+
+A new kind of project still writes its own implementation of `publish`. What it never writes again is the plumbing. That is also why a new service in a new language needs no change to the shared pipeline. CI depends on the contract, not on the command, so any implementation can take the place of another. This is the open/closed principle at the orchestration layer. The pipeline is closed for modification and open for extension through new implementations of the same names.
+
+For a platform team, this is the difference between an investment that compounds and one that decays. Every improvement to the orchestration reaches every project at once, because no project owns a copy of it.
+
+## Facades that do no work
+
+In practice, the targets that CI calls are thin facades. The body of a facade does almost nothing, and its dependencies declare the real work.
+
+```jsonc
+{
+  "targets": {
+    // Public: CI calls this name.
+    "publish": {
+      "command": "./scripts/announce.sh my-service image-push chart-push",
+      "dependsOn": ["image-push", "chart-push"]
+    },
+    // Private: only a facade should name these.
+    "image-push": { "dependsOn": ["image-build"] },
+    "image-build": { "outputs": ["{projectRoot}/dist/image"] }
+  }
+}
+```
+
+The command in the facade only prints what it composes, for example "my-service is running image-push, chart-push". That announcement costs almost nothing, and it earns its place. It makes the composition visible in the build log, and it does not duplicate the orchestration in a second place. If a facade promises one thing and fans out to something else, the log shows the difference. Without it, you find out when a push silently stops happening.
+
+## A boundary with no keyword
+
+The interface has a public surface and a private one, but no language marks the line between them. The public targets are the few names that CI calls. The private targets, such as `image-build` or `chart-push`, should be named only by a facade.
+
+Nothing in the tool enforces that. Anyone can run a private target directly from a one-off job or a script, as easily as they run `publish`. When that happens, the private target has an external caller, and it becomes public in practice. The facade then loses its freedom to change its composition, because a change can break a caller that nobody knew about. This is interface erosion, and convention is the only thing that prevents it.
+
+The defense is structural more than technical. Keep the public vocabulary small and explicit, so that CI depends on as little surface as possible. Make every composition visible, so that drift is easy to see in review.
+
+## The contract is behavior, not only a name
+
+A target name is a method signature with no type checker. Substitution has a hidden condition: every project's `publish` must follow the same rules about side effects and idempotency.
+
+Cacheability is part of that contract. A pure target, such as build or test, is a computation over declared inputs and outputs. When the inputs have not changed, the runner can skip the work and replay the result. A side-effecting target, such as publish, changes something on the network, and it must declare no cacheable outputs. "I already pushed this once" is not a result to replay, and a cache hit would skip a real push. A publish target with no outputs states on purpose that publishing is an effect, not a computation.
+
+Environment differences belong in the configuration of one target, selected by the caller, and not in copies of the target. The contract stays stable, and the environment becomes a parameter.
+
+If one project's publish is idempotent and another's pushes twice, the affected graph and the cache will expose the difference at some point, and usually at an inconvenient one. In this model, the discipline of the team is the type system.
+
+## What a staff engineer should watch
+
+The model is easy to state and easy to erode, and most of the erosion is quiet. The signals are worth knowing before they become habits.
+
+One signal is a shared pipeline that starts to grow technology-specific branches. A branch for Go projects or for chart-only projects means that the pipeline has started to look inside implementations again. The right fix is almost always a better implementation of the same target in the project, not a new branch in the caller.
+
+Direct calls to private targets are another. They are usually harmless on the day someone writes them, and they are the reason a later refactor of a facade breaks a job that nobody remembers. A search across pipeline definitions and scripts for private target names is cheap, and it finds this debt early.
+
+Watch also for a side-effecting target that declares outputs. That target will eventually be skipped by the cache at the exact moment that it needed to run. This is one of the rare cases where a small lint, one that checks that publish-like targets declare no outputs, turns a convention into a check with very little cost.
+
+The honest weakness of the model is that the contract lives in convention and documentation, not in a compiler. That is acceptable while the public vocabulary stays small, because a short list of names is easy to teach and easy to review. It gets harder as the vocabulary grows. The staff-level job is to keep the vocabulary short, to say no to new public targets that only one project needs, and to make the behavior behind each name explicit enough that a new team can implement it without reading every other project.
+
+The next time "add CI" appears on a checklist as an obvious chore, treat it as a warning. It usually means that someone is about to rebuild a framework as a library, one copied YAML file at a time. The pipeline already exists. The project only needs to implement its interface.

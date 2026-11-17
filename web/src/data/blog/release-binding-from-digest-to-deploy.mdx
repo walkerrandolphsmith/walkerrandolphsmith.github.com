@@ -1,0 +1,102 @@
+---
+title: 'Release Binding: How a Built Digest Becomes a Running Deploy'
+date: 2026-11-12
+tags: ['CI/CD', 'GitOps', 'platform engineering']
+draft: false
+excerpt: |
+  For years, a naming convention connected builds to deploys: one project, one image, one chart, one GitOps folder, all with the same name. Then sidecars, fan-outs, and cross-project images appeared, and the convention could not express them. This post explains how a small catalog-and-binding model replaced it, and why only fresh artifacts should ever move.
+---
+
+A build produces a digest. Somewhere later, that digest is pinned in a GitOps overlay and running in an environment. The path between those two points is often the least designed part of a delivery system, because for a long time it does not need design. A convention covers it.
+
+The convention on many platforms looks like this: one build project produces one image and one chart, which deploy through one GitOps overlay with the same name as the project. The project name is the image repository, the chart, the folder, the approval environment, and the release trigger, all at once. It is simple, and it works for years.
+
+## Where the convention breaks
+
+The convention fails as soon as the system needs a shape that one string cannot describe.
+
+The most common gap is many images in one deploy. A pod with a sidecar is the common example: a report engine and the authentication proxy in front of it are separate build projects, but both land in one chart and one pod.
+
+The reverse also happens, with one build feeding many deploys. A single project might supply several overlays that differ only in configuration. When the folder name must equal the project name, one project cannot feed several folders.
+
+A deploy can also consume an image that another project builds. The report engine's overlay must pin an image produced by the proxy project. That is impossible when the folder name decides which artifact the folder gets.
+
+The tempting response is to add special cases to the promotion scripts. A better response is to stop treating a naming convention inside scripts as the contract between build and deploy, and to treat that contract as a small language that people can read, check, and reason about.
+
+## A compiler, not a config file
+
+None of the parts of the model is unusual.
+
+The catalog is a file that CI writes for each build. It binds artifact names to concrete digests, and it holds only the artifacts that this build changed. It is ephemeral, and a machine writes it.
+
+The binding is a file in each GitOps overlay. It says what the overlay consumes and where each digest lands. It is durable, and a human writes it.
+
+The operator inside the binding is a values path. It means "apply the digest of this artifact at this address in the Helm values."
+
+The output is the promotion pull request. Its diff is the fully resolved plan, and a human reviews it before it merges. It plays the role of compiled output.
+
+```jsonc
+// catalog.json: written by CI, one per build
+{
+  "services": {
+    "report-engine": { "imageDigest": "sha256:bb...", "chartDigest": "sha256:cc..." },
+    "auth-proxy": { "imageDigest": "sha256:aa...", "chartDigest": "" }
+  }
+}
+```
+
+```yaml
+# overlays/production/report-engine/binding.yaml: written by a human
+source:
+  release: report-engine
+  chart: report-engine
+  images:
+    - { valuesPath: image, artifact: report-engine }
+    - { valuesPath: proxy.image, artifact: auth-proxy }
+```
+
+The catalog and the binding stay physically separate on purpose. The catalog is the truth at build time. The binding is the desired state and holds the full topology. Merging them into one file would couple two phases that have different authors and different lifecycles. The language is the documented, checked join between them.
+
+Most services need no binding file at all. An overlay with no binding resolves to the obvious default, where the release, the chart, and the single image all take the folder name. The classic services keep working unchanged, and a binding file appears only where the shape is unusual: a sidecar, a fan-out, an image-only or chart-only project, or an overlay that consumes another project's artifact.
+
+## Only fresh artifacts move
+
+The core rule of resolution is a partial merge. The resolver intersects each overlay's binding with the catalog of the current build. Artifacts that are present with a non-empty digest produce patches. Everything else keeps its current pin.
+
+The sidecar case shows why this matters. Suppose a build touched only the auth proxy. The report engine's production overlay still promotes, but its pull request moves only `proxy.image`. The engine image and the chart keep their existing pins, because this build did not produce them. No build ran for a project named "report-engine", and the right deploy still moved.
+
+A chart-only project is the mirror image of this. It publishes no image, so its empty image entry is dropped, and only the chart digest moves. No values change and no version stamp is written.
+
+If nothing that any overlay consumes changed, nothing promotes. The pipeline skips the approval gate before it asks anyone to approve anything, which is a small kindness to the people on the approval list.
+
+## Staging flows, production decides
+
+The same resolved patches feed two very different processes.
+
+Staging is overlay-driven. On every publish from the main branch, a batch job walks every staging overlay, patches the fresh ones, and opens one pull request that merges automatically. There is no approval and no per-service pipeline. It is lenient, so it creates a values path if the path is missing.
+
+Production is release-driven. Each release has its own pipeline and opens one pull request with an approval gate that patches every overlay of that release. It is strict. The values path must already exist, because it carries environment-specific overrides, and the version stamp is mandatory. A malformed binding is a hard error, never a silent skip.
+
+The asymmetry is deliberate. Staging optimizes for flow, and production optimizes for intent.
+
+## The trigger problem
+
+One detail of the production path is specific to Azure DevOps but generalizes well. Resource trigger tag filters in Azure DevOps are combined with AND. A release that consumes two projects cannot list both as tags, because it would then start only when a single build touched both.
+
+The fix inverts the relationship. The publish run computes which releases consume each affected project and tags itself with those release names. A build of only the auth proxy tags its run `report-engine`, and the report engine release, which filters on that single tag, starts. The rejected alternative was to drop the filter and run every release's gate on every publish. That works, but its cost on the shared agent pool grows with every new release.
+
+## Every real case is one of a few classes
+
+The useful way to test a system like this is by equivalence class. The standard application with an image, a chart, and the default binding is the reference path. Chart-only and image-only projects exercise the empty-digest rules. The composed overlay exercises multiple values paths, the derived trigger tag, and the partial merge. A fan-out sends one project to several overlays that share a release, one pull request, and one approval. Sibling releases send one project to several overlays with different release keys, so that one publish tags every consuming release. Mirrored third-party images have no services entry and move through a separate lane by tag. Environment-scoped overlays exist only in some environments, and the folders that exist decide where they deploy.
+
+Some of those classes may have no live instance at any given time. They still deserve test fixtures. A shape that the schema allows and the tests do not cover is a shape that will break the first time someone needs it.
+
+## What a staff engineer should watch
+
+The dangerous failure in this model is silent. If a binding names an artifact that no catalog ever contains, for example because of a typo, that artifact never resolves as fresh. Nothing patches, and nothing reports an error. At runtime it looks exactly like "not built in this run". A referential lint that checks every artifact name in every binding against the set of real projects is not optional. It is the only place this error can be caught.
+
+Watch the promotion scripts for direct reads of the catalog. The model only stays coherent if one evaluator implements resolution and every path calls it. A second, slightly different reading of the catalog is how the old convention-in-scripts problem comes back.
+
+Pay attention to the cost of the strict production rules. A missing values path in production is a hard failure, which can feel unfriendly to a team that just added a sidecar. That friction is the point. The production path should refuse to guess, and the error message should tell people exactly which path to add.
+
+The broader lesson is about when to stop extending a convention. Conventions are excellent until the first shape they cannot express. At that point, special cases in scripts feel cheaper than a model, and they are cheaper for about a month. A small explicit language with a default that matches the old convention costs a little more up front, keeps every existing service unchanged, and makes the unusual shapes reviewable. For any change, a reader can name the affected catalog entries, the overlays that consume them, the values that move, the values that keep their pins, and the tags that start the right releases. That is what it means to read a deploy before it happens.

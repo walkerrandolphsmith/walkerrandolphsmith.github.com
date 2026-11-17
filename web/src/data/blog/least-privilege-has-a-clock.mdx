@@ -1,0 +1,105 @@
+---
+title: 'Least Privilege Has a Clock'
+date: 2026-11-10
+tags: ['security', 'identity', 'Kubernetes']
+draft: false
+excerpt: |
+  A deploy needs the right to change a database schema for a few seconds. So why does the internet-facing process that serves traffic hold that right for weeks? Scope dangerous capabilities by phase as well as by principal: give migrations their own identity and their own lifecycle.
+---
+
+A common way to run database migrations in a .NET service is to call `Database.Migrate()` on startup, or to run `dotnet ef database update` in the container entrypoint. It takes one line, and it works. For it to work, the database identity of the application needs DDL rights: CREATE, ALTER, and DROP. The process runs continuously, so it holds those rights continuously.
+
+Look at the imbalance. The schema actually changes once per deploy, for a few seconds. The capability to change it now lasts for the whole life of the pod, which can be weeks. And the process that holds that capability is the one most exposed to the internet.
+
+An SQL injection or a remote code execution flaw against a process with DDL rights can do more than read data. It can drop tables, alter columns, and install triggers. For the convenience of the deploy, a compromised web process can now destroy the schema.
+
+## The axis nobody draws
+
+Least privilege is usually described as which principal gets which permission. This design adds an axis that is rarely drawn, which is time. A capability that one phase of the lifecycle needs should not be reachable during the other phases.
+
+Applied to migrations, the idea is to move the DDL capability into its own phase. The migration runs as a Kubernetes Job with its own identity. That identity has DDL rights. The Job applies the schema and then disappears, because `ttlSecondsAfterFinished` deletes it shortly after it completes. It serves no traffic and listens on no port.
+
+The application Deployment runs as a different identity that can only read and write rows. An init container in the application pod waits until the migration Job reports success, so the application never starts against an incomplete schema. If an attacker compromises the running application, they can read and write rows, but they cannot drop a table, because the identity they now control never held DDL rights. The dangerous verb belongs to a different phase.
+
+## Migrate on boot, or migrate as a phase
+
+Migrate-on-boot is the default because it is one line and needs no deploy machinery. Its cost is everything that it couples together without anyone noticing.
+
+The runtime must hold DDL rights, with all of the exposure above. With more than one replica, every replica races to apply the same migrations to the same database at the same moment. The results include partial applies, lock contention, and a corrupted migration history. Nothing stops a replica from serving requests against a half-built schema while another replica is still migrating.
+
+A dedicated migration Job that runs before the Deployment separates those concerns. The runtime never holds DDL rights. The Job applies migrations exactly once, before any replica starts, so the race goes away. The init container barrier keeps the application from starting until the schema is ready. The phase split delivers correctness, not only least privilege.
+
+The tradeoff is real, and it is worth stating plainly. Deploy ordering becomes something the team must design on purpose, and rollback becomes a first-class concern. A migration that the old application version cannot tolerate is now visible as a separate step, which is better than hiding it, but it is still work.
+
+## Two identities and a barrier
+
+Both identities are workload identities. Each one federates to its own Kubernetes service account, so neither needs a password. The Job runs as the migration identity:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      serviceAccountName: app-migrations # federates to the DDL identity
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: example.azurecr.io/app-migrations@sha256:<digest>
+          command: ['./efbundle'] # token-based SQL auth, no password
+```
+
+The Deployment runs as the runtime identity and waits behind the barrier:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      serviceAccountName: app-runtime # federates to the read/write identity
+      initContainers:
+        - name: wait-for-migrations
+          image: example.azurecr.io/job-waiter:1.0.0
+          args: ['job', 'app-migrations']
+```
+
+If the service has more than one schema, for example separate EF Core contexts for its core data and for an operational store, each schema gets its own Job and its own barrier. One database with several schemas needs more coordination than a single-context demo suggests.
+
+The barrier needs one small Kubernetes permission: a namespaced Role that can get, list, and watch Jobs, so that the init container can observe the Job it waits for. Nothing more.
+
+## Where the split is actually enforced
+
+Everything here authenticates with tokens. The interesting question is where the difference between "migrate" and "run" can be expressed at all.
+
+Azure RBAC decides which identities exist and which Azure resources they can touch. It has no concept of DDL on the schema of one database. That distinction exists only inside the database's own authorization model. So the split is enforced one layer lower. Each cloud identity maps to a database user, and each user gets different role memberships:
+
+```sql
+CREATE USER [app-migrations] FROM EXTERNAL PROVIDER
+ALTER ROLE db_ddladmin ADD MEMBER [app-migrations]
+
+CREATE USER [app-runtime] FROM EXTERNAL PROVIDER
+ALTER ROLE db_datareader ADD MEMBER [app-runtime]
+ALTER ROLE db_datawriter ADD MEMBER [app-runtime]
+```
+
+The cloud identity platform answers who the workload is. The database answers what that workload may do to the schema. A design review that looks only at cloud role assignments will miss the most important grant in the system.
+
+## Make the smaller, true claim
+
+It is tempting to describe this pattern as "ephemeral DDL". That overstates it. The migration identity is a standing identity with standing `db_ddladmin` membership. Deleting the Job does not revoke anything. What is ephemeral is the surface that can use the capability: a short-lived pod that serves no traffic.
+
+The accurate claim is that the internet-facing runtime never has DDL rights. That claim is smaller, and it is defensible under questioning. In security reviews and in audits, the smaller true claim is worth more than the larger one that falls apart on the first follow-up question.
+
+## What a staff engineer should watch
+
+The out-of-band SQL grant is the piece most likely to drift, because it often lives outside the infrastructure code that reviewers read. If someone adds the runtime user to `db_ddladmin` to unblock a deploy, the whole design is undone with one statement and no visible change to the Kubernetes manifests. That grant deserves the same review and the same source control as any Terraform role assignment, and a periodic check of database role membership is cheap insurance.
+
+The standing migration identity is the next place to look. Its exposure is narrow, because only a short-lived Job can use it, but its federated credential defines who that Job can be. A loose subject on that credential would let another service account in the namespace assume the DDL identity. Precise subjects are the control.
+
+Watch for the slow return of migrate-on-boot. New services copy whatever is easiest, and a one-line migration call is easier than a Job and a barrier. A service template that already includes the Job, the barrier, and the two identities removes most of that temptation.
+
+The pattern also generalizes well beyond databases. Any capability that only a deploy needs, such as creating queues, registering webhooks, or seeding configuration, can move into a phase with its own identity. The question to ask in a design review is simple: which phase needs this permission, and is it reachable from any other phase?
+
+For any service, the useful checks are which identity holds DDL rights, which holds only data rights, how the application waits for the schema, and why a compromised runtime cannot change the shape of the database. If those answers are clear, least privilege has a clock as well as a list.

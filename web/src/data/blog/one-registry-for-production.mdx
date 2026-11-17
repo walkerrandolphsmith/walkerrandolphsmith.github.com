@@ -1,0 +1,93 @@
+---
+title: 'One Registry for Production: Promoting Images Across a Trust Boundary'
+date: 2026-11-09
+tags: ['supply chain', 'CI/CD', 'Azure', 'AKS', 'security']
+draft: false
+excerpt: |
+  When production can pull images from only one private registry, an ErrImagePull on a public image is the design working, not a bug. This post walks through an exclusive-registry policy: what it buys, what it costs, how images cross from a development tenant to a production tenant, and how to debug the chain when it breaks.
+---
+
+Put a public image reference such as `docker.io/library/redis:7.2` into a production manifest on a well-locked platform, and the pod never starts. The kubelet reports `ErrImagePull`, and the egress firewall logs a deny. On a platform with an exclusive-registry policy, that outcome is the design. Production pods pull from one private registry and from nowhere else, and the firewall enforces that rule. It is not a convention that teams are asked to follow.
+
+## What the policy buys
+
+The policy gives the platform control over its supply chain. Every image that runs in production, including third-party images that nobody on the team built, passes a vulnerability scan in a registry the platform owns before it can run. Production also stops depending on third parties at runtime. Public registry rate limits and public registry outages cannot affect the production cluster, because nothing in production ever talks to a public registry.
+
+There is also an operational benefit that is easy to miss. With a single path into production, a fix for a vulnerable image has one place to land. You promote the corrected image once, and every workload that uses it can pick it up. No second path exists that someone forgot to patch.
+
+The cost is that every image, third-party images included, must first land in a development registry, and then be copied into the production registry. Most of the interesting engineering lives in that copy.
+
+A rule follows directly from the policy. The fix for an `ErrImagePull` on a public image is never a firewall allow rule. The fix is always to mirror the image into the development registry and reference the production copy.
+
+## One direction of flow
+
+Images move in one direction only: from a public registry, to the development registry, to the production registry, and then to the pod. Each hop has its own control.
+
+The two registries are deliberately different. The development registry is reachable. CI agents, developer laptops, and the promotion job all need its public endpoint, so it uses an IP allowlist rather than full isolation. The production registry is sealed. Public access is disabled, and pods reach it only through a private endpoint. The firewall completes the control. All egress from the cluster subnet goes through the firewall, and its rules allow the registry domain and no other registry domain.
+
+One detail in this design looks like an oversight and is not. The development registry has no private endpoint. Adding one would put a `privatelink` name into the public DNS resolution chain of that registry. That name collides with the private DNS zone in the production tenant, so production pods can no longer resolve the development registry to anything usable, and the promotion job stops. This failure is not hypothetical. A well-meaning hardening change to the "less secure" registry can break the path that keeps production supplied. The configuration value that prevents it should carry a comment that explains why, because the next reviewer will want to "fix" it.
+
+## Two lanes for two kinds of image
+
+Images that the team builds and images that the team borrows use the same chain, but they move through it differently.
+
+Application images are built by CI and pushed to the development registry. They reach production by digest. A GitOps change pins the exact `sha256` digest, and a webhook copies that digest to the production registry ahead of time, so the GitOps controller never races a scheduled copy.
+
+Third-party images use a mirror lane. Each application declares the external images it needs in a small manifest, with a fully qualified source and a pinned tag:
+
+```yaml
+images:
+  - source: docker.io/library/redis:7.2.4
+    target: mirror/library/redis:7.2.4
+
+charts:
+  - source: https://charts.example.com
+    chart: example-operator
+    version: '1.4.0'
+    target: helm/example-operator
+```
+
+CI mirrors every entry into the development registry under a `mirror/` prefix, which keeps borrowed artifacts apart from built ones. A scheduled job in the production cluster then copies them to the production registry by tag. The workflow for a new third-party image is a short sequence:
+
+1. Add an entry with a pinned tag to the manifest of the application.
+2. Open a pull request. The next CI run mirrors the image, and the development registry scans it.
+3. Wait for the next promotion cycle, which copies the image to production.
+4. Reference the production copy, such as `example.azurecr.io/mirror/library/redis:7.2.4`, and never the public reference.
+
+## Two tenants, two trust mechanisms
+
+The promotion job runs in the production tenant, but it must read from the development tenant. Each direction uses a different kind of trust.
+
+On the production side, the job's Kubernetes service account federates to a user-assigned managed identity that can push to the production registry. That is ordinary workload identity.
+
+On the development side, an app registration in the development tenant holds only pull rights on the development registry. Its federated identity credential trusts the OIDC issuer of the production cluster and the service account of the promotion job. So the same projected service account token is checked by two different tenants, each for its own purpose.
+
+Least privilege shaped the mechanism in a useful way. The usual CLI login to a registry first looks the registry up through the Azure management plane, and that lookup needs read access at the subscription level. The app registration has only pull rights on the registry itself, on purpose. Rather than widen that grant, the job exchanges its Entra token directly at the registry's OAuth exchange endpoint for a registry refresh token. Refusing to grant more access forced a more precise implementation.
+
+After authentication, the copy itself is simple. The job lists every repository and its tags in the development registry, lists the tags that already exist in production, and copies only the missing ones with `skopeo copy --multi-arch all`. It compares tag lists instead of inspecting each tag, because a per-tag inspect cannot read Helm chart artifacts. The job defaults to a dry run, and someone must change its spec on purpose to turn that off.
+
+## Walk the chain in order
+
+When something breaks, it breaks at one specific link. Debugging is mostly a matter of checking the links in order instead of guessing.
+
+A pull failure on a public reference is the simplest case. The firewall denies the egress by default, and no allow rule will ever exist for it. Mirror the image and change the reference.
+
+A "manifest unknown" error from the production registry means the image is not there. Check that the build reached the development registry, then check that the promotion job ran after the build and what its logs say, then list the tags in the production registry.
+
+If the promotion job cannot reach the development registry at all, work through the network from the inside out. Check DNS first, and confirm that the resolution chain does not pass through a `privatelink` name. Then check the development registry's allowlist for the production egress address. Then check the firewall logs for that domain. Finally, check the intrusion detection logs for the same time window, because a signature match on egress traffic can drop a legitimate connection.
+
+A cross-tenant authentication failure almost always means the federated credential no longer matches the cluster's issuer and the job's service account exactly, or that the pull role assignment drifted. Both live in Terraform, so a fresh apply reverses the drift. A 401 from the production registry, when the image exists, points at the kubelet identity losing its pull role.
+
+One alert is not a failure. When the production registry flags a new CVE on an image that passed its scan last month, the system is working. Both registries scan, and production scans promoted images again against the current vulnerability database. New findings on bytes that did not change are normal. Decide whether the workload uses the vulnerable component, and if it does, change the pinned version and let the chain run again.
+
+## What a staff engineer should watch
+
+The steady pressure on this design is the request for one firewall exception. It is always for a good reason, and it is always faster than adding a manifest entry. Each exception bypasses the scan and reintroduces the third-party dependency the policy removed. The policy only holds if the answer stays the same every time, and a clear, short path for mirroring is what makes that answer acceptable to teams.
+
+Watch the asymmetry between the registries. The development registry looks weaker, and it will attract hardening work. Some of that work is welcome, but a private endpoint on that registry breaks production supply. The reason belongs next to the setting, not only in a document.
+
+The two lanes also have different strengths. The application lane pins digests, so the bytes in production are exactly the bytes that were built and scanned. The mirror lane promotes by tag. Pinned tags make a deleted or retagged upstream image fail loudly at mirror time, which is good. A tag is still a mutable pointer upstream, though, and for high-risk dependencies it is worth considering whether the mirror manifest should record digests as well. That is a tradeoff between convenience and provenance, and it is worth making on purpose.
+
+Finally, notice the latency that a scheduled copy adds. The application lane avoids it with a webhook that copies ahead of the GitOps change. The mirror lane accepts it. That is a reasonable split, because third-party upgrades are rarely urgent, but an urgent vulnerability fix to a mirrored image will wait for the next cycle unless someone runs the job by hand. The runbook should say how.
+
+Read forward, the chain lets you say where any production image came from and which controls it passed. Read backward, it takes you from any symptom to the link that broke. Both directions are the point of designing it as a chain.
