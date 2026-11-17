@@ -8,7 +8,6 @@ const Testimonial = ({ offset = false }) => (
     name="Ananya Barthakur"
     level="Software Engineer"
     company="Microsoft"
-    sharedCompany="Microsoft"
     url="https://www.linkedin.com/in/ananya-barthakur1/"
     image={AnanyaImage}
   >

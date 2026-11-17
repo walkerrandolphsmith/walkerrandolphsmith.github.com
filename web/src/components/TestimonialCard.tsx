@@ -19,7 +19,6 @@ type TestimonialCardProps = {
   level?: string
   company?: string
   url?: string
-  sharedCompany?: string
 }
 
 const TestimonialCard = ({
@@ -29,7 +28,6 @@ const TestimonialCard = ({
   level = '',
   company = '',
   url = '',
-  sharedCompany = '',
 }: TestimonialCardProps) => (
   <article
     id={testimonialAnchor(name)}
@@ -57,11 +55,6 @@ const TestimonialCard = ({
             </Link>
           </div>
           <div className="text-lg text-zinc-700 dark:text-gray-300">{name}</div>
-          {sharedCompany && (
-            <div className="text-sm text-zinc-500 dark:text-gray-400">
-              Worked together at {sharedCompany}
-            </div>
-          )}
         </section>
       </div>
     </header>

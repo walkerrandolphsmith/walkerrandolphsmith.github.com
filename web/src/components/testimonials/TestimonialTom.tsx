@@ -9,7 +9,6 @@ const TestimonialTom = ({ offset = false }) => (
     name="Tom Kreamer"
     level="Software Engineer"
     company="Microsoft"
-    sharedCompany="Microsoft"
     url="https://www.linkedin.com/in/thomas-kreamer/"
   >
     <div className="flex flex-col gap-2">

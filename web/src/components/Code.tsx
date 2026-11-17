@@ -20,7 +20,7 @@ const Code = () => (
               <div className="text-right select-none text-[#adbdcc]">
                 {Array.from({ length: 12 }, (_, i) => (
                   <div
-                    className="text-sm font-mono"
+                    className="text-[13px] font-mono"
                     key={i + 1}
                     style={{
                       minHeight: '25px',

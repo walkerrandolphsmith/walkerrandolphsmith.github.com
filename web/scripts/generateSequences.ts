@@ -101,33 +101,42 @@ const tabs = {
     id: 'library',
     name: 'token-credential.ts',
     sequence: [
-      { lines: ['export interface TokenCredentialFactory {'], speed: 88 },
-      { lines: [120, '  readonly name: string'], speed: 88 },
-      { lines: [120, '  build(): TokenCredential'], speed: 88 },
-      { lines: ['}'], speed: 88 },
       {
         lines: ['export function chooseStrategy(info: ServiceInfo) {'],
         speed: 88,
       },
-      { lines: [120, '  if (info.usePersonalIdentity) {'], speed: 88 },
+      { lines: [120, '  if (info.shouldUseManagedIdentity) {'], speed: 88 },
+      { lines: [120, '    if (info.usePersonalIdentity) {'], speed: 88 },
       {
-        lines: [120, "    // Local development uses the developer's own login"],
+        lines: [120, "      // Local development uses the developer's login"],
         speed: 88,
       },
       {
-        lines: [120, '    return localDevelopmentTokenCredentialFactory()'],
+        lines: [120, '      return localDevelopmentTokenCredentialFactory()'],
         speed: 88,
       },
-      { lines: [120, '  }'], speed: 88 },
+      { lines: [120, '    }'], speed: 88 },
       {
-        lines: [300, '  // AKS pods use a managed identity, no static secret'],
+        lines: [
+          120,
+          '    // AKS pods use a managed identity, no static secret',
+        ],
         speed: 88,
       },
       {
         lines: [
-          300,
-          '  return userManagedIdentityTokenCredentialFactory(info)',
+          120,
+          '    return userManagedIdentityTokenCredentialFactory(info)',
         ],
+        speed: 88,
+      },
+      { lines: [120, '  }'], speed: 88 },
+      {
+        lines: [120, '  // Hosts outside AKS fall back to a service principal'],
+        speed: 88,
+      },
+      {
+        lines: [120, '  return servicePrincipalTokenCredentialFactory(info)'],
         speed: 88,
       },
       { lines: ['}'], speed: 88 },
