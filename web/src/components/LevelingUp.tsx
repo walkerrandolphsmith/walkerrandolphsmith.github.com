@@ -47,7 +47,7 @@ const LevelingUp = () => (
         </h3>
         <p className="tracking-[0.2px] text-[#adbdcc]">
           At Blue Line Solutions, I set up the SRE role, an on-call rotation,
-          and a 5-level career ladder. Both new engineers met every 30-60-90 day
+          and a 5-level career ladder. Every new engineer met every 30-60-90 day
           milestone.
         </p>
       </div>
@@ -57,10 +57,11 @@ const LevelingUp = () => (
           Upstream fixes
         </h3>
         <p className="tracking-[0.2px] text-[#adbdcc]">
-          I fixed a years-old memory leak in jsreport, and the fix merged
-          upstream. Print runs went from 12–15 hours to 2 hours. I also
-          contribute to Cypress, Azure Functions, JsonEditor, Kafdrop, and
-          react-treeview.
+          I fixed a years-old memory leak in jsreport. The known workaround was
+          a dedicated strategy that skips the Chrome pool and uses 5.5x more
+          CPU. The fix kept the pool, so there are no cold starts, latency and
+          CPU use stay low, and memory no longer runs away. I also contribute to
+          Cypress, Azure Functions, JsonEditor, Kafdrop, and react-treeview.
         </p>
         <CallToAction
           justify="justify-start"

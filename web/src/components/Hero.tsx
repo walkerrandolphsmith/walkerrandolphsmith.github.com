@@ -24,9 +24,10 @@ const Hero = () => (
               className="text-xl sm:text-2xl text-zinc-900 dark:text-gray-400 tracking-normal mb-4 m:mb-8 mt-8 lg:mb-12 text-center px-4"
             >
               I architect large platforms and make them fast and safe for
-              engineering teams to change. My work serves 2B+ users at
-              Microsoft, 53% of the Fortune 100 at Digital.ai, and 200+ law
-              enforcement agencies at Blue Line Solutions.
+              engineering teams to change. My work serves 2B+ users at Microsoft
+              and 53% of the Fortune 100 at Digital.ai. At Blue Line Solutions,
+              it powers nationally deployed public safety programs for law
+              enforcement.
             </p>
             <span className="mt-2 mb-16 flex flex-row flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-2">
               <span>
@@ -51,7 +52,7 @@ const Hero = () => (
               </span>
             </span>
           </div>
-          <div className="w-full max-w-[560px] px-4 lg:px-0 lg:ml-16 mb-12 lg:mb-0 text-left">
+          <div className="hidden sm:block w-full max-w-[560px] px-4 lg:px-0 lg:ml-16 mb-12 lg:mb-0 text-left">
             <Code />
           </div>
         </div>

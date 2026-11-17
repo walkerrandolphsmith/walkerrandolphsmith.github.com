@@ -93,37 +93,38 @@ export const getHighlightedTokens = (
 }
 
 // Each tab types at most 12 lines, the height of the editor. Lines stay
-// short enough to fit the editor width.
+// short enough to fit the editor width. Typing is fast enough that a reader
+// sees the full snippet within a few seconds.
 const tabs = {
   terraform: {
     lang: 'hcl',
     id: 'terraform',
     name: 'cluster.tf',
     sequence: [
-      { lines: ['resource "azurerm_kubernetes_cluster" "this" {'], speed: 60 },
+      { lines: ['resource "azurerm_kubernetes_cluster" "this" {'], speed: 88 },
       {
-        lines: [300, '  # Pods get Entra tokens through workload identity'],
-        speed: 70,
+        lines: [120, '  # Pods get Entra tokens through workload identity'],
+        speed: 88,
       },
-      { lines: [300, '  oidc_issuer_enabled       = true'], speed: 70 },
-      { lines: [300, '  workload_identity_enabled = true'], speed: 70 },
+      { lines: [120, '  oidc_issuer_enabled       = true'], speed: 88 },
+      { lines: [120, '  workload_identity_enabled = true'], speed: 88 },
       {
-        lines: [300, '  # Entra RBAC decides who can reach the cluster'],
-        speed: 70,
+        lines: [120, '  # Entra RBAC decides who can reach the cluster'],
+        speed: 88,
       },
       {
-        lines: [300, '  azure_active_directory_role_based_access_control {'],
-        speed: 70,
+        lines: [120, '  azure_active_directory_role_based_access_control {'],
+        speed: 88,
       },
-      { lines: [300, '    azure_rbac_enabled = true'], speed: 70 },
-      { lines: [300, '  }'], speed: 70 },
-      { lines: [300, '  api_server_access_profile {'], speed: 70 },
+      { lines: [120, '    azure_rbac_enabled = true'], speed: 88 },
+      { lines: [120, '  }'], speed: 88 },
+      { lines: [120, '  api_server_access_profile {'], speed: 88 },
       {
-        lines: [300, '    virtual_network_integration_enabled = true'],
-        speed: 70,
+        lines: [120, '    virtual_network_integration_enabled = true'],
+        speed: 88,
       },
-      { lines: [300, '  }'], speed: 70 },
-      { lines: ['}'], speed: 70 },
+      { lines: [120, '  }'], speed: 88 },
+      { lines: ['}'], speed: 88 },
     ],
   },
   gitops: {
@@ -133,22 +134,22 @@ const tabs = {
     sequence: [
       {
         lines: ['# Production runs the exact image that passed staging.'],
-        speed: 60,
+        speed: 88,
       },
-      { lines: ['# Promotion changes values, never the build.'], speed: 70 },
-      { lines: ['image:'], speed: 70 },
-      { lines: [300, '  registry: example.azurecr.io'], speed: 70 },
-      { lines: [300, '  repository: api'], speed: 70 },
-      { lines: [300, '  digest: "sha256:0000...0000"'], speed: 70 },
-      { lines: [300, '  pullPolicy: IfNotPresent'], speed: 70 },
-      { lines: ['serviceAccount:'], speed: 70 },
+      { lines: ['# Promotion changes values, never the build.'], speed: 88 },
+      { lines: ['image:'], speed: 88 },
+      { lines: [120, '  registry: example.azurecr.io'], speed: 88 },
+      { lines: [120, '  repository: api'], speed: 88 },
+      { lines: [120, '  digest: "sha256:0000...0000"'], speed: 88 },
+      { lines: [120, '  pullPolicy: IfNotPresent'], speed: 88 },
+      { lines: ['serviceAccount:'], speed: 88 },
       {
-        lines: [300, '  # Workload identity, so the pod keeps no secret'],
-        speed: 70,
+        lines: [120, '  # Workload identity, so the pod keeps no secret'],
+        speed: 88,
       },
-      { lines: [300, '  workloadIdentityClientId: "<client-id>"'], speed: 70 },
-      { lines: ['appConfig:'], speed: 70 },
-      { lines: [300, '  environment: Production'], speed: 70 },
+      { lines: [120, '  workloadIdentityClientId: "<client-id>"'], speed: 88 },
+      { lines: ['appConfig:'], speed: 88 },
+      { lines: [120, '  environment: Production'], speed: 88 },
     ],
   },
   library: {
@@ -156,39 +157,36 @@ const tabs = {
     id: 'library',
     name: 'token-credential.ts',
     sequence: [
-      { lines: ['export interface TokenCredentialFactory {'], speed: 60 },
-      { lines: [300, '  readonly name: string'], speed: 70 },
-      { lines: [300, '  build(): TokenCredential'], speed: 70 },
-      { lines: ['}'], speed: 70 },
+      { lines: ['export interface TokenCredentialFactory {'], speed: 88 },
+      { lines: [120, '  readonly name: string'], speed: 88 },
+      { lines: [120, '  build(): TokenCredential'], speed: 88 },
+      { lines: ['}'], speed: 88 },
       {
         lines: ['export function chooseStrategy(info: ServiceInfo) {'],
-        speed: 70,
+        speed: 88,
       },
-      { lines: [300, '  if (info.usePersonalIdentity) {'], speed: 70 },
+      { lines: [120, '  if (info.usePersonalIdentity) {'], speed: 88 },
       {
-        lines: [300, "    // Local development uses the developer's own login"],
-        speed: 70,
+        lines: [120, "    // Local development uses the developer's own login"],
+        speed: 88,
       },
       {
-        lines: [300, '    return localDevelopmentTokenCredentialFactory()'],
-        speed: 70,
+        lines: [120, '    return localDevelopmentTokenCredentialFactory()'],
+        speed: 88,
       },
-      { lines: [300, '  }'], speed: 70 },
+      { lines: [120, '  }'], speed: 88 },
       {
-        lines: [
-          300,
-          '  // AKS pods use a managed identity, not a static secret',
-        ],
-        speed: 70,
+        lines: [300, '  // AKS pods use a managed identity, no static secret'],
+        speed: 88,
       },
       {
         lines: [
           300,
           '  return userManagedIdentityTokenCredentialFactory(info)',
         ],
-        speed: 70,
+        speed: 88,
       },
-      { lines: ['}'], speed: 70 },
+      { lines: ['}'], speed: 88 },
     ],
   },
 }
