@@ -25,7 +25,7 @@ const results: Result[] = [
   },
   {
     headline: '6x faster CI',
-    text: 'I made CI six times faster. This gave engineering teams back about 1,300 developer hours each year.',
+    text: 'I made CI six times faster and gave engineering teams back about 1,300 developer hours each year. Nx builds and tests only the apps that a change affects. An image promotion pipeline moves one image through every environment, so no configuration is baked in at build time.',
     company: 'Microsoft',
   },
   {

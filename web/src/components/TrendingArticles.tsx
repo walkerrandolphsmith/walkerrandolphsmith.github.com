@@ -17,7 +17,7 @@ const ArticleCard = ({ slug, tags, title, children }) => (
         </p>
       </div>
     </div>
-    <div className="translate-y-12 group-focus-within:-translate-y-1 group-hover:-translate-y-1 grid gap-2 px-8 py-4 transition-transform [transition-timing-function:cubic-bezier(0.33,1,0.68,1)] will-change-transform bg-white dark:bg-transparent">
+    <div className="mt-auto translate-y-12 group-focus-within:-translate-y-1 group-hover:-translate-y-1 grid gap-2 px-8 py-4 transition-transform [transition-timing-function:cubic-bezier(0.33,1,0.68,1)] will-change-transform bg-white dark:bg-transparent">
       <div className="flex justify-between w-full items-center">
         <div className="inline-flex flex-wrap items-center justify-start gap-2">
           {tags.map(tag => (
@@ -30,15 +30,17 @@ const ArticleCard = ({ slug, tags, title, children }) => (
           ))}
         </div>
       </div>
-      <CallToAction
-        title="Read article"
-        href={slug}
-        dataTestId="read-article"
-        includeArrow
-        excludeLeftPadding
-        color="text-[#7a6ded]"
-        darkColor="text-[#7a6ded]"
-      />
+      <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
+        <CallToAction
+          title="Read article"
+          href={slug}
+          dataTestId="read-article"
+          includeArrow
+          excludeLeftPadding
+          color="text-[#7a6ded]"
+          darkColor="text-[#7a6ded]"
+        />
+      </div>
     </div>
   </div>
 )

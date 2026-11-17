@@ -94,62 +94,98 @@ export const getHighlightedTokens = (
 
 // Each tab types at most 12 lines, the height of the editor.
 const tabs = {
+  terraform: {
+    lang: 'hcl',
+    id: 'terraform',
+    name: 'environment.tf',
+    sequence: [
+      { lines: ['module "environment" {'], speed: 60 },
+      {
+        lines: [300, '  source = "./modules/isolated-environment"'],
+        speed: 70,
+      },
+      {
+        lines: [300, '  # A separate tenant isolates the identity plane'],
+        speed: 80,
+      },
+      { lines: [300, '  tenant_id = var.environment_tenant_id'], speed: 70 },
+      {
+        lines: [300, '  # Private endpoints isolate the network plane'],
+        speed: 80,
+      },
+      { lines: [300, '  vnet_address_space = ["10.20.0.0/16"]'], speed: 70 },
+      {
+        lines: [300, '  private_endpoints  = ["acr", "key_vault", "sql"]'],
+        speed: 70,
+      },
+      { lines: [300, '  public_network_access_enabled = false'], speed: 70 },
+      {
+        lines: [300, '  # ACR serves image pulls only inside the VNet'],
+        speed: 80,
+      },
+      { lines: [300, '  acr_exclusive_pull = true'], speed: 70 },
+      { lines: ['}'], speed: 60 },
+    ],
+  },
   gitops: {
     lang: 'yaml',
     id: 'gitops',
-    name: 'release.yaml',
+    name: 'production.yaml',
     sequence: [
       { lines: ['apiVersion: kustomize.toolkit.fluxcd.io/v1'], speed: 60 },
       { lines: ['kind: Kustomization'], speed: 60 },
       { lines: ['metadata:'], speed: 60 },
-      { lines: [300, '  name: platform-production'], speed: 80 },
-      { lines: [300, '  namespace: flux-system'], speed: 80 },
+      { lines: [300, '  name: api-production'], speed: 80 },
       { lines: ['spec:'], speed: 60 },
-      { lines: [300, '  interval: 5m'], speed: 80 },
-      { lines: [300, '  sourceRef:'], speed: 80 },
-      { lines: [300, '    kind: OCIRepository'], speed: 80 },
-      { lines: [300, '    name: platform-releases'], speed: 80 },
+      { lines: [300, '  dependsOn:'], speed: 80 },
+      { lines: [300, '    - name: api-staging'], speed: 80 },
+      {
+        lines: [300, '  sourceRef: { kind: OCIRepository, name: releases }'],
+        speed: 70,
+      },
       { lines: [300, '  path: ./production'], speed: 80 },
-      { lines: [300, '  prune: true'], speed: 80 },
+      { lines: [300, '  images:'], speed: 80 },
+      { lines: [300, '    - name: example.azurecr.io/api'], speed: 80 },
+      {
+        lines: [300, '      newTag: 1.42.0 # the image that passed staging'],
+        speed: 80,
+      },
     ],
   },
-  ephemeral: {
-    lang: 'yaml',
-    id: 'ephemeral',
-    name: 'pull-request.yml',
+  library: {
+    lang: 'ts',
+    id: 'library',
+    name: 'auth-client.ts',
     sequence: [
-      { lines: ['pr:'], speed: 60 },
-      { lines: [300, '  branches:'], speed: 80 },
-      { lines: [300, '    include: [main]'], speed: 80 },
-      { lines: ['stages:'], speed: 60 },
-      { lines: [300, '  - stage: EphemeralEnvironment'], speed: 80 },
-      { lines: [300, '    jobs:'], speed: 80 },
-      { lines: [300, '      - job: Verify'], speed: 80 },
-      { lines: [300, '        steps:'], speed: 80 },
       {
-        lines: [300, '          - script: nx affected -t build test'],
+        lines: ["import { DefaultAzureCredential } from '@azure/identity'"],
+        speed: 60,
+      },
+      {
+        lines: [300, '// Each service gets tokens from its managed identity.'],
+        speed: 80,
+      },
+      { lines: [300, '// No service keeps a static secret.'], speed: 80 },
+      {
+        lines: [300, 'const credential = new DefaultAzureCredential()'],
+        speed: 70,
+      },
+      { lines: [300, 'const scope = process.env.API_SCOPE'], speed: 70 },
+      {
+        lines: [300, 'export const callApi = async (url: string) => {'],
         speed: 70,
       },
       {
-        lines: [300, '          - script: ./deploy-env.sh $(PullRequestId)'],
+        lines: [300, '  const { token } = await credential.getToken(scope)'],
         speed: 70,
       },
-      { lines: [300, '          - script: npx playwright test'], speed: 70 },
-    ],
-  },
-  mesh: {
-    lang: 'yaml',
-    id: 'mesh',
-    name: 'mtls.yaml',
-    sequence: [
-      { lines: ['apiVersion: security.istio.io/v1'], speed: 60 },
-      { lines: ['kind: PeerAuthentication'], speed: 60 },
-      { lines: ['metadata:'], speed: 60 },
-      { lines: [300, '  name: default'], speed: 80 },
-      { lines: [300, '  namespace: istio-system'], speed: 80 },
-      { lines: ['spec:'], speed: 60 },
-      { lines: [300, '  mtls:'], speed: 80 },
-      { lines: [300, '    mode: STRICT'], speed: 80 },
+      { lines: [300, '  return fetch(url, {'], speed: 70 },
+      {
+        lines: [300, '    headers: { Authorization: `Bearer ${token}` },'],
+        speed: 70,
+      },
+      { lines: [300, '  })'], speed: 70 },
+      { lines: ['}'], speed: 60 },
     ],
   },
 }
