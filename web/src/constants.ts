@@ -13,10 +13,10 @@ import VersionOneLogo from '../public/versiononelogo.webp'
 
 const companyById = {
   bluelinesolutions: {
-    title: 'Director of Engineering',
+    title: 'Staff Engineer, then Director of Engineering',
     name: 'Blue Line Solutions',
     description:
-      'I direct engineering for NewGuard, a CJIS-compliant SaaS platform for 200+ law enforcement agencies. I became Director within 8 months. I provisioned isolated Azure tenants with Terraform to pass a CJIS audit and get final NLETS approval.',
+      'I joined as Staff Engineer and became Director of Engineering within 8 months. I direct engineering for NewGuard, a CJIS-compliant SaaS platform for 200+ law enforcement agencies. I provisioned isolated Azure tenants with Terraform to pass a CJIS audit and get final NLETS approval.',
     image: null,
     logo: null,
     card: null,

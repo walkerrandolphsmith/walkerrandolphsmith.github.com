@@ -12,11 +12,12 @@ const bulletClassName = `font-light text-zinc-600 dark:text-gray-400`
 
 const jobs = [
   {
-    title: 'Director of Engineering',
+    title: 'Staff Engineer, then Director of Engineering',
     company: 'Blue Line Solutions',
     dates: '2025 – Present',
     highlights: [
-      'Directed engineering for NewGuard, a CJIS-compliant SaaS platform for 200+ law enforcement agencies across the US. Promoted to Director within 8 months.',
+      'Joined as Staff Engineer and was promoted to Director of Engineering within 8 months.',
+      'Directed engineering for NewGuard, a CJIS-compliant SaaS platform for 200+ law enforcement agencies across the US.',
       'Owned the migration of a national traffic enforcement platform from an end-of-life data center to AKS. The platform processes millions of IoT events each day. The migration dropped no billable event and had no downtime outside regular maintenance windows.',
       'Passed a CJIS audit and secured final NLETS approval. Provisioned isolated Azure tenants with Terraform and enforced data-boundary controls that keep CJIS data inside the environment.',
       'Replaced stop-the-site releases with a GitOps delivery model with image promotion pipelines and human approval gates. Delivered 999 automated zero-downtime production releases in one quarter, versus 71 legacy releases that each required an outage.',
