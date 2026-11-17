@@ -61,9 +61,7 @@ While we fixed staleness, we also created a reliable source of truth for publish
 
 Technically, the event system was simple to build: event stream, event store, message schemas, and client libraries.
 
-The real work was to get four different teams to adopt it.
-
-Each team owned a part of the delivery pipeline. One owned the backend CMS, and one managed the read model of the content. One managed the main web application, and one controlled mobile app caching. Many teams shared the edge and CDN layers.
+The real work was to get five different teams to adopt it. Each team owned a part of the delivery pipeline.
 
 They had different timelines, SLAs, and priorities. Each team had its own local optimizations for "when content gets updated." No one wanted to own global coordination, because each team thought that another team already did.
 

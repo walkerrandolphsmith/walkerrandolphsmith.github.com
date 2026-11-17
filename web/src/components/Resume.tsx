@@ -63,7 +63,7 @@ const jobs: Job[] = [
     company: 'Microsoft',
     dates: '2021 – 2025',
     highlights: [
-      'Architected and implemented a distributed event-driven platform across five organizations, including the AI and data teams. It powers CMS systems for support.microsoft.com, Office, and Windows, with 2B+ users and 1B+ requests each month.',
+      'Architected and implemented a distributed event-driven platform across five organizations. It powers CMS systems for support.microsoft.com, Office, and Windows, with 2B+ users and 1B+ requests each month.',
       'Reclaimed about 1,300 developer hours each year by making CI 6x faster.',
       'Reduced rollbacks by 30% with ephemeral environments that enable full end-to-end testing across a distributed system.',
       'Improved Lighthouse scores from 48 to 100 and cut page load time by 5 seconds at 2B+ user scale. Used Incremental Static Regeneration driven by system events.',
