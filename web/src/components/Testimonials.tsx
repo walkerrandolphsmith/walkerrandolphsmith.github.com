@@ -1,11 +1,21 @@
+import type { ReactNode } from 'react'
+
 import CallToAction from './CallToAction'
 import SectionHeader from './SectionHeader'
 import TestimonialGrid from './TestimonialGrid'
 
 export { TestimonialGrid }
 
-export const TestimonialGroup = ({ title, children }) => (
-  <section className="grid gap-y-8">
+export const TestimonialGroup = ({
+  title,
+  id,
+  children,
+}: {
+  title: string
+  id?: string
+  children: ReactNode
+}) => (
+  <section id={id} data-group={id} className="grid gap-y-8 scroll-mt-24">
     <h3 className="px-4 md:px-2 text-[28px] leading-[36px] font-medium text-zinc-950 dark:text-white tracking-[-0.05em]">
       {title}
     </h3>
