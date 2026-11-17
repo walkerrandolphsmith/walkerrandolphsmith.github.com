@@ -24,6 +24,10 @@ const GuidedSection = ({
   bleedBottom = null,
   bleedTopDark = null,
   bleedBottomDark = null,
+  bleedGuideSolidColor = 'rgba(66, 71, 112, 0.06)',
+  bleedGuideDashedColor = 'rgba(66, 71, 112, 0.09)',
+  bleedGuideSolidColorDark = 'rgba(66, 71, 112, 0.06)',
+  bleedGuideDashedColorDark = 'rgba(66, 71, 112, 0.09)',
 }) =>
   createElement(
     as,
@@ -39,6 +43,33 @@ const GuidedSection = ({
           } as React.CSSProperties)
         : undefined,
     },
+    // A bleed section shows the section above in the triangle over its
+    // angled top. These unskewed guides continue that section's guide lines
+    // down to the diagonal. The skewed background covers them everywhere else.
+    bleedTop && (
+      <div
+        className="Section__bleedGuides"
+        aria-hidden="true"
+        style={
+          {
+            ['--guideSolidColor' as string]: bleedGuideSolidColor,
+            ['--guideDashedColor' as string]: bleedGuideDashedColor,
+            ['--guideSolidColorDark' as string]: bleedGuideSolidColorDark,
+            ['--guideDashedColorDark' as string]: bleedGuideDashedColorDark,
+          } as React.CSSProperties
+        }
+      >
+        <div className="Guides">
+          <div className="Guides__container">
+            <div className="Guides__guide"></div>
+            <div className="Guides__guide"></div>
+            <div className="Guides__guide"></div>
+            <div className="Guides__guide"></div>
+            <div className="Guides__guide"></div>
+          </div>
+        </div>
+      </div>
+    ),
     <div
       className="Section__masked"
       style={

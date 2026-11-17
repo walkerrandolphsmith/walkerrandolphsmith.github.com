@@ -866,6 +866,13 @@ span.custom-type-animation-cursor-visible::after {
   overflow: var(--sectionOverflow);
 }
 
+.Section__bleedGuides {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .Section__backgroundMask {
   position: absolute;
   width: 100%;

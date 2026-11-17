@@ -52,6 +52,8 @@ const Narrative = () => (
       bleedTopDark="oklch(27.4% .006 286.033)"
       bleedBottom="white"
       bleedBottomDark="oklch(27.4% .006 286.033)"
+      bleedGuideSolidColorDark="rgba(255, 255, 255, 0.08)"
+      bleedGuideDashedColorDark="rgba(255, 255, 255, 0.08)"
       background="#0a2540"
       backgroundDark="oklch(21% .006 285.885)"
       guideSolidColor="rgba(66,71,112,0.3)"
