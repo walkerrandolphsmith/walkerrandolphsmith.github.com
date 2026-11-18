@@ -29,6 +29,7 @@ import remarkMath from 'remark-math'
 
 import siteMetadata from './src/data/sitemetadata'
 import rehypeCodeBlock from './src/mdx/rehypeCodeBlock'
+import rehypeScrollableTables from './src/mdx/rehypeScrollableTables'
 
 const root = process.cwd()
 const isProduction = process.env.NODE_ENV === 'production'
@@ -182,6 +183,7 @@ export default makeSource({
       rehypeKatexNoTranslate,
       [rehypeCitation, { path: path.join(root, 'data') }],
       rehypeCodeBlock,
+      rehypeScrollableTables,
       rehypePresetMinify,
     ],
   },

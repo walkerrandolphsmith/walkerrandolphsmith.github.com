@@ -321,6 +321,29 @@
   }
 }
 
+/* Wide tables in posts scroll inside their own region instead of being
+   clipped by the article column. */
+.prose .table-scroll {
+  margin-block: 2em;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.prose .table-scroll > table {
+  margin-block: 0;
+}
+
+/* Long headers wrap one word per line in a narrow column. A minimum width
+   keeps them readable, and the region scrolls instead. */
+.prose .table-scroll th {
+  min-width: 7rem;
+}
+
+.prose .table-scroll:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
 .task-list-item::before {
   @apply hidden;
 }
