@@ -1,0 +1,91 @@
+---
+title: 'End-to-End TLS Is a Chain of Handoffs'
+date: 2026-11-17
+tags: ['security', 'Azure', 'AKS', 'cert-manager']
+draft: false
+excerpt: |
+  End-to-end TLS through an edge gateway and a service mesh is not one certificate. It is a chain of handoffs, and each layer must trust the next one with its own copy of the material. This post covers the pattern with cert-manager, External Secrets Operator, Key Vault, Application Gateway, and an Istio ingress gateway, and the lessons that only show up at renewal time.
+---
+
+"We use TLS" usually describes one connection: the browser to the first thing that answers. In a typical Azure platform, that first thing is an edge gateway such as Application Gateway, which terminates TLS so that it can route by path and run a web application firewall. Behind it sits an ingress gateway for the cluster, and behind that sits the workload. If any handoff in that chain falls back to plain text, the claim of end-to-end encryption is no longer true.
+
+The useful way to think about this is as a chain of trust handoffs. Each layer decrypts, makes a decision, and opens a new TLS connection to the next layer. For that new connection to mean anything, the receiving layer must present a certificate, and the sending layer must verify it. Every handoff therefore needs its own answer to two questions: what certificate does the receiver present, and why does the sender trust it?
+
+## One issuer, several consumers
+
+The layers want certificates in different places. Application Gateway reads its listener certificate from Key Vault, through a managed identity and a secret URI. It has no knowledge of Kubernetes. An Istio ingress gateway reads its certificate from a Kubernetes Secret, which it names in the `credentialName` field of a Gateway resource. It has no knowledge of Key Vault.
+
+A clean pattern is to issue in one place and distribute to the others. cert-manager runs in the cluster and issues the certificate, for example from an ACME certificate authority with a DNS-01 challenge. DNS-01 needs no inbound HTTP path to the cluster, which matters when the cluster sits behind several layers that would all need to route the challenge correctly. cert-manager authenticates to the DNS zone with workload identity, so no secret is involved. It writes the result to a Kubernetes Secret, and the ingress gateway reads that Secret directly.
+
+For the edge, the External Secrets Operator closes the gap. ESO is usually described as a tool that pulls secrets from a vault into the cluster. Its `PushSecret` resource goes the other way. It watches a Kubernetes Secret and writes it to Key Vault:
+
+```yaml
+apiVersion: external-secrets.io/v1alpha1
+kind: PushSecret
+metadata:
+  name: push-example-tls
+spec:
+  secretStoreRefs:
+    - name: example-key-vault
+      kind: ClusterSecretStore
+  selector:
+    secret:
+      name: example-tls
+  template:
+    engineVersion: v2
+    data:
+      tls.p12: '{{ fullPemToPkcs12 (index . "tls.crt") (index . "tls.key") }}'
+  data:
+    - match:
+        secretKey: tls.p12
+        remoteRef:
+          remoteKey: cert/example-tls
+```
+
+Two details in that resource are easy to get wrong. cert-manager writes PEM, and Key Vault certificate objects expect PKCS12, so the template converts the pair. And the `cert/` prefix on the remote key tells the Key Vault provider to import a certificate object, not a plain secret. If the value lands as a secret, the edge cannot use it as a listener certificate, and nothing about the push itself looks wrong.
+
+The result is one issuance, one renewal schedule, and one place to look when a certificate is wrong. cert-manager is the source of truth. Every other copy is downstream of it.
+
+## The edge must trust what the ingress presents
+
+The edge terminates the client connection with its own certificate. It then opens a new connection to the ingress gateway, and the ingress presents its certificate. Application Gateway verifies that certificate against a list of trusted roots in its backend settings, and it checks the host name.
+
+That host name check is the first trap. The edge sends a host name as the SNI value on the backend connection, and the ingress certificate must carry that name as a subject alternative name. If the edge forwards whatever host the client sent, every public host name must appear on the ingress certificate. If the edge overrides the host with one fixed name, the certificate needs only that name, and the ingress must route correctly without the original host. Either choice works. A mismatch between them fails every backend connection.
+
+The trusted root is the second trap. You can let the edge trust any well-known certificate authority, or you can pin the specific root that issues the ingress certificate. Pinning narrows trust, which is good. It also ties the edge to the lifecycle of that root. Certificate authorities do move to new roots and new intermediate chains. When that happens, every renewal after the change chains to a root that the edge does not trust. The edge marks the backend unhealthy, and clients get a 502 from a gateway that is otherwise fine. If you pin, record which root you pinned and why, next to the setting, and track the published root plans of your certificate authority.
+
+## Health probes speak TLS too
+
+The edge decides whether a backend is healthy with a probe. When the backend connection is HTTPS, the probe is HTTPS as well, and it goes through the same verification as real traffic. It needs a host name that matches the certificate, and Application Gateway does not always take that name from the backend settings. A probe with its own host setting must be kept in step with the backend settings, or the probe fails while real requests would have worked.
+
+The ingress gateway also needs something to answer. A probe that reaches the ingress with a path that no route matches gets a 404, which the edge treats as unhealthy unless you widen the accepted status codes. A small, dedicated health route at the ingress, which answers without calling any workload, keeps the probe honest. It tests the handoff the probe is responsible for and nothing more.
+
+When a probe fails, the error message rarely says "certificate". The symptom is an unhealthy backend and a 502. A short checklist saves time: does the SNI name match a name on the ingress certificate, does the ingress certificate chain to a root that the edge trusts, and does the probe path return a status the edge accepts.
+
+## Inside the cluster, the mesh takes over
+
+Past the ingress gateway, the mesh carries the traffic. In Istio, every workload gets its own certificate from the mesh control plane, rotated automatically and bound to the workload's service account. Peer authentication in strict mode makes the mesh refuse plain text between workloads. The workloads never handle a certificate file, and nobody renews these certificates by hand.
+
+This handoff is the easiest one to operate and the easiest one to forget. The mesh certificates are short-lived, so the mesh control plane is a live dependency. If workloads cannot reach it for longer than a certificate lifetime, their certificates expire and connections fail. Monitor the control plane as part of the TLS chain, not as a separate system.
+
+## Renewal is where the chain breaks
+
+Issuance is the easy day. cert-manager renews well before expiry, writes the new certificate to the Secret, and the ingress gateway picks it up within moments. The edge is slower. ESO pushes to Key Vault on its refresh interval, and Application Gateway polls Key Vault on its own schedule. For a while, the two layers present different certificates. That gap is normal, and it is not a problem while both certificates are valid.
+
+The problem is that a broken link looks exactly like that normal gap. If the push fails, or the edge loses its permission to read the vault, the edge keeps the old certificate. The old certificate is still valid, so every check that tests "is the site up?" passes. Nothing shows the break until the old certificate expires, weeks later, on a day when nobody is thinking about certificates.
+
+The fix is to watch the difference, not the absolute state. Compare the expiry date of the certificate that the public endpoint presents with the expiry date of the certificate that cert-manager holds. If the public one is older for longer than the normal propagation time, a link in the chain is broken. That one alert covers the push, the vault import, the edge's identity, and the edge's refresh, without a separate check for each. A dashboard that then shows each step in order turns "the edge is behind" into "the push failed with a permission error" in a few minutes.
+
+Identity is the other renewal trap. cert-manager authenticates to DNS through a federated credential that trusts the cluster's OIDC issuer. Rebuild the cluster and the issuer changes. The federated credential still names the old one, so every DNS-01 challenge fails at token exchange. The current certificates keep working until they expire, which hides the problem. The infrastructure code that creates the federated credential must run again after any cluster rebuild, and the runbook for a rebuild should say so.
+
+## What to watch
+
+Watch the gap between layers. The single most useful signal in this design is the difference between what the issuer holds and what clients see. Alert on it, and give it a dashboard that walks the chain in order.
+
+Watch the roots. Every layer that verifies a certificate has a trust list, and every trust list is a dependency on someone else's lifecycle. Write down what each layer trusts and why, next to the code that configures it.
+
+Watch the permissions. cert-manager needs to write challenge records, ESO needs to import certificates, and the edge needs to read them. Each grant is small, and each one is a link in the chain. A role assignment removed during an unrelated cleanup breaks renewal weeks before anyone notices.
+
+Watch the format. Certificates change shape as they move between systems, from PEM in Kubernetes to PKCS12 in Key Vault. Each conversion is a place where a value can land in the wrong form and still look present.
+
+For any public host, the questions are who issues its certificate, which copies exist and where, how each copy is refreshed, and what each layer trusts when it verifies the next. When every handoff has a clear answer, end-to-end TLS is a property you can check, not a sentence on a slide.

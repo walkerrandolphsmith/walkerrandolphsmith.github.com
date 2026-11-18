@@ -1,0 +1,117 @@
+---
+title: 'Living With Deny by Default in a Service Mesh'
+date: 2026-11-17
+tags: ['security', 'identity', 'Kubernetes', 'platform engineering']
+draft: false
+excerpt: |
+  A floor that denies every call by default in an Istio mesh is one small policy. The work is everything after it: how a new service gets its first allowed call, how an engineer tells a mesh denial from an application error, and how a cluster's worth of allow rules stays readable. This post covers the floor, workload identity, AuthorizationPolicy, and the habits that make deny by default livable.
+---
+
+An [earlier post](/blog/the-network-floor-under-an-identity-mesh) argued that the coarse network still has a job under an identity-aware mesh, because it holds when the mesh's assumptions break. This post is about the layer above that floor. A mesh that denies by default is easy to switch on. The harder question is how a team of engineers ships features every day with it switched on, without the policy turning into either a wall or a rubber stamp.
+
+## The identity the mesh checks
+
+A network rule says where a packet came from. A mesh policy says who sent it. In Istio, every workload in the mesh receives a certificate from the mesh control plane, and that certificate names the workload's Kubernetes service account in a SPIFFE form:
+
+```text
+cluster.local/ns/shop/sa/orders
+```
+
+Every connection between workloads is mutual TLS, so the receiving side knows that identity for certain. Pod IPs change on every restart and can be reused. The service account does not change when the pod moves. Policies written against identities therefore stay correct when the cluster reschedules everything.
+
+The same service account often carries a second identity. With Azure workload identity, the service account federates to a managed identity that the workload uses to reach cloud resources. The two are different systems with different trust roots. The mesh identity decides which workloads may call each other. The cloud identity decides which resources a workload may touch. One service account, declared once in the chart, anchors both, which is a good reason to give every service its own account and never share one.
+
+## The floor is one empty policy
+
+Istio evaluates ALLOW policies with a simple rule. If no ALLOW policy applies to a target, everything is allowed. If at least one applies, a request must match one of them, or it is denied. An ALLOW policy with no rules matches nothing. Put those facts together, and one empty policy closes the door:
+
+```yaml
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-nothing
+  namespace: shop
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: waypoint
+  action: ALLOW
+```
+
+In ambient mode, this policy targets the namespace's waypoint, the proxy that reads each HTTP request between services. From the moment it applies, every call between services in the namespace that no other policy allows gets a `403` with the body `RBAC: access denied`.
+
+The floor and the exceptions should have different owners. The platform owns the floor and the waypoint, in the repository that configures the cluster. Each service owns its own allow rules, in its own chart. Keep application allow rules out of the platform repository. If a policy in the platform repository and a policy in a chart share a name, they are the same Kubernetes object, and two controllers will apply two versions of it back and forth.
+
+## Onboarding a service
+
+A new service starts with no allowed calls in either direction. That is the point of the floor, and it is also the first thing a new team runs into. The way to make it painless is to put the allow rules in the service template, with empty lists:
+
+```yaml
+authorizationPolicy:
+  # Services this one calls.
+  callees: []
+  # Service accounts that may call this one.
+  callers: []
+```
+
+The chart renders an ALLOW policy from each list. A policy for callers looks like this:
+
+```yaml
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: invoices-allow-callers
+  namespace: shop
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: waypoint
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/shop/sa/orders
+      to:
+        - operation:
+            hosts:
+              - invoices.shop.svc.cluster.local
+```
+
+Onboarding then becomes a change to a values file. A team that adds an HTTP client for another service adds that service to its list in the same pull request. The reviewer sees the new dependency and the new permission side by side, which is the moment a reviewer is best placed to ask whether the call should exist at all.
+
+Decide early which side of a call owns the declaration. Istio combines ALLOW policies with a logical OR, so a rule in either chart is enough to open the path. That makes the choice a convention, not a security property, and a convention only helps if everyone follows the same one. Callee-owned rules let a service decide who may reach it. Caller-owned rules keep each service's outbound dependencies in one place. Either works. Mixing them without a rule makes the question "who can call this service?" harder to answer than it should be.
+
+## Debugging a denial
+
+The first skill to teach is telling a mesh denial from an application denial. Both are a `403`. The mesh's version has the body `RBAC: access denied` and never reaches the application, so the application logs show nothing. The waypoint's access log shows the request, its source principal, its destination host, and a response detail that names the RBAC denial. If the application logs a rejected token or a missing role, the mesh allowed the call and the problem is elsewhere.
+
+The most common cause of a mesh denial is a principal that names the wrong service account. The policy says `sa/orders`, but the chart gives the pod a service account with a longer name. The rule is valid, matches no pod, and the floor denies the call. The fix is always the same check: read the service account from the running pod and compare it, character for character, with the principal in the policy.
+
+The second cause is a dependency that nobody thinks of as a call. A service that validates bearer tokens fetches its identity provider's discovery document and signing keys at startup. If that provider runs in the mesh, the fetch is a call between services, and the floor denies it. The symptom is not a `403`. It is a token validation error, often a `500`, because the library could not load its keys. The same pattern appears with configuration services, feature flag services, and anything else that a library calls on the application's behalf. A template that lists these shared dependencies, with a comment that says why, saves each new team from finding them one at a time.
+
+A short ladder covers most cases. Does the response body say `RBAC: access denied`? Does a policy name the caller's real service account? Does that policy name the callee's real host? Is the call one that a library makes, not the code the team wrote?
+
+## Keeping policies reviewable
+
+Allow rules accumulate. A year after the floor goes in, a namespace can hold dozens of policies, and the value of deny by default depends on whether anyone can still read them.
+
+Keep the rules narrow. Name a specific principal and a specific host in every rule. A rule that allows any host, or any principal, turns the floor back into an open door for one caller. When one is truly necessary, its reason belongs in a comment next to it, and it deserves a second reviewer.
+
+Use DENY for the paths that must stay closed. Istio evaluates DENY policies before ALLOW policies, so a DENY rule for an operator-only path, such as an admin dashboard, holds even if a broad ALLOW rule later matches the same service. That keeps the most sensitive rules independent of the least careful ones.
+
+Name policies so that a list of them reads as a dependency map. A name that includes the service and the direction lets an engineer answer "who calls this?" from `kubectl get authorizationpolicy` without opening a single file.
+
+Remove allow rules when the call goes away. A stale allow is invisible until it matters. Mesh telemetry records which identities actually call which hosts, and comparing that with the declared rules shows the edges that nobody uses. Deleting them keeps the declared graph close to the real one.
+
+## What to watch
+
+Watch the floor itself. It is one small object, and deleting it, or adding a second waypoint without it, opens every path in the namespace without a single failed request to warn anyone. A check in CI that the floor exists in every meshed namespace is cheap.
+
+Watch the convention for which side declares a call. If both sides start to declare, the rules double and the review story weakens. If neither side owns it clearly, onboarding slows down while people argue.
+
+Watch what the mesh does not see. The floor governs traffic that the mesh captures and that the waypoint reads. Anything outside that set needs a different control, which is the job of the network floor described in the earlier post.
+
+For any service, the useful questions are which service account it runs as, which services it calls and where that is declared, who may call it, and which paths stay closed regardless. When those answers are in the chart and match the traffic, deny by default stops being an obstacle and becomes a map of the system that the cluster enforces.
