@@ -232,6 +232,8 @@ A server that supports these options parses `$filter` into an expression and tra
 GET /api/bills/Fin.DueThisWeek()?$orderby=order&$top=20
 ```
 
-## What I would keep
+## The design document I would write now
 
-The experiment did what it was for. Entities with behavior, value objects that check their own rules, repositories behind interfaces, references by ID, and named specifications all worked as the design described them, and the design patterns gave each idea a concrete place to practice. The decisions that needed more care are the ones that no pattern makes for you: how many models the product needs, which changes must happen together, what each failure means to the caller, who creates an identity, and where a rule runs. Next time, those decisions go into the design document first, before the class diagrams.
+The class diagrams in Fin's design document would stay. The patterns gave each tactical idea a concrete place to practice, and that was the point of the experiment. The new document would put a few short decisions in front of the diagrams. A context map would show where the Bills model ends and where Budgeting and Investing begin. Each flow that changes two aggregates would name its choice, a transaction or an event. Each exception flow in a use case would name its kind of error and its response, not "e.g., HTTP 500". One sentence would say that the domain creates its own identities. Each specification would say how it becomes a database query.
+
+I picked Fin because it was small enough to finish. It was also large enough to raise each of these questions. No pattern answers them, so a design document has to.
