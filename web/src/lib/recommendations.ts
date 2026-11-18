@@ -9,12 +9,12 @@ import sitemetadata from '@/data/sitemetadata'
  * the recommendations page renders.
  *
  * Each recommendation is a component in src/components/testimonials that
- * passes literal props (name, level, company, url) to TestimonialCard and
- * holds the quote as paragraphs of JSX text. The recommendations page lists
- * the components of each group in order. This module reads both, so llms.txt,
- * llms-full.txt, and the WebMCP data file always match the page. The build
- * fails if a file does not have the expected shape, instead of publishing an
- * incomplete list.
+ * passes literal props (name, level, company, url) to TestimonialCard. The
+ * recommendations page lists the components of each group in order. This
+ * module reads both, so llms.txt, llms-full.txt, and the WebMCP data file
+ * always match the page. The build fails if a file does not have the expected
+ * shape, instead of publishing an incomplete list. The agent files list who
+ * recommended Walker Smith but never the quote text, which stays on the page.
  *
  * Server only: it reads source files with fs during the static export.
  */
@@ -25,7 +25,6 @@ export type Recommendation = {
   company: string
   linkedin: string
   url: string
-  quote: string[]
 }
 
 export type RecommendationGroup = {
@@ -38,24 +37,6 @@ const sourceRoot = path.join(process.cwd(), 'src')
 
 const readSource = (...segments: string[]) =>
   readFileSync(path.join(sourceRoot, ...segments), 'utf8')
-
-const entities: Record<string, string> = {
-  '&apos;': "'",
-  '&quot;': '"',
-  '&amp;': '&',
-  '&lt;': '<',
-  '&gt;': '>',
-  '&nbsp;': ' ',
-}
-
-const toPlainText = (jsx: string) =>
-  jsx
-    .replace(/\{\s*(['"`])(.*?)\1\s*\}/g, '$2')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&[a-z]+;/g, entity => entities[entity] ?? entity)
-    .replace(/\s+/g, ' ')
-    .replace(/\s+([,.;:!?)])/g, '$1')
-    .trim()
 
 // The anchor id that TestimonialCard gives each card.
 const anchorFor = (name: string) =>
@@ -75,20 +56,6 @@ const prop = (source: string, name: string, file: string) => {
 const parseRecommendation = (componentName: string): Recommendation => {
   const file = `${componentName}.tsx`
   const source = readSource('components', 'testimonials', file)
-  const body = source.match(
-    /<TestimonialCard[\s\S]*?>([\s\S]*)<\/TestimonialCard>/,
-  )
-  if (!body) {
-    throw new Error(
-      `recommendations: ${file} does not render a TestimonialCard`,
-    )
-  }
-  const quote = Array.from(body[1].matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g))
-    .map(([, paragraph]) => toPlainText(paragraph))
-    .filter(Boolean)
-  if (quote.length === 0) {
-    throw new Error(`recommendations: ${file} has no quote paragraphs`)
-  }
   const name = prop(source, 'name', file)
   return {
     name,
@@ -96,7 +63,6 @@ const parseRecommendation = (componentName: string): Recommendation => {
     company: prop(source, 'company', file),
     linkedin: prop(source, 'url', file),
     url: `${sitemetadata.siteUrl}/recommendations/#${anchorFor(name)}`,
-    quote,
   }
 }
 

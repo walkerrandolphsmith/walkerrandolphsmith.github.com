@@ -14,11 +14,31 @@ it("should serve llms.txt with the site name and articles", () => {
   });
 });
 
-it("should serve llms-full.txt with the resume and recommendations", () => {
+// A sentence from Ian Culling's recommendation on /recommendations. The agent
+// files name each recommender but leave the quote text on that page.
+const ianQuote = "force-multiplying addition to any team";
+
+it("should serve llms-full.txt with the resume and recommenders", () => {
   cy.request("/llms-full.txt").then(({ body }) => {
     expect(body).to.contain("## Resume");
     expect(body).to.contain("## Recommendations");
+    expect(body).to.contain("Ian Culling, CTO, Digital.ai");
+    expect(body).not.to.contain(ianQuote);
     expect(body).to.contain("## Article: ");
+  });
+});
+
+it("should list recommenders in the site data without their quotes", () => {
+  cy.request("/site-data.json").then(({ body }) => {
+    const ian = body.recommendations
+      .flatMap((group) => group.recommendations)
+      .find((recommendation) => recommendation.name === "Ian Culling");
+    expect(ian).to.include({
+      role: "CTO",
+      company: "Digital.ai",
+      linkedin: "https://www.linkedin.com/in/ian-culling/",
+    });
+    expect(JSON.stringify(body)).not.to.contain(ianQuote);
   });
 });
 

@@ -55,7 +55,7 @@ const machineReadable = () => [
   link(
     'llms-full.txt',
     absoluteUrl('/llms-full.txt'),
-    'The full text of this file, the resume, every recommendation, and every article.',
+    'The full text of this file, the resume, every article, and who recommends Walker Smith.',
   ),
   link(
     'site-data.json',
@@ -212,8 +212,6 @@ export const renderLlmsFullTxt = () => {
           '',
           `LinkedIn: ${recommendation.linkedin}`,
           '',
-          recommendation.quote.map(paragraph => `> ${paragraph}`).join('\n>\n'),
-          '',
         ]),
       ]),
     ]
@@ -294,7 +292,7 @@ export const renderAgentsTxt = (generatedAt = new Date()) => {
     capability(
       'llms-full-txt',
       absoluteUrl('/llms-full.txt'),
-      'The full text of the resume, every recommendation, and every article, as Markdown.',
+      'The full text of the resume and every article, and who recommends Walker Smith, as Markdown.',
     ),
     '',
     capability(

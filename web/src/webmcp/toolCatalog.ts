@@ -91,7 +91,7 @@ export const webMcpTools: ToolDefinition[] = [
     name: 'list_recommendations',
     title: 'List recommendations',
     description:
-      'List the recommendations from people who worked with Walker Smith, by group. Each has the name, role, company, LinkedIn profile, and the full quote.',
+      'List the recommendations from people who worked with Walker Smith, by group. Each has the name, role, company, LinkedIn profile, and a link to the quote on the recommendations page.',
     inputSchema: {
       type: 'object',
       properties: {

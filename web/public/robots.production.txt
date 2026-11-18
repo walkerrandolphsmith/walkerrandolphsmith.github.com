@@ -5,23 +5,27 @@ Disallow: /contactuserror
 Disallow: /notfound
 Allow: /
 
-# AI search, assistant, and training crawlers are welcome. A crawler that
-# finds a group with its own name ignores the * group, so this group repeats
-# the same rules.
+# AI search and assistant crawlers are welcome. A crawler that finds a group
+# with its own name ignores the * group, so this group repeats the same rules.
 User-agent: OAI-SearchBot
 User-agent: ChatGPT-User
-User-agent: GPTBot
 User-agent: Claude-SearchBot
 User-agent: Claude-User
-User-agent: ClaudeBot
 User-agent: PerplexityBot
 User-agent: Perplexity-User
-User-agent: Google-Extended
-User-agent: Applebot-Extended
 Disallow: /api
 Disallow: /contactus
 Disallow: /contactuserror
 Disallow: /notfound
 Allow: /
+
+# AI training crawlers may not use the site.
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Meta-ExternalAgent
+Disallow: /
 
 Sitemap: https://walkersmith.me/sitemap.xml
