@@ -240,9 +240,18 @@ export const renderLlmsFullTxt = () => {
   return `${sections.join('\n\n')}\n`
 }
 
-// Paths that robots.production.txt disallows. agents.txt repeats them so
-// that both files give agents the same answer.
+// Rules that robots.production.txt sets. agents.txt repeats them so that
+// both files give agents the same answer: the paths every agent may not
+// fetch, and the AI training crawlers that may not fetch anything.
 const disallowedPaths = ['/api', '/contactus', '/contactuserror', '/notfound']
+const trainingCrawlers = [
+  'GPTBot',
+  'ClaudeBot',
+  'Google-Extended',
+  'Applebot-Extended',
+  'CCBot',
+  'Meta-ExternalAgent',
+]
 
 const capability = (id: string, endpoint: string, description: string) =>
   [
@@ -311,6 +320,10 @@ export const renderAgentsTxt = (generatedAt = new Date()) => {
     ...disallowedPaths.map(path => `Disallow: ${path}`),
     '',
     'Agent: *',
+    '',
+    'Disallow: /',
+    '',
+    ...trainingCrawlers.map(agent => `Agent: ${agent}`),
     '',
   ]
   return lines.join('\n')

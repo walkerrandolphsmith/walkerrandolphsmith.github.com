@@ -51,6 +51,28 @@ it("should serve agents.txt at the root and the well-known path", () => {
   });
 });
 
+it("should tell AI training crawlers in agents.txt that the site is closed", () => {
+  cy.request("/agents.txt").then(({ body }) => {
+    // Each rule block ends with the Agent lines it applies to.
+    const rulesFor = (agent) => {
+      const lines = body.split("\n").map((line) => line.trim());
+      const at = lines.indexOf(`Agent: ${agent}`);
+      const rules = [];
+      for (let i = at - 1; i >= 0 && !lines[i].startsWith("Capability:"); i--) {
+        if (/^(Allow|Disallow):/.test(lines[i])) rules.unshift(lines[i]);
+        else if (rules.length && lines[i].startsWith("Agent:")) break;
+      }
+      return rules;
+    };
+    expect(rulesFor("*")).to.include("Allow: /");
+    ["GPTBot", "ClaudeBot", "Google-Extended", "Applebot-Extended"].forEach(
+      (agent) => {
+        expect(rulesFor(agent)).to.deep.equal(["Disallow: /"]);
+      }
+    );
+  });
+});
+
 it("should serve an RSS feed", () => {
   cy.request("/feed.xml").then(({ body }) => {
     expect(body).to.contain("<rss");
