@@ -12,7 +12,7 @@ I do not like to give all my site analytics to Google. So I decided to self-host
 
 My portfolio site already ran as an Azure Static Web App behind Azure Front Door. I decided to over-engineer the analytics a little, to see what was possible. This post shows how I did it.
 
-## The Setup
+## A cluster behind Front Door
 
 An Azure Kubernetes Service (AKS) cluster hosts everything. I created the cluster with Terraform, but this post does not include the scripts. Use the tool you prefer: Bicep, the Azure CLI, or your own Terraform. The AKS cluster must support Workload Identity, have access to an Azure DNS zone, and be reachable behind Azure Front Door.
 
@@ -132,7 +132,7 @@ Plausible is at `analytics.walkersmith.me`, and my static site is at `walkersmit
 
 Traffic goes from the browser → Azure Front Door → AKS ingress → Plausible app. I get all the statistics, and no user data goes to third parties.
 
-## Closing Thoughts
+## Was it worth it?
 
 This project was too much for a personal portfolio, but that was the point. I wanted to see a clean, modern, and secure analytics stack, with automation at every step and no secrets to manage.
 

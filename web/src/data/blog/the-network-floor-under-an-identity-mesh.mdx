@@ -66,7 +66,7 @@ The private endpoint subnet in this design denies all outbound traffic. That loo
 
 That pattern is one of the most useful habits in network design. When something should never happen, find the layer where it cannot happen, and enforce it there.
 
-## What to watch
+## Defending the floor
 
 Start with the narrative. Teams that adopt a service mesh often start to treat network rules as legacy. The argument sounds modern and is wrong in a specific way: the mesh only governs traffic it captures. The network floor is what still stands for anything outside that set, and it is worth defending in design reviews before someone deletes it as redundant.
 
@@ -76,4 +76,4 @@ Routing changes deserve more suspicion than rule changes. A new route can break 
 
 Finally, record platform behaviors next to the code they affect. The gateway destination rule and the missing source NAT between private ranges are both facts about Azure, not about the design, and both will change someday. A comment at the rule that depends on them is the cheapest way to make sure someone revisits it when that happens.
 
-For any flow, most of the reasoning comes down to whether identity or location governs it, whether the network default is open or closed for it, and whether every forced path is symmetric. If the answers are clear, the network floor will hold when the layer above it does not.
+Identity or location, an open default or a closed one, a symmetric path or not: most flows come down to those choices. Make them on purpose, and the network floor will hold when the layer above it does not.

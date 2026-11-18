@@ -57,12 +57,12 @@ The trade is weaker for resources that hold nothing sensitive, for short-lived s
 
 Two habits help when the answer is yes. Make public access a fixed setting in the infrastructure module, not a variable that each environment can override, so that nobody turns it back on to unblock a deploy. And design the delivery path for the private network on the first day. Retrofitting pull-based deployment after the network goes private is much harder than starting with it.
 
-## What to watch
+## Keeping the paths reachable
 
 Watch DNS before anything else. Every new consumer of a private service, such as a new network, a new VPN profile, or a new on-premises site, is a new resolver path. Add a lookup from that path to the checklist for connecting it.
 
-Watch the self-hosted pool. Once it exists, it becomes the easy answer to every network problem in CI, and every job that moves onto it adds cost and privilege. Keep it for the work that truly needs a network position, and send everything else to hosted agents.
+Guard the self-hosted pool. Once it exists, it becomes the easy answer to every network problem in CI, and every job that moves onto it adds cost and privilege. Keep it for the work that truly needs a network position, and send everything else to hosted agents.
 
-Watch the paths that humans use. The VPN and any jump host are part of the security boundary, not conveniences beside it. Their access should be reviewed with the same care as role assignments, and their failure should be in the incident plan.
+Then review the paths that humans use. The VPN and any jump host are part of the security boundary, not conveniences beside it. Their access should be reviewed with the same care as role assignments, and their failure should be in the incident plan.
 
-For any resource, the useful questions are who needs to reach it, from which network, through which resolver, and what the team will use to see its state when something breaks. When those answers are written down before the network goes private, the bill is a budget line instead of a surprise.
+Before the network goes private, write down who needs to reach each resource, from which network, through which resolver, and how the team will see its state when something breaks. Then the bill is a budget line instead of a surprise.

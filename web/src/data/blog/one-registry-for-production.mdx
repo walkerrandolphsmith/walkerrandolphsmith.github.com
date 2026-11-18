@@ -66,7 +66,7 @@ Least privilege shaped the mechanism in a useful way. The usual CLI login to a r
 
 After authentication, the copy itself is simple. The job lists every repository and its tags in the development registry, lists the tags that already exist in production, and copies only the missing ones with `skopeo copy --multi-arch all`. It compares tag lists instead of inspecting each tag, because a per-tag inspect cannot read Helm chart artifacts. The job defaults to a dry run, and someone must change its spec on purpose to turn that off.
 
-## Walk the chain in order
+## Debugging from the symptom back
 
 When something breaks, it breaks at one specific link. Debugging is mostly a matter of checking the links in order instead of guessing.
 
@@ -80,14 +80,14 @@ A cross-tenant authentication failure almost always means the federated credenti
 
 One alert is not a failure. When the production registry flags a new CVE on an image that passed its scan last month, the system is working. Both registries scan, and production scans promoted images again against the current vulnerability database. New findings on bytes that did not change are normal. Decide whether the workload uses the vulnerable component, and if it does, change the pinned version and let the chain run again.
 
-## What to watch
+## The pressure on an exclusive registry
 
 The steady pressure on this design is the request for one firewall exception. It is always for a good reason, and it is always faster than adding a manifest entry. Each exception bypasses the scan and reintroduces the third-party dependency the policy removed. The policy only holds if the answer stays the same every time, and a clear, short path for mirroring is what makes that answer acceptable to teams.
 
-Watch the asymmetry between the registries. The development registry looks weaker, and it will attract hardening work. Some of that work is welcome, but a private endpoint on that registry breaks production supply. The reason belongs next to the setting, not only in a document.
+The asymmetry between the registries invites the wrong fix. The development registry looks weaker, and it will attract hardening work. Some of that work is welcome, but a private endpoint on that registry breaks production supply. The reason belongs next to the setting, not only in a document.
 
 The two lanes also have different strengths. The application lane pins digests, so the bytes in production are exactly the bytes that were built and scanned. The mirror lane promotes by tag. Pinned tags make a deleted or retagged upstream image fail loudly at mirror time, which is good. A tag is still a mutable pointer upstream, though, and for high-risk dependencies it is worth considering whether the mirror manifest should record digests as well. That is a tradeoff between convenience and provenance, and it is worth making on purpose.
 
 Finally, notice the latency that a scheduled copy adds. The application lane avoids it with a webhook that copies ahead of the GitOps change. The mirror lane accepts it. That is a reasonable split, because third-party upgrades are rarely urgent, but an urgent vulnerability fix to a mirrored image will wait for the next cycle unless someone runs the job by hand. The runbook should say how.
 
-Read forward, the chain lets you say where any production image came from and which controls it passed. Read backward, it takes you from any symptom to the link that broke. Both directions are the point of designing it as a chain.
+Read forward, the chain lets you say where any production image came from and which controls it passed. Read backward, it takes you from any symptom to the link that broke. Both directions are the point of designing it as a chain. The pod that never started on a public image, at the top of this post, is the chain read backward: the first link refused it, and the firewall log says why.

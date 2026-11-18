@@ -92,7 +92,7 @@ It is tempting to describe this pattern as "ephemeral DDL". That overstates it. 
 
 The accurate claim is that the internet-facing runtime never has DDL rights. That claim is smaller, and it is defensible under questioning. In security reviews and in audits, the smaller true claim is worth more than the larger one that falls apart on the first follow-up question.
 
-## What to watch
+## Where the split erodes
 
 The out-of-band SQL grant is the piece most likely to drift, because it often lives outside the infrastructure code that reviewers read. If someone adds the runtime user to `db_ddladmin` to unblock a deploy, the whole design is undone with one statement and no visible change to the Kubernetes manifests. That grant deserves the same review and the same source control as any Terraform role assignment, and a periodic check of database role membership is cheap insurance.
 
@@ -100,6 +100,4 @@ The standing migration identity is the next place to look. Its exposure is narro
 
 Watch for the slow return of migrate-on-boot. New services copy whatever is easiest, and a one-line migration call is easier than a Job and a barrier. A service template that already includes the Job, the barrier, and the two identities removes most of that temptation.
 
-The pattern also generalizes well beyond databases. Any capability that only a deploy needs, such as creating queues, registering webhooks, or seeding configuration, can move into a phase with its own identity. The question to ask in a design review is simple: which phase needs this permission, and is it reachable from any other phase?
-
-For any service, the useful checks are which identity holds DDL rights, which holds only data rights, how the application waits for the schema, and why a compromised runtime cannot change the shape of the database. If those answers are clear, least privilege has a clock as well as a list.
+The pattern also generalizes well beyond databases. Any capability that only a deploy needs, such as creating queues, registering webhooks, or seeding configuration, can move into a phase with its own identity. The question to ask in a design review is simple: which phase needs this permission, and is it reachable from any other phase? When the answer is no, least privilege has a clock as well as a list.

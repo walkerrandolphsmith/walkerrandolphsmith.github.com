@@ -23,7 +23,7 @@ A direct reference makes every library change reach every consumer on its next b
 
 It also changes the build graph. Monorepo build tools decide what to rebuild by walking the dependency graph from the changed files. With direct references, every consumer sits inside the library's graph. One edit to a widely used library marks every application that depends on it as affected, and CI rebuilds all of them. The more successful a shared library becomes, the more expensive every change to it gets.
 
-## The decision: a package boundary
+## A package boundary inside the repository
 
 Packages replace both submodules and direct references. Each shared library has a version in its project file. CI packs it and publishes it to the private feed. Each consumer pins an exact version and upgrades when it is ready.
 
@@ -63,7 +63,7 @@ The second is a beta package for shared environments. A staging deployment build
 
 Prerelease rules keep betas contained. A version with a prerelease suffix is invisible to ordinary resolution, so only an explicit pin can reach it. The author bumps the version before publishing any beta, so that when the pull request merges, the stable version supersedes every beta of that number. A beta's scope is the pull request that created it.
 
-## Risks and controls
+## The price of the boundary
 
 The publish cycle is slower than a direct reference, and that slowness is the price of the boundary. The escape hatches are the control, and they only work if they stay temporary. A committed project reference or a beta pin that outlives its pull request turns an escape hatch into a hidden dependency on code that may never have merged.
 
@@ -73,14 +73,14 @@ Shims accumulate. The convention of never breaking consumers means that old path
 
 The gate depends on the feed. If the feed is unavailable, library pull requests cannot merge. Failing closed is the right behavior, but it is a dependency worth knowing about when the feed has a bad day.
 
-## What to watch
+## Signals in the version spread
 
-Watch the spread of versions across consumers. Different pins are healthy. A consumer that is several minor versions behind, or still on an old major line, is a signal that an upgrade is harder than the version number claims.
+The spread of versions across consumers is the first signal. Different pins are healthy. A consumer that is several minor versions behind, or still on an old major line, is a signal that an upgrade is harder than the version number claims.
 
-Watch for beta pins and project references in main. Either one in a consumer on the main branch is a defect, and a simple check in CI can find both.
+Beta pins and project references in main are easier to catch. Either one in a consumer on the main branch is a defect, and a simple check in CI can find both.
 
-Watch for major versions. If they start to appear often, the house convention has stopped working, and the cost of consumer adoption has moved back to every team at once.
+Major versions are a signal too. If they start to appear often, the house convention has stopped working, and the cost of consumer adoption has moved back to every team at once.
 
-Finally, watch the question that new contributors ask most: "why can't I just reference the project?" The answer belongs in the documentation, next to the escape hatches, because the direct reference will always be one line away.
+New contributors will ask one question more than any other: "why can't I just reference the project?" The answer belongs in the documentation, next to the escape hatches, because the direct reference will always be one line away.
 
-For any shared library in a monorepo, the useful checks are which consumers rebuild when it changes, how a consumer learns the cost of an upgrade, what the merge gate actually asks, and how a developer tests an unpublished change. When the answers are only the library, the version number, the feed, and a temporary swap or an explicit beta, the monorepo keeps its convenience without letting every change reach everyone at once.
+Only the library rebuilds. The version number carries the cost of an upgrade, and the feed answers the gate. With those in place, the monorepo keeps its convenience without letting every change reach everyone at once.

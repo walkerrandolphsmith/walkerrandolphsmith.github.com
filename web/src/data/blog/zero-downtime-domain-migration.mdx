@@ -9,7 +9,7 @@ excerpt: |
 
 I moved this site from `walkerrandolphsmith.com` to `walkersmith.me` with zero downtime. Every old link still lands on the same page, every request uses HTTPS, and search ranking did not drop. The order of the work made that possible, more than any single tool.
 
-## The problem
+## Why the domain changed
 
 I used `walkerrandolphsmith.com` for more than ten years. The name was long, hard to spell, and easy to forget. The new domain, `walkersmith.me`, is shorter and matches my personal brand.
 
@@ -17,11 +17,11 @@ A domain change puts three things at risk. The site can go down during the switc
 
 {/* Gap: when the migration happened and how long it took end to end. See domain-migration-questions.md. */}
 
-## Constraints
+## The new domain started outside Azure
 
 Azure Static Web Apps hosts the site. I managed the old domain through App Service Domains and an Azure DNS zone. App Service Domains does not support the `.me` top-level domain, so I bought `walkersmith.me` through GoDaddy. The new domain therefore started at a different registrar and outside Azure DNS.
 
-## Options
+## Why Front Door sits in front of both domains
 
 The simplest option was to point the apex (`@`) of the new domain at the static IP address of the Static Web App. I rejected it for two reasons. Traffic would bypass Azure Front Door, so the site would lose the performance and security of a global edge. Both domains would also serve the same content, and duplicate content is a large search ranking risk.
 
@@ -29,7 +29,7 @@ I chose to put Azure Front Door in front of both domains. Front Door holds the H
 
 {/* Gap: other options considered and the cost of Front Door. See domain-migration-questions.md. */}
 
-## Risks and how I controlled them
+## Each risk and its control
 
 ### Separate the edge change from the domain change
 
@@ -66,7 +66,7 @@ export const metadata = genPageMetadata({
 
 The canonical tag tells search engines which URL is the primary copy of the content. They then do not index the same content twice under two domains.
 
-## Verification
+## Checking the result from the command line
 
 I checked the result with two commands:
 

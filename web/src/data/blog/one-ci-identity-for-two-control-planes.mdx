@@ -78,14 +78,14 @@ Azure DevOps permissions, such as organization membership, feed contributor, and
 
 The symmetry is the point. A permission system that Terraform cannot reach still needs the same discipline. Both systems refuse manual changes in a portal.
 
-## What to watch
+## A CI identity attracts permissions
 
-Watch the grant list. A CI identity attracts permissions, because every new pipeline need is easiest to meet by adding a role to the one identity that already runs everything. The module makes that visible in review, which is necessary but not sufficient. Someone has to ask whether each new grant belongs to this identity or to a separate, narrower one.
+Grants pile up on a CI identity, because every new pipeline need is easiest to meet by adding a role to the one identity that already runs everything. The module makes that visible in review, which is necessary but not sufficient. Someone has to ask whether each new grant belongs to this identity or to a separate, narrower one.
 
-Watch the remaining uses of the ambient build token. It is still present in every job, whether or not scripts use it. Moving feed and API work to the service principal reduces what depends on it, but limiting its scope in the project settings is what reduces the exposure if a step leaks it.
+The ambient build token deserves the same attention. It is still present in every job, whether or not scripts use it. Moving feed and API work to the service principal reduces what depends on it, but limiting its scope in the project settings is what reduces the exposure if a step leaks it.
 
 Treat the bootstrap as a documented procedure. The first apply needs elevated rights, and that is exactly the kind of step people perform once, from memory, and then forget. A short runbook for it saves the next environment from improvisation.
 
 Keep the two authorization systems visibly separate in documentation and code review. A request to add a feed permission through a Terraform role assignment is a sign that someone has merged them in their head. The fix is to point them to the reconciler, not to make Terraform reach further.
 
-For any CI operation, the questions are which identity runs it, whether the job received any secret (it should not), whether the grant it needs is an Azure role or an Azure DevOps permission, and where that grant is declared. When those answers are clear, CI is a named identity with a reviewed set of permissions, not an ambient token that every step happens to hold.
+The goal is short enough to repeat at every review. CI is a named identity with a reviewed set of permissions. It is not an ambient token that every step happens to hold.

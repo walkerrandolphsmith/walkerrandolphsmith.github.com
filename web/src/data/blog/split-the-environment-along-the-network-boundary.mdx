@@ -37,7 +37,7 @@ The question was no longer "imperative or declarative" in the abstract. It becam
 
 Network position is the binding constraint. Every other consideration follows from it. Hosted CI compute is free and parallel, and the self-hosted pool is metered and cold. Data isolation between concurrent pull requests is still the hard part. Environment history should outlive the retention window of a pipeline log. No new long-lived secret is acceptable.
 
-## Options
+## Ways to rebuild it
 
 The simplest option kept the imperative model. It needs no new component, and provisioning is synchronous and visible in one pipeline log. It also runs only from the self-hosted pool, it puts cluster and data plane credentials in CI's hands, and it leaves no reviewable record of what each environment ran.
 
@@ -47,7 +47,7 @@ A synchronous webhook was also on the table. The platform already had a working 
 
 The remaining option declared environments in git and moved data preparation into a controller in the cluster, driven by a custom resource.
 
-## The decision
+## Git declares, the cluster reconciles
 
 That option was chosen. Its rule is short enough to apply without the document open:
 
@@ -91,7 +91,7 @@ The new decision supersedes the old one, but most of the old one survives. Its a
 
 Reversing a decision in the open has a cost, and it is worth paying. The superseded record stays in place with a note that points forward and explains which premises failed. A reader who finds the old record later learns why it was right at the time and why it stopped being right.
 
-## Risks and controls
+## What the new design costs
 
 A controller is a component that someone must build, ship, and operate, with its own upgrade path, failure modes, and on-call surface. The original design avoided that entirely. That avoidance was its main virtue, and this decision spends it deliberately. The synchronous webhook stays documented as the fallback if the controller proves too costly.
 
@@ -103,10 +103,10 @@ Lease contention degrades to a retry loop. That is acceptable at a handful of co
 
 A fixed pool queues. When every slot is held, the next pull request waits. That is a deliberate cost ceiling, but developers see it, and it will create pressure to add slots.
 
-## What to watch
+## When to revisit the decision
 
 The confirmation checks are concrete. No step that runs on a hosted agent should call the cluster API or a data plane CLI. Every leased slot's resource should report ready, with its prepared claim equal to its requested claim. Two claims forced to race should produce one winner and one retry. A claim killed after its lease merges should leave the next claim re-preparing, not inheriting the previous data. The lease file's history should reconstruct slot occupancy without any pipeline log.
 
 The decision also names when to revisit it. Hosted agents that can join a private network would make the split between hosted and self-hosted compute less important. A GitOps controller with its own story for data preparation could remove the need for a custom one. Sustained demand for more than a handful of slots would point toward per-pull-request databases.
 
-The broader lesson is about reading decisions together. A cost model in one record can be a premise in another, and a change to the network can quietly invalidate both. For any environment design, the useful checks are which actor has the network position to do each step, which identity that actor holds, where the record of each environment lives, and who chooses its data. When those answers follow the network boundary, the design survives the next change to the network.
+The broader lesson is about reading decisions together. A cost model in one record can be a premise in another, and a change to the network can quietly invalidate both. This design follows the network boundary, so it should survive the next change to the network. The question it leaves open is the one that caught the first design: which other record is a quiet premise for this one?

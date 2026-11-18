@@ -106,12 +106,12 @@ Name policies so that a list of them reads as a dependency map. A name that incl
 
 Remove allow rules when the call goes away. A stale allow is invisible until it matters. Mesh telemetry records which identities actually call which hosts, and comparing that with the declared rules shows the edges that nobody uses. Deleting them keeps the declared graph close to the real one.
 
-## What to watch
+## Guarding the empty policy
 
-Watch the floor itself. It is one small object, and deleting it, or adding a second waypoint without it, opens every path in the namespace without a single failed request to warn anyone. A check in CI that the floor exists in every meshed namespace is cheap.
+The floor itself is one small object, and deleting it, or adding a second waypoint without it, opens every path in the namespace without a single failed request to warn anyone. A check in CI that the floor exists in every meshed namespace is cheap.
 
-Watch the convention for which side declares a call. If both sides start to declare, the rules double and the review story weakens. If neither side owns it clearly, onboarding slows down while people argue.
+The convention for which side declares a call can fail in two directions. If both sides start to declare, the rules double and the review story weakens. If neither side owns it clearly, onboarding slows down while people argue.
 
-Watch what the mesh does not see. The floor governs traffic that the mesh captures and that the waypoint reads. Anything outside that set needs a different control, which is the job of the network floor described in the earlier post.
+Then there is what the mesh does not see. The floor governs traffic that the mesh captures and that the waypoint reads. Anything outside that set needs a different control, which is the job of the network floor described in the earlier post.
 
-For any service, the useful questions are which service account it runs as, which services it calls and where that is declared, who may call it, and which paths stay closed regardless. When those answers are in the chart and match the traffic, deny by default stops being an obstacle and becomes a map of the system that the cluster enforces.
+Deny by default asks each chart to say which service account the service runs as, which services it calls, and who may call it. When the chart matches the traffic, deny by default stops being an obstacle and becomes a map of the system that the cluster enforces.

@@ -14,7 +14,7 @@ In frontend workflows, these are preview links. In complex backends, they are ep
 
 This post compares environment isolation with request isolation and shows how to build an environment for each PR in CI/CD. It also covers host-based routing with Ingress Controllers and the limits you meet when the system uses more than HTTP.
 
-## What Is an Ephemeral Environment (a.k.a. Preview Link)?
+## From preview links to ephemeral environments
 
 If you know platforms like Vercel or Netlify, you probably know preview links:  
 
@@ -68,7 +68,7 @@ The solution was a topic prefix for each PR, for example `signup.pr-432`. We con
 
 The same routing enabled progressive delivery patterns in production, such as A/B testing and traffic shaping. It also enabled local development without a copy of the full system. A local change to a service could run in the cluster as one more version with routing rules.
 
-## Empowering Shift-Left Testing: Catch Bugs and Edge Cases Sooner
+## Integration tests before merge
 
 The biggest benefit was that automated end-to-end testing became possible.
 
@@ -80,13 +80,13 @@ With ephemeral environments or request-isolated deployments, tests could target 
 
 One expensive production bug came from a mismatch in assumptions between two services. Integration testing for each PR would have found that bug.
 
-## Infrastructure as Code: The Foundation for Ephemeral Environments
+## Environments as code
 
 Ephemeral environments need Infrastructure as Code (IaC). Without it, people must create, configure, and remove the environment for each pull request by hand. That work causes errors. It also adds a manual gate, and these workflows depend on a hands-off developer experience.
 
 Tools such as Terraform, bicep, or helm let teams define infrastructure as version-controlled code. The result is consistent and repeatable. This automation integrates closely with CI/CD for fast, reliable provisioning and cleanup.
 
-## Building PR-Specific Environments in CI/CD
+## A pipeline for each pull request
 
 To support these workflows, pipelines must coordinate change detection, deployment, routing, and cleanup.
 
@@ -120,7 +120,7 @@ Ingress Controllers such as NGINX, Istio, or Traefik can route by hostname or he
 
 Templated manifests or dynamic configuration can generate routing rules for each PR automatically. The same patterns can support canary deployments, internal-only test paths, or weighted traffic experiments in production.
 
-## Routing Is Only Half the Battle
+## What routing does not solve
 
 Ephemeral environments increase test coverage, but some problems remain.
 
@@ -143,13 +143,13 @@ Some identity providers, such as OAuth-based login systems, accept only register
 
 PR environments can then use dynamic deployments without frequent changes to the identity provider configuration.
 
-## Why Nx Is a Secret Weapon in Monorepos
+## Deploy only what changed
 
 Nx analyzes large monorepos, finds only what changed, and lets you deploy selectively. This improves pipeline performance and keeps each environment limited to the relevant services.
 
 It removes the overhead of running all tests and rebuilding the full system for every change.
 
-## Final Thought: A PR Without a URL Is Just a Code Diff
+## A pull request without a URL is a code diff
 
 You can trust a change when you can use it, observe it, and test it in realistic conditions.
 

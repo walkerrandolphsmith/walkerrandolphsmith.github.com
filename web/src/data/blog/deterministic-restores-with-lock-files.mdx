@@ -85,14 +85,14 @@ An authorization error during local restore is not a lock-file problem. It is a 
 
 A merge conflict in a lock file is a conflict in a generated artifact. Merging the JSON by hand produces a file that matches neither side. Resolve the project file first, discard the conflicted lock content, restore again, and commit the generated result. That cost was accepted as part of the decision, and tooling for it was deferred until the cost becomes a real problem.
 
-## What to watch
+## The diff noise is the audit trail
 
 The diff noise will draw complaints. A pull request that changes one direct package and moves forty lines of lock file looks like a defect. It is the audit trail working. One direct version change can correctly move dozens of transitive resolutions, and the lock file diff is the only place where a human sees them, including the change that nobody expected. It is worth explaining this early, before someone proposes excluding lock files from review.
 
 Track the opt-out list as a number that only goes down. A searchable flag is only useful if someone looks at the result regularly. If the list grows, the policy is quietly failing.
 
-Watch for the "just use the props file" shortcut. Inheritance from a shared props file works mechanically, and it is a fine convenience inside one repository. It fails the review signal, because the property is not visible in the file under review, and it does not reach external repositories at all.
+The "just use the props file" shortcut will come up. Inheritance from a shared props file works mechanically, and it is a fine convenience inside one repository. It fails the review signal, because the property is not visible in the file under review, and it does not reach external repositories at all.
 
 Finally, keep the lock file and the restore together. A lock file that nobody restores against is a record with no enforcement. The value comes from both halves: the property declares intent where reviewers look, and the locked restore turns drift into a failure.
 
-For any project, the useful questions are whether a lock file covers its graph, where the record lives, what fails when the record is missing, and why the diff noise shows that the audit trail works. When those answers are clear, "what did that build use?" is a checkout, not a guess.
+With both halves in place, the question "what did that build use?" has a short answer. It is a checkout, not a guess.

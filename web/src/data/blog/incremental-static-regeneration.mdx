@@ -5,13 +5,13 @@ tags: ['nextjs', 'performance', 'seo', 'incremental-static-regeneration']
 excerpt: Help articles in flagship products had poor performance because of runtime rendering and content complexity. We applied static generation at scale to improve reliability, responsiveness, and SEO.
 ---
 
-We build for users at scale, and they notice when it is slow.
-
 A Lighthouse score of 48 was more than a poor technical grade. It showed that our help experiences across apps were not fast, accessible, or visible enough in search.
+
+We build for users at scale, and they notice when it is slow.
 
 The problem was not the content. It was how we delivered it.
 
-## The Context: High Variation, High Stakes
+## Every article had many versions
 
 Each help article had to adapt to the product, the language and region, the application version, and the platform, which could be Windows, macOS, or web. The result was a very large number of permutations. For each request, the server evaluated the user context, got the right content, and merged it with UI logic to render the page.
 
@@ -19,7 +19,7 @@ We used runtime rendering for this. A web server delivered the pages, with edge 
 
 Our architecture no longer met our needs.
 
-## The Strategy: Leaning into Next.js ISR
+## Static pages, regenerated on demand
 
 We examined our delivery model again with one principle: performance is a product feature, not a backend concern.
 
@@ -29,7 +29,7 @@ This would move load off our servers, simplify our caching, and improve the expe
 
 But we had a problem to solve first.
 
-## The Challenge: Too Many Permutations to Prebuild
+## Too many versions to prebuild
 
 We could not prebuild every article variation. There were hundreds of thousands of possible combinations.
 
@@ -39,27 +39,23 @@ Our first implementation was simple: short TTLs, opportunistic revalidation, and
 
 It helped, but it did not scale.
 
-## What Worked: Observability-Informed Regeneration
+## Usage decides what to prebuild
 
 We changed to a demand-driven model based on usage telemetry. An ensemble of strategies chose which content to prebuild. It picked the most referenced and most searched content, and it used create and update timestamps so that newer files stayed warm. The top 5–10% of article permutations were the hot path, and we built them at deploy time or through background revalidation. Rare combinations were rendered on demand at first access and cached at the CDN. When users accessed an article frequently in a short time window, the system flagged it for regeneration and persistent caching, which promoted it toward the hot path. Behind this, an in-memory LRU cache with tiered eviction kept memory use under control. We optimized it for clusters of region and language.
 
 We also added diagnostics and tracing. They monitored cache effectiveness, regeneration costs, and end-user performance.
 
-## Outcomes: Not Just Faster, but Smarter
+## From 48 to 100
 
 The change gave measurable improvements. The Lighthouse score increased from **48 to 100** across key user flows. TTFB decreased by more than 80% for high-traffic paths. Public articles got better crawlability and rankings. Developer velocity also improved, because simpler logic gave fewer edge cases and easier testing.
 
 The architecture also became more predictable under load. Teams could trust the system again. That trust is critical when we ship help experiences at our scale.
 
-## Lessons Learned
-
-Static-first works, even with dynamic content, if you treat variation as a caching problem and not a rendering problem.
+The work also taught us that static-first works, even with dynamic content, if you treat variation as a caching problem and not a rendering problem.
 
 Observability drives good architecture. Our best decisions came from real usage data, not assumptions.
 
 Performance is a team sport. Development, infrastructure, SEO, and content authorship all contribute to the quality that users see.
-
-## Closing Thoughts
 
 This was more than a technical rewrite. It was a change in how we think. We moved from a reactive, request-based architecture to a proactive model based on usage.
 

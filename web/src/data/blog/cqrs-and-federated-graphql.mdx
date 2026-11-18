@@ -11,17 +11,17 @@ Our platform delivers in-app help, documentation, marketing pages, and more. Cac
 
 We had to change how our system balanced editorial precision with delivery at platform scale. I worked on this change as a senior engineer.
 
-## The Starting Point: Split Read and Write, But Not Enough
+## Two paths, both built for readers
 
 We already had an architecture with two paths. Editors and content reviewers used a transactional, ACID-compliant model for writes and reads. Readers used an eventually consistent read path that served billions of content views per month through CDNs and fast caches.
 
 This worked well for readers. For authors, slow blocking reads, stale UI previews, and content drift caused friction.
 
-## CQRS to the Rescue
+## Separate models for writing and reading
 
 We applied CQRS (Command Query Responsibility Segregation) to fully separate the models. The write model stayed transactional, and it stored edits, reviews, and approvals with integrity. The read model became optimized for speed. It used materialized views in faster data stores, and change events updated those views asynchronously.
 
-## Federated GraphQL for a Unified, Fast Layer
+## One schema over many read sources
 
 We did not expose each backend through REST or microservice endpoints. We added a federated GraphQL gateway instead.
 
@@ -29,7 +29,7 @@ Authors and editors needed real-time previews of their changes. Product teams wa
 
 GraphQL federation put multiple eventually consistent sources behind one schema. Two teams owned the subgraphs behind it. The editorial UI could then fetch only the fields it needed, quickly.
 
-## Securing the Gateway: Sidecars to the Rescue
+## TLS in an Envoy sidecar
 
 TLS termination was an unexpected problem. Apollo Router was written in Rust for performance. But it did not support TLS termination natively, and it did not integrate well with our existing certificate infrastructure.
 
@@ -41,13 +41,13 @@ This gave us secure communication without changes to the core gateway implementa
 
 Envoy let us keep the gateway simple. It also matched infrastructure patterns that already worked well across our stack.
 
-## Challenges: Replacing an Entire Layer of the Stack
+## Replacing a layer without a rewrite
 
 On the front end, we used composition to try the new hot read path through GraphQL. If anything failed, the front end fell back to the legacy method. So we did not rewrite the existing logic. We only added to it.
 
 The rollout used feature toggles. With the toggles, we enabled the new path one region at a time, gradually and safely. We could switch back to the old path immediately if a problem occurred. During early phases, we also compared both paths side by side without disruption to users.
 
-## Lessons Learned
+## Agreements that made it work
 
 CQRS works, but only when teams agree on update frequencies, failure handling, and monitoring.
 
@@ -55,7 +55,7 @@ Federation is more than plumbing. It is a contract between teams, so invest in n
 
 Editorial tools are also part of the user experience. Your authors need fast, reliable feedback, as your end users do.
 
-## Final Thoughts
+## What the writers noticed
 
 > The best validation came from the people who use the system:
 > Customer satisfaction (CSAT) increased by **25%**, according to in-app survey results after the rollout.

@@ -9,10 +9,10 @@ excerpt: |
   We built for that reality: a webhook engine that changes agile events into immediate integration signals.
 ---
 
+VersionOne supports product planning and agile execution for some of the largest enterprises in the world. These include a significant part of the Fortune 500. These teams do more than manage work. They coordinate very large systems of people, tools, and platforms.
+
 > “Integration isn’t a feature. It’s infrastructure.”  
 > That change in thinking caused us to redesign how VersionOne communicates with external systems.
-
-VersionOne supports product planning and agile execution for some of the largest enterprises in the world. These include a significant part of the Fortune 500. These teams do more than manage work. They coordinate very large systems of people, tools, and platforms.
 
 More and more, those systems were not isolated. They needed to communicate with each other.
 
@@ -20,13 +20,13 @@ Our customers needed to know, immediately and reliably, when something changed.
 
 So we built webhook subscriptions, a flexible and secure system that sends outbound HTTP calls when events occur in VersionOne.
 
-## The Problem: Agile at Enterprise Scale Means Complexity
+## One change, many downstream tools
 
 Our customers use many tools, from CRM to CI/CD and from issue tracking to observability. Something changes in VersionOne: a story moves forward, someone resolves a defect, or a test fails. That change is often the start of a workflow, not the end.
 
 Before this work, integration meant polling our API or building brittle connectors. That did not scale, and it was not real-time.
 
-## What We Built: A Webhooks System with Enterprise DNA
+## Subscriptions for enterprise teams
 
 This was more than a wrapper around a pub/sub model. We designed webhook subscriptions for the complexity of enterprise product teams.
 
@@ -40,7 +40,7 @@ Each webhook includes a `sequenceId`. External systems use it to put events back
 
 You can configure a webhook with an `authorizationHeader` to meet security requirements. Each payload includes the `instigator`, the person who made the change, with name, email, role, and more.
 
-## How It Works: From Change to Callback
+## From a status change to a callback
 
 In a real use case, the trigger is a change to the Status of a Story in Project X, owned by Susan. The event definition looks like this:
 
@@ -62,17 +62,17 @@ When the status changes, the system sends a webhook to the external system of th
 
 The customer system can act on that event immediately. It can update dashboards, start workflows, notify teams, and sync with downstream tools.
 
-## What It Enables
+## Automation in customer tools
 
 This was more than writing JSON to a URL. It enabled modern automation in the ecosystems of our customers. Customers synced VersionOne in real time with tools such as Jira, GitHub, Jenkins, and ServiceNow. They sent alerts and notifications to Slack, Teams, or custom UIs. They automated workflows across QA, release management, and compliance. Traceability also improved, because system-of-record updates went to the right people.
 
-## Scaling for the Enterprise
+## Limits designed to grow
 
 We built webhook subscriptions with limits, but we designed them to grow. Each instance started with 5 active subscriptions, with a design that allows more. Delivery used a simple, secure model of HTTP with a token. Configuration was fully self-service, so teams could define their own rules. Underneath, the feature used the same event pipeline infrastructure that we trust internally.
 
 Critically, we designed this feature **contract-first**. We knew that customers would build systems on it. So it had to be predictable, observable, and ready for future change.
 
-## What We Learned
+## What customers wanted from webhooks
 
 Expressiveness is essential. Customers do not want a webhook for everything. They want control.
 
@@ -82,15 +82,13 @@ Observability matters. Sequence IDs, retry counts, and clear status codes help t
 
 No single integration fits all customers. The more composable your system is, the more powerful it becomes for other people.
 
-## Outcomes
+## About half of the Fortune 100
 
 Customers got real-time updates in mission-critical systems, with delivery that was secure and easy to audit. About half of the Fortune 100 adopted webhook subscriptions, and adoption was highest among enterprise customers with many integrations. Customers also reused events across multiple endpoints, from development workflows to executive reports.
 
 Our customers wanted more than updates. They wanted awareness. They wanted VersionOne to take an active part in their ecosystem, not only store work items.
 
 Webhook subscriptions made that possible.
-
-## Conclusion
 
 Software for the Fortune 500 does not operate alone. It is part of an ecosystem of platforms, tools, and people, and each of them needs to know what changed.
 

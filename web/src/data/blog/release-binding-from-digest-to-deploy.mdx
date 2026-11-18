@@ -85,13 +85,13 @@ One detail of the production path is specific to Azure DevOps but generalizes we
 
 The fix inverts the relationship. The publish run computes which releases consume each affected project and tags itself with those release names. A build of only the auth proxy tags its run `report-engine`, and the report engine release, which filters on that single tag, starts. The rejected alternative was to drop the filter and run every release's gate on every publish. That works, but its cost on the shared agent pool grows with every new release.
 
-## Every real case is one of a few classes
+## Every real case fits a known shape
 
 The useful way to test a system like this is by equivalence class. The standard application with an image, a chart, and the default binding is the reference path. Chart-only and image-only projects exercise the empty-digest rules. The composed overlay exercises multiple values paths, the derived trigger tag, and the partial merge. A fan-out sends one project to several overlays that share a release, one pull request, and one approval. Sibling releases send one project to several overlays with different release keys, so that one publish tags every consuming release. Mirrored third-party images have no services entry and move through a separate lane by tag. Environment-scoped overlays exist only in some environments, and the folders that exist decide where they deploy.
 
 Some of those classes may have no live instance at any given time. They still deserve test fixtures. A shape that the schema allows and the tests do not cover is a shape that will break the first time someone needs it.
 
-## What to watch
+## Failures that only a lint can catch
 
 The dangerous failure in this model is silent. If a binding names an artifact that no catalog ever contains, for example because of a typo, that artifact never resolves as fresh. Nothing patches, and nothing reports an error. At runtime it looks exactly like "not built in this run". A referential lint that checks every artifact name in every binding against the set of real projects is not optional. It is the only place this error can be caught.
 
@@ -99,4 +99,6 @@ Watch the promotion scripts for direct reads of the catalog. The model only stay
 
 Pay attention to the cost of the strict production rules. A missing values path in production is a hard failure, which can feel unfriendly to a team that just added a sidecar. That friction is the point. The production path should refuse to guess, and the error message should tell people exactly which path to add.
 
-The broader lesson is about when to stop extending a convention. Conventions are excellent until the first shape they cannot express. At that point, special cases in scripts feel cheaper than a model, and they are cheaper for about a month. A small explicit language with a default that matches the old convention costs a little more up front, keeps every existing service unchanged, and makes the unusual shapes reviewable. For any change, a reader can name the affected catalog entries, the overlays that consume them, the values that move, the values that keep their pins, and the tags that start the right releases. That is what it means to read a deploy before it happens.
+## When to stop extending a convention
+
+Conventions are excellent until the first shape they cannot express. At that point, special cases in scripts feel cheaper than a model, and they are cheaper for about a month. A small explicit language with a default that matches the old convention costs a little more up front, keeps every existing service unchanged, and makes the unusual shapes reviewable. For any change, a reader can name the affected catalog entries, the overlays that consume them, the values that move, the values that keep their pins, and the tags that start the right releases. That is what it means to read a deploy before it happens.

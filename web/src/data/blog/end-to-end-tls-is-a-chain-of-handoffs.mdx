@@ -78,7 +78,7 @@ The fix is to watch the difference, not the absolute state. Compare the expiry d
 
 Identity is the other renewal trap. cert-manager authenticates to DNS through a federated credential that trusts the cluster's OIDC issuer. Rebuild the cluster and the issuer changes. The federated credential still names the old one, so every DNS-01 challenge fails at token exchange. The current certificates keep working until they expire, which hides the problem. The infrastructure code that creates the federated credential must run again after any cluster rebuild, and the runbook for a rebuild should say so.
 
-## What to watch
+## Where the chain fails quietly
 
 Watch the gap between layers. The single most useful signal in this design is the difference between what the issuer holds and what clients see. Alert on it, and give it a dashboard that walks the chain in order.
 
@@ -88,4 +88,4 @@ Watch the permissions. cert-manager needs to write challenge records, ESO needs 
 
 Watch the format. Certificates change shape as they move between systems, from PEM in Kubernetes to PKCS12 in Key Vault. Each conversion is a place where a value can land in the wrong form and still look present.
 
-For any public host, the questions are who issues its certificate, which copies exist and where, how each copy is refreshed, and what each layer trusts when it verifies the next. When every handoff has a clear answer, end-to-end TLS is a property you can check, not a sentence on a slide.
+So "we use TLS" is where the description starts, not where it ends. It names the first connection. End-to-end TLS names every handoff after it: who issued each certificate, where each copy lives, how each copy is refreshed, and what each layer trusts. When each handoff has an answer, end-to-end TLS is a property you can check, not a sentence on a slide.

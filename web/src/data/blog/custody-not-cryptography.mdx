@@ -34,7 +34,7 @@ resource "azurerm_key_vault_key" "storage_cmk" {
 
 The key cannot encrypt a document. It can only encrypt a DEK. Every wrap and unwrap also produces an audit event in your vault, which is what makes custody provable rather than asserted.
 
-## The decision
+## Dedicated keys for sensitive stores
 
 Platform-managed keys are the right default for most workloads. They need no configuration, the encryption is strong, and they add no operational overhead. They fail on exactly one property: the provider holds the key material, so there is no usage audit, no revocation control, and nothing to demonstrate to an auditor.
 
@@ -58,7 +58,7 @@ Managed disks for AKS cannot reference a key vault key directly. They need a Dis
 
 "We own our keys" is one control on paper and a dozen distinct integrations in Terraform. The integrations differ in versioned or versionless key IDs, companion resources, default identity settings, and whole intermediate objects. Plan the effort for the whole matrix, not for the one sentence.
 
-## What to watch
+## Running a key you hold
 
 Keep the claim precise. Customer-managed keys do not make data harder to decrypt by brute force. The cipher and the DEKs are the same. Teams that describe them as "stronger encryption" set up the wrong expectations with leadership and with auditors. The accurate description is an audited, revocable custody control.
 
@@ -66,7 +66,7 @@ Treat the key vault as tier-0 from the day the first store depends on it. That m
 
 Rehearse revocation. A control that has never been exercised is a control you hope works. Disabling a key in a non-production environment and confirming that the store becomes unreadable, and then readable again, is the evidence an auditor wants and the confidence the on-call engineer needs.
 
-Watch the drift exclusions. The `ignore_changes` entry on the SQL server is necessary, but it also means Terraform will not notice if the key binding changes for some other reason. Every drift exclusion should carry a comment that explains why it exists, and the team should have another way to check that the binding is still correct.
+Drift exclusions need their own check. The `ignore_changes` entry on the SQL server is necessary, but it also means Terraform will not notice if the key binding changes for some other reason. Every drift exclusion should carry a comment that explains why it exists, and the team should have another way to check that the binding is still correct.
 
 Finally, read key membership from code, not from documents. The set of stores that have dedicated keys tends to vary by environment and change over time. A list in a design document will be out of date before the next review. The key vault module is the source of truth.
 

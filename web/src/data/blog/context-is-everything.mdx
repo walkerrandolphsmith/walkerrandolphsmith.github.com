@@ -15,7 +15,7 @@ Our authors needed content that readers could trust, with clear and precise lang
 
 Then we found a problem.
 
-## The Problem: When Pretrained Is Not Enough
+## Where the models guessed
 
 Out of the box, GPT and similar models are capable. But nobody trained them on our internal editorial guides. They do not know which terms our brand prefers. They do not know which regions need care around certain topics. Much of that information is not public.
 
@@ -23,7 +23,7 @@ We saw hallucinations, wrong tone, and small errors of implication that could da
 
 Our CMS already held excellent source material: past articles, internal references, and editorial notes. But the LLMs could not see any of it.
 
-## The Realization: Your CMS is a Knowledge Base
+## The CMS already held the answers
 
 We did not retrain a model from scratch. That was too expensive and too brittle. We used Retrieval-Augmented Generation (RAG) instead.
 
@@ -31,7 +31,7 @@ The model cannot know everything in advance. But we can give it the information 
 
 That works, but only if retrieval is correct.
 
-## What We Built: A RAG Pipeline Backed by CMS Embeddings
+## A retrieval pipeline over CMS embeddings
 
 We built a system that made our CMS a first-class retrieval layer. The pipeline works in this order:
 
@@ -41,7 +41,7 @@ We built a system that made our CMS a first-class retrieval layer. The pipeline 
 4. We inserted the retrieved chunks into a structured prompt template. The template contained our brand tone, editorial guidance, and task instruction.
 5. We did not accept the first answer from the model. We evaluated it against internal QA criteria and sent the query again when necessary. Later, classification models trained on good and bad completions did part of this step automatically.
 
-## Balancing Scale, Accuracy, and Sensitivity
+## Editors stay in the loop
 
 A difficult problem in scaling AI-generated content was editorial, not technical.
 
@@ -53,19 +53,15 @@ With this system, LLMs did most of the work of draft generation and fact synthes
 
 The system did not slow down creative work. It created a feedback loop that improved over time. Each piece of content improved the article and also the pipeline.
 
-## What We Learned
+## What retrieval taught us
 
 RAG is more than a technical pattern. It shows how well your systems understand their own data.
 
 Garbage in, garbage out still applies. Here, "garbage" means vague context. CMS metadata such as tags, authorship, and region filtered relevant chunks better than similarity alone. We also learned that editorial tone is more than style. It is a set of instructions, so we had to put tone into the prompts. In the end, RAG became more than a writing aid. It put institutional knowledge into every draft in real time.
 
-## Outcomes
-
 The results went beyond faster content production. Tone became consistent across teams and regions. Drafts had fewer hallucinations and outdated facts. Editorial satisfaction increased, especially among authors whose first language is not English. Teams also reused more content, because retrieval made past articles easier to find and reference.
 
 RAG did not replace writers. It made them faster and more accurate, and it aligned them with our shared voice.
-
-## Conclusion
 
 Pretrained models are excellent generalists. But our platform operates at scale, across cultures and languages, so general answers are not sufficient.
 

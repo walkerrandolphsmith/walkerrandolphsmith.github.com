@@ -21,7 +21,7 @@ Now count how often the work happens. A database user changes when a workload is
 
 Some providers make the point for you. One key management API rejects API key authentication entirely. Managing a key needs an OAuth credential, so a "privileged key that manages the other keys" does not exist. The only way to run that work unattended is a service account key stored in a vault, which is a long-lived credential, and the provider offers no source address restriction to put around it. One external API accepts only an OAuth bearer token with an organization administrator scope for its management endpoints, and it rejects administrator API keys for reads and writes. In both cases, the provider has gone out of its way to avoid standing credentials for administrative work. A controller would need to put one back.
 
-## The decision: privilege on demand
+## Privilege on demand
 
 I considered a standing controller in the cluster and rejected it, because it would hold that privilege for its whole lifetime. I chose reconcilers that hold privilege only while they run.
 
@@ -81,14 +81,14 @@ When the work happens constantly, needs a network position that only the cluster
 
 When the work is rare and needs administrator rights across several systems, a standing controller is a large, permanent target that does very little work. The reconciler should run when a person runs it.
 
-## What to watch
+## Requests that would undo the design
 
 The steady pressure is a request to put a reconciler on a schedule. It sounds like a small change, but a schedule needs a stored credential, and that credential is exactly the standing privilege this design avoids. If continuous detection is the real need, a read-only `plan` under a read-only identity answers it without giving anything the right to change state.
 
-Watch for the slow return of pruning. Someone will eventually notice that the reverse view lists principals that nobody declared and suggest that `apply` should clean them up. That view is an inventory, not a verdict. The tombstone exists so that every removal is a reviewed decision.
+Pruning tends to come back slowly. Someone will eventually notice that the reverse view lists principals that nobody declared and suggest that `apply` should clean them up. That view is an inventory, not a verdict. The tombstone exists so that every removal is a reviewed decision.
 
-Watch the operator side of the boundary. When privilege lives in human sessions, the administrator groups become the control. Who belongs to them, and how their sessions are protected, now carries the weight that a controller's identity would have carried.
+The operator side of the boundary carries new weight. When privilege lives in human sessions, the administrator groups become the control. Who belongs to them, and how their sessions are protected, now carries the weight that a controller's identity would have carried.
 
-Finally, keep the desired-state files authoritative. A reconciler is only as good as the file it reads. If people go back to changing state in the portal and then running `plan` to see what happened, the file stops being the source of truth, and the tool becomes a diff viewer.
+And keep the desired-state files authoritative. A reconciler is only as good as the file it reads. If people go back to changing state in the portal and then running `plan` to see what happened, the file stops being the source of truth, and the tool becomes a diff viewer.
 
-For any piece of state that infrastructure code cannot reach, the useful checks are which identity can change it, for how long that identity holds the right, how a removal is expressed, and what the tool does with something it was never told about. When the answers are a person, for minutes, a reviewed tombstone, and nothing, the reconciler does its work without standing privilege.
+A person holds the rights, for minutes. Every removal is a reviewed tombstone. State that the tool was never told about stays untouched. That is a reconciler without standing privilege.

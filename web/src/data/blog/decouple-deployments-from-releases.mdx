@@ -9,13 +9,13 @@ excerpt: |
 
 Modern software teams ask more than “how do we deploy this?” They ask “how do we deploy this with confidence, speed, and minimal risk?” Business leaders ask a parallel question: “How do we align product delivery with our go-to-market strategy?” Success requires more than shipping code. Engineering, product, and marketing must coordinate so that features do not launch too early, too late, or without the right support.
 
-## Decoupling Deployments from Releases: It Is Not Just Feature Flags
+## Deployment is technical, release is a business decision
 
 > Deployment is a technical concern. Release is a business decision.
 
 An important idea in modern software delivery is this: you can deploy code safely at any time and release features when you are ready. This principle is called decoupling deployments from releases. It gives teams speed and control.
 
-## Feature Flags: The Most Accessible Pattern
+## Feature flags
 
 Feature flags are a popular way to decouple deployments from releases. With a flag, you deploy an inactive code path and change runtime behavior later without system downtime. You can roll out a feature gradually by segment, geography, or user ID. If the feature is bad, you turn it off immediately without a new deployment. You can also run A/B tests or experiments without additional deployments.
 
@@ -23,7 +23,7 @@ With flags, engineering teams can ship continuously. Product, marketing, or busi
 
 But feature flags are not the only tool.
 
-## Service Mesh & Dynamic Routing: Decoupling at the Network Layer
+## Routing at the network layer
 
 More advanced teams add this flexibility to the infrastructure layer. They use a service mesh such as Istio, Linkerd, or Consul, or service discovery and routing such as AWS App Mesh, Azure Front Door, or Envoy with custom routing.
 
@@ -71,11 +71,11 @@ These problems make shadow deployments one of the most advanced and powerful str
 
 > A future article will show how to design, implement, and monitor shadow deployments in detail.
 
-## The Goal: Safe, Continuous Delivery
+## Flags, routing, or both
 
 You can use flags, routing, or both. The outcome is the same. You deploy as often as you want, release when it is right for users, roll back without fear, and coordinate launches with confidence.
 
-## The Real Bottleneck: Backward-Compatible Database Schemas
+## The database schema is the real bottleneck
 
 Many teams can write scripts for zero-downtime deployments. They can configure health checks, set up load balancers, and toggle feature flags. But when they try to move past the simplicity of Recreate, they often stop:
 
@@ -85,7 +85,7 @@ Stateless services are different. Your database is a single source of truth. It 
 
 State is sticky. After you migrate or transform data, you cannot roll it back immediately, as you can with code. All live versions also share the changes. During a Ramped or Blue-Green rollout, two app versions read from and write to the same database. Migrations are not atomic either. They often need careful sequencing, and a fast `ALTER TABLE` can still block reads or writes for a short time, especially in production under load. Finally, realistic tests are difficult. Most staging environments do not copy production traffic or data shape closely enough, so problems with schema changes stay hidden until they go live.
 
-## Designing for Compatibility
+## Change a schema in a safe order
 
 Safer strategies such as Canary, Blue-Green, or Shadow deployments need schemas with backward and forward compatibility. Teams must learn to change schemas in this order:
 
@@ -94,13 +94,11 @@ Safer strategies such as Canary, Blue-Green, or Shadow deployments need schemas 
 3. When contracts change, use versioned endpoints or services to prevent logic mismatches.
 4. Do not remove old fields or logic until no live version of the codebase uses them.
 
-## Why This Matters
-
 Without backward-compatible schema practices, you must use Recreate deployments, with downtime. You cannot safely run two versions of your service at the same time, and you cannot test, validate, and roll back independently.
 
 Schema discipline is more than a database issue. It shows team maturity. When engineering and product teams coordinate schema changes, they can deploy faster, recover faster, and innovate more safely.
 
-## Conclusion: Choose Your Strategy, Earn Your Confidence
+## The question behind every strategy
 
 Modern deployment is more than shipping code. It is shipping with confidence.
 
