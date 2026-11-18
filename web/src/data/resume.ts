@@ -3,7 +3,7 @@
 // step. Contact details are deliberately not part of this module.
 
 export const resumeSummary =
-  'I have 12 years of engineering experience. I build CI/CD, test environments, and observability for engineering teams. I direct engineering at Blue Line Solutions.'
+  'I have 12 years of engineering experience. I make large platforms fast and safe for teams to change. I direct engineering at Blue Line Solutions.'
 
 export type Role = { title: string; dates: string; highlights: string[] }
 export type Job = {

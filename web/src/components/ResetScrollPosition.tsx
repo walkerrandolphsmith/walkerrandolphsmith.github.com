@@ -8,7 +8,12 @@ const ResetScrollPosition = () => {
 
   useEffect(() => {
     // A link such as /#recommendations must land on its section, not the top.
-    const id = decodeURIComponent(window.location.hash.slice(1))
+    let id = window.location.hash.slice(1)
+    try {
+      id = decodeURIComponent(id)
+    } catch {
+      id = window.location.hash.slice(1)
+    }
     const target = id ? document.getElementById(id) : null
     if (target) {
       target.scrollIntoView()
