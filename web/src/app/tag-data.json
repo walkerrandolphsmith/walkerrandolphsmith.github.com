@@ -10,7 +10,7 @@
   "graphql": 1,
   "cqrs": 1,
   "content-management": 1,
-  "engineering": 1,
+  "engineering": 2,
   "security": 12,
   "azure": 8,
   "infrastructure": 7,
@@ -32,6 +32,7 @@
   "data-structures": 1,
   "webhooks": 1,
   "automation": 1,
+  "domain-driven-design": 1,
   "agile": 1,
   "dns": 1
 }
