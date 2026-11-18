@@ -133,6 +133,14 @@
   }
 }
 
+/* The global * rule sets Roboto on every element and sits outside any layer,
+   so inline code needs an unlayered rule to keep a monospace face. */
+.prose :where(code):not(pre code) {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    monospace;
+}
+
 /* Dark mode applies to the article through the dark: variant, so the inline
    code rule targets .dark directly. */
 .dark .prose :where(code):not(pre code) {
