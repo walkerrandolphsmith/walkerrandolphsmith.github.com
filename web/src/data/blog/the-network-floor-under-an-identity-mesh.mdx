@@ -1,0 +1,79 @@
+---
+title: 'The Network Floor Under an Identity Mesh'
+date: 2026-11-11
+tags: ['infrastructure', 'Azure', 'AKS', 'security']
+draft: false
+excerpt: |
+  A private virtual network is open east-west by default, and "it is inside the VNet" does not mean isolated. Even with an identity-aware service mesh, the coarse L3/L4 network still has a job: it is the floor that holds when the assumptions of the richer layer break. This post covers why, what closing the default costs, and the stateful-routing mistakes that silently drop traffic.
+---
+
+People often say "it is inside the VNet" as if the phrase means isolated. It does not. In Azure, every virtual network ships with a default network security group rule, at priority 65000, that allows all traffic between addresses in the virtual network. The boundary that you might expect between the cluster subnet, the private endpoint subnet, and the gateway subnet does not exist until you build it.
+
+Building it means overriding the platform default with an explicit rule:
+
+```hcl
+# The platform default at priority 65000 allows all VNet-to-VNet traffic.
+# This explicit deny overrides it, so subnets cannot move laterally.
+resource "azurerm_network_security_rule" "deny_all_vnet_inbound" {
+  name                       = "deny-all-vnet-inbound"
+  priority                   = 4000
+  direction                  = "Inbound"
+  access                     = "Deny"
+  protocol                   = "*"
+  source_address_prefix      = "VirtualNetwork"
+  destination_address_prefix = "VirtualNetwork"
+  # ...
+}
+```
+
+This is an inversion worth naming. A service mesh that you configure usually starts closed, with deny-all policies and explicit allows. The network that the cloud gives you starts open, and you must close it on purpose. "Private" describes topology. It does not describe trust.
+
+## Two layers that authorize different things
+
+An ambient service mesh and the network do not compete. They authorize on different inputs and make different assumptions, and that difference is the reason to run both.
+
+The mesh authorizes identity. Its principal is a workload identity, and it assumes that the mesh data plane captured the traffic. That makes it expressive and precise. It also means the mesh depends on one critical assumption, capture, and that assumption is a single point of failure. A deny-all authorization policy in the mesh does nothing for a pod that runs outside the mesh, or for traffic that never reaches the mesh data plane.
+
+The network authorizes location. Its principal is a subnet, an IP range, or a service tag, and it assumes nothing about the workload. It is coarse and identity-blind, and that coarseness is its strength. It still enforces its rules for a pod that escaped the mesh.
+
+The design rule that follows is that the outermost layer should make the fewest assumptions, because it must hold when a richer layer's assumptions break. Identity is the precise control. The network is the coarse control that still works when something upstream is not healthy. This is defense in depth, not redundancy, because the two layers fail in different ways.
+
+## Closing the default sends a bill
+
+When you override the open default, every legitimate flow that quietly depended on it breaks. In a Kubernetes cluster, that includes admission webhook callbacks and kubelet traffic, in-cluster DNS, the mesh control plane, metrics scrapes, and any operator that reads the status of the workloads it manages. Each of those needs its own explicit allow rule inside the cluster subnet.
+
+That bill is also the value. A deny-all default turns every legitimate internal flow into a named rule that someone wrote on purpose and that a reviewer can read. The allowed surface stops being "whatever the platform decided" and becomes a list the team owns. When the network rules for mesh traffic allow exactly the mesh tunnel, control plane, and health ports, the two layers share one design instead of forming an accidental stack. Every other allowed port in the cluster subnet is a flow that cannot ride the mesh, and it deserves its own rule and its own description.
+
+Components that run outside the mesh need extra care. A metrics scraper or a database operator that is not a mesh member can still reach an ambient workload through the network rule, but the mesh will reject the connection unless that specific port accepts plain-text traffic. Both layers must agree for the flow to work.
+
+The cost is maintenance. If you miss one legitimate flow, you break the platform, not the attacker. A closed network is an active participant that must be kept current, not something you configure once and forget.
+
+## Forced egress is one line of intent and a hard packet problem
+
+Sending all outbound traffic through a firewall is easy to express. A user-defined route that sends `0.0.0.0/0` to the firewall as the next hop is one line. The hard part is that the firewall is stateful. It drops any flow unless it saw both halves of the connection. Every forced path must therefore be symmetric, or traffic silently disappears. In none of the cases below do the logs say "asymmetric routing".
+
+One trap involves a dual-homed VM that accepts a legacy protocol directly on a public IP through one interface and uses a second interface for forced egress. Someone adds the default route to the firewall on the subnet of the inbound interface. Now the response to an inbound session goes to the firewall. The firewall has no state for a connection whose opening packet arrived through the public IP, so it drops the response. The session opens and then hangs with no error. The fix is to split ingress and egress across interfaces so that each path stays symmetric. The inbound subnet keeps no custom route, and only the egress subnet forces traffic through the firewall.
+
+Private endpoints set a similar trap. A gateway route sends a request from an on-premises network through the firewall to a private endpoint. The endpoint's reply takes the virtual network system route straight back, which is a different path. The firewall saw only one half of the flow and drops it. The call works from inside the cluster and times out from the VPN. The fix is to pair every "force through firewall" route with a return-path route on the private endpoint subnet for the same source range, so that request and reply retrace the same hop.
+
+Sometimes the bill from the previous section arrives at an inconvenient time. Pods stick in `ContainerCreating` because admission webhook calls time out, or in-cluster DNS lookups fail. The cause is the deny-all override with no explicit allow for webhook, kubelet, or DNS traffic inside the cluster subnet. DNS needs both UDP and TCP on port 53. TCP is the fallback for large responses, and if you allow only UDP, large responses fail without a clear error.
+
+Two platform behaviors in Azure catch people even when the routing is right. Application Gateway v2 evaluates network security groups before its internal rewrite places the packet on an instance, so management and frontend rules must use `*` as the destination instead of the gateway subnet. And Azure Firewall does not apply source NAT to traffic between private address ranges. A packet that crosses the firewall from one private subnet to another arrives with its original source address. An allow rule that names the firewall as the source matches nothing. The rule must name the true origin subnet.
+
+## Put invariants where nothing can violate them
+
+The private endpoint subnet in this design denies all outbound traffic. That looks like a mistake until you remember what a private endpoint is. It is passive. It answers connections and never starts them. Denying outbound traffic on that subnet encodes that invariant in the topology, where no application change can violate it. Network security groups are stateful, so replies to allowed inbound flows still work.
+
+That pattern is one of the most useful habits in network design. When something should never happen, find the layer where it cannot happen, and enforce it there.
+
+## Defending the floor
+
+Start with the narrative. Teams that adopt a service mesh often start to treat network rules as legacy. The argument sounds modern and is wrong in a specific way: the mesh only governs traffic it captures. The network floor is what still stands for anything outside that set, and it is worth defending in design reviews before someone deletes it as redundant.
+
+Every network rule should explain itself. Rules that allow traffic again after the deny-all override should say, in their description, that the override is why they exist. That makes the cost of the closed default visible, and it gives the next engineer a reason not to remove a rule that looks unused.
+
+Routing changes deserve more suspicion than rule changes. A new route can break flows in other subnets with no error and no obvious link to the change. A short checklist for any route change helps: which interface receives the inbound traffic, which route the reply will take, and whether both halves cross the same stateful device.
+
+Finally, record platform behaviors next to the code they affect. The gateway destination rule and the missing source NAT between private ranges are both facts about Azure, not about the design, and both will change someday. A comment at the rule that depends on them is the cheapest way to make sure someone revisits it when that happens.
+
+Identity or location, an open default or a closed one, a symmetric path or not: most flows come down to those choices. Make them on purpose, and the network floor will hold when the layer above it does not.

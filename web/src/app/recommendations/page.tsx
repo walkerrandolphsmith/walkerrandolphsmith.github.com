@@ -1,7 +1,8 @@
 import Footer from '@/components/Footer'
 import GuidedSection from '@/components/GuidedSection'
 import Nav from '@/components/Nav'
-import Testimonials from '@/components/Testimonials'
+import RecommendationFilter from '@/components/RecommendationFilter'
+import Testimonials, { TestimonialGroup } from '@/components/Testimonials'
 import TestimonialAldo from '@/components/testimonials/TestimonialAldo'
 import TestimonialAlejandro from '@/components/testimonials/TestimonialAlejandro'
 import TestimonialAnaya from '@/components/testimonials/TestimonialAnaya'
@@ -31,16 +32,40 @@ import TestimonialSarah from '@/components/testimonials/TestimonialSarah'
 import TestimonialSruthi from '@/components/testimonials/TestimonialSruthi'
 import TestimonialTom from '@/components/testimonials/TestimonialTom'
 import TestimonialTony from '@/components/testimonials/TestimonialTony'
+import { recommendationGroups } from '@/data/recommendationGroups'
+import {
+  breadcrumbNode,
+  collectionPageNode,
+  JsonLd,
+  personNode,
+  websiteNode,
+} from '@/lib/structuredData'
 
 import { genPageMetadata } from '../seo'
+
+const description =
+  'Recommendations for Walker Smith from engineering leaders, Staff Engineers, software engineers, and product, design, and sales partners.'
 
 export const metadata = genPageMetadata({
   title: 'Recommendations',
   route: 'recommendations',
+  description,
 })
+
+const groups = recommendationGroups
 
 const Page = () => (
   <>
+    <JsonLd
+      graph={[
+        websiteNode(),
+        personNode(),
+        collectionPageNode('/recommendations/', 'Recommendations', description),
+        breadcrumbNode([
+          { name: 'Recommendations', route: '/recommendations/' },
+        ]),
+      ]}
+    />
     <Nav />
     <GuidedSection
       background="#f6f9fc"
@@ -49,37 +74,46 @@ const Page = () => (
       guideDashedColorDark="rgba(255, 255, 255, 0.08)"
       padBottom
     >
-      <Testimonials>
-        <TestimonialDenise offset />
-        <TestimonialKeith />
-        <TestimonialAnn />
-        <TestimonialRd />
-        <TestimonialDanny />
-        <TestimonialSruthi />
-        <TestimonialJerry />
-        <TestimonialHolly />
-        <TestimonialCynthia />
-        <TestimonialTom />
-        <TestimonialHanna />
-        <TestimonialSarah />
-        <TestimonialIan />
-        <TestimonialMatthew />
-
-        <TestimonialHepci />
-        <TestimonialAndrew />
-        <TestimonialTony />
-        <TestimonialAlejandro />
-        <TestimonialDarnell />
-        <TestimonialMatthewLemons />
-        <TestimonialJosh />
-        <TestimonialJohn />
-        <TestimonialDonella />
-        <TestimonialDave />
-        <TestimonialAldo />
-        <TestimonialEyoel />
-        <TestimonialAnaya />
-        <TestimonialDaniel />
-        <TestimonialJered />
+      <Testimonials isPageHeading>
+        <RecommendationFilter groups={groups}>
+          <TestimonialGroup title={groups[0].title} id={groups[0].id}>
+            <TestimonialIan />
+            <TestimonialJered />
+            <TestimonialHepci />
+            <TestimonialAnn />
+            <TestimonialDenise />
+            <TestimonialKeith />
+            <TestimonialDarnell />
+          </TestimonialGroup>
+          <TestimonialGroup title={groups[1].title} id={groups[1].id}>
+            <TestimonialRd />
+            <TestimonialAndrew />
+            <TestimonialTony />
+          </TestimonialGroup>
+          <TestimonialGroup title={groups[2].title} id={groups[2].id}>
+            <TestimonialDanny />
+            <TestimonialJohn />
+            <TestimonialDave />
+            <TestimonialSruthi />
+            <TestimonialAlejandro />
+            <TestimonialTom />
+            <TestimonialMatthewLemons />
+            <TestimonialCynthia />
+            <TestimonialEyoel />
+            <TestimonialAnaya />
+            <TestimonialAldo />
+          </TestimonialGroup>
+          <TestimonialGroup title={groups[3].title} id={groups[3].id}>
+            <TestimonialDaniel />
+            <TestimonialMatthew />
+            <TestimonialJerry />
+            <TestimonialDonella />
+            <TestimonialHanna />
+            <TestimonialHolly />
+            <TestimonialSarah />
+            <TestimonialJosh />
+          </TestimonialGroup>
+        </RecommendationFilter>
       </Testimonials>
     </GuidedSection>
     <GuidedSection

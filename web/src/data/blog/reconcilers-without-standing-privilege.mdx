@@ -1,0 +1,96 @@
+---
+title: 'Reconcilers Without Standing Privilege'
+date: 2026-11-17
+tags: ['security', 'identity', 'platform engineering']
+draft: false
+excerpt: |
+  Infrastructure as code stops where a provider stops, and the state past that line still drifts. The Kubernetes reflex is to write a controller that converges it forever. This post argues that reconciler work does not need a controller that holds long-lived privilege in the cluster. The reconciler runs on demand instead, under the operator's own short-lived identity, so its access lasts only for the run.
+---
+
+Terraform manages what a provider exposes. It creates the database server, but not the users inside each database and their role memberships. It creates the service connection for the build platform, but not the build platform's own grants on that connection. It cannot reach the restrictions on a browser API key at a third-party console, or the federation rules at an external API provider. All of that state is real, production depends on it, and it drifts. When nothing owns it, people fix it by hand in a portal, and nobody can later say what changed or why.
+
+The usual answer on a Kubernetes platform is a controller. You write the desired state as a custom resource, deploy an operator into the cluster, and let it converge the live state forever. That is a good pattern for many problems. For this one, it is worth counting what the controller must hold before you write it.
+
+## Count the privilege
+
+To create and drop users inside a database, the controller needs administrator rights on the database server. To grant feed roles and authorize pipelines on the build platform, it needs administrative rights on that project. To change the restrictions on an API key, it needs the role that administers keys in the cloud project that owns them. To manage federation rules at an external provider, it needs an organization administrator token.
+
+A controller that reconciles all of these holds all of those rights at the same time, all of the time. It runs in a pod next to ordinary workloads, inside the cluster network, and its credentials are always valid. It becomes the most valuable identity on the platform, and it is always on.
+
+Now count how often the work happens. A database user changes when a workload is added or removed. A pipeline grant changes when a new release pipeline appears. A key restriction changes when a new hostname is added or a key is rotated. These are occasional events, not a constant stream. A standing controller converts rare work into permanent exposure.
+
+Some providers make the point for you. One key management API rejects API key authentication entirely. Managing a key needs an OAuth credential, so a "privileged key that manages the other keys" does not exist. The only way to run that work unattended is a service account key stored in a vault, which is a long-lived credential, and the provider offers no source address restriction to put around it. One external API accepts only an OAuth bearer token with an organization administrator scope for its management endpoints, and it rejects administrator API keys for reads and writes. In both cases, the provider has gone out of its way to avoid standing credentials for administrative work. A controller would need to put one back.
+
+## Privilege on demand
+
+I considered a standing controller in the cluster and rejected it, because it would hold that privilege for its whole lifetime. I chose reconcilers that hold privilege only while they run, and I wrote all of them.
+
+The alternative is to treat the reconciler as a program that a person runs, not a service that runs itself. Nothing runs on a schedule or in a pipeline. An operator decides to reach for the tool, points it at an environment, and reads the output.
+
+The tool runs under the operator's own identity. Each run mints a short-lived token from the operator's own login session with the cloud, the build platform, or the external provider. No personal access token and no stored credential appears anywhere. The privilege exists only while a person is signed in, only for the life of the token, and only on the machine where they run it.
+
+The design gains more than a smaller exposure window. Every change lands in the provider's audit log under a person's name, so the question "who changed this grant?" has a direct answer. The tool also cannot act when nobody is watching, which matters for state where a wrong change takes access away from a production workload.
+
+The cost is real. Nothing converges continuously. Drift stays in place until somebody runs the tool. The controls for that cost come from making the read side cheap. Each reconciler has two verbs, `plan` and `apply`, and `plan` is always read-only and is the default target. Anyone who can read the state can ask whether it has drifted, at any time, without the rights to change it.
+
+The first `plan` runs found no drift, because the system was new. That was not the point of the default. A read-only default is what lets a tool grow beyond the person who wrote it. Other operators can run it, read the result, and understand the state before anyone applies a change.
+
+## Azure DevOps: the biggest win
+
+Reconcilers cover a few external systems, and the CI/CD system, Azure DevOps, is the biggest win. Terraform creates the service connection that pipelines use to reach Azure. But much of the state around the pipelines lives only inside Azure DevOps: build definitions, release pipelines, environments and their approval checks, and the grants that the connection's identity needs inside Azure DevOps itself. Before the reconcilers, people created most of that state by hand in the portal, and the first run of a new pipeline often waited for someone to click "Permit" on a protected resource.
+
+Three reconcilers split the work. The first keeps the build definitions in place. Each definition exists, points at the right pipeline file and folder, and is authorized on the agent queues that its file uses. The reconciler reads those queues from the pipeline file itself, so that part of the desired state cannot go stale. A small manifest holds only what cannot be derived, such as historical definition names and the variables that a run may set at queue time.
+
+The second reconciler owns the release path for each service: a release pipeline, a production environment with an approval check, and the authorizations that the release pipeline needs on each service connection it uses. The approval policy is defined once. `plan` shows drift in an existing check, and `apply` updates that check in place instead of only creating missing ones.
+
+The third reconciler owns the Azure DevOps side of the service connection's permissions: its role on the package feed, the build permissions it needs to view and cancel runs, and which pipelines may use the connection.
+
+The drift here is ordinary. Someone renames or moves a definition in the portal. A new release pipeline appears with no authorization yet. Someone edits an approval check by hand. `plan` shows each of these against the repository, and `apply` converges them. `apply` only adds grants and authorizations, and it never deletes a definition. Each set of pipelines is derived from the repository, so a new pipeline comes under management without an edit to the desired state.
+
+On-demand runs fit this work. The changes happen when a team adds a service or a pipeline, not continuously. The rights involved, editing pipelines and administering protected resources, are among the most sensitive in the CI/CD system. Each run authenticates with an Entra token from the operator's own Azure CLI session, never with a personal access token.
+
+## A safety model for the person who holds the keys
+
+On-demand execution moves the risk. The process no longer holds standing privilege, but the person who runs it does hold broad rights while the tool runs. The tool must therefore make a wrong change hard to express, because a typo now runs with administrator rights.
+
+The first rule is that absence means "not managed", never "delete". A desired-state file that lists database users looks like a Terraform configuration, and Terraform destroys what you remove from configuration. This file must never work that way, because it is incomplete on purpose. Every database contains built-in principals that no file lists. The administrator group that the operator authenticates through is not in the file. Some live identities are left out deliberately, with a comment that says why. A database with no rows is invisible to the tool. A prune driven by absence would revoke access from legitimate workloads and people, and it would try to delete the database's own owner.
+
+So removal is something a row says explicitly. To drop a user, you add a tombstone: a row that stays in the file with the single keyword `REMOVED` in its roles field. `plan` shows the drop in a block that is hard to miss, and `apply` turns that row, and only that row, into a drop. Deleting a row still removes nothing. No flag turns destruction on. The deliberate act is a change to a code-reviewed file, and that review is the gate.
+
+The tombstone keyword must be exact. A roles field now carries two very different meanings, so `removed`, `Removed`, and `REMOVED` with a trailing space are all hard errors that stop the run and name the line. Whitespace is invisible, and it must never decide whether a production user is dropped. The same reasoning refuses two rows for one principal and database, one tombstoned and one additive, because file order would then decide the outcome.
+
+Structural guards back up the file. The tool refuses to drop built-in principals, fixed roles, groups, the principal that the current session is connected as, and any principal that owns objects or grants permissions to others. It checks these properties in the query, without relying on names, because names drift. A tombstone that names a protected principal is a loud failure, not a silent skip. `plan` runs the same checks against the live database, so the operator meets the refusal on the read-only surface before `apply` could act.
+
+The tool also refuses to guess whether an identity is still in use. An earlier version inferred that from a directory lookup: if the backing identity no longer existed, the user was treated as orphaned. Every version of that check had a way to answer "gone" for something alive. A directory read that is merely restricted returns an empty answer, and an empty answer looks exactly like "deleted". The tool now reports what exists and leaves the judgment to the operator.
+
+Leftovers follow the same rule. When one group of build definitions collapsed into a single pipeline, the reconciler did not delete the old definitions. It reported each one that was left and printed the delete command for an operator to run. Retiring them stayed a deliberate human action.
+
+Reports state their own coverage. When the tool lists undeclared principals, it says how many databases it could actually read. A zero from a database that could not be read means "not looked at", not "not there", and the summary line says so.
+
+## Not every tool is load-bearing
+
+A family of reconcilers grows alongside a family of smaller helpers that people also run by hand. Treating them all with the same care wastes effort on the helpers and under-protects the reconcilers. Each tool therefore declares a reliance tier. Structural tools operate real state, and drift or bugs in them have production consequences. Changes to them are treated like production code: read the README first, plan before apply, and keep the desired-state files authoritative. Situational tools are helpful when needed, and nothing depends on them being correct. They can be changed to meet the need at hand.
+
+Tools also have a lifespan. A tool is maintained as living code for as long as it has a reason to exist, and retired when that reason ends. A one-time script is different. It is a receipt for what was done, kept for the record and never reached for again. Keeping that distinction visible stops a migration script from quietly becoming infrastructure.
+
+The same thinking applies to secret rotation. For a static secret, a new value in the vault is necessary but not sufficient, because some consumer holds a copy that no controller will refresh on its own. A rotator that runs on demand encodes the convergence steps for each secret, under the operator's identity, with the same plan and apply verbs.
+
+## When a standing controller is the right answer
+
+This is not an argument against controllers. Before you write one, ask how much privilege the work needs and how often the work happens.
+
+When the work happens constantly, needs a network position that only the cluster has, and can be scoped to a narrow set of resources, a controller in the cluster is the better choice. Preparing data for short-lived test environments is a good example, and the post [Split the Environment Along the Network Boundary](/blog/split-the-environment-along-the-network-boundary) describes one. Its identity can only write to non-production resources.
+
+When the work is rare and needs administrator rights across several systems, a standing controller is a large, permanent target that does very little work. The reconciler should run when a person runs it.
+
+## Requests that would undo the design
+
+The steady pressure is a request to put a reconciler on a schedule. It sounds like a small change, but a schedule needs a stored credential, and that credential is exactly the standing privilege this design avoids. If continuous detection is the real need, a read-only `plan` under a read-only identity answers it without giving anything the right to change state.
+
+Pruning tends to come back slowly. Someone will eventually notice that the reverse view lists principals that nobody declared and suggest that `apply` should clean them up. That view is an inventory, not a verdict. The tombstone exists so that every removal is a reviewed decision.
+
+The operator side of the boundary carries new weight. When privilege lives in human sessions, the people who can run `apply`, and how their sessions are protected, carry the weight that a controller's identity would have carried.
+
+And keep the desired-state files authoritative. A reconciler is only as good as the file it reads. If people go back to changing state in the portal and then running `plan` to see what happened, the file stops being the source of truth, and the tool becomes a diff viewer.
+
+A person holds the rights, for minutes. Every removal is a reviewed tombstone. State that the tool was never told about stays untouched. That is a reconciler without standing privilege.

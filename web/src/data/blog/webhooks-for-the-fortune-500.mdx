@@ -4,62 +4,47 @@ date: 2025-06-08
 tags: ['webhooks', 'automation']
 draft: false
 excerpt: |
-  When you serve the Fortune 500, your software doesn't exist in a vacuum — it lives in an ecosystem of platforms, tools, and people, all demanding awareness, context, and control.
+  Software for the Fortune 500 does not operate alone. It is part of an ecosystem of platforms, tools, and people. All of them need awareness, context, and control.
   When one story changes, a hundred systems need to know.
-  That is the reality we built for: a webhook engine that turns agile events into instant integration signals.
+  We built for that reality: a webhook engine that changes agile events into immediate integration signals.
 ---
 
-> **“Integration isn’t a feature. It’s infrastructure.”**  
-> That was the mindset shift that drove us to redesign how VersionOne talks to the outside world.
+This post describes webhook subscriptions in VersionOne: outbound HTTP calls that tell external systems immediately when a story, defect, or test changes.
 
-VersionOne powers product planning and agile execution for some of the largest enterprises in the world—including a significant portion of the Fortune 500. These teams don’t just manage work—they orchestrate massive systems of people, tools, and platforms.
+VersionOne supports product planning and agile execution for some of the largest enterprises in the world. These include a significant part of the Fortune 500. These teams do more than manage work. They coordinate very large systems of people, tools, and platforms.
 
-And increasingly, those systems weren’t isolated. They needed to talk to each other.
+> “Integration isn’t a feature. It’s infrastructure.”  
+> That change in thinking caused us to redesign how VersionOne communicates with external systems.
 
-We needed a way to let our customers know—immediately and reliably—when something changed.
+More and more, those systems were not isolated. They needed to communicate with each other.
 
-So we built **webhook subscriptions**: a flexible, secure, and expressive system for triggering outbound HTTP calls when events happen in VersionOne.
+Our customers needed to know, immediately and reliably, when something changed.
 
-## The Problem: Agile at Enterprise Scale Means Complexity
+So we built webhook subscriptions, a flexible and secure system that sends outbound HTTP calls when events occur in VersionOne.
 
-From CRM to CI/CD, issue tracking to observability, our customers live in a constellation of tools. When something changes in VersionOne—a story moves forward, a defect is resolved, a test fails—it’s often the _start_ of a workflow, not the end.
+## One change, many downstream tools
 
-But prior to this effort, integration meant polling our API or building brittle connectors. That wasn’t scalable. And it certainly wasn’t real-time.
+Our customers use many tools, from CRM to CI/CD and from issue tracking to observability. Something changes in VersionOne: a story moves forward, someone resolves a defect, or a test fails. That change is often the start of a workflow, not the end.
 
-## 🛠️ What We Built: A Webhooks System with Enterprise DNA
+Before this work, integration meant polling our API or building brittle connectors. That did not scale, and it was not real-time.
 
-This wasn’t just a wrapper around a pub/sub model. We designed webhook subscriptions to reflect the complexity of enterprise product teams:
+## Subscriptions for enterprise teams
 
-- **Fine-Grained Event Modeling**  
-  Webhooks can fire on two core event types:
+This was more than a wrapper around a pub/sub model. We designed webhook subscriptions for the complexity of enterprise product teams.
 
-  - `AssetCreated` – whenever a new object (like a Story, Defect, or Test) is created
-  - `AssetChanged` – when any attribute of an object is updated
+Webhooks fire on two core event types. `AssetCreated` fires when someone creates a new object, such as a Story, Defect, or Test. `AssetChanged` fires when any attribute of an object changes.
 
-- **Selective Triggering**  
-  Want to be notified for _any_ Story status change? Easy.  
-  Want to know _only_ when a Story in _Project A_, owned by _Susan_, changes _status_? Also easy.  
-  That’s possible thanks to:
+Triggering is selective. You can get a notification for any Story status change, or only when the status of a Story in Project A, owned by Susan, changes. The `attributes` field limits the trigger to specific fields, and `filter` with `with` expresses detailed conditions. `userContext` makes the subscription respect project-level security boundaries.
 
-  - `attributes` – trigger only on specific fields
-  - `filter` + `with` – express rich conditions
-  - `userContext` – respect project-level security boundaries
+Payloads are customizable. You select the fields that you need with `select`, and we send a projection of that asset directly in the `snapshot` of the webhook. Payloads stay clean and contain only what you asked for.
 
-- **Customizable Payloads**  
-  Select the specific fields you care about (`select`), and we’ll send a projection of that asset directly in the webhook’s `snapshot`. This keeps payloads clean, relevant, and aligned with your needs.
+Each webhook includes a `sequenceId`. External systems use it to put events back in order if they arrive out of order. We also monitor delivery success. After repeated failures, we disable the subscription to stop noisy integrations.
 
-- **Retry Logic & Delivery Guarantees**  
-  Every webhook includes a `sequenceId`, letting external systems re-order events if delivery is out-of-order. And we monitor delivery success—disabling subscriptions after repeated failures to prevent noisy integrations.
+You can configure a webhook with an `authorizationHeader` to meet security requirements. Each payload includes the `instigator`, the person who made the change, with name, email, role, and more.
 
-- **Authorization & Metadata**  
-  Webhooks can be configured with an `authorizationHeader` to meet security requirements. Each payload includes the `instigator`—who made the change—with name, email, role, and more.
+## From a status change to a callback
 
-## How It Works: From Change to Callback
-
-Let’s walk through a real use case:
-
-**Trigger**: A Story in Project X, owned by Susan, changes its Status.  
-**Event Definition**:
+In a real use case, the trigger is a change to the Status of a Story in Project X, owned by Susan. The event definition looks like this:
 
 ```json
 {
@@ -75,66 +60,72 @@ Let’s walk through a real use case:
 }
 ```
 
-**Result**: A webhook is fired to the customer’s external system, with the following:
+When the status changes, the system sends a webhook to the external system of the customer. The payload says who triggered it (Susan) and what changed (Status from "In Progress" to "Done"). It also includes when the change happened, as a timestamp and sequence, and snapshot details such as the Story name and owner information.
 
-- Who triggered it (Susan)
-- What changed (Status from "In Progress" to "Done")
-- When (timestamp + sequence)
-- Snapshot details (Story name, Owner info)
+The customer system can act on that event immediately. It can update dashboards, start workflows, notify teams, and sync with downstream tools.
 
-The customer system can act on that event immediately—updating dashboards, triggering workflows, notifying teams, syncing with downstream tools.
+## Verifying a webhook signature
 
-## What It Enables
+I cannot recall whether we signed the payloads. If I built this feature today, I would sign every one, and every receiver should verify the signature before it trusts the payload. The sender computes an HMAC of the raw request body with a secret that it shares with the receiver, and it sends the result in a header. The receiver computes the same HMAC and compares the two values.
 
-This wasn’t just about writing JSON to a URL. It was about unlocking modern automation inside our customers' ecosystems:
+The comparison is where a careful receiver can still go wrong. A normal equality check stops at the first character that differs. A wrong guess that shares more leading characters with the real signature takes slightly longer to reject. An attacker who can send many requests and measure the response time can use that difference to recover a valid signature one character at a time.
 
-✅ **Real-time sync** with tools like Jira, GitHub, Jenkins, and ServiceNow
+A constant-time comparison removes the signal. It checks every character, whatever it finds, and it collects the differences instead of returning early:
 
-🔔 **Alerting & notifications** in Slack, Teams, or custom UIs
+```js
+const isMatch = (subject, compareTo) => {
+  let isMismatch = subject.length === compareTo.length ? 0 : 1
+  const z = isMismatch ? subject : compareTo
+  for (let i = 0; i < subject.length; i++) {
+    isMismatch |= subject.charCodeAt(i) ^ z.charCodeAt(i)
+  }
+  return !isMismatch
+}
+```
 
-🔄 **Automated workflows** across QA, release management, and compliance
+The XOR of two equal character codes is zero, and the OR keeps any difference that it has seen, so the result is true only when every character matches. When the lengths differ, the flag is already set, and the loop compares the first string with itself. The work then depends only on the length of the first string. Pass the expected signature first, so that the timing depends on a value that the attacker does not control:
 
-🔍 Improved **traceability**, with system-of-record updates pushed to the right people
+```js
+import { createHmac } from 'node:crypto'
 
-## Scaling for the Enterprise
+const isValid = (rawBody, signature, secret) => {
+  const expected = createHmac('sha256', secret).update(rawBody).digest('hex')
+  return isMatch(expected, signature)
+}
+```
 
-We built webhook subscriptions with constraints—but with growth in mind:
+My implementation is [isMatch in laces](https://github.com/walkerrandolphsmith/laces/blob/master/packages/isMatch/index.js).
 
-- Start with 5 active subscriptions per instance, but built for expansion
-- Simple, secure HTTP + token delivery model
-- Fully self-serve configuration, so teams can define their own rules
-- Backed by the same event pipeline infrastructure we trust internally
+## Automation in customer tools
 
-And critically: we designed this feature with a **contract-first mindset**. We knew customers would build systems around it, so it had to be **predictable**, **observable**, and **future-proof**.
+This was more than writing JSON to a URL. It enabled modern automation in the ecosystems of our customers. Customers synced VersionOne in real time with tools such as Jira, GitHub, Jenkins, and ServiceNow. They sent alerts and notifications to Slack, Teams, or custom UIs. They automated workflows across QA, release management, and compliance. Traceability also improved, because system-of-record updates went to the right people.
 
-## What We Learned
+## Limits designed to grow
 
-Expressiveness is essential. Customers don’t want a webhook for everything—they want control.
+We built webhook subscriptions with limits, but we designed them to grow. Each instance started with 5 active subscriptions, with a design that allows more. Delivery used a simple, secure model of HTTP with a token. Configuration was fully self-service, so teams could define their own rules. Underneath, the feature used the same event pipeline infrastructure that we trust internally.
 
-Security can’t be bolted on. userContext and authorizationHeader were non-negotiable.
+Critically, we designed this feature **contract-first**. We knew that customers would build systems on it. So it had to be predictable, observable, and ready for future change.
+
+## What customers wanted from webhooks
+
+Expressiveness is essential. Customers do not want a webhook for everything. They want control.
+
+You cannot add security at the end. `userContext` and `authorizationHeader` were mandatory.
 
 Observability matters. Sequence IDs, retry counts, and clear status codes help teams debug fast.
 
-Integrations are never one-size-fits-all. The more **composable** your system, the more powerful it becomes in the hands of others.
+No single integration fits all customers. The more composable your system is, the more powerful it becomes for other people.
 
-## 🚀 Outcomes
+## About half of the Fortune 100
 
-⚡ **Real-time updates** in mission-critical systems
+Customers got real-time updates in mission-critical systems, with delivery that was secure and easy to audit. About half of the Fortune 100 adopted webhook subscriptions, and adoption was highest among enterprise customers with many integrations. Customers also reused events across multiple endpoints, from development workflows to executive reports.
 
-🔒 **Secure, audit-friendly delivery**
-
-💬 **High customer adoption**, especially among enterprise customers with integration-heavy environments
-
-🔁 **Event reuse** across multiple endpoints—from dev workflows to executive reporting
-
-Our customers didn’t just want updates—they wanted awareness. They wanted VersionOne to be an active participant in their ecosystem, not just a passive database of work items.
+Our customers wanted more than updates. They wanted awareness. They wanted VersionOne to take an active part in their ecosystem, not only store work items.
 
 Webhook subscriptions made that possible.
 
-## Conclusion
+Software for the Fortune 500 does not operate alone. It is part of an ecosystem of platforms, tools, and people, and each of them needs to know what changed.
 
-When you serve the Fortune 500, your software doesn’t exist in a vacuum. It lives in an ecosystem of platforms, tools, and people—each demanding awareness, context, and control.
+We changed events into integrations and changes into callbacks. This gave customers a new way to connect VersionOne to the rest of their tools.
 
-By turning events into integrations, and changes into callbacks, we gave customers a new way to connect VersionOne to the rest of their world.
-
-We didn’t just build a feature. We built a foundation.
+We built more than a feature. We built a foundation.

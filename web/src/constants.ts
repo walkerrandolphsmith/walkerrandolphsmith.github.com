@@ -12,31 +12,41 @@ import VersionOneImage from '../public/versionone.webp'
 import VersionOneLogo from '../public/versiononelogo.webp'
 
 const companyById = {
+  bluelinesolutions: {
+    title: 'Staff Engineer, then Director of Engineering',
+    name: 'Blue Line Solutions',
+    description:
+      'I joined as Staff Engineer and became Director of Engineering within 8 months. I direct engineering for NewGuard, a CJIS-compliant SaaS platform for 200+ law enforcement agencies. I provisioned isolated Azure tenants with Terraform to pass a CJIS audit and get final NLETS approval.',
+    image: null,
+    logo: null,
+    card: null,
+    link: null,
+  },
   microsoft: {
     title: 'Senior Software Engineer',
     name: 'Microsoft',
     description:
-      'I worked on this massive content platform at Microsoft — basically the system behind all the docs and help pages. It handled publishing, localization into 64 languages, and had hundreds of thousands of assets. Served billions of hits a month.',
+      'I designed and built an event-driven content platform for support.microsoft.com, Office, and Windows. It serves 2B+ users and 1B+ requests each month. I made CI six times faster and cut rollbacks by 30% with ephemeral environments.',
     image: MicrosoftImage,
-    logo: { src: MsLogo, alt: 'Card Image', height: 40, width: 150 },
+    logo: { src: MsLogo, alt: 'Microsoft', height: 40, width: 150 },
     card: MicrosoftCard,
     link: 'https://microsoft.com',
   },
   digitalai: {
     title: 'Senior Software Engineer',
-    name: 'digital.ai',
+    name: 'Digital.ai',
     description:
-      'At Digital.ai, I worked on a platform that brought software planning and release automation together — kind of full lifecycle management for enterprise development. One of the big things I built was a webhooks system that let teams integrate with their existing tools. It ended up being used by about half of the Fortune 500, which was rewarding to see in action.',
+      'I led the webhooks feature that hundreds of engineering teams used to connect their tools. The platform served 53% of the Fortune 100. I replaced week-long manual regression cycles across three teams with Cypress end-to-end tests.',
     image: DigitalAiImage,
     logo: { src: DigitalAiLogo, alt: 'Digital.ai', height: 40, width: 200 },
     card: DigitalAiCard,
     link: 'https://digital.ai',
   },
   smashgg: {
-    title: 'Software Engineer',
+    title: 'Senior Software Engineer',
     name: 'smash.gg',
     description:
-      'At Smash.gg, a startup focused on making grassroots esports tournaments truly matter, I helped lead the shift from in-person events to online competitions — right when the world was changing fast. That pivot repositioned us as a market leader and opened up a major new revenue stream that fueled the company’s growth.',
+      'I led the Event Check-in feature that moved the company from in-person to online esports. I defined the Software Engineer in Test role and hired two engineers to automate critical user flows with Cypress.',
     image: SmashGGImage,
     logo: { src: SmashGGLogo, alt: 'start.gg', height: 50, width: 75 },
     card: SmashCard,
@@ -46,7 +56,7 @@ const companyById = {
     title: 'Software Engineer',
     name: 'VersionOne',
     description:
-      'Back when it was still VersionOne (before becoming Digital.ai), I helped get their new release automation product off the ground. It was a big deal because it expanded the platform beyond just planning into actual DevOps tooling. That shift really widened the scope of what the company could offer and set the stage for deeper end-to-end software lifecycle management.',
+      'I helped start the release automation product. It took the platform from planning into DevOps tooling. VersionOne later became Digital.ai.',
     image: VersionOneImage,
     logo: { src: VersionOneLogo, alt: 'VersionOne', height: 40, width: 200 },
     card: VersionOneCard,

@@ -22,13 +22,12 @@ const ArticleHook = ({ date, timestamp, title, tags = [], intro, href }) => (
             </h2>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag, index) => (
-                <a
+                <span
                   key={index}
-                  className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 mr-3 text-sm font-medium uppercase"
-                  href="/tags/deepfakes"
+                  className="text-primary-500 mr-3 text-sm font-medium uppercase"
                 >
                   {tag}
-                </a>
+                </span>
               ))}
             </div>
           </div>
@@ -122,6 +121,9 @@ export default function Articles({ pagination, initialDisplayPosts }) {
           guideSolidColorDark="rgba(255, 255, 255, 0.08)"
           guideDashedColorDark="transparent"
         >
+          <h1 className="sr-only">
+            Writing about platform engineering and developer experience
+          </h1>
           <div className="flex flex-col gap-8 md:flex-row">
             <div className="min-w-0 flex-1">
               <ul className="divide-y divide-gray-200 dark:divide-gray-600 px-12">

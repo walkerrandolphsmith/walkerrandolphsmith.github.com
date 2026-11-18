@@ -8,7 +8,7 @@ const TestimonialSarah = ({ offset = false }) => (
     image={Image}
     name="Sarah Priest"
     level="Senior UX Designer"
-    company="VesrionOne"
+    company="VersionOne"
     url="https://www.linkedin.com/in/sarahmichellepriest/"
   >
     <div className="flex flex-col gap-2">

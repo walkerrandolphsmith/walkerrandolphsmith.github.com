@@ -1,0 +1,239 @@
+---
+title: 'What a Small App Taught Me About Domain-Driven Design'
+date: 2026-11-17
+tags: ['domain-driven design', 'engineering']
+draft: false
+excerpt: |
+  Fin is a small household finance app that I built to practice domain-driven design. The tactical building blocks held up well. The harder questions were the ones the design left open: where one model ends and the next begins, how two aggregates change together, what an error means, who owns an identity, and where a rule runs. This post looks at each question, what it cost, and what I would do next time.
+---
+
+[Fin](https://github.com/walkerrandolphsmith/fin) is a small web app for household money. It records recurring bills, their amounts and due dates, and the payment source that pays each bill. Before I wrote the code, I wrote an [initial design document](https://github.com/walkerrandolphsmith/fin/blob/main/docs/initial-design.md) with use cases, class diagrams, and sequence diagrams. The project was a deliberate experiment. I wanted to practice domain-driven design (DDD) and a set of classic design patterns on a problem small enough to finish: strategy, specification, template method, adapter, and facade.
+
+DDD has two halves. The tactical half is a set of building blocks for the code inside one model, such as entities, value objects, repositories, and aggregates. The strategic half decides how many models a system has, where each model ends, and how the models exchange data. When I read the design again, the tactical half held up well. Most of what I would change is in the strategic half, or at the points where a tactical choice met a database, an HTTP response, or a second aggregate.
+
+## What the tactical design got right
+
+An entity is an object with an identity that stays the same while its data changes. A bill named "Internet" is still the same bill after its amount changes. In Fin, `Bill` and `PaymentSource` are entities. They do not expose setters. They expose behavior with names from the domain, such as `rename`, `changeAmount`, `assignPaymentSource`, and `updateDueDate`. Two static factories separate the two ways that a bill comes into existence. `createNew` applies the defaults for a bill that the user just made, and `rehydrate` rebuilds an existing bill from storage.
+
+A value object has no identity. Two value objects with the same value are equal, and a value object checks its own rules when it is created. `Money` refuses a negative amount, so no code path can give a bill one:
+
+```ts
+export class Money {
+  constructor(public readonly amount: number) {
+    if (amount < 0) throw new BillAmountMustBePositive();
+    if (amount > 3000) throw new BillAmountCannotExceedThreshold();
+  }
+}
+```
+
+A repository gives the domain an interface that looks like a collection of entities, and it hides the database behind that interface. Fin's domain layer defines `IBillRepository`. The infrastructure layer implements it with MongoDB and Mongoose, and a persistence mapper translates between the `Bill` entity and the stored document. The design also planned an in-memory implementation as a stretch goal, to show that the domain and application layers do not change when the storage changes.
+
+Bills refer to payment sources by ID, not by object. A `Bill` holds a `paymentSourceId`, not a `PaymentSource`. Each entity stays small, and each one loads and saves on its own. That rule becomes important in the section on aggregates.
+
+Specifications give a business rule a name. "Due this week" is a class with one method, `isSatisfiedBy(bill)`. The rule lives in the domain, not in a query string or a React component, and a unit test can check it without a database.
+
+I would make each of these choices again. The problems came from decisions that the design did not make.
+
+## Draw bounded contexts before the vision outgrows the model
+
+A bounded context is the boundary inside which one model applies, and inside which each word has one meaning. The same word can mean different things in two contexts. That is normal. The problem starts when one model tries to hold every meaning at once.
+
+The design document states a large vision. Fin is to become "a household financial operating system" for three roles. A bill organizer tracks and pays the bills. A budget manager plans the spending. An investor aligns cash flow with long-term goals. The model in the same document is one model, and it was built for the bill organizer. It has `Bill`, `PaymentSource`, and the value objects around them.
+
+The out-of-scope user stories show where that model would bend. The budget manager wants to "adjust bill amounts or categories so that I can simulate how changes will impact our overall budget." In a single model, a simulated amount and a real amount are the same field on the same `Bill`. A what-if change by the budget manager would change the bill that the organizer pays. The investor wants to categorize bills by necessity level and to see trends in bill growth. Each of those stories adds fields to `Bill` that the organizer never uses.
+
+`Money` shows the same problem at a smaller scale. It lives in the bill folder, its errors are named `BillAmountMustBePositive` and `BillAmountCannotExceedThreshold`, and its upper limit is 3,000 dollars. Those are good rules for a household bill. They are the wrong rules for a budget that records how far a category went over plan, or for an investment balance. The class name says money, but the rules describe a bill amount.
+
+Next time I would draw a context map before the class diagrams. A context map is a simple picture of the contexts and of the direction in which data flows between them. For Fin, it would show a Bills context, a Budgeting context, an Investing context, and the identity context that arrived later with user accounts. Bills would own the bill that gets paid. Budgeting would own its own view of fixed costs, built from the data that Bills publishes:
+
+```ts
+// Bills context: the bill that the organizer pays
+interface Bill {
+  readonly id: BillId;
+  readonly amount: BillAmount;
+  rename(name: string): void;
+  changeAmount(amount: BillAmount): void;
+  assignPaymentSource(id: PaymentSourceId): void;
+}
+
+// Budgeting context: a fixed cost in a spending plan
+interface FixedExpense {
+  readonly billId: string;
+  readonly plannedAmount: Money;
+  readonly simulatedAmount?: Money;
+}
+```
+
+The simulation then has a home that cannot change the real bill. `BillAmount` keeps the bill rules, and a general `Money` type carries only an amount and a currency. A context map does not mean three services. All of these contexts can live in one process and one repository. The boundary is in the model and in the folder structure, not in the deployment.
+
+## Aggregate boundaries show their cost in cross-aggregate flows
+
+An aggregate is a group of objects that changes as one unit. Code outside the aggregate goes through one root entity, and each change to an aggregate is saved in one transaction. Aggregates refer to each other by ID, as Fin's bills and payment sources do. The rule keeps transactions small. It also means that a business operation that changes two aggregates needs an explicit decision about consistency.
+
+Deleting a payment source is that kind of operation. The use case says that the system deletes the payment source and unassigns it from every bill that used it. The sequence diagram in the design does this in two separate steps in the application layer. It first asks the bill service to unassign the source from every bill. Then it asks the payment source service to delete the source. Nothing joins the two steps. If the second step fails, the bills have lost their payment source, but the payment source still exists. The design saw the gap. A note above the diagram asks "(Maybe change to unit of work?)" and weighs a rule kept in the domain against a faster single database operation.
+
+The current code took the unit-of-work path. A unit of work runs a group of repository calls in one transaction, so all of the calls succeed or none of them do. Fin's `UnitOfWork` opens a MongoDB transaction, and the payment source service runs the whole deletion inside it. That closes the gap, but it moves the cost. The payment source service now depends on the bill repository, so one aggregate's service reaches into another aggregate to change it. The code also has a small bug that shows how easy this boundary is to get wrong. The call to `execute` is not awaited:
+
+```ts
+async delete(id: string) {
+  this.unitOfWork.execute(async () => {
+    // unassign the payment source from its bills, then delete it
+  });
+}
+```
+
+The method returns before the transaction finishes. The route reports success immediately, and an error from the transaction never reaches the route's error handling. A `return` or an `await` before `this.unitOfWork.execute` fixes it.
+
+Next time I would make the consistency decision explicit and write it down. One option is the transaction that Fin uses now. Inside one context and one database, a transaction across two aggregates is a reasonable trade, if the design records it as an exception to the one-aggregate rule and keeps the cross-aggregate logic in one application service. The other option is eventual consistency. The system is out of step for a short time, and then it becomes consistent again. The payment source side deletes its own aggregate and publishes a domain event, which is a record that something meaningful happened in the domain. The bill side reacts to the event in its own transaction:
+
+```ts
+// Payment sources: change one aggregate, then announce the change
+await paymentSources.delete(id);
+await events.publish({ type: 'PaymentSourceDeleted', paymentSourceId: id });
+
+// Bills: react in a separate transaction
+events.subscribe('PaymentSourceDeleted', async ({ paymentSourceId }) => {
+  await bills.unassignPaymentSource(paymentSourceId);
+});
+```
+
+The event must not get lost between the delete and the publish. The usual fix is to save the event in the same transaction as the delete and send it later, which is called the outbox pattern. For Fin today, with one database and one household, I would keep the transaction and fix the missing `await`. The event becomes the better choice if bills and payment sources ever move into different contexts.
+
+## Error semantics reveal the model
+
+Every exception flow in the design document ends the same way. An amount of "-50", an empty name, a date of February 30, and a failed database write all return "an error status (e.g., HTTP 500)". The domain layer already had separate error classes for these cases, but the design gave them one meaning at the edge of the system. A user who types a negative amount and a database that is down produce the same response.
+
+That response hides the information that the caller needs. A client cannot tell "fix your input" from "try again later". A retry of a bad amount never succeeds, but a retry after a timeout might. An operator who watches the rate of 500 responses cannot separate typing errors from outages.
+
+The code has since moved past the document. The routes now map known errors to 400 and 404. Each route lists the error classes that it knows about:
+
+```ts
+if (
+  err instanceof InvalidPropertiesError ||
+  err instanceof InvalidEntityIdError ||
+  err instanceof BillAmountCannotExceedThreshold ||
+  err instanceof BillAmountMustBePositive ||
+  err instanceof EntityMustHaveNameError
+) {
+  return NextResponse.json({ error: err.message }, { status: 400 });
+}
+```
+
+This works, but each new rule needs an edit in each route that can raise it, and a forgotten class falls through to a 500. Next time I would put the categories in the domain. A broken business rule, a missing entity, and an infrastructure failure are different kinds of error, and a base class can say which kind each error is. The edge of the system then maps the kinds once:
+
+```ts
+export abstract class DomainRuleViolation extends Error {}
+export class BillAmountMustBePositive extends DomainRuleViolation {}
+
+export function toHttpStatus(err: unknown): number {
+  if (err instanceof DomainRuleViolation) return 422;
+  if (err instanceof EntityNotFoundError) return 404;
+  return 500;
+}
+```
+
+A 400 says that the request was malformed. A 422 says that the request was well formed but broke a rule. Some teams use 400 for both, and that is fine if a broken rule never becomes a 500. The use cases are the cheapest place to make this decision, because each exception flow already names its condition.
+
+The body of the response matters as much as the status. Fin returns `{ error: err.message }`, so a client that wants to react to one rule must compare message text. OData, a standard set of conventions for REST APIs, defines an error body with a required machine-readable `code`, a required human-readable `message`, and an optional `target` that names the part of the request at fault:
+
+```json
+{
+  "error": {
+    "code": "BillAmountMustBePositive",
+    "message": "Bills must be positive numbers",
+    "target": "amount"
+  }
+}
+```
+
+The domain error classes already give each rule a stable name, so the code costs nothing to produce. The client can act on the code and show the message. Fin does not need the rest of OData to use this shape.
+
+## Persistence ignorance leaks in small ways
+
+Persistence ignorance means that the domain code does not know how or where its objects are stored. The design document states this goal directly. It says that the mappers prevent "database-specific constructs such as \_id fields or ObjectId types from leaking into the domain layer." The repository interface in the same document starts with this method:
+
+```ts
+interface IBillRepository {
+  isValidObjectId(id: string): boolean;
+  getById(id: string): Promise<Bill>;
+  // ...
+}
+```
+
+The `Relation` value object also checks IDs against the MongoDB ObjectId format, which is 24 hexadecimal characters. `Bill.createNew` leaves the ID empty, so MongoDB assigns it when the bill is inserted. The ObjectId type stayed out of the domain, but its format did not, and neither did the decision about who creates an identity.
+
+The cost lands on the open/closed goal that the document set for itself. The planned in-memory repository must produce 24-character hexadecimal strings, or every ID check in the domain fails. A move to a store that uses UUIDs would change the domain interface, a value object, and every service that calls `isValidObjectId`. That is the change the design promised to avoid.
+
+Next time the domain would own its identities. The entity gets its ID when it is created, and the adapter stores that ID as a plain string:
+
+```ts
+export class BillId {
+  private constructor(readonly value: string) {}
+
+  static next(): BillId {
+    return new BillId(crypto.randomUUID());
+  }
+
+  static from(value: string): BillId {
+    return new BillId(value);
+  }
+}
+```
+
+A format check then belongs to the adapter, if the adapter needs one at all. An ID that does not match a stored bill is simply not found, and the not-found error from the previous section already covers that case. A single method name was enough to tie the domain to one database.
+
+## Elegant rules can hide scaling costs
+
+The design's sequence diagram for "due this week" loads every bill and then filters the bills in memory with the specification:
+
+```ts
+async getBillsDueThisWeek(): Promise<Bill[]> {
+  const bills = await this.repo.getAll();
+  const spec = new BillDueThisWeekSpecification();
+  return bills.filter((b) => spec.isSatisfiedBy(b));
+}
+```
+
+The rule is clear and easy to test. But each request reads every stored bill from the database to return the few bills that are due. For one household's list of monthly bills, that cost is small. It grows with every bill that Fin stores, and `getAll` has no filter to limit it. The specification also reads the current date itself, so a test must control the system clock to check it.
+
+The repository already had the start of a better answer. `IBillRepository.findWhere` takes a small domain query with a field, an operator, and a value, and the only operator is `=`. If the operator type also allows `>=` and `<=`, a specification can describe itself both as a check and as a query. The caller passes in the week, so the clock is outside the rule:
+
+```ts
+class BillDueBetweenSpecification implements ISpecification<Bill> {
+  constructor(
+    private readonly start: Date,
+    private readonly end: Date,
+  ) {}
+
+  isSatisfiedBy(bill: Bill): boolean {
+    return !!bill.dueDate && bill.dueDate >= this.start && bill.dueDate <= this.end;
+  }
+
+  toQuery(): DomainQuery[] {
+    return [
+      { field: 'dueDate', operator: '>=', value: this.start },
+      { field: 'dueDate', operator: '<=', value: this.end },
+    ];
+  }
+}
+```
+
+The rule still has one name and one home. The MongoDB repository translates the query into a database filter. The in-memory repository can run the same specification with `isSatisfiedBy`, and so can any code that checks one bill.
+
+The same question comes up at the API boundary. Today the client asks for a named filter with `GET /api/bills?filter=dueThisWeek`. OData query options give a client a standard syntax for filtering, sorting, and paging:
+
+```http
+GET /api/bills?$filter=dueDate ge 2026-11-15T00:00:00Z and dueDate le 2026-11-21T23:59:59Z&$orderby=order&$top=20
+```
+
+A server that supports these options parses `$filter` into an expression and translates it into a database query, which is the same job that `toQuery` does inside the domain. The options alone do not remove the cost. A server that parses `$filter` and then calls `getAll` still filters in memory. A raw `$filter` also moves the week calculation into the client, and the rule "due this week" loses its home in the domain. OData also lets a service publish a named operation, called a function. The API can keep the rule as a function and still use the standard options for sorting and paging:
+
+```http
+GET /api/bills/Fin.DueThisWeek()?$orderby=order&$top=20
+```
+
+## The design document I would write now
+
+The class diagrams in Fin's design document would stay. The patterns gave each tactical idea a concrete place to practice, and that was the point of the experiment. The new document would put a few short decisions in front of the diagrams. A context map would show where the Bills model ends and where Budgeting and Investing begin. Each flow that changes two aggregates would name its choice, a transaction or an event. Each exception flow in a use case would name its kind of error and its response, not "e.g., HTTP 500". One sentence would say that the domain creates its own identities. Each specification would say how it becomes a database query.
+
+I picked Fin because it was small enough to finish. It was also large enough to raise each of these questions. No pattern answers them, so a design document has to.

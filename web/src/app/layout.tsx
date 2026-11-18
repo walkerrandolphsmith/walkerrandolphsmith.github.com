@@ -3,6 +3,7 @@ import './globals.css'
 import { Roboto } from 'next/font/google'
 
 import ResetScrollPosition from '@/components/ResetScrollPosition'
+import WebMCPTools from '@/components/WebMCPTools'
 import sitemetadata from '@/data/sitemetadata'
 
 const roboto = Roboto({
@@ -11,13 +12,24 @@ const roboto = Roboto({
   variable: '--font-roboto',
 })
 
+const homeTitle =
+  'Walker Smith | Staff Engineer, Developer Experience and Platform'
+
+export const viewport = {
+  themeColor: '#ffffff',
+}
+
+// Relative URLs in page metadata (Open Graph images, canonical links)
+// resolve against the production origin, so every environment advertises
+// the production URLs.
 export const metadata = {
-  canonical: sitemetadata.siteUrl,
-  metadataBase: sitemetadata.metadataBase,
-  manifest: './manifest.webmanifest',
-  title: 'Walker Smith',
-  description:
-    'Professional Resume Site - 10 years specializing in front end architecture and distributed systems serving 2 billion customers.',
+  metadataBase: new URL(sitemetadata.siteUrl),
+  manifest: '/manifest.webmanifest',
+  title: {
+    default: homeTitle,
+    template: `%s | ${sitemetadata.title}`,
+  },
+  description: sitemetadata.description,
   robots: {
     index: true,
     follow: true,
@@ -30,17 +42,16 @@ export const metadata = {
     },
   },
   openGraph: {
-    title: sitemetadata.title,
+    title: homeTitle,
     description: sitemetadata.description,
-    url: './',
+    url: '/',
     siteName: sitemetadata.title,
     images: [sitemetadata.socialBanner],
     locale: 'en_US',
     type: 'website',
   },
-  themeColor: '#ffffff',
   twitter: {
-    title: sitemetadata.title,
+    title: homeTitle,
     card: 'summary_large_image',
     images: [sitemetadata.socialBanner],
   },
@@ -86,11 +97,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={roboto.variable}>
       <head>
-        <link rel="canonical" href={sitemetadata.siteUrl} />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${sitemetadata.title}: Writing`}
+          href="/feed.xml"
+        />
       </head>
       <body className="font-roboto">
         {children}
         <ResetScrollPosition />
+        <WebMCPTools />
       </body>
     </html>
   )

@@ -1,34 +1,37 @@
 import BlurredBackgroundFilter from './BlurredBackgroundFilter'
 import CallToAction from './CallToAction'
-import DataSourceIllustration from './DataSourceIllustration'
+import Code from './Code'
 
 const Hero = () => (
   <>
-    <section className="hero relative mb-0 mt-12 lg:mb-40 lg:mt-32 max-w-screen-xl">
+    <section className="hero relative mb-0 mt-12 lg:mb-40 lg:mt-24 max-w-screen-xl">
       <>
-        <div className="relative text-center flex flex-col items-center lg:flex-row lg:items-end justify-around lg:justify-start overflow-hidden">
-          <div className="flex items-center 2xl:justify-center flex-col px-0 lg:pt-8">
+        <div className="relative text-center flex flex-col items-center lg:flex-row lg:items-center justify-around lg:justify-start overflow-hidden">
+          <div className="flex items-center 2xl:justify-center flex-col px-0">
+            <p className="dark:text-gray-300 text-2xl md:text-3xl font-medium text-zinc-700 tracking-[-0.02em] mt-24 lg:mt-16 text-center">
+              Walker Smith
+            </p>
             <h1
               style={{
-                lineHeight: '85px',
-                maxWidth: '700px',
+                maxWidth: '760px',
               }}
-              className="dark:text-white text-6xl md:text-7xl font-semibold text-zinc-950 tracking-[-0.05em] mt-24 mb-2 m:mb-4 text-center"
+              className="dark:text-white text-4xl md:text-5xl leading-[1.1] font-semibold text-zinc-950 tracking-[-0.05em] mt-4 mb-2 m:mb-4 text-center"
             >
-              Walker Smith | Engineering Leader
+              Staff Engineer, Developer Experience and Platform
             </h1>
             <p
               style={{ maxWidth: '700px' }}
-              className="text-2xl text-zinc-900 dark:text-gray-400 tracking-normal mb-4 m:mb-8 mt-8 lg:mb-12 text-center px-2 hidden sm:block"
+              className="text-xl sm:text-2xl text-zinc-900 dark:text-gray-400 tracking-normal mb-4 m:mb-8 mt-8 lg:mt-6 lg:mb-8 text-center px-4"
             >
-              10 years specializing in front end architecture and distributed
-              systems serving 2 billion customers.
+              I make large platforms fast and safe for teams to change. They
+              serve 2B+ Microsoft users, 53% of the Fortune 100, and nationwide
+              public safety programs.
             </p>
-            <span className="mt-2 mb-16 flex flex-row items-center lg:justify-start gap-x-2">
+            <span className="mt-2 mb-16 flex flex-row flex-wrap items-center justify-center lg:justify-start gap-x-2 gap-y-2">
               <span>
                 <CallToAction
-                  title="View resume"
-                  href="/resume"
+                  title="See platform results"
+                  href="#platform-work"
                   primary
                   dataTestId="hero-primary-cta"
                   color="text-zinc-600"
@@ -37,8 +40,8 @@ const Hero = () => (
               </span>
               <span className="">
                 <CallToAction
-                  title="Read blog"
-                  href="/blog"
+                  title="Read recommendations"
+                  href="#recommendations"
                   dataTestId="hero-secondary-cta"
                   includeArrow
                   color="text-zinc-600"
@@ -47,7 +50,9 @@ const Hero = () => (
               </span>
             </span>
           </div>
-          <div className="lg:ml-32">{<DataSourceIllustration />}</div>
+          <div className="hidden sm:block w-full max-w-[560px] px-4 lg:px-0 lg:ml-16 mb-12 lg:mb-0 text-left">
+            <Code />
+          </div>
         </div>
       </>
     </section>

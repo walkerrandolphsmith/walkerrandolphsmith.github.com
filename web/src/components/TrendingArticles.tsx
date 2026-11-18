@@ -3,9 +3,9 @@ import Link from 'next/link'
 import CallToAction from './CallToAction'
 import SectionHeader from './SectionHeader'
 
-const ArticleCard = ({ slug, tags, title, children, offset = false }) => (
+const ArticleCard = ({ slug, tags, title, children }) => (
   <div
-    className={`break-inside-avoid mb-12 group flex flex-col relative rounded-[8px] bg-white bg-white dark:bg-[rgba(39,39,42,0.9)] shadow-[0px_18px_36px_-18px_rgba(0,0,0,0.1),0px_30px_45px_-30px_rgba(50,50,93,0.25)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] overflow-hidden ${offset ? 'mt-12 sm:mt-24 md:mt-32' : ''}`}
+    className={`break-inside-avoid mb-12 group flex flex-col relative rounded-[8px] bg-white bg-white dark:bg-[rgba(39,39,42,0.9)] shadow-[0px_18px_36px_-18px_rgba(0,0,0,0.1),0px_30px_45px_-30px_rgba(50,50,93,0.25)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] overflow-hidden`}
   >
     <div className="relative overflow-hidden m-[4px] mb-0 rounded-[4px] p-8 pb-0">
       <div className="flex flex-col gap-4">
@@ -17,7 +17,7 @@ const ArticleCard = ({ slug, tags, title, children, offset = false }) => (
         </p>
       </div>
     </div>
-    <div className="translate-y-12 group-focus-within:-translate-y-1 group-hover:-translate-y-1 grid gap-2 px-8 py-4 transition-transform [transition-timing-function:cubic-bezier(0.33,1,0.68,1)] will-change-transform bg-white dark:bg-transparent">
+    <div className="mt-auto translate-y-12 group-focus-within:-translate-y-1 group-hover:-translate-y-1 grid gap-2 px-8 py-4 transition-transform [transition-timing-function:cubic-bezier(0.33,1,0.68,1)] will-change-transform bg-white dark:bg-transparent">
       <div className="flex justify-between w-full items-center">
         <div className="inline-flex flex-wrap items-center justify-start gap-2">
           {tags.map(tag => (
@@ -30,15 +30,17 @@ const ArticleCard = ({ slug, tags, title, children, offset = false }) => (
           ))}
         </div>
       </div>
-      <CallToAction
-        title="Read article"
-        href={slug}
-        dataTestId="view-profile"
-        includeArrow
-        excludeLeftPadding
-        color="text-[#7a6ded]"
-        darkColor="text-[#7a6ded]"
-      />
+      <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
+        <CallToAction
+          title="Read article"
+          href={slug}
+          dataTestId="read-article"
+          includeArrow
+          excludeLeftPadding
+          color="text-[#7a6ded]"
+          darkColor="text-[#7a6ded]"
+        />
+      </div>
     </div>
   </div>
 )
@@ -47,9 +49,8 @@ const TrendingArticles = () => (
   <div className="grid gap-y-8">
     <header className="px-8 grid gap-y-4">
       <SectionHeader
-        title="Trending Articles"
-        byline="I write about building thoughtful systems, writing maintainable code,
-        and solving real-world engineering problems at scale."
+        title="Writing about platform work"
+        byline="I write about platform engineering and developer experience."
         isLight
       />
       <CallToAction
@@ -64,51 +65,43 @@ const TrendingArticles = () => (
       />
     </header>
     <section className="mx-4 md:mx-6 max-w-screen-xl">
-      <div className={`columns-1 md:columns-2 gap-8 mb-12`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 mb-12">
         <ArticleCard
-          offset
-          slug="blog/context-is-everything"
-          tags={['RAG', 'LLM', 'Machine Learning']}
-          title="Context is Everything: How We Built a RAG System to Improve
-                Branded, Culturally Aware Content"
+          slug="blog/one-registry-for-production"
+          tags={['supply chain', 'CI/CD', 'Azure', 'AKS', 'security']}
+          title="One Registry for Production: Promoting Images Across a Trust Boundary"
         >
-          Large language models are impressive out of the box—but when your CMS
-          powers content written by hundreds of people for a global audience,
-          accuracy and voice consistency aren&apos;t optional. Pretrained
-          knowledge wasn&apos;t enough. We needed context. Real context.
+          Production pulls images from one private registry and from nowhere
+          else. Every image passes a scan before it runs. This post shows how
+          images move from a development tenant to production, and how to debug
+          the chain when it breaks.
         </ArticleCard>
         <ArticleCard
-          slug="blog/reduced-content-latency-event-driven-cache-invalidation"
-          tags={['Event Driven Archtecture', 'Performance']}
-          title="⚡How We Reduced Content Publication Latency by 99% Using
-                Event-Driven Cache Invalidation"
+          slug="blog/nothing-holds-a-secret"
+          tags={['security', 'identity', 'Azure', 'AKS']}
+          title="Nothing Holds a Secret: Identity Instead of Keys"
         >
-          Cache invalidation is hard — but what if it didn&apos;t have to be? We
-          slashed content latency by 99% without ripping out our CDN, and in the
-          process, built a real-time publishing system that unlocked dashboards,
-          workflows, and trust across teams.
+          A connection string gives its access to anyone who holds it. Workload
+          identity federation replaces keys with short-lived proofs. This post
+          also shows how to handle the places where federation is not possible.
         </ArticleCard>
         <ArticleCard
-          slug="blog/cqrs-and-federated-graphql"
-          tags={['CQRS', 'GraphQL', 'Performance', 'Envoy']}
-          title="Balancing Transactional Integrity and Scale: Evolving Our CMS
-                with CQRS and Federated GraphQL"
+          slug="blog/environment-vs-request-isolation"
+          tags={['infrastructure', 'CI/CD']}
+          title="From Preview Links to Full Ephemeral Environments: Scalable Testing in Microservice Architectures"
         >
-          Billions of readers. Hundreds of writers. One shared content platform.
-          How we balanced editorial precision and platform-scale delivery by
-          evolving our CMS architecture with CQRS and federated GraphQL,
-          improving editor experience and system scalability.
+          Each pull request gets its own copy of the full system. Engineers,
+          product managers, and marketers test the change before it merges. This
+          post shows the steps to set up these environments for microservices.
         </ArticleCard>
         <ArticleCard
-          slug="blog/incremental-static-regeneration"
-          tags={['Next.js', 'SEO', 'Performance']}
-          title="🚀 Lighthouse Scores from 48 to 100: Re-Architecting for Speed
-                and SEO with Incremental Static Regeneration"
+          slug="blog/ci-is-a-framework-not-a-library"
+          tags={['CI/CD', 'platform engineering', 'developer experience']}
+          title="CI Is a Framework, Not a Library"
         >
-          Help articles served in flagship products struggled with performance
-          due to runtime rendering and content complexity. Here&apos;s how we
-          applied static generation—at scale—to improve reliability,
-          responsiveness, and SEO.
+          When each repository builds its own pipeline, every pipeline drifts. A
+          better model lets CI own the control flow and call a small, stable set
+          of target names that each project implements.
         </ArticleCard>
       </div>
     </section>

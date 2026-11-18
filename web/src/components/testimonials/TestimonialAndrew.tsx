@@ -6,7 +6,7 @@ const Testimonial = ({ offset = false }) => (
     offset={offset}
     name="Andrew Smith"
     level="Staff Engineer"
-    company="Microsoft"
+    company="Atlassian"
     url="https://www.linkedin.com/in/jamesandrewsmith/"
     image={AndrewImage}
   >

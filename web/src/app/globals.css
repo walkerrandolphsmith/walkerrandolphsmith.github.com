@@ -99,8 +99,21 @@
     & h3 {
       font-weight: 600;
     }
+    /* Inline code reads as a tinted chip. Fenced code blocks keep their own
+       styles because they sit inside pre. */
     & :where(code):not(pre code) {
-      color: var(--color-indigo-500);
+      color: var(--color-zinc-800);
+      background-color: var(--color-zinc-100);
+      border: 1px solid var(--color-zinc-200);
+      border-radius: 0.375rem;
+      padding: 0.125rem 0.375rem;
+      font-size: 0.875em;
+      font-weight: 500;
+      white-space: break-spaces;
+    }
+    & :where(code):not(pre code)::before,
+    & :where(code):not(pre code)::after {
+      content: none;
     }
   }
 
@@ -118,6 +131,225 @@
       color: var(--color-gray-100);
     }
   }
+}
+
+/* The global * rule sets Roboto on every element and sits outside any layer,
+   so inline code needs an unlayered rule to keep a monospace face. */
+.prose :where(code):not(pre code) {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    monospace;
+}
+
+/* Dark mode applies to the article through the dark: variant, so the inline
+   code rule targets .dark directly. */
+.dark .prose :where(code):not(pre code) {
+  color: var(--color-zinc-100);
+  background-color: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.14);
+}
+
+/* Blog code blocks. rehypeCodeBlock highlights at build time with a Shiki
+   theme whose token colors are these variables. Every token color meets
+   WCAG AA (4.5:1) against both the code and header backgrounds. */
+.code-block {
+  --code-font:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    monospace;
+  --code-bg: #f6f9fc;
+  --code-header-bg: #edf2f7;
+  --code-border: #e3e8ee;
+  --code-fg: #0a2540;
+  --code-muted: #425466;
+  --code-line-number: #607287;
+  --code-comment: #5c6f84;
+  --code-punctuation: #425466;
+  --code-keyword: #5340c9;
+  --code-string: #0a7255;
+  --code-number: #b0450c;
+  --code-function: #0067a3;
+  --code-type: #9b2c80;
+  --code-property: #1d4fa0;
+  --code-tag: #2052cb;
+  --code-copied: #0a7255;
+  --code-hover: rgb(10 37 64 / 0.06);
+  --code-selection: rgb(83 64 201 / 0.16);
+}
+
+.dark .code-block {
+  --code-bg: #202023;
+  --code-header-bg: #27272a;
+  --code-border: rgb(255 255 255 / 0.1);
+  --code-fg: #e4e4e7;
+  --code-muted: #a1a1aa;
+  --code-line-number: #8e8e98;
+  --code-comment: #a1a1aa;
+  --code-punctuation: #a1a1aa;
+  --code-keyword: #ab9dff;
+  --code-string: #63dbb0;
+  --code-number: #ffb173;
+  --code-function: #5cd0ff;
+  --code-type: #f3a4dc;
+  --code-property: #93b4ff;
+  --code-tag: #7fa8ff;
+  --code-copied: #63dbb0;
+  --code-hover: rgb(255 255 255 / 0.08);
+  --code-selection: rgb(171 157 255 / 0.24);
+}
+
+.code-block {
+  margin-block: 1.75rem;
+  overflow: hidden;
+  border: 1px solid var(--code-border);
+  border-radius: 0.75rem;
+  background-color: var(--code-bg);
+  color: var(--code-fg);
+}
+
+.code-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.75rem;
+  padding: 0.375rem 0.5rem 0.375rem 1rem;
+  border-bottom: 1px solid var(--code-border);
+  background-color: var(--code-header-bg);
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.code-block__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.code-block__filename {
+  overflow: hidden;
+  color: var(--code-fg);
+  font-family: var(--code-font);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.code-block__language {
+  flex-shrink: 0;
+  color: var(--code-muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.code-block__copy {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  color: var(--code-muted);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+
+.code-block__copy:hover {
+  background-color: var(--code-hover);
+  color: var(--code-fg);
+}
+
+.code-block__copy[data-copied] {
+  color: var(--code-copied);
+}
+
+.code-block__pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  background-color: var(--code-bg);
+  color: var(--code-fg);
+  font-family: var(--code-font);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  tab-size: 2;
+  scrollbar-width: thin;
+  scrollbar-color: var(--code-border) transparent;
+}
+
+.code-block__pre:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: -2px;
+}
+
+.code-block__pre code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* The global * rule sets Roboto on every element, so set the code font on
+   each token span too. */
+.code-block__pre *,
+.code-block__filename {
+  font-family: var(--code-font);
+}
+
+.code-block__pre ::selection {
+  background-color: var(--code-selection);
+}
+
+.code-block__pre[data-line-numbers] code {
+  counter-reset: line;
+}
+
+.code-block__pre[data-line-numbers] .line::before {
+  display: inline-block;
+  width: var(--code-gutter, 2ch);
+  margin-right: 1.25rem;
+  color: var(--code-line-number);
+  text-align: right;
+  content: counter(line);
+  counter-increment: line;
+  user-select: none;
+}
+
+@media (max-width: 639px) {
+  .code-block {
+    border-radius: 0.5rem;
+  }
+
+  .code-block__pre {
+    padding: 0.875rem 1rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Wide tables in posts scroll inside their own region instead of being
+   clipped by the article column. */
+.prose .table-scroll {
+  margin-block: 2em;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.prose .table-scroll > table {
+  margin-block: 0;
+}
+
+/* Long headers wrap one word per line in a narrow column. A minimum width
+   keeps them readable, and the region scrolls instead. */
+.prose .table-scroll th {
+  min-width: 7rem;
+}
+
+.prose .table-scroll:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
 }
 
 .task-list-item::before {
@@ -229,7 +461,7 @@ input:-webkit-autofill:focus {
   --sectionAnglePaddingTopBaseMax: var(--sectionAnglePaddingBaseMax);
   --sectionAnglePaddingBottomBaseMax: var(--sectionAnglePaddingBaseMax);
   --sectionAngleMaxHeight: none;
-  --sectionOverflow: hidden;
+  --sectionOverflow: clip;
   --sectionTransformOrigin: 100% 0;
   --sectionBackgroundOverflow: visible;
   position: relative;
@@ -296,6 +528,23 @@ input:-webkit-autofill:focus {
 }
 .dark .Section__background {
   background: var(--backgroundColorDark);
+}
+/* An angled section shows its neighbors in the triangles outside its skewed
+   background: the section above in the top triangle and the section below in
+   the bottom triangle. */
+.Section--bleed {
+  background: linear-gradient(
+    to bottom,
+    var(--bleedTop) 50%,
+    var(--bleedBottom) 50%
+  );
+}
+.dark .Section--bleed {
+  background: linear-gradient(
+    to bottom,
+    var(--bleedTopDark) 50%,
+    var(--bleedBottomDark) 50%
+  );
 }
 .Section__background--isTransparent {
   background: hsla(0, 0%, 100%, 0.2);
@@ -406,7 +655,7 @@ input:-webkit-autofill:focus {
   --angleStrong: -12deg;
   --angleNormalSin: 0.106;
   --angleStrongSin: 0.212;
-  --sectionOverflow: hidden;
+  --sectionOverflow: clip;
   --sectionBackgroundOverflow: visible;
   --sectionMarginTop: 0;
   --sectionPaddingBottom: 0;
@@ -646,6 +895,13 @@ span.custom-type-animation-cursor-visible::after {
 .Section__masked {
   position: relative;
   overflow: var(--sectionOverflow);
+}
+
+.Section__bleedGuides {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .Section__backgroundMask {

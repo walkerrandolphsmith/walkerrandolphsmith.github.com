@@ -9,7 +9,6 @@ import { fromHtmlIsomorphic } from 'hast-util-from-html-isomorphic'
 import path from 'path'
 import {
   extractTocHeadings,
-  remarkCodeTitles,
   remarkExtractFrontmatter,
   remarkImgToJsx,
 } from 'pliny/mdx-plugins/index.js'
@@ -21,7 +20,6 @@ import rehypeCitation from 'rehype-citation'
 import rehypeKatex from 'rehype-katex'
 import rehypeKatexNoTranslate from 'rehype-katex-notranslate'
 import rehypePresetMinify from 'rehype-preset-minify'
-import rehypePrismPlus from 'rehype-prism-plus'
 // Rehype packages
 import rehypeSlug from 'rehype-slug'
 // Remark packages
@@ -30,6 +28,8 @@ import { remarkAlert } from 'remark-github-blockquote-alert'
 import remarkMath from 'remark-math'
 
 import siteMetadata from './src/data/sitemetadata'
+import rehypeCodeBlock from './src/mdx/rehypeCodeBlock'
+import rehypeScrollableTables from './src/mdx/rehypeScrollableTables'
 
 const root = process.cwd()
 const isProduction = process.env.NODE_ENV === 'production'
@@ -118,22 +118,7 @@ export const Blog = defineDocumentType(() => ({
     bibliography: { type: 'string' },
     canonicalUrl: { type: 'string' },
   },
-  computedFields: {
-    ...computedFields,
-    structuredData: {
-      type: 'json',
-      resolve: doc => ({
-        '@context': 'https://schema.org',
-        '@type': 'BlogPosting',
-        headline: doc.title,
-        datePublished: doc.date,
-        dateModified: doc.lastmod || doc.date,
-        description: doc.summary,
-        image: doc.images ? doc.images[0] : siteMetadata.socialBanner,
-        url: `${siteMetadata.siteUrl}/${doc._raw.flattenedPath}`,
-      }),
-    },
-  },
+  computedFields,
 }))
 
 export const Authors = defineDocumentType(() => ({
@@ -163,7 +148,6 @@ export default makeSource({
     remarkPlugins: [
       remarkExtractFrontmatter,
       remarkGfm,
-      remarkCodeTitles,
       remarkMath,
       remarkImgToJsx,
       remarkAlert,
@@ -183,7 +167,8 @@ export default makeSource({
       rehypeKatex,
       rehypeKatexNoTranslate,
       [rehypeCitation, { path: path.join(root, 'data') }],
-      [rehypePrismPlus, { defaultLanguage: 'js', ignoreMissing: true }],
+      rehypeCodeBlock,
+      rehypeScrollableTables,
       rehypePresetMinify,
     ],
   },
