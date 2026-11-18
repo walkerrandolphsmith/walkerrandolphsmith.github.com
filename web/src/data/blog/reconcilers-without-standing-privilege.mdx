@@ -4,7 +4,7 @@ date: 2026-11-17
 tags: ['security', 'identity', 'platform engineering']
 draft: false
 excerpt: |
-  Infrastructure as code stops where a provider stops, and the state past that line still drifts. The Kubernetes reflex is to write a controller that converges it forever. This post argues that a controller in the cluster does not need long-lived privilege to do a reconciler's work, and describes a reconciler that runs on demand, under the operator's own short-lived identity, with a safety model built for the person who holds the keys.
+  Infrastructure as code stops where a provider stops, and the state past that line still drifts. The Kubernetes reflex is to write a controller that converges it forever. This post argues that reconciler work does not need a controller that holds long-lived privilege in the cluster. The reconciler runs on demand instead, under the operator's own short-lived identity, so its access lasts only for the run.
 ---
 
 Terraform manages what a provider exposes. It creates the database server, but not the users inside each database and their role memberships. It creates the service connection for the build platform, but not the build platform's own grants on that connection. It cannot reach the restrictions on a browser API key at a third-party console, or the federation rules at an external API provider. All of that state is real, production depends on it, and it drifts. When nothing owns it, people fix it by hand in a portal, and nobody can later say what changed or why.
