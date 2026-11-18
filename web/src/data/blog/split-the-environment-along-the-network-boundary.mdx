@@ -4,7 +4,7 @@ date: 2026-11-17
 tags: ['infrastructure', 'CI/CD', 'GitOps', 'platform engineering']
 draft: false
 excerpt: |
-  A design for per-pull-request environments made sense until every data plane went private and the cluster API joined the private network. This post walks through the reversal: why the original premises failed, how the lifecycle now splits at the network boundary between CI and a controller in the cluster, and how a pull-request label states what data an environment needs.
+  A design for per-pull-request environments made sense until the network went private. This post walks through the reversal: why the original premises failed, how the lifecycle now splits at the network boundary between CI and a controller in the cluster, and how a pull-request label states what data an environment needs.
 ---
 
 An [earlier post](/blog/environment-vs-request-isolation) compared environment isolation with request isolation for testing pull requests. This post is about what happens to an environment design when the network changes under it. It covers a decision that was made, a decision that was reversed when its premises changed, and the rule that replaced it.
@@ -19,11 +19,11 @@ The reasons were good. Declaring short-lived environments in the GitOps reposito
 
 ## What changed
 
-The changes that mattered were not about environments.
+The changes that mattered were not about environments. They were about the network.
 
-Every stateful data plane became private. The infrastructure modules for every stateful store turned public network access off, and they did it as a fixed setting, not a variable. The cluster's API server joined the private network as well.
+A platform that holds sensitive data should take its stateful stores off the public internet. Turn public network access off for each store as a fixed setting in the infrastructure module, not a variable that an environment can override, and put the cluster's API server on the private network as well. This platform moved in that direction, and that move is what broke the environment design.
 
-The imperative flow touched exactly those systems. It created namespaces and installed charts through the cluster API, restored a data slot from a baseline, and injected connection details. A hosted CI agent, which runs outside the private network, can reach none of them. The imperative design therefore did not merely prefer a self-hosted agent pool inside the network. It required that pool for every provision, every update, and every teardown, for every service.
+The imperative flow touched exactly the systems that went private. It created namespaces and installed charts through the cluster API, restored a data slot from a baseline, and injected connection details. A hosted CI agent, which runs outside the private network, can reach none of them. The imperative design therefore did not merely prefer a self-hosted agent pool inside the network. It required that pool for every provision, every update, and every teardown, for every service.
 
 Meanwhile, a separate decision had already priced that pool. The self-hosted pool was small, it scaled from zero so it started cold, and the traffic that it moved was metered. That decision concluded that only the few smoke suites that genuinely needed a network position should run there. It routed the rest to free, parallel hosted agents on purpose.
 
@@ -67,6 +67,8 @@ An earlier draft of this protocol said that a rejected push was the compare-and-
 
 ## Data is prepared on claim
 
+The data controller is the direction of the design. It has not shipped yet, so this section describes how it is meant to work.
+
 A custom resource declares the desired state of one slot's persistence: which claim it serves, what data intent it has, and, when needed, the source to copy from. The controller holds a workload identity whose role assignments Terraform scopes to the slot's resources, and it reconciles the resource against the live data plane.
 
 Preparation happens when a pull request claims a slot, not when the previous holder releases it. A slot is never assumed clean because its previous holder was supposed to tidy up. If a CI run dies between claim and release, which is the common case and not the exotic one, the next claimant still gets correct data. The trigger is the claim reference in the resource's spec, not a release hook, for that reason.
@@ -87,9 +89,9 @@ The `latest` intent also forces an honest look at the controller's grant. It mus
 
 ## What the reversal kept
 
-The new decision supersedes the old one, but most of the old one survives. Its analysis of data isolation between branches, its lease table, and its fixed data slots all carry forward. Its rejection of branch-per-environment stands. What changed is the actor and the control plane: from CI acting imperatively, to git declaring and the cluster reconciling.
+The new decision replaces the old one, but most of the old one survives. Its analysis of data isolation between branches, its lease table, and its fixed data slots all carry forward. Its rejection of branch-per-environment stands. What changed is the actor and the control plane: from CI acting imperatively, to git declaring and the cluster reconciling.
 
-Reversing a decision in the open has a cost, and it is worth paying. The superseded record stays in place with a note that points forward and explains which premises failed. A reader who finds the old record later learns why it was right at the time and why it stopped being right.
+Reversing a decision in the open has a cost, and it is worth paying. The old record stays in place with a note that points forward and explains which premises failed. A reader who finds the old record later learns why it was right at the time and why it stopped being right.
 
 ## What the new design costs
 

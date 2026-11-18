@@ -25,7 +25,7 @@ Our architecture no longer met our needs.
 
 We examined our delivery model again with one principle: performance is a product feature, not a backend concern.
 
-Next.js Incremental Static Regeneration (ISR) gave us the model we needed. We could pre-render popular article permutations as static HTML and regenerate pages on demand when traffic required it. For most content, we could stop runtime merging completely.
+Next.js Incremental Static Regeneration (ISR) gave us the model we needed. I came up with the idea and built the whole re-architecture myself. We could pre-render popular article permutations as static HTML and regenerate pages on demand when traffic required it. For most content, we could stop runtime merging completely.
 
 This would move load off our servers, simplify our caching, and improve the experience in desktop and web apps.
 

@@ -64,6 +64,38 @@ When the status changes, the system sends a webhook to the external system of th
 
 The customer system can act on that event immediately. It can update dashboards, start workflows, notify teams, and sync with downstream tools.
 
+## Verifying a webhook signature
+
+I cannot recall whether we signed the payloads. If I built this feature today, I would sign every one, and every receiver should verify the signature before it trusts the payload. The sender computes an HMAC of the raw request body with a secret that it shares with the receiver, and it sends the result in a header. The receiver computes the same HMAC and compares the two values.
+
+The comparison is where a careful receiver can still go wrong. A normal equality check stops at the first character that differs. A wrong guess that shares more leading characters with the real signature takes slightly longer to reject. An attacker who can send many requests and measure the response time can use that difference to recover a valid signature one character at a time.
+
+A constant-time comparison removes the signal. It checks every character, whatever it finds, and it collects the differences instead of returning early:
+
+```js
+const isMatch = (subject, compareTo) => {
+  let isMismatch = subject.length === compareTo.length ? 0 : 1
+  const z = isMismatch ? subject : compareTo
+  for (let i = 0; i < subject.length; i++) {
+    isMismatch |= subject.charCodeAt(i) ^ z.charCodeAt(i)
+  }
+  return !isMismatch
+}
+```
+
+The XOR of two equal character codes is zero, and the OR keeps any difference that it has seen, so the result is true only when every character matches. When the lengths differ, the flag is already set, and the loop compares the first string with itself. The work then depends only on the length of the first string. Pass the expected signature first, so that the timing depends on a value that the attacker does not control:
+
+```js
+import { createHmac } from 'node:crypto'
+
+const isValid = (rawBody, signature, secret) => {
+  const expected = createHmac('sha256', secret).update(rawBody).digest('hex')
+  return isMatch(expected, signature)
+}
+```
+
+My implementation is [isMatch in laces](https://github.com/walkerrandolphsmith/laces/blob/master/packages/isMatch/index.js).
+
 ## Automation in customer tools
 
 This was more than writing JSON to a URL. It enabled modern automation in the ecosystems of our customers. Customers synced VersionOne in real time with tools such as Jira, GitHub, Jenkins, and ServiceNow. They sent alerts and notifications to Slack, Teams, or custom UIs. They automated workflows across QA, release management, and compliance. Traceability also improved, because system-of-record updates went to the right people.

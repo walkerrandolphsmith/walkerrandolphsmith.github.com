@@ -27,7 +27,7 @@ The symptom is rarely a DNS error. The lookup succeeds and returns the public ad
 
 A hosted CI agent runs in the provider's shared network, outside your virtual network. Before the change, it could deploy to the cluster, run a database migration, read a secret, or push an image. After the change, every one of those calls goes to a private address that the agent cannot route to.
 
-The first answer is usually a self-hosted agent pool inside the network. It works, and it has costs of its own. The pool is compute that someone must patch and scale. It is often small, so jobs queue behind it. If it scales from zero, every job starts cold. If its egress goes through a firewall, the firewall meters every byte, including package restores that have nothing to do with the private network. And an agent that can reach every private data plane is now one of the most privileged machines in the estate, with credentials to match.
+The first answer is usually a self-hosted agent pool inside the network. It works, and it has costs of its own. The pool is compute that someone must patch and scale. It is often small, so jobs queue behind it. If it scales from zero, every job starts cold. And an agent that can reach every private data plane is now one of the most privileged machines in the estate, with credentials to match.
 
 The better answer for deployment is to change the direction of the call. In a push model, CI reaches into the cluster. In a pull model, a GitOps controller inside the cluster reaches out to a git repository and applies what it finds there. The controller already has a network position. CI no longer needs one. Its job ends when it publishes an image and writes the new desired state to git. No pipeline holds cluster credentials, and the record of every deploy is a commit that someone reviewed.
 
@@ -39,15 +39,15 @@ Infrastructure code feels this too. Some provider operations call the data plane
 
 The portal is less helpful than it was. The management view of a private resource still loads, because the management API stays public. The data views do not. Listing secrets in a vault, browsing blobs in a storage account, or running a query in the portal editor all fail from a browser outside the network. The message says that public access is disabled, which is accurate and not very helpful during an incident.
 
-Every engineer who needs to see data plane state now needs a network path first. In practice, that means a VPN that routes the virtual network address space and resolves the private zones, or a jump host inside the network. Either one is another system to operate, another set of credentials, and another dependency during an outage. If the VPN is down, so is the ability to look.
+Every engineer who needs to see data plane state now needs a network path first. In practice, that means a VPN that routes the virtual network address space and resolves the private zones, or a jump host inside the network. Either one is another system to operate, another set of credentials, and another dependency during an outage. If that path is down, so is the ability to look.
 
-This changes how a team should build its tools. Diagnostics that run inside the cluster, such as dashboards, health endpoints, and log queries in a workspace that the team can reach, become more valuable than ad hoc access to each resource. A good test is to ask how an on-call engineer would answer "is the vault reachable from the workload?" without a VPN. If the only answer is to connect and try, the team will spend the first minutes of every incident on the network instead of the problem.
+This changes how a team should build its tools. Diagnostics that run inside the cluster, such as dashboards, health endpoints, and log queries in a workspace that the team can reach, become more valuable than ad hoc access to each resource. A good test is to ask how an on-call engineer would answer "is the vault reachable from the workload?" without connecting to the network first. If the only answer is to connect and try, the team will spend the first minutes of every incident on the network instead of the problem.
 
 ## The invoice
 
 Private endpoints have a direct price. Each endpoint has an hourly charge and a charge for the data that passes through it. One endpoint is cheap. A platform with many resources, several sub-resources that each need their own endpoint, and more than one environment has many endpoints.
 
-The indirect costs are larger. Private DNS zones, a self-hosted agent pool, a VPN gateway, firewall data processing for traffic that would otherwise go direct, and the engineering time to keep all of it consistent across environments all go on the bill. None of these appear in the line item for the private endpoint itself, so they are easy to leave out of the decision.
+The indirect costs are larger. Private DNS zones, a self-hosted agent pool, a VPN gateway or a jump host, firewall data processing for traffic that would otherwise go direct, and the engineering time to keep all of it consistent across environments all go on the bill. None of these appear in the line item for the private endpoint itself, so they are easy to leave out of the decision.
 
 ## When it is worth it
 
@@ -55,7 +55,7 @@ The trade is clearly worth it when the data is regulated, when an auditor will a
 
 The trade is weaker for resources that hold nothing sensitive, for short-lived sandboxes, and for assets that are meant to be public, such as a static site or a public package feed. Putting those behind private endpoints adds cost and friction and removes little risk.
 
-Two habits help when the answer is yes. Make public access a fixed setting in the infrastructure module, not a variable that each environment can override, so that nobody turns it back on to unblock a deploy. And design the delivery path for the private network on the first day. Retrofitting pull-based deployment after the network goes private is much harder than starting with it.
+One habit helps when the answer is yes: design the delivery path for the private network on the first day. Retrofitting pull-based deployment after the network goes private is much harder than starting with it.
 
 ## Keeping the paths reachable
 

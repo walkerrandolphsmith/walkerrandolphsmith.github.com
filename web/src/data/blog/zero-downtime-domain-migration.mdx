@@ -25,7 +25,7 @@ Azure Static Web Apps hosts the site. I managed the old domain through App Servi
 
 The simplest option was to point the apex (`@`) of the new domain at the static IP address of the Static Web App. I rejected it for two reasons. Traffic would bypass Azure Front Door, so the site would lose the performance and security of a global edge. Both domains would also serve the same content, and duplicate content is a large search ranking risk.
 
-I chose to put Azure Front Door in front of both domains. Front Door holds the HTTPS certificate for each custom domain and serves the site from its global edge. It also redirects the old domain to the new one. One entry point then controls every request, so certificates and redirects live in one place.
+I chose to put Azure Front Door in front of both domains. Front Door holds the HTTPS certificate for each custom domain and serves the site from its global edge. It also redirects the old domain to the new one. One entry point then controls every request, so certificates and redirects live in one place. I managed the Front Door profile, the DNS zones, and the redirect rules with Terraform.
 
 {/* Gap: other options considered and the cost of Front Door. See domain-migration-questions.md. */}
 
@@ -47,7 +47,9 @@ Before I made the change live, I queried the authoritative Azure name servers di
 
 Name server changes can take up to 48 hours, but they usually propagate within an hour. The timing did not matter here. The old domain already ran through Front Door, and the new domain was ready to serve as soon as each resolver picked up the delegation.
 
-{/* Gap: rollback plan and how availability was monitored during the cutover. See domain-migration-questions.md. */}
+During the cutover, I watched traffic in Plausible Analytics and in a Log Analytics workspace.
+
+{/* Gap: rollback plan. See domain-migration-questions.md. */}
 
 ### Keep every existing link working
 
@@ -78,7 +80,5 @@ I announced the move on social media and noted that the old domain still redirec
 ## What the result proved
 
 The site had no downtime, every old link redirects to the same page on the new domain, and every request uses HTTPS. Search ranking did not drop.
-
-{/* Gap: the measurement behind "search ranking did not drop". See domain-migration-questions.md. */}
 
 The order of the work is what made the move safe. Move the edge first, so that the domain change is the only change left. Build and verify the new domain before you delegate it. Keep certificates and redirects at one entry point, so that one rule set protects every link.

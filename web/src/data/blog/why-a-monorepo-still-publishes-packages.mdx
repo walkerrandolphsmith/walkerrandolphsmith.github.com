@@ -11,6 +11,8 @@ A monorepo puts every application and every shared library in one tree. In a .NE
 
 That reference can be rejected on purpose. Shared libraries can still ship as versioned NuGet packages to a private feed, and applications in the same repository can consume them by version, exactly as if they lived somewhere else. This post explains why that is a reasonable choice and how to make the publish cycle tolerable.
 
+I made this decision at Blue Line Solutions because of what I had seen at Microsoft. There, shared libraries were direct project references. A change to one library touched nearly every application, CI runs became very long, and every consumer had to take the newest change at the same moment, whether it was ready or not.
+
 ## Where shared code came from
 
 Before the monorepo, shared code moved between repositories as git submodules. A submodule lets a consumer pin a specific commit, which is useful. But the pin is a bare commit hash. It gives no signal whether an update breaks the consumer, adds a capability, or only fixes a bug. Every clone also has to fetch the submodules, which slows CI.

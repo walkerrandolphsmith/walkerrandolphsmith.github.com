@@ -64,13 +64,7 @@ cert-manager renews a client certificate before it expires and generates a new k
 
 Several options exist to cause that restart. Reloading the certificate inside the process would avoid restarts entirely, but the transport pins the certificate when it creates the connection, so every service would need custom code to recycle its connections. Scheduled restarts are trivial, but they are blind to the moment of rotation, so they fire too often or too late. A checksum annotation on the pod template, the common Helm idiom, only changes when someone runs a Helm upgrade, and cert-manager rotates the Secret between upgrades.
 
-The option that fits is a controller that watches the Secret and performs a rolling restart of the workload when the Secret's content changes. Stakater Reloader is one such controller. Each Deployment opts in by naming exactly the Secrets that should trigger a restart:
-
-```yaml
-metadata:
-  annotations:
-    secret.reloader.stakater.com/reload: 'example-client-tls,example-ca-bundle'
-```
+The option that fits is a controller that watches the Secret and performs a rolling restart of the workload when the Secret's content changes. Several open-source controllers do this. Each Deployment opts in with an annotation that names exactly the Secrets that should trigger a restart, such as the client certificate and the CA bundle.
 
 Naming the Secrets, instead of reloading on any change, keeps unrelated configuration updates from restarting the service.
 
@@ -111,7 +105,5 @@ The renewal window matters most. It is the single number that makes client rotat
 Next, check the reload annotations. The list of Secrets in each annotation must match the Secrets that the Deployment actually mounts. Keeping the certificate request and the Deployment in the same chart puts both in front of the same reviewer.
 
 Clean shutdown matters too. A service that does not drain cleanly will show it every time its certificate rotates. That is a feature, as long as someone reads the signal.
-
-Rehearse the root rotation. A procedure that runs once every few years is a procedure that nobody remembers. Running it end to end in a non-production environment is the only way to know that the overlap window works before the day it is needed.
 
 A shared broker password made every rotation a coordinated redeploy. With the certificate, the trusted root, the reload trigger, and the overlap in each service's chart, rotation is a routine that nobody has to schedule.

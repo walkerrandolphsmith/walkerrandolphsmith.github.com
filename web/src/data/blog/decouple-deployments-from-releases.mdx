@@ -43,7 +43,7 @@ Recreate is good for internal tools or early-stage apps. Avoid it if you need up
 
 Ramped deployment replaces the old with the new, gradually, one instance at a time. Some old instances stay available while new ones start. This decreases downtime and makes rollbacks faster. But two versions of your app run at the same time. That is difficult when the backend or database schema changes.
 
-Ramped deployment is good for mature teams with version-compatible APIs. Avoid it if your system cannot handle logic from mixed versions.
+Ramped deployment is good for mature teams with version-compatible APIs. Avoid it if your system cannot handle logic from mixed versions. At Blue Line Solutions, ramped deployment is how we ship.
 
 ## Blue-Green Deployment
 
@@ -57,11 +57,15 @@ Canary deployments let a few users try the future. They release new code to a sm
 
 Canary is good for production rollouts with live feedback loops. Avoid it if you do not have observability or feature flag infrastructure.
 
+At Microsoft, we used ringed rollouts, a canary in concentric rings with a sample that grows at each ring. A change went first to the team, then to internal Microsoft staff, and then to a small set of external users chosen by market, industry, or demographic.
+
 ## A/B Testing
 
 A/B testing is a targeted deployment with measurable outcomes. It deploys new features to defined user segments. It is good for measuring business impact, such as conversion and retention, or for validating UX changes. It is like Canary, but more intentional. A feature flag or a segment change gives an almost immediate rollback.
 
 A/B testing is good for product experiments or feature gating. Avoid it if you do not have analytics or feature targeting tools.
+
+A/B testing does not need separate pod instances and traffic routing. At Blue Line, one pod contains both code paths, and a feature flag toggles the behavior at runtime.
 
 ## Shadow Deployment
 

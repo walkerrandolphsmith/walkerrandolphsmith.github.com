@@ -23,7 +23,7 @@ Some providers make the point for you. One key management API rejects API key au
 
 ## Privilege on demand
 
-I considered a standing controller in the cluster and rejected it, because it would hold that privilege for its whole lifetime. I chose reconcilers that hold privilege only while they run.
+I considered a standing controller in the cluster and rejected it, because it would hold that privilege for its whole lifetime. I chose reconcilers that hold privilege only while they run, and I wrote all of them.
 
 The alternative is to treat the reconciler as a program that a person runs, not a service that runs itself. Nothing runs on a schedule or in a pipeline. An operator decides to reach for the tool, points it at an environment, and reads the output.
 
@@ -32,6 +32,8 @@ The tool runs under the operator's own identity. Each run mints a short-lived to
 The design gains more than a smaller exposure window. Every change lands in the provider's audit log under a person's name, so the question "who changed this grant?" has a direct answer. The tool also cannot act when nobody is watching, which matters for state where a wrong change takes access away from a production workload.
 
 The cost is real. Nothing converges continuously. Drift stays in place until somebody runs the tool. The controls for that cost come from making the read side cheap. Each reconciler has two verbs, `plan` and `apply`, and `plan` is always read-only and is the default target. Anyone who can read the state can ask whether it has drifted, at any time, without the rights to change it.
+
+The first `plan` runs found no drift, because the system was new. That was not the point of the default. A read-only default is what lets a tool grow beyond the person who wrote it. Other operators can run it, read the result, and understand the state before anyone applies a change.
 
 ## Azure DevOps: the biggest win
 
@@ -87,7 +89,7 @@ The steady pressure is a request to put a reconciler on a schedule. It sounds li
 
 Pruning tends to come back slowly. Someone will eventually notice that the reverse view lists principals that nobody declared and suggest that `apply` should clean them up. That view is an inventory, not a verdict. The tombstone exists so that every removal is a reviewed decision.
 
-The operator side of the boundary carries new weight. When privilege lives in human sessions, the administrator groups become the control. Who belongs to them, and how their sessions are protected, now carries the weight that a controller's identity would have carried.
+The operator side of the boundary carries new weight. When privilege lives in human sessions, the people who can run `apply`, and how their sessions are protected, carry the weight that a controller's identity would have carried.
 
 And keep the desired-state files authoritative. A reconciler is only as good as the file it reads. If people go back to changing state in the portal and then running `plan` to see what happened, the file stops being the source of truth, and the tool becomes a diff viewer.
 

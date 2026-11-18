@@ -51,9 +51,9 @@ Some topics need human judgment. Automation of tone, regional differences, and c
 
 We added a human-in-the-loop review system after the RAG pipeline. The system scored each generated response against editorial guidelines with simple heuristics and classifiers, for example for tone, length, and citation use. Content above a confidence threshold went directly to a quick human review with change suggestions. Content below the threshold went to a full editorial review, and the system attached the original retrieved sources to give editors fast context. The system also logged editor feedback, and we used it to tune retrieval weights, prompt instructions, and re-query logic.
 
-With this system, LLMs did most of the work of draft generation and fact synthesis. Editors focused on voice, ethics, clarity, and emotional tone. Costs decreased because editors reviewed drafts instead of writing from scratch. Quality increased because the retrieved source material matched internal standards and previous work.
+The design gave LLMs most of the work of draft generation and fact synthesis, so that editors could focus on voice, ethics, clarity, and emotional tone. Editors would review drafts instead of writing from scratch, and the retrieved source material would match internal standards and previous work.
 
-The system did not slow down creative work. It created a feedback loop that improved over time. Each piece of content improved the article and also the pipeline.
+The design kept creative work with people. Its feedback loop was meant to improve the pipeline with each piece of content, not only the article.
 
 ## What retrieval taught us
 
@@ -61,9 +61,9 @@ RAG is more than a technical pattern. It shows how well your systems understand 
 
 Garbage in, garbage out still applies. Here, "garbage" means vague context. CMS metadata such as tags, authorship, and region filtered relevant chunks better than similarity alone. We also learned that editorial tone is more than style. It is a set of instructions, so we had to put tone into the prompts. In the end, RAG became more than a writing aid. It put institutional knowledge into every draft in real time.
 
-The results went beyond faster content production. Tone became consistent across teams and regions. Drafts had fewer hallucinations and outdated facts. Editorial satisfaction increased, especially among authors whose first language is not English. Teams also reused more content, because retrieval made past articles easier to find and reference.
+The aims went beyond faster content production: a consistent tone across teams and regions, fewer hallucinations and outdated facts, better support for authors whose first language is not English, and more reuse of past articles, because retrieval makes them easier to find and reference.
 
-RAG did not replace writers. It made them faster and more accurate, and it aligned them with our shared voice.
+RAG was never meant to replace writers. It was meant to make them faster and more accurate, and to align them with our shared voice.
 
 Pretrained models are excellent generalists. But our platform operates at scale, across cultures and languages, so general answers are not sufficient.
 
