@@ -24,7 +24,7 @@ const configuration = {
   appName: 'Walker Randolph Smith',
   appShortName: 'Walker Smith',
   appDescription:
-    'Staff Engineer for developer experience and platform. I build CI/CD, test environments, and observability for engineering teams.',
+    'Staff Engineer for developer experience and platform. I make large platforms fast and safe for teams to change.',
   developerName: 'Walker Smith',
   developerURL: 'https://walkerrandolphsmith.com',
   background: '#ffffff',

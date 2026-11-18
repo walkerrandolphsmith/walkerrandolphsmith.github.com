@@ -3,7 +3,7 @@ const sitedata = {
   author: 'Walker Smith',
   headerTitle: 'Walker Smith',
   description:
-    'Staff Engineer for developer experience and platform. I build CI/CD, test environments, and observability for engineering teams.',
+    'Staff Engineer for developer experience and platform. I make large platforms fast and safe for teams to change.',
   language: 'en-us',
   theme: 'system',
   siteUrl: 'https://walkersmith.me',
