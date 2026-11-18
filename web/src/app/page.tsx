@@ -15,9 +15,23 @@ import TestimonialIan from '@/components/testimonials/TestimonialIan'
 import TestimonialJered from '@/components/testimonials/TestimonialJered'
 import TestimonialRd from '@/components/testimonials/TestimonialRd'
 import TrendingArticles from '@/components/TrendingArticles'
+import { profile } from '@/lib/siteContent'
+import {
+  JsonLd,
+  personNode,
+  profilePageNode,
+  websiteNode,
+} from '@/lib/structuredData'
+
+export const metadata = {
+  alternates: { canonical: '/' },
+}
 
 const Narrative = () => (
   <>
+    <JsonLd
+      graph={[websiteNode(), personNode(), profilePageNode('/', profile.name)]}
+    />
     <Nav />
     <GuidedSection
       allowOverflow

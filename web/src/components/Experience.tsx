@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import ExportedImage from 'next-image-export-optimizer'
 
-import { companyById, education } from '@/constants'
+import { companyById } from '@/constants'
+import { education } from '@/data/resume'
 
 import SectionHeader from './SectionHeader'
 
@@ -59,7 +60,7 @@ const Company = ({ title, name, description, isActive, logo, card, link }) => (
         >
           <ExportedImage
             src={card}
-            alt="Career Figure"
+            alt={`${name} career highlight`}
             fill
             className="w-full transition-scale duration-300 hover:scale-105 object-cover"
             sizes="300px 300px, 400px 400px"

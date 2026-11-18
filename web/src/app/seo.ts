@@ -18,16 +18,18 @@ export function genPageMetadata({
   image,
   ...rest
 }: PageSEOProps): Metadata {
+  // The site exports with trailing slashes, so canonical URLs end in one.
+  const url = `${sitemetadata.siteUrl}/${route.replace(/^\/|\/$/g, '')}/`
   return {
     title,
     alternates: {
-      canonical: `${sitemetadata.siteUrl}/${route}`,
+      canonical: url,
     },
     description: description || sitemetadata.description,
     openGraph: {
       title: `${title} | ${sitemetadata.title}`,
       description: description || sitemetadata.description,
-      url: './',
+      url,
       siteName: sitemetadata.title,
       images: image ? [image] : [sitemetadata.socialBanner],
       locale: 'en_US',
@@ -35,6 +37,7 @@ export function genPageMetadata({
     },
     twitter: {
       title: `${title} | ${sitemetadata.title}`,
+      description: description || sitemetadata.description,
       card: 'summary_large_image',
       images: image ? [image] : [sitemetadata.socialBanner],
     },

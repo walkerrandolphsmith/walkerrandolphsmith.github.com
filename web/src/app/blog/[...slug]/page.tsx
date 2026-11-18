@@ -12,10 +12,23 @@ import GuidedSection from '@/components/GuidedSection'
 import MDXContent from '@/components/MDXContent'
 import Nav from '@/components/Nav'
 import siteMetadata from '@/data/sitemetadata'
-import sitedata from '@/data/sitemetadata'
+import { toPostSummary } from '@/lib/siteContent'
+import {
+  blogPostingNode,
+  breadcrumbNode,
+  JsonLd,
+  personNode,
+  websiteNode,
+} from '@/lib/structuredData'
 
 import type { Authors, Blog } from '../../../../.contentlayer/generated'
 import { allAuthors, allBlogs } from '../../../../.contentlayer/generated'
+
+const postImages = (post: Blog): string[] => {
+  const images = typeof post.images === 'string' ? [post.images] : post.images
+  const list = Array.isArray(images) ? images.filter(Boolean) : []
+  return list.length > 0 ? list : [siteMetadata.socialBanner]
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string[] }>
@@ -23,49 +36,40 @@ export async function generateMetadata(props: {
   const params = await props.params
   const slug = decodeURI(params.slug.join('/'))
   const post = allBlogs.find(p => p.slug === slug)
-  const authorList = post?.authors || ['default']
-  const authorDetails = authorList.map(author => {
-    const authorResults = allAuthors.find(p => p.slug === author)
-    return coreContent(authorResults as Authors)
-  })
   if (!post) {
     return
   }
 
-  const publishedAt = new Date(post.date).toISOString()
-  const modifiedAt = new Date(post.lastmod || post.date).toISOString()
-  const authors = authorDetails.map(author => author.name)
-  let imageList = [siteMetadata.socialBanner]
-  if (post.images) {
-    imageList = typeof post.images === 'string' ? [post.images] : post.images
-  }
-  const ogImages = imageList.map(img => ({
-    url: img && img.includes('http') ? img : siteMetadata.siteUrl + img,
-  }))
+  const url = `${siteMetadata.siteUrl}/blog/${slug}/`
+  const description = post.excerpt.replace(/\s+/g, ' ').trim()
+  const images = postImages(post)
 
   return {
     title: post.title,
-    description: post.excerpt,
+    description,
+    keywords: post.tags,
+    authors: [{ name: siteMetadata.author, url: siteMetadata.siteUrl }],
     openGraph: {
       title: post.title,
-      description: post.excerpt,
+      description,
       siteName: siteMetadata.title,
       locale: 'en_US',
       type: 'article',
-      publishedTime: publishedAt,
-      modifiedTime: modifiedAt,
-      url: './',
-      images: ogImages,
-      authors: authors.length > 0 ? authors : [siteMetadata.author],
+      publishedTime: new Date(post.date).toISOString(),
+      modifiedTime: new Date(post.lastmod || post.date).toISOString(),
+      url,
+      images,
+      authors: [siteMetadata.author],
+      tags: post.tags,
     },
     alternates: {
-      canonical: `${sitedata.siteUrl}/blog/${slug}`,
+      canonical: url,
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.excerpt,
-      images: imageList,
+      description,
+      images,
     },
   }
 }
@@ -97,17 +101,21 @@ export default async function Page(props: {
     return coreContent(authorResults as Authors)
   })
   const mainContent = coreContent(post)
-  const jsonLd = post.structuredData
-  jsonLd['author'] = authorDetails.map(author => ({
-    '@type': 'Person',
-    name: author.name,
-  }))
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      <JsonLd
+        graph={[
+          websiteNode(),
+          personNode(),
+          blogPostingNode({
+            ...toPostSummary(post),
+            image: postImages(post)[0],
+          }),
+          breadcrumbNode([
+            { name: 'Writing', route: '/blog/' },
+            { name: post.title, route: `/blog/${slug}/` },
+          ]),
+        ]}
       />
       <Nav />
       <div className="grid gap-y-8">

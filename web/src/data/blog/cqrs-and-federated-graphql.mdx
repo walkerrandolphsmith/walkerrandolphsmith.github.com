@@ -5,6 +5,8 @@ tags: ['cms', 'graphql', 'cqrs', 'content-management', 'engineering']
 excerpt: We changed our CMS architecture to use CQRS and federated GraphQL. The change kept editorial precision, scaled content delivery, and improved the editor experience.
 ---
 
+We split our CMS into a transactional write model and a fast read model with CQRS, and put the read sources behind a federated GraphQL gateway. Editors got current data, and readers kept fast delivery.
+
 One shared content platform serves billions of readers and hundreds of writers.
 
 Our platform delivers in-app help, documentation, marketing pages, and more. Caching and eventual consistency let the read side of our CMS scale well. But the writing experience became worse. Editors needed to know that they worked on the latest version of a document. Transactional bottlenecks and outdated reads made our authors feel that they typed into a fog.

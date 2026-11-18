@@ -1,5 +1,4 @@
 const sitedata = {
-  metadataBase: process.env.NEXT_PUBLIC_SITE_URL,
   title: 'Walker Smith',
   author: 'Walker Smith',
   headerTitle: 'Walker Smith',
@@ -8,8 +7,9 @@ const sitedata = {
   language: 'en-us',
   theme: 'system',
   siteUrl: 'https://walkersmith.me',
-  siteLogo: `${process.env.NEXT_PUBLIC_SITE_URL || '/'}logo.png`,
-  socialBanner: `${process.env.NEXT_PUBLIC_SITE_URL || '/'}twitter-card.png`,
+  // Relative to metadataBase in src/app/layout.tsx.
+  siteLogo: '/logo.png',
+  socialBanner: '/twitter-card.png',
   github: 'https://github.com/walkerrandolphsmith',
   linkedin: 'https://www.linkedin.com/in/walkerrandolphsmith',
   medium: 'https://medium.com',

@@ -32,23 +32,40 @@ import TestimonialSarah from '@/components/testimonials/TestimonialSarah'
 import TestimonialSruthi from '@/components/testimonials/TestimonialSruthi'
 import TestimonialTom from '@/components/testimonials/TestimonialTom'
 import TestimonialTony from '@/components/testimonials/TestimonialTony'
+import { recommendationGroups } from '@/data/recommendationGroups'
+import {
+  breadcrumbNode,
+  collectionPageNode,
+  JsonLd,
+  personNode,
+  websiteNode,
+} from '@/lib/structuredData'
 
 import { genPageMetadata } from '../seo'
+
+const description =
+  'Recommendations for Walker Smith from engineering leaders, Staff Engineers, software engineers, and product, design, and sales partners.'
 
 export const metadata = genPageMetadata({
   title: 'Recommendations',
   route: 'recommendations',
+  description,
 })
 
-const groups = [
-  { id: 'engineering-leaders', title: 'Engineering leaders' },
-  { id: 'staff-engineers', title: 'Staff Engineers' },
-  { id: 'software-engineers', title: 'Software engineers' },
-  { id: 'partners', title: 'Product, design, and sales partners' },
-]
+const groups = recommendationGroups
 
 const Page = () => (
   <>
+    <JsonLd
+      graph={[
+        websiteNode(),
+        personNode(),
+        collectionPageNode('/recommendations/', 'Recommendations', description),
+        breadcrumbNode([
+          { name: 'Recommendations', route: '/recommendations/' },
+        ]),
+      ]}
+    />
     <Nav />
     <GuidedSection
       background="#f6f9fc"
@@ -57,7 +74,7 @@ const Page = () => (
       guideDashedColorDark="rgba(255, 255, 255, 0.08)"
       padBottom
     >
-      <Testimonials>
+      <Testimonials isPageHeading>
         <RecommendationFilter groups={groups}>
           <TestimonialGroup title={groups[0].title} id={groups[0].id}>
             <TestimonialIan />

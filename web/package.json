@@ -7,7 +7,6 @@
     "analyze": "ANALYZE=true yarn workspace web build",
     "bundle": "concurrently \"yarn optimize:images\" \"yarn build:favicons\" \"yarn build:app\"",
     "build": "yarn build:sequences && yarn bundle && yarn export:images && yarn package",
-    "post:build": "ts-node --project ./tsconfig.build.json ./scripts/postBuild.ts",
     "build:app": "next build",
     "build:css": "@tailwindcss/cli -i ./src/app/globals.css -o ./src/app/generated.css --minify",
     "build:favicons": "ts-node --project ./tsconfig.build.json ./scripts/generateFavicons.ts",

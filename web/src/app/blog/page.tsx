@@ -3,12 +3,23 @@ import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 import { POSTS_PER_PAGE } from '@/app/blog/pagination'
 import { genPageMetadata } from '@/app/seo'
 import Articles from '@/components/Articles'
+import {
+  breadcrumbNode,
+  collectionPageNode,
+  JsonLd,
+  personNode,
+  websiteNode,
+} from '@/lib/structuredData'
 
 import { allBlogs } from '../../../.contentlayer/generated'
 
+const description =
+  'Articles by Walker Smith about platform engineering, CI/CD, infrastructure, identity, and developer experience.'
+
 export const metadata = genPageMetadata({
-  title: 'Blog',
+  title: 'Writing',
   route: 'blog',
+  description,
 })
 
 export default function BlogPage() {
@@ -22,9 +33,19 @@ export default function BlogPage() {
   }
 
   return (
-    <Articles
-      pagination={pagination}
-      initialDisplayPosts={initialDisplayPosts}
-    />
+    <>
+      <JsonLd
+        graph={[
+          websiteNode(),
+          personNode(),
+          collectionPageNode('/blog/', 'Writing', description),
+          breadcrumbNode([{ name: 'Writing', route: '/blog/' }]),
+        ]}
+      />
+      <Articles
+        pagination={pagination}
+        initialDisplayPosts={initialDisplayPosts}
+      />
+    </>
   )
 }

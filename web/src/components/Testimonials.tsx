@@ -16,17 +16,26 @@ export const TestimonialGroup = ({
   children: ReactNode
 }) => (
   <section id={id} data-group={id} className="grid gap-y-8 scroll-mt-24">
-    <h3 className="px-4 md:px-2 text-[28px] leading-[36px] font-medium text-zinc-950 dark:text-white tracking-[-0.05em]">
+    <h2 className="px-4 md:px-2 text-[28px] leading-[36px] font-medium text-zinc-950 dark:text-white tracking-[-0.05em]">
       {title}
-    </h3>
+    </h2>
     <TestimonialGrid>{children}</TestimonialGrid>
   </section>
 )
 
-const Testimonials = ({ includeCallToAction = false, children }) => (
+// On the recommendations page the section heading is the page heading.
+const Testimonials = ({
+  includeCallToAction = false,
+  isPageHeading = false,
+  children,
+}) => (
   <div id="recommendations" className="grid gap-y-8 scroll-mt-24">
     <header className="px-8 grid gap-y-4">
-      <SectionHeader title="Recommended by engineering leaders" isLight />
+      <SectionHeader
+        title="Recommended by engineering leaders"
+        isLight
+        as={isPageHeading ? 'h1' : 'h2'}
+      />
       {includeCallToAction && (
         <CallToAction
           href="/recommendations"

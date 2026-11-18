@@ -64,29 +64,6 @@ const companyById = {
   },
 }
 
-const education = {
-  degrees: [
-    {
-      degree: 'M.S. Machine Learning',
-      school: 'Columbus State University',
-      year: '2026',
-      note: 'AI and Machine Learning Track Award',
-    },
-    {
-      degree: 'B.S. Computer Science',
-      school: 'Columbus State University',
-      year: '2014',
-    },
-  ],
-  publication: {
-    title:
-      'Deriving Entrepreneurial Insights from Open-Ended and Unstructured Survey Data Using NLP Techniques',
-    venue: 'MDPI',
-    date: 'November 2024',
-    href: 'https://www.mdpi.com/2079-9292/13/23/4725',
-  },
-}
-
 const contactUsSubmissionFailed =
   "Sorry, we're having some issues please try reaching out again shortly."
 
@@ -101,5 +78,4 @@ export {
   contactUsSubmissionFailed,
   contactUsSubmissionPending,
   contactUsSubmissionSuccessful,
-  education,
 }

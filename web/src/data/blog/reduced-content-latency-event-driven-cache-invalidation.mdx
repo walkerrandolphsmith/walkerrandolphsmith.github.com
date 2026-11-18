@@ -6,6 +6,8 @@ draft: false
 excerpt: Cache invalidation is difficult, but it does not have to be. We reduced content latency by 99% and kept our CDN. We also built a real-time publishing system that enabled dashboards, workflows, and trust across teams.
 ---
 
+We cut content publication latency by 99% when we replaced TTL-based cache expiry with events that invalidate each cache at the moment content is published.
+
 We built our content platform for very large scale. It serves content across mobile apps, websites, and smart devices, to 2 billion customers and billions of requests per month.
 We used layers of caching: memory caches for speed, a CDN for global reach, and edge caches to reduce backend calls.
 On paper, this was a textbook system for low-latency, high-availability delivery.
