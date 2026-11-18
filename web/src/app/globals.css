@@ -430,7 +430,7 @@ input:-webkit-autofill:focus {
   --sectionAnglePaddingTopBaseMax: var(--sectionAnglePaddingBaseMax);
   --sectionAnglePaddingBottomBaseMax: var(--sectionAnglePaddingBaseMax);
   --sectionAngleMaxHeight: none;
-  --sectionOverflow: hidden;
+  --sectionOverflow: clip;
   --sectionTransformOrigin: 100% 0;
   --sectionBackgroundOverflow: visible;
   position: relative;
@@ -624,7 +624,7 @@ input:-webkit-autofill:focus {
   --angleStrong: -12deg;
   --angleNormalSin: 0.106;
   --angleStrongSin: 0.212;
-  --sectionOverflow: hidden;
+  --sectionOverflow: clip;
   --sectionBackgroundOverflow: visible;
   --sectionMarginTop: 0;
   --sectionPaddingBottom: 0;

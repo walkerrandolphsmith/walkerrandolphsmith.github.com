@@ -74,7 +74,9 @@ const GuidedSection = ({
       className="Section__masked"
       style={
         {
-          ['--sectionOverflow' as string]: allowOverflow ? 'visible' : 'hidden',
+          // clip, not hidden: a hidden box is still a scroll container, and an
+          // anchor jump scrolls it by the skewed background's overhang.
+          ['--sectionOverflow' as string]: allowOverflow ? 'visible' : 'clip',
           ['--sectionBackgroundColor' as string]: background,
           ['--sectionBackgroundColorDark' as string]: backgroundDark,
         } as React.CSSProperties
