@@ -1,7 +1,7 @@
 {
   "cicd": 10,
-  "platform-engineering": 7,
-  "developer-experience": 2,
+  "platform-engineering": 8,
+  "developer-experience": 3,
   "rag": 1,
   "llm": 1,
   "retrieval-augmented-generation": 1,
@@ -18,7 +18,7 @@
   "supply-chain": 2,
   "aks": 5,
   "cert-manager": 3,
-  "distributed-systems": 3,
+  "distributed-systems": 4,
   "nextjs": 1,
   "performance": 3,
   "seo": 2,
