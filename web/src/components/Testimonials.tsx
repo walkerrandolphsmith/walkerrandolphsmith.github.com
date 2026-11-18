@@ -32,7 +32,9 @@ const Testimonials = ({
   <div id="recommendations" className="grid gap-y-8 scroll-mt-24">
     <header className="px-8 grid gap-y-4">
       <SectionHeader
-        title="Recommended by engineering leaders"
+        title={
+          isPageHeading ? 'Recommendations' : 'Recommended by leaders and peers'
+        }
         isLight
         as={isPageHeading ? 'h1' : 'h2'}
       />
