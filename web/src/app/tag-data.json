@@ -1,7 +1,7 @@
 {
   "cicd": 10,
   "platform-engineering": 8,
-  "developer-experience": 3,
+  "developer-experience": 4,
   "rag": 1,
   "llm": 1,
   "retrieval-augmented-generation": 1,
@@ -10,7 +10,7 @@
   "graphql": 1,
   "cqrs": 1,
   "content-management": 1,
-  "engineering": 2,
+  "engineering": 3,
   "security": 12,
   "azure": 8,
   "infrastructure": 7,
@@ -30,9 +30,9 @@
   "helm": 1,
   "event-driven": 1,
   "data-structures": 1,
+  "agile": 2,
   "webhooks": 1,
   "automation": 1,
   "domain-driven-design": 1,
-  "agile": 1,
   "dns": 1
 }

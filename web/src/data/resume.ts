@@ -82,10 +82,10 @@ export const jobs: Job[] = [
     company: 'VersionOne',
     dates: '2014 – 2017',
     highlights: [
-      'Brought React to the team as an early adopter.',
-      'Turned a vanilla JavaScript codebase with implicit script loading into a tested, modular build. Introduced unit, integration, and Cypress end-to-end tests, linting, ES modules, and webpack.',
-      'Set up CI to run every test suite, including the first unit tests for a Python backend that had none.',
-      'Delivered Delivery at a Glance, which showed rework on items that returned to development, release composition, and work items split across release boundaries.',
+      'Built Delivery at a Glance, the first feature to span the VersionOne and Continuum suites. Platform and release teams at existing customers used it to see rework, release composition, and work split across releases. It gave sales a cross-suite story for customer engagements.',
+      'Replaced jQuery with React in Continuum, a value stream product for CI/CD pipelines. The work set the foundation for all later front-end development in the product.',
+      'Moved Continuum from vanilla JavaScript with implicit script loading to a modular, tested build with ES modules, webpack, linting, and unit, integration, and Cypress end-to-end tests.',
+      'Set up CI to run every Continuum test suite on each change, including the first unit tests for a Python backend that had none.',
     ],
   },
 ]

@@ -8,7 +8,6 @@ import LevelingUp from '@/components/LevelingUp'
 import Nav from '@/components/Nav'
 import PlatformWork from '@/components/PlatformWork'
 import Testimonials, { TestimonialGrid } from '@/components/Testimonials'
-import TestimonialAndrew from '@/components/testimonials/TestimonialAndrew'
 import TestimonialDaniel from '@/components/testimonials/TestimonialDaniel'
 import TestimonialDenise from '@/components/testimonials/TestimonialDenise'
 import TestimonialIan from '@/components/testimonials/TestimonialIan'
@@ -53,7 +52,6 @@ const Narrative = () => (
           <TestimonialJered />
           <TestimonialDenise />
           <TestimonialRd />
-          <TestimonialAndrew />
           <TestimonialDaniel />
         </TestimonialGrid>
       </Testimonials>

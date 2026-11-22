@@ -5,7 +5,7 @@ import SectionHeader from './SectionHeader'
 
 const ArticleCard = ({ slug, tags, title, children }) => (
   <div
-    className={`break-inside-avoid mb-12 group flex flex-col relative rounded-[8px] bg-white bg-white dark:bg-[rgba(39,39,42,0.9)] shadow-[0px_18px_36px_-18px_rgba(0,0,0,0.1),0px_30px_45px_-30px_rgba(50,50,93,0.25)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] overflow-hidden`}
+    className={`break-inside-avoid mb-12 group flex flex-col relative rounded-[8px] bg-[#f6f9fc] dark:bg-[rgba(39,39,42,0.9)] border border-zinc-200 dark:border-white/10 shadow-[0px_10px_24px_-18px_rgba(50,50,93,0.25)] hover:border-zinc-300 focus-within:border-zinc-300 hover:shadow-[0px_18px_36px_-18px_rgba(0,0,0,0.1),0px_30px_45px_-30px_rgba(50,50,93,0.25)] focus-within:shadow-[0px_18px_36px_-18px_rgba(0,0,0,0.1),0px_30px_45px_-30px_rgba(50,50,93,0.25)] dark:hover:border-white/20 dark:focus-within:border-white/20 dark:shadow-[0_2px_10px_rgba(0,0,0,0.3)] transition-[border-color,box-shadow] duration-300 overflow-hidden`}
   >
     <div className="relative overflow-hidden m-[4px] mb-0 rounded-[4px] p-8 pb-0">
       <div className="flex flex-col gap-4">
@@ -17,12 +17,12 @@ const ArticleCard = ({ slug, tags, title, children }) => (
         </p>
       </div>
     </div>
-    <div className="mt-auto translate-y-12 group-focus-within:-translate-y-1 group-hover:-translate-y-1 grid gap-2 px-8 py-4 transition-transform [transition-timing-function:cubic-bezier(0.33,1,0.68,1)] will-change-transform bg-white dark:bg-transparent">
+    <div className="mt-auto translate-y-12 group-focus-within:-translate-y-1 group-hover:-translate-y-1 grid gap-2 px-8 py-4 transition-transform [transition-timing-function:cubic-bezier(0.33,1,0.68,1)] will-change-transform bg-[#f6f9fc] dark:bg-transparent">
       <div className="flex justify-between w-full items-center">
         <div className="inline-flex flex-wrap items-center justify-start gap-2">
           {tags.map(tag => (
             <span
-              className="inline-flex items-center justify-start gap-x-3 bg-[#f6f9fc] dark:bg-[rgba(39,39,42,1)] dark:text-gray-400 border border-transparent dark:border-gray-600 px-4 py-2 pr-4 rounded-sm text-[12px] font-semibold leading-[1.25]"
+              className="inline-flex items-center justify-start gap-x-3 bg-white dark:bg-[rgba(39,39,42,1)] dark:text-gray-400 border border-zinc-200 dark:border-gray-600 px-4 py-2 pr-4 rounded-sm text-[12px] font-semibold leading-[1.25]"
               key={tag}
             >
               {tag}

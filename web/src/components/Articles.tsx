@@ -7,6 +7,7 @@ import CallToAction from '@/components/CallToAction'
 import Footer from '@/components/Footer'
 import GuidedSection from '@/components/GuidedSection'
 import Nav from '@/components/Nav'
+import { formatPostDate } from '@/lib/formatPostDate'
 
 const ArticleHook = ({ date, timestamp, title, tags = [], intro, href }) => (
   <li className="py-12 first:pt-0">
@@ -131,11 +132,7 @@ export default function Articles({ pagination, initialDisplayPosts }) {
                   <ArticleHook
                     key={post.slug}
                     title={post.title}
-                    date={new Date(post.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    date={formatPostDate(post.date)}
                     intro={post.excerpt}
                     timestamp={new Date(post.date).toISOString()}
                     href={`/blog/${post.slug}`}
