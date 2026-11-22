@@ -1,0 +1,54 @@
+---
+title: 'Technical Debt Needs Repayment Terms'
+date: 2026-11-22
+tags: ['engineering', 'agile', 'developer experience']
+draft: false
+excerpt: |
+  On many teams, "technical debt" is a label that ends a discussion. Someone says it, everyone agrees to pay it back later, and nobody has to say what the repayment will cost. Mature teams use debt on purpose to close a feedback loop sooner, inside a plan that already includes the payback. This post is about the difference, and about why a fixed percentage of capacity for paydown is not the same as a plan.
+---
+
+Ask a tired engineering team about technical debt and you often hear the same story. The debt is an interest payment that only grows. Everyone says the team will pay it down, and nobody believes it. I understand that view. I have also worked on teams where debt was a tool that we chose to use, and where it made us faster. The debt was not different on those teams. What was different was what the words "technical debt" did in a planning meeting.
+
+On the tired teams, the words were a decision. A shortcut went in, somebody called it debt, and the call closed the discussion. The label promised a repayment, so nobody had to describe one. Nobody said which part of the system the shortcut would slow down, how much work the repayment would take, or what the team would stop doing to make room for it. Leadership could approve the shortcut and the future repayment in the same breath, and only the shortcut ever had a cost.
+
+A real loan does not work that way. A loan has terms. Before you sign, you know the amount, the rate, and the date when payments start. You borrow because the money lets you do something now that is worth more than the interest. The terms make you think about that trade before you accept it.
+
+## Debt as leverage
+
+On the better teams, technical debt had terms too. We took on debt to get something specific. Usually that was a shorter path to real users. A narrow version of a feature reaches users sooner than a complete one, and the team learns sooner whether the feature is the right one. Sometimes the answer was no, and the debt went away with the code that carried it. When the answer was yes, we already knew where the shortcuts were, because we had written them down when we took them.
+
+The difference was not discipline in the abstract. It was that the operating context had already planned for the burndown. The roadmap had room after a release to harden what we shipped. The people who approved the shortcut were the same people who approved the time to remove it, and they knew both costs at the same time. In that environment, debt is an advantage. It closes the feedback loop sooner, and the payback is part of the plan instead of a hope.
+
+The [Work in Progress sessions](/blog/work-in-progress-the-missing-agile-ceremony) that I ran were one place where this showed. Engineers named their shortcuts while the work was still in progress, so the debt was visible before it shipped. A shortcut that everyone can see is much easier to plan around than one that a single engineer remembers.
+
+## Where the fixed percentage goes wrong
+
+Many teams try to fix the tired version with a rule. They set aside a fixed share of every sprint for debt, perhaps one ticket in five, and they treat that share as proof of health. Teams with this rule often see it as a sign that they are high functioning. It is not.
+
+A fixed percentage answers the wrong question. It asks how much the team can afford to spend on debt. The useful question is how much flexibility the product needs right now, and how much debt sits in the parts of the system where that flexibility must come from. Those numbers move. A part of the system that nobody will change for a year can carry a lot of debt at almost no cost. A part of the system where every new feature lands can make the whole team slow, even if the debt there looks small on paper. The right paydown is relative to both the need and the debt. A budget that stays the same every sprint cannot follow either of them.
+
+A fixed percentage also makes the work easy to choose badly. When the budget is a slot in the sprint, the team fills the slot with tasks that fit in it. Those tasks are usually the visible symptoms, because symptoms come in ticket-sized pieces. The cause rarely fits in one sprint's slot, so it never gets picked.
+
+## One front end, many frameworks
+
+A product I worked on showed me this clearly. Its front end had grown over a long time, and each era had left a layer behind. There was jQuery. There was a custom module system written in plain JavaScript, from before the language had modules of its own. There was Backbone, then AngularJS, then React, and then React with Redux. A single page could show components from several of these layers at the same time. Each layer was added for a reason at the time.
+
+The clearest place where this cost us was overlays. Dialogs, dropdown menus, tooltips, and date pickers all need to appear above the rest of the page. Each framework layer had its own way to do that. Each one decided where to put the overlay in the document and which `z-index` value to give it. The browser draws elements in stacking contexts, and a `z-index` value only competes with other values in the same context. If a React dropdown opened inside a dialog that the Backbone layer had created, the two layers had no shared idea of which one should be on top. The dropdown could appear behind the dialog, or be cut off at the dialog's edge. Keyboard handling had the same problem. A press of the Escape key could close the wrong overlay, or two overlays at once, because each layer listened for it separately.
+
+Users did not see layers. They saw a menu that opened behind a window, or a dialog that closed when they meant to close a menu. They saw a product that felt slow and strange in ways that were hard to describe in a bug report.
+
+The team spent a large part of its time on glue. We wrote code so that the layers could agree on which overlay was on top, so that events from one layer reached another, and so that styles from one layer did not break the look of another. Each fix was correct. Each fix also made the next new screen depend on one more piece of glue.
+
+## What the scheduled paydown touched
+
+We had scheduled debt paydown, and we used it. The tickets that went into it were real problems of this kind. A specific menu appeared behind a specific dialog. A tooltip was cut off on one screen. The `z-index` values in one area conflicted with another area. Each of those tickets fit in the slot, and each of them went away when we fixed it.
+
+None of them touched the cause. The cause was that every layer owned its own idea of how overlays stack, and nothing owned the page as a whole. A new screen that mixed two layers brought the conflict back, so the same kind of ticket returned in a different place. The paydown budget was steady, so it was never large enough for work on the cause. And the work on the cause was never ticket-sized, so it never made it into the budget.
+
+The paydown was sized to a budget, not to the flexibility the product needed. Many new features touched the page through overlays, so that was where the product needed flexibility. It was also where the layers collided most. A paydown sized to that need would have looked at the overlay problem as one problem, with its own cost and its own place in the plan. A paydown sized to a percentage looked at it as many small tickets, one at a time, for as long as the tickets kept coming.
+
+## Terms, not a percentage
+
+The label "technical debt" is not the problem. Neither is the debt. The problem is a label that stands in for a decision. When a team takes on debt with terms, it can say what the shortcut buys, which part of the system will carry the cost, and when the plan pays it back. When a team pays down debt with terms, it can say which flexibility it needs next and where the debt blocks it.
+
+That kind of plan does not produce a steady number. Some quarters the right paydown is close to nothing, because the product needs speed more than it needs change in the areas that carry debt. Other quarters the right paydown is most of the team's time in one part of the system, because that is where the next year of work will land. A fixed percentage cannot express either of those quarters. Repayment terms can.
