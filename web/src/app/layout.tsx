@@ -1,14 +1,19 @@
 import './globals.css'
 
-import { Roboto } from 'next/font/google'
+import localFont from 'next/font/local'
 
 import ResetScrollPosition from '@/components/ResetScrollPosition'
 import WebMCPTools from '@/components/WebMCPTools'
 import sitemetadata from '@/data/sitemetadata'
 
-const roboto = Roboto({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
+// Roboto is self-hosted. Google Fonts served Vercel's build a font URL with no
+// file extension, which crashed next/font/google. The file is Google's Latin
+// subset of the Roboto variable font, so it covers weights 300 to 700.
+const roboto = localFont({
+  src: './fonts/roboto-latin-variable.woff2',
+  weight: '300 700',
+  style: 'normal',
+  display: 'swap',
   variable: '--font-roboto',
 })
 
