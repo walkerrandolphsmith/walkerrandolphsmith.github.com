@@ -2,15 +2,19 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 
+import { POSTS_PER_PAGE } from '@/app/blog/pagination'
+import { genPageMetadata } from '@/app/seo'
 import Articles from '@/components/Articles'
-import sitedata from '@/data/sitemetadata'
 
 import { allBlogs } from '../../../../../.contentlayer/generated'
 
-const POSTS_PER_PAGE = 3
+// Count the same published posts that the page renders, so every
+// generated page has posts.
+const totalPageCount = () =>
+  Math.ceil(allCoreContent(sortPosts(allBlogs)).length / POSTS_PER_PAGE)
 
 export const generateStaticParams = async () => {
-  const totalPages = Math.ceil(allBlogs.length / POSTS_PER_PAGE)
+  const totalPages = totalPageCount()
   const paths = Array.from({ length: totalPages }, (_, i) => ({
     page: (i + 1).toString(),
   }))
@@ -18,41 +22,23 @@ export const generateStaticParams = async () => {
   return paths
 }
 
-export async function generateMetadata({ params }): Promise<Metadata> {
-  const pageNumber = parseInt(params.page, 10)
-  const totalPages = Math.ceil(allBlogs.length / POSTS_PER_PAGE)
+export async function generateMetadata(props: {
+  params: Promise<{ page: string }>
+}): Promise<Metadata> {
+  const { page } = await props.params
+  const pageNumber = parseInt(page, 10)
+  const totalPages = totalPageCount()
 
   if (pageNumber <= 0 || pageNumber > totalPages || isNaN(pageNumber)) {
     return {}
   }
 
-  const canonical =
-    pageNumber === 1
-      ? `${sitedata.siteUrl}/blog`
-      : `${sitedata.siteUrl}/blog/page/${pageNumber}`
-
-  const prev =
-    pageNumber > 1
-      ? pageNumber === 2
-        ? `${sitedata.siteUrl}/blog`
-        : `${sitedata.siteUrl}/blog/page/${pageNumber - 1}`
-      : null
-
-  const next =
-    pageNumber < totalPages
-      ? `${sitedata.siteUrl}/blog/page/${pageNumber + 1}`
-      : null
-
-  return {
-    title: `Blog - Page ${pageNumber}`,
-    alternates: {
-      canonical,
-    },
-    other: {
-      prev,
-      next,
-    },
-  }
+  // Page 1 has the same posts as /blog, so it names /blog as canonical.
+  return genPageMetadata({
+    title: `Writing, page ${pageNumber}`,
+    route: pageNumber === 1 ? 'blog' : `blog/page/${pageNumber}`,
+    description: `Page ${pageNumber} of ${totalPages} of articles by Walker Smith about platform engineering, CI/CD, infrastructure, identity, and developer experience.`,
+  })
 }
 
 export default async function Page(props: {

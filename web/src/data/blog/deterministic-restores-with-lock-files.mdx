@@ -1,0 +1,98 @@
+---
+title: 'Deterministic Restores: Lock Files as a Supply-Chain Record'
+date: 2026-11-16
+tags: ['supply chain', 'CI/CD', 'security']
+draft: false
+excerpt: |
+  A csproj pins the packages you chose. NuGet lets everything underneath them float until a committed lock file records the whole graph. This post covers why every project should declare and commit a lock file, why a CI-only flag is not enough, and how to run the migration without stopping delivery.
+---
+
+A .NET project file pins its direct package references. The packages that those packages depend on form the transitive graph, and NuGet resolves that graph against the feed at restore time. It takes whatever matches each version range on that day. Two restores of the same source can therefore produce different builds.
+
+That one behavior causes problems in several directions at once.
+
+It is a supply-chain exposure. If an attacker publishes a new version of a transitive package, that version can land in the next CI build with no change to anything the team owns. The repository also keeps no record of what any past build actually used. In a regulated environment that expects demonstrable provenance, floating versions cannot provide it.
+
+It causes environment drift. A laptop restore on Monday and a CI restore on Friday can pull different upstream versions. That gap is a credible explanation for "works locally, fails in production", and an annoying one to prove.
+
+It breaks shared plumbing. When shared restore scripts and container builds pass `--use-lock-file`, any project without a committed lock file fails with "Lock file not found". On a platform where some projects have lock files and others do not, that failure keeps returning.
+
+NuGet only records the resolved graph when a project opts in with `RestorePackagesWithLockFile`. With partial adoption, every shared script needs a fallback path and every audit has gaps. The fix is to make the property a universal requirement.
+
+## Intent, float, record, enforce
+
+The lock file sits between what you wrote and what you run, and it changes resolution from a live event into a reviewable artifact.
+
+The project file expresses intent. It pins only the top of the graph, and everything below is a version range. Restore resolution is where the graph floats. A different day or a different feed state can produce different bits. The lock file is the record. It holds the exact resolved graph, direct and transitive, sits next to the project file in source control, and shows up in pull request diffs. Locked restore is the enforcement. `--use-lock-file` compares the restore against the record, so drift becomes a failed restore instead of a silent substitution.
+
+The declaration is one property:
+
+```xml
+<PropertyGroup>
+  <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+</PropertyGroup>
+```
+
+With the record in place, forensics becomes a checkout: to answer "what did the build on a given date actually pull?", check out the lock files from that date instead of guessing what the feed served. And a sudden transitive version change, malicious or not, appears as a diff that a reviewer can see.
+
+## Why the property belongs in every project file
+
+Keeping the status quo cost no migration work. It also kept the "Lock file not found" incidents, the audit gaps, and a guaranteed failure on the first unit test run of every new project whose test project had no lock file.
+
+Requiring the property in every project file, with a committed lock file, puts provenance in source control. Local development, CI, and container builds resolve the same graph, so drift stops being a plausible cause of anything. Shared plumbing no longer needs fallback paths, and onboarding becomes a fixed checklist. The cost is noise: package changes produce larger diffs, and lock files cause merge conflicts.
+
+Enforcing `--use-lock-file` only in CI is the interesting rejection. It works where it runs, and it is hard to bypass in the pipelines it covers. But the project file no longer declares the intent, so a reviewer sees no sign that locking applies. Local restores stay unlocked, which makes "passes locally, fails in CI" a common confusion. And external repositories that build through their own pipelines get no coverage at all.
+
+The chosen policy is that every project file sets the property and commits its lock file. That includes libraries, applications, external service repositories, and test projects. The intent must be visible in the file a reviewer reads, and external repositories cannot inherit a shared `Directory.Build.props` from a monorepo. The CI flag stays as a second, redundant control. A shared props file is a convenience, not a substitute.
+
+The rollout is deliberately incremental. Teams adopt the policy one project at a time, as a list of separate changes rather than one large pull request, so that the person who generates each lock file can verify that project's full restore.
+
+## An opt-out that names its own danger
+
+A universal rule applied to projects that have not migrated yet needs an escape hatch, and the shape of the hatch is itself a policy tool. Locked restore is the default in the shared restore script. To opt out, a project must pass a flag that names the danger:
+
+```bash
+# Locked restore is the default. Projects that have not migrated yet
+# can opt out explicitly. Searching for this flag gives the live list of
+# unmigrated projects, and that list should only get shorter.
+if [[ "$USE_LOCK_FILE" == "true" ]]; then
+  RESTORE_ARGS+=(--use-lock-file)
+else
+  echo "warning: --dangerously-skip-lock-file: restoring $PROJECT without locked mode"
+fi
+```
+
+A flag like `--dangerously-skip-lock-file` does more than document a choice. It makes the debt searchable. One search across project configuration returns the exact list of projects still to migrate.
+
+Onboarding a project then follows a fixed sequence:
+
+1. Add the property to the source project file and to every test project file. Test projects are restored too, and they are the most common gap.
+2. Generate the lock file with `dotnet restore` on a machine where feed authentication works. If a laptop cannot reach the private feed, let CI generate the file and commit that. Never write a lock file by hand.
+3. Commit each lock file next to its project file. A source and test pair has two lock files.
+4. Rely on the CI guard that fails a pull request when a new project lacks the property or its lock file, so that review catches the gap instead of the next restore.
+
+For repositories outside the monorepo, this is policy work as much as code work. Every repository owner must make the change.
+
+## Failures, walked in order
+
+Each failure during rollout traces back to one missing step.
+
+"Lock file not found" from a shared script means the project has not migrated. Check whether the project file declares the property, then whether a lock file exists in source control (not only on someone's machine), then whether the project is on the opt-out list. The fix is to migrate it and remove any opt-out flag.
+
+A new application whose unit tests fail on the first CI run almost always has a migrated source project and an unmigrated test project. The test project needs its own property and its own lock file.
+
+An authorization error during local restore is not a lock-file problem. It is a feed authentication problem that appears when someone tries to generate a lock file. Azure DevOps accepts Entra tokens only from the tenant that backs the organization, so a login to a different tenant produces a token the feed rejects. Log in to the right tenant, or let CI generate the file.
+
+A merge conflict in a lock file is a conflict in a generated artifact. Merging the JSON by hand produces a file that matches neither side. Resolve the project file first, discard the conflicted lock content, restore again, and commit the generated result. That cost was accepted as part of the decision, and tooling for it was deferred until the cost becomes a real problem.
+
+## The diff noise is the audit trail
+
+The diff noise will draw complaints. A pull request that changes one direct package and moves forty lines of lock file looks like a defect. It is the audit trail working. One direct version change can correctly move dozens of transitive resolutions, and the lock file diff is the only place where a human sees them, including the change that nobody expected. It is worth explaining this early, before someone proposes excluding lock files from review.
+
+Track the opt-out list as a number that only goes down. A searchable flag is only useful if someone looks at the result regularly. If the list grows, the policy is quietly failing.
+
+The "just use the props file" shortcut will come up. Inheritance from a shared props file works mechanically, and it is a fine convenience inside one repository. It fails the review signal, because the property is not visible in the file under review, and it does not reach external repositories at all.
+
+Finally, keep the lock file and the restore together. A lock file that nobody restores against is a record with no enforcement. The value comes from both halves: the property declares intent where reviewers look, and the locked restore turns drift into a failure.
+
+With both halves in place, the question "what did that build use?" has a short answer. It is a checkout, not a guess.

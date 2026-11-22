@@ -1,23 +1,37 @@
 import React from 'react'
 
-import Awards from '@/components/Awards'
-import CommunityHighlights from '@/components/CommunityHighlights'
-import Examples from '@/components/Examples'
 import Experience from '@/components/Experience'
 import Footer from '@/components/Footer'
 import GuidedSection from '@/components/GuidedSection'
 import Hero from '@/components/Hero'
+import LevelingUp from '@/components/LevelingUp'
 import Nav from '@/components/Nav'
-import Projects from '@/components/Projects'
-import Testimonials from '@/components/Testimonials'
+import PlatformWork from '@/components/PlatformWork'
+import Testimonials, { TestimonialGrid } from '@/components/Testimonials'
+import TestimonialAndrew from '@/components/testimonials/TestimonialAndrew'
 import TestimonialDaniel from '@/components/testimonials/TestimonialDaniel'
+import TestimonialDenise from '@/components/testimonials/TestimonialDenise'
 import TestimonialIan from '@/components/testimonials/TestimonialIan'
 import TestimonialJered from '@/components/testimonials/TestimonialJered'
-import TestimonialMatthew from '@/components/testimonials/TestimonialMatthew'
+import TestimonialRd from '@/components/testimonials/TestimonialRd'
 import TrendingArticles from '@/components/TrendingArticles'
+import { profile } from '@/lib/siteContent'
+import {
+  JsonLd,
+  personNode,
+  profilePageNode,
+  websiteNode,
+} from '@/lib/structuredData'
+
+export const metadata = {
+  alternates: { canonical: '/' },
+}
 
 const Narrative = () => (
   <>
+    <JsonLd
+      graph={[websiteNode(), personNode(), profilePageNode('/', profile.name)]}
+    />
     <Nav />
     <GuidedSection
       allowOverflow
@@ -28,6 +42,32 @@ const Narrative = () => (
     </GuidedSection>
     <GuidedSection
       angleTop
+      background="#f6f9fc"
+      backgroundDark="oklch(27.4% .006 286.033)"
+      guideSolidColorDark="rgba(255, 255, 255, 0.08)"
+      guideDashedColorDark="rgba(255, 255, 255, 0.08)"
+    >
+      <Testimonials includeCallToAction>
+        <TestimonialGrid>
+          <TestimonialIan />
+          <TestimonialJered />
+          <TestimonialDenise />
+          <TestimonialRd />
+          <TestimonialAndrew />
+          <TestimonialDaniel />
+        </TestimonialGrid>
+      </Testimonials>
+    </GuidedSection>
+    <GuidedSection
+      angleTop
+      angleBoth
+      padBottom
+      bleedTop="#f6f9fc"
+      bleedTopDark="oklch(27.4% .006 286.033)"
+      bleedBottom="white"
+      bleedBottomDark="oklch(27.4% .006 286.033)"
+      bleedGuideSolidColorDark="rgba(255, 255, 255, 0.08)"
+      bleedGuideDashedColorDark="rgba(255, 255, 255, 0.08)"
       background="#0a2540"
       backgroundDark="oklch(21% .006 285.885)"
       guideSolidColor="rgba(66,71,112,0.3)"
@@ -35,28 +75,16 @@ const Narrative = () => (
       guideSolidColorDark="rgba(255, 255, 255, 0.08)"
       guideDashedColorDark="rgba(255, 255, 255, 0.08)"
     >
-      <Examples />
+      <PlatformWork />
     </GuidedSection>
     <GuidedSection
-      background="#f6f9fc"
-      backgroundDark="oklch(21% .006 285.885)"
-      guideSolidColorDark="rgba(255, 255, 255, 0.08)"
-      guideDashedColorDark="rgba(255, 255, 255, 0.08)"
-    >
-      <Testimonials includeCallToAction>
-        <TestimonialIan offset />
-        <TestimonialJered />
-        <TestimonialDaniel />
-        <TestimonialMatthew />
-      </Testimonials>
-    </GuidedSection>
-    <GuidedSection
+      angleTop
       background="white"
       backgroundDark="oklch(27.4% .006 286.033)"
       guideSolidColorDark="rgba(255, 255, 255, 0.08)"
       guideDashedColorDark="rgba(255, 255, 255, 0.08)"
     >
-      <Projects />
+      <TrendingArticles />
     </GuidedSection>
     <GuidedSection
       angleBottom
@@ -65,12 +93,10 @@ const Narrative = () => (
       guideSolidColorDark="rgba(255, 255, 255, 0.08)"
       guideDashedColorDark="rgba(255, 255, 255, 0.08)"
     >
-      <TrendingArticles />
+      <Experience />
     </GuidedSection>
     <GuidedSection
       angleTop
-      angleBoth
-      padBottom
       background="#0a2540"
       backgroundDark="oklch(27.4% .006 286.033)"
       guideSolidColor="rgba(66,71,112,0.3)"
@@ -78,25 +104,7 @@ const Narrative = () => (
       guideSolidColorDark="rgba(255, 255, 255, 0.08)"
       guideDashedColorDark="rgba(255, 255, 255, 0.08)"
     >
-      <CommunityHighlights />
-    </GuidedSection>
-    <GuidedSection
-      background="white"
-      backgroundDark="oklch(21% .006 285.885)"
-      guideSolidColorDark="rgba(255, 255, 255, 0.08)"
-      guideDashedColorDark="rgba(255, 255, 255, 0.08)"
-      angleTop
-    >
-      <Experience />
-    </GuidedSection>
-    <GuidedSection
-      background="#f6f9fc"
-      backgroundDark="oklch(21% .006 285.885)"
-      guideSolidColorDark="rgba(255, 255, 255, 0.08)"
-      guideDashedColorDark="rgba(255, 255, 255, 0.08)"
-      fullWidth
-    >
-      <Awards />
+      <LevelingUp />
     </GuidedSection>
     <GuidedSection
       as="footer"

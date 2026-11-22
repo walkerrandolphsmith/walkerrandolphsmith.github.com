@@ -1,0 +1,90 @@
+---
+title: 'The Feature I Never Had to Ship: Open-Closed by Composition'
+date: 2026-11-17
+tags: ['platform engineering', 'developer experience', 'distributed systems']
+draft: false
+excerpt: |
+  A retry library got a request it was never designed for: poll forever. The library had no infinite option, and it did not need one. Stopping was already a predicate that the caller passed in, so a one-line predicate met the need with no change to the retry loop. This post is about that design choice, what it costs, and why shared platform tools need the same shape.
+---
+
+The request was simple. We needed to poll a service and keep polling for as long as the process ran. We already had [retry-fp](https://github.com/walkerrandolphsmith/retry-fp), a small retry library, in the codebase. It did backoff, jitter, and exit conditions. It did not have an option called "infinite", and nobody had designed it to poll.
+
+The usual next step is easy to imagine. One option is to write a separate loop by hand, a `while (true)` with a `setTimeout` and a `try`/`catch`, outside the library. That works, but now the codebase has two loops that do almost the same thing, and only one of them has tests. The other option is to open the library and add the missing feature, perhaps a `forever: true` flag or a special value for the maximum number of attempts. Then you change the loop, add a test, release a new version, and update every consumer.
+
+We did neither. The need was met by this:
+
+```ts
+function untilForever<T>() {
+  return (_workOutput?: T, _error?: Error) => false
+}
+```
+
+It is a predicate that never says stop. The retry loop did not change.
+
+## Why one line was enough
+
+The reason is in the signature of `retry` itself. It takes three functions:
+
+```ts
+async function retry<T>(
+  asyncWorkFn: () => Promise<T>,
+  untilFn: (workOutput?: T, error?: any) => boolean,
+  getNextTickFn: () => number,
+): Promise<{ workOutput?: T; error?: any }>
+```
+
+The first function does the work. The second decides when to stop. The third decides how long to wait before the next attempt. The loop inside is a `while (true)` that runs the work, catches any error, and asks `untilFn` whether to return. It has no counter that ends the loop and no built-in idea of failure. The only exit is the predicate.
+
+That means "retry five times" was never a feature of the loop. It is a predicate, `untilMaxAttempts(5)`. "Stop on an HTTP 200" is another predicate, `untilHttpStatusOk()`. Exponential backoff is a delay function, `withExponentialDecay(500)`, and a fixed interval is `everyNSeconds(10)`. The library already treated each behavior as a value that the caller chooses. Poll forever was one more value, a predicate that returns `false` every time.
+
+With that predicate, the polling call looks like any other call to the library:
+
+```ts
+import retry, { untilForever, everyNSeconds } from 'retry-fp'
+
+retry(fetchLatest, untilForever(), everyNSeconds(10))
+```
+
+The same loop runs the work, catches errors, and waits. Errors do not end polling, because the predicate ignores them. The same tests that cover retries cover the loop that now polls.
+
+The library ships `untilForever` today, next to the other predicates. That is the convenient part. The more important part is that a caller could write it in one line without access to the library source and without a release. Any function with the shape `(workOutput, error) => boolean` is a valid exit condition.
+
+## The principle behind it
+
+This is the open-closed principle. A module should be open for extension and closed for modification. Most explanations of it start with class hierarchies and abstract base classes. Function composition is a smaller and more direct form of the same idea.
+
+The retry loop is closed. It does one thing, and its code has no reason to change when a new use case arrives. The library is open through its parameters. Each parameter is an extension point, and a new behavior is a new function that fits the parameter's shape. The loop never needs to know that the behavior exists.
+
+Compare that with a design based on options. A function such as `retry(fn, { maxAttempts: 5, delay: 500 })` encodes each behavior as a field that the loop must read and handle. Every new behavior is a new field. Poll forever becomes `maxAttempts: Infinity`, or a new `forever` flag, and the loop gets another branch. Each branch interacts with the others. What does `forever: true` mean together with `maxAttempts: 5`? The author of the library must answer that question, document the answer, and test it. With predicates, the question does not exist, because each caller states exactly one stop condition.
+
+The library author's job also changes. In an options design, the author must predict the use cases. In a predicate design, the author must define a good shape for the extension point, and the callers supply the use cases. Nobody wrote the loop with polling in mind, and nobody needed to.
+
+## What predicates cost
+
+Flexibility moves work. When stopping is a function that you pass in, the decision about when to stop moves from the library to the caller, and so does the responsibility for a wrong decision.
+
+A flag is easy to read in a code review. `maxAttempts: 5` says what it does. A predicate can say anything. A caller can write one that never returns `true` by mistake, and the loop will run forever without a warning. That is the same behavior that `untilForever` gives on purpose. The library cannot tell the difference between a deliberate poll and a bug.
+
+`untilForever` also shows a second cost. The `retry` call returns a promise, and with a predicate that never stops, that promise never resolves. The library has no cancellation parameter. A caller that needs to stop polling, for example when a component unmounts or a job shuts down, must build that into its own predicate:
+
+```ts
+function untilStopped(isStopped: () => boolean) {
+  return () => isStopped()
+}
+```
+
+That is a reasonable extension, and it needs no library change either. But the caller has to know to write it. An options design could have documented a `signal` field, and a new developer would have found it in the type definition.
+
+The answer is not to choose one side. It is to ship the extension point and a small set of ready-made values for it. retry-fp exports `untilMaxAttempts`, `untilHttpStatusOk`, and `untilForever` as predicates, and `withExponentialDecay`, `everyNSeconds`, `withJitter`, and `advanceFirstAttempt` as delay functions. Most callers use those and never write a predicate. The callers with an unusual need still have a path that does not go through the library's issue tracker. The ready-made predicates also teach the shape. A developer who reads `untilForever` learns how to write `untilStopped`.
+
+The [smarter retries](/blog/smarter-retries) post argued for the same separation from the other side. There, the point was resilience: decide what triggers a retry apart from how long you wait, so that you can tune each one. Here the point is maintenance. The same separation that lets you tune a policy also lets a new policy arrive without a change to the code that runs it.
+
+## The same shape at platform scale
+
+A small retry library is a convenient place to see this, but the stakes are higher in shared platform tools. A shared library, a CI framework, or an internal deployment tool has many teams as callers. Each team has needs that the platform team did not predict. If the only way to meet a new need is to change the shared tool, then the platform team becomes a queue. Every request waits for a design discussion, a change, a release, and an upgrade across every consumer. Some teams give up and write their own version, and now there are two tools.
+
+The way out is the design choice that let polling arrive for free. Find the decision that callers will want to make differently, and make it a parameter with a clear shape instead of a feature with a fixed behavior. Then ship enough ready-made implementations that most callers never need to write their own.
+
+[CI Is a Framework, Not a Library](/blog/ci-is-a-framework-not-a-library) applies that idea to pipelines. The pipeline calls a small set of named targets, and each project implements them in its own way. A new kind of project extends the pipeline by implementing the targets, not by adding a branch to the pipeline. The target name plays the role that the predicate signature plays in retry-fp. It is the extension point, and the shared code stays closed behind it.
+
+The test for a shared tool is what happens when a team brings a need that nobody designed for. If the answer is a pull request against the tool, the tool will grow a branch for every team that uses it. If the answer is a small function, a target, or a configuration value in the team's own code, the tool stays small and the team does not have to wait. Poll forever was that second kind of request. It took one line in the calling code, and it would still be one line if the library had never shipped it.

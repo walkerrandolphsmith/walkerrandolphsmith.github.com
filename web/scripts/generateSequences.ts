@@ -92,71 +92,98 @@ export const getHighlightedTokens = (
   }))
 }
 
+// Each tab types at most 12 lines, the height of the editor. Lines stay
+// short enough to fit the editor width. Typing is fast enough that a reader
+// sees the full snippet within a few seconds.
 const tabs = {
-  k8s: {
+  library: {
+    lang: 'ts',
+    id: 'library',
+    name: 'token-credential.ts',
+    sequence: [
+      { lines: ['export function chooseStrategy('], speed: 88 },
+      { lines: [120, '  info: ServiceInfo,'], speed: 88 },
+      { lines: ['): TokenCredentialFactory {'], speed: 88 },
+      { lines: [120, '  if (info.shouldUseManagedIdentity) {'], speed: 88 },
+      {
+        lines: [120, '    // Developer login locally, managed identity in AKS'],
+        speed: 88,
+      },
+      { lines: [120, '    return info.usePersonalIdentity'], speed: 88 },
+      {
+        lines: [120, '      ? localDevelopmentTokenCredentialFactory()'],
+        speed: 88,
+      },
+      {
+        lines: [120, '      : userManagedIdentityTokenCredentialFactory(info)'],
+        speed: 88,
+      },
+      { lines: [120, '  }'], speed: 88 },
+      {
+        lines: [120, '  // Hosts outside AKS fall back to a service principal'],
+        speed: 88,
+      },
+      {
+        lines: [120, '  return servicePrincipalTokenCredentialFactory(info)'],
+        speed: 88,
+      },
+      { lines: ['}'], speed: 88 },
+    ],
+  },
+  terraform: {
+    lang: 'hcl',
+    id: 'terraform',
+    name: 'cluster.tf',
+    sequence: [
+      { lines: ['resource "azurerm_kubernetes_cluster" "this" {'], speed: 88 },
+      {
+        lines: [120, '  # Pods get Entra tokens through workload identity'],
+        speed: 88,
+      },
+      { lines: [120, '  oidc_issuer_enabled       = true'], speed: 88 },
+      { lines: [120, '  workload_identity_enabled = true'], speed: 88 },
+      {
+        lines: [120, '  # Entra RBAC decides who can reach the cluster'],
+        speed: 88,
+      },
+      {
+        lines: [120, '  azure_active_directory_role_based_access_control {'],
+        speed: 88,
+      },
+      { lines: [120, '    azure_rbac_enabled = true'], speed: 88 },
+      { lines: [120, '  }'], speed: 88 },
+      { lines: [120, '  api_server_access_profile {'], speed: 88 },
+      {
+        lines: [120, '    virtual_network_integration_enabled = true'],
+        speed: 88,
+      },
+      { lines: [120, '  }'], speed: 88 },
+      { lines: ['}'], speed: 88 },
+    ],
+  },
+  gitops: {
     lang: 'yaml',
-    id: 'k8s',
-    name: 'deployment.yml',
+    id: 'gitops',
+    name: 'production.yaml',
     sequence: [
-      { lines: ['apiVersion: apps/v1'], speed: 60 },
-      { lines: ['kind: Deployment'], speed: 60 },
-      { lines: ['metadata:'], speed: 60 },
-      { lines: [400, '  name: {{ .Release.Name }}'], speed: 90 },
-      { lines: [400, '  labels:'], speed: 90 },
-      { lines: [400, '    app: {{ .Release.Name }}'], speed: 90 },
-      { lines: ['spec:'], speed: 60 },
-      { lines: [200, '  replicas: {{ .Values.replicaCount }}'], speed: 60 },
-      { lines: [400, '  selector:'], speed: 90 },
-      { lines: [400, '    matchLabels:'], speed: 90 },
-      { lines: [400, '      app: {{ .Release.Name }}'], speed: 90 },
-    ],
-  },
-  js: {
-    lang: 'js',
-    id: 'js',
-    name: 'retry.js',
-    sequence: [
-      { lines: ['const { result: posts, error } = await retry('], speed: 60 },
-      { lines: ['  fetchPosts,'], speed: 40 },
-      { lines: ['  untilFirst('], speed: 60 },
-      { lines: ['    untilHttpStatusOk(),'], speed: 60 },
-      { lines: ['    untilMaxIterations(5)'], speed: 60 },
-      { lines: ['  ),'], speed: 100 },
-      { lines: ['  exponentialDecay(withJitter())'], speed: 60 },
-      { lines: [')'], speed: 60 },
-      { lines: [1000], speed: 60 },
-      { lines: ['if (error) {'], speed: 10 },
-      { lines: [20, '  logger.logEvent(error)'], speed: 60 },
-    ],
-  },
-  ml: {
-    lang: 'python',
-    id: 'ml',
-    name: 'kmeans.py',
-    sequence: [
-      { lines: [400, 'silhouette_score_by_k = {}'], speed: 65 },
-      { lines: [450, 'minimum_required_number_of_clusters = 2'], speed: 75 },
-      { lines: ['for k in range(1, 10):'], speed: 55 },
       {
-        lines: [400, '    # perform k-means clustering with k clusters'],
-        speed: 80,
+        lines: ['# Production runs the exact image that passed staging.'],
+        speed: 88,
       },
-      { lines: [430, '    kmeans = KMeans('], speed: 90 },
-      { lines: [420, '        n_clusters=k,'], speed: 70 },
+      { lines: ['# Promotion changes values, never the build.'], speed: 88 },
+      { lines: ['image:'], speed: 88 },
+      { lines: [120, '  registry: example.azurecr.io'], speed: 88 },
+      { lines: [120, '  repository: api'], speed: 88 },
+      { lines: [120, '  digest: "sha256:0000...0000"'], speed: 88 },
+      { lines: [120, '  pullPolicy: IfNotPresent'], speed: 88 },
+      { lines: ['serviceAccount:'], speed: 88 },
       {
-        lines: [430, '        n_init="auto",'],
-        speed: 80,
+        lines: [120, '  # Workload identity, so the pod keeps no secret'],
+        speed: 88,
       },
-      {
-        lines: [400, '        # force determinism'],
-        speed: 75,
-      },
-      {
-        lines: [400, '        random_state=0,'],
-        speed: 75,
-      },
-      { lines: [450, '        max_iter=1000'], speed: 85 },
-      { lines: [400, '    ).fit(X)'], speed: 70 },
+      { lines: [120, '  workloadIdentityClientId: "<client-id>"'], speed: 88 },
+      { lines: ['appConfig:'], speed: 88 },
+      { lines: [120, '  environment: Production'], speed: 88 },
     ],
   },
 }

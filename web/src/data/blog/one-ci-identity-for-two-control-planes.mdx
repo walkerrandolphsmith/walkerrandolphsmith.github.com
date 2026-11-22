@@ -1,0 +1,91 @@
+---
+title: 'One CI Identity for Two Control Planes'
+date: 2026-11-17
+tags: ['CI/CD', 'identity', 'security', 'Azure']
+draft: false
+excerpt: |
+  A pipeline acts on two systems: the cloud where it pushes images and reads secrets, and the build platform itself where it restores feeds and cancels runs. This post explains how one secret-less service connection, owned by Terraform, can be the identity for both, why it should replace personal access tokens and the ambient build token, and why its permissions still live in two places.
+---
+
+A typical build does work in two different systems. In Azure, it pushes images to a registry and reads secrets from a key vault. In Azure DevOps, it restores and pushes NuGet packages, checks feed versions, and cancels superseded runs. Each system has a default credential, and each default has a problem.
+
+For Azure, the default is often a service principal with a stored client secret. That is a bearer credential: possession alone grants authority. It can leak, and someone must rotate it on a schedule. A platform that has banned stored secrets for applications should not keep one for its pipelines.
+
+For Azure DevOps, the default is `$(System.AccessToken)`, the build service identity of the pipeline. Its scope is the project or the whole collection. Every step in the job receives it. And it has no equivalent outside the build agent, so you cannot reproduce a feed failure on a laptop, and a leak exposes a very large scope.
+
+The alternative is one identity that Terraform owns and that holds no secret. CI becomes that identity, and on each system it can do exactly what its grants allow.
+
+## The identity as code
+
+A Terraform module creates the whole identity as one unit for each environment: an app registration and its service principal, the Azure DevOps service connection that federates to it, the federated identity credential, and the Azure role assignments. The CI identity becomes reviewable code instead of a set of portal clicks.
+
+The connection uses workload identity federation. When a pipeline task uses it, Azure DevOps issues a short-lived OIDC token for the run, and Entra exchanges that token for an access token of the service principal. The federated credential ties the connection's issuer and subject back to the app registration. No personal access token or client secret exists anywhere.
+
+The grants stay narrow. In this design, the service principal can push to the development registry, read secrets from its own vault, and hold a few narrowly scoped operational roles. It never touches the production registry. Images reach production through a separate promotion path.
+
+Owning the connection in Terraform replaces older connections whose app registrations Azure DevOps had created and owned. It also introduces a bootstrap problem worth naming. The module creates the connection that CI uses, so the first apply must run as an administrator identity, not as the connection it is about to create.
+
+## One login, then the scripts fan out
+
+An `AzureCLI@2` task is the one primitive that makes a job become this identity. The task names the connection, and everything inside it runs as the service principal:
+
+```yaml
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: dev-ci-connection # federated, no secret
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az acr login --name exampledev
+      KEY=$(az keyvault secret show --vault-name example-kv --name app-key --query value -o tsv)
+      TOKEN=$(bash scripts/get-devops-token.sh)
+```
+
+Inside that task, the same session pushes images to the development registry, reads a private key from the vault, and mints a short-lived Entra token for Azure DevOps itself. That last token handles feed restores and pushes, feed version checks, and run cancellation. It replaces `$(System.AccessToken)` for that work.
+
+One detail is worth calling out. The secret that the identity reads from the vault is the private key of a GitHub App, which another script uses to mint a short-lived installation token for source control. One identity supplies the credential for another. That chain is acceptable because each link is scoped and short-lived, but it also means the vault read permission is more powerful than it looks.
+
+These are plain scripts. After `az login` as yourself, they run the same way on a laptop against the real endpoints. You can reproduce a feed or push failure without editing a pipeline. The ambient build token can never leave the agent, so that parity was impossible before.
+
+## Azure DevOps as a client
+
+Calling Azure DevOps as a client, for feeds, packaging APIs, or run cancellation, needs an Azure DevOps credential. The decision compared the build service token with the service principal's Entra token.
+
+The build service token needs no setup, because every step already has it. Its default scope is the project or the collection, every step has it, and it cannot be used outside the agent.
+
+The service principal's Entra token is scoped to the principal's explicit grants, it is short-lived, and every action appears in logs under a named identity. It needs no stored token, because federation issues it. The same scripts run locally after `az login`. The cost is setup: the service principal must be a member of the organization with explicit feed and build permissions, which the build service never needed.
+
+The decision was to authenticate client operations against Azure DevOps as the service principal, inside `AzureCLI@2` tasks, so that a scoped, short-lived, attributable token replaces an ambient, collection-wide one.
+
+Service principals cannot create personal access tokens, so the getter requests an Entra token for the Azure DevOps resource directly and pins the tenant:
+
+```bash
+az account get-access-token \
+  --resource "$AZURE_DEVOPS_RESOURCE_ID" \
+  --tenant "$ORG_TENANT_ID" \
+  --query accessToken -o tsv
+```
+
+The tenant pin matters. Azure DevOps rejects tokens from any tenant other than the one that backs the organization, with error TF400813. A developer who runs `az login` against a different tenant gets a token that looks valid and fails. Guests also get a conditional access prompt on first use.
+
+## One identity, two authorization systems
+
+The identity is one thing, but its permissions sit in two separate authorization systems, and only one of them belongs to Terraform. Treating them as one is the common mistake.
+
+Azure role assignments, such as registry push and vault secret read, are declared in the module, reviewed, and applied by Terraform. `terraform plan` is the audit of what the identity can touch in Azure.
+
+Azure DevOps permissions, such as organization membership, feed contributor, and the right to stop or view builds, are not Azure role assignments. Terraform cannot reach them in this setup. A small on-demand reconciler manages them in the same declarative way: a desired state in source control, a reconcile when needed, and a review before changes.
+
+The symmetry is the point. A permission system that Terraform cannot reach still needs the same discipline. Both systems refuse manual changes in a portal.
+
+## A CI identity attracts permissions
+
+Grants pile up on a CI identity, because every new pipeline need is easiest to meet by adding a role to the one identity that already runs everything. The module makes that visible in review, which is necessary but not sufficient. Someone has to ask whether each new grant belongs to this identity or to a separate, narrower one.
+
+The ambient build token deserves the same attention. It is still present in every job, whether or not scripts use it. Moving feed and API work to the service principal reduces what depends on it, but limiting its scope in the project settings is what reduces the exposure if a step leaks it.
+
+Treat the bootstrap as a documented procedure. The first apply needs elevated rights, and that is exactly the kind of step people perform once, from memory, and then forget. A short runbook for it saves the next environment from improvisation.
+
+Keep the two authorization systems visibly separate in documentation and code review. A request to add a feed permission through a Terraform role assignment is a sign that someone has merged them in their head. The fix is to point them to the reconciler, not to make Terraform reach further.
+
+The goal is short enough to repeat at every review. CI is a named identity with a reviewed set of permissions. It is not an ambient token that every step happens to hold.

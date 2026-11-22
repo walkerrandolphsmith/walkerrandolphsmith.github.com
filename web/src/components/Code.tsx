@@ -3,7 +3,7 @@ import CodeTabs from './CodeTabs'
 import MultiSequence from './MultiSequence'
 
 const Code = () => (
-  <TabProvider initialTab="ml">
+  <TabProvider initialTab="gitops">
     <div className="relative w-full font-mono">
       <div className="text-left mb-8 rounded-md border border-[var(--shiki-tab-border)]">
         <div className="tab-container text-left">
@@ -20,7 +20,7 @@ const Code = () => (
               <div className="text-right select-none text-[#adbdcc]">
                 {Array.from({ length: 12 }, (_, i) => (
                   <div
-                    className="text-sm font-mono"
+                    className="text-[13px] font-mono"
                     key={i + 1}
                     style={{
                       minHeight: '25px',

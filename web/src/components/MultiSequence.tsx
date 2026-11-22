@@ -13,7 +13,7 @@ const CURSOR_CLASS_NAME = 'custom-type-animation-cursor-visible'
 const cursorClasses = [
   'custom-type-animation-cursor',
   'before:opacity-0 relative after:content-[|] before:right-[3px] before:bottom-[-23px] before:absolute before:translate-x-full before:text-white  before:flex before:items-center before:justify-center before:rounded-3xl before:text-sm',
-  'text-sm font-mono whitespace-pre max-h-[25px] min-h-[25px] align-[super]',
+  'text-[13px] font-mono whitespace-pre max-h-[25px] min-h-[25px] align-[super]',
 ].join(' ')
 
 const Token = ({ token, speed, onTokenCompleted, awaitNextKeyStroke }) => {

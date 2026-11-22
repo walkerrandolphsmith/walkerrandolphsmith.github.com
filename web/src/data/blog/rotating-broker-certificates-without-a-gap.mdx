@@ -1,0 +1,109 @@
+---
+title: 'Rotating Broker Certificates Without a Gap'
+date: 2026-11-17
+tags: ['security', 'distributed systems', 'Kubernetes', 'cert-manager']
+draft: false
+excerpt: |
+  Certificate-based AMQPS removes the broker password, but only if rotation is routine and nobody notices it. This post covers RabbitMQ with the cluster operator, NServiceBus endpoints that authenticate with a client certificate, and how to rotate client certificates, broker certificates, and the root that signs them both without dropping a consumer.
+---
+
+A password for a message broker is a bearer credential. Every service that holds one can be anyone who steals it, and rotating it means a coordinated redeploy of every holder. So the rotation rarely happens. A client certificate fixes the first problem. The broker reads the client's identity from the certificate, the connection string holds no secret, and the same handshake that proves identity also encrypts the channel. A [companion post](/blog/nothing-holds-a-secret) names this as one of the few credential classes that a platform should accept.
+
+The second problem does not go away by itself. A certificate also expires, and it must be replaced while consumers hold long-lived connections and messages keep arriving. Certificate authentication is only better than a password if that replacement is automatic, frequent, and invisible. This post is about making it so.
+
+## The broker side
+
+The RabbitMQ Cluster Operator runs the broker as a Kubernetes resource. Its `tls` block names two Secrets: one with the broker's own certificate, which cert-manager issues, and one with the CA that the broker uses to verify clients. A few lines of broker configuration then turn the client certificate into the username:
+
+```yaml
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: example-broker
+spec:
+  tls:
+    secretName: example-broker-tls
+    caSecretName: example-broker-ca
+  rabbitmq:
+    additionalPlugins:
+      - rabbitmq_auth_mechanism_ssl
+    additionalConfig: |
+      auth_mechanisms.1 = EXTERNAL
+      ssl_cert_login_from = common_name
+      ssl_options.verify = verify_peer
+      ssl_options.fail_if_no_peer_cert = true
+```
+
+With `ssl_cert_login_from = common_name`, the broker takes the username from the certificate's common name. With `fail_if_no_peer_cert`, a client that presents no certificate never completes the handshake. The companion Messaging Topology Operator declares users, virtual hosts, and permissions as Kubernetes resources too, so each service's user has no password at all and its permissions are a file in its chart.
+
+## The client side
+
+Each service's chart asks cert-manager for a client certificate whose common name is its broker username. cert-manager writes it to a Secret, and the pod mounts that Secret as files. The NServiceBus RabbitMQ transport loads them:
+
+```csharp
+var transport = new RabbitMQTransport(
+    RoutingTopology.Conventional(QueueType.Quorum),
+    "host=example-broker;UseTLS=true");
+
+transport.SetClientCertificate(
+    X509Certificate2.CreateFromPemFile(certPath, keyPath));
+transport.UseExternalAuthMechanism();
+```
+
+The last line is the one that is easy to miss. `SetClientCertificate` alone makes the client present the certificate during the TLS handshake, but the client still offers PLAIN authentication afterward, with whatever default credentials it falls back to. The broker rejects it, and the error looks like a bad password for a service that has no password. `UseExternalAuthMechanism` tells the client to authenticate with the certificate it already presented.
+
+The client also has to trust the broker. The broker's certificate chains to a private root, so the pod needs that root in its trust store, not only its own certificate and key.
+
+## Three things rotate, on three schedules
+
+There are three certificates in this design, and each one has a different rotation story. The client certificates rotate often and automatically. The broker's certificate rotates automatically, less often. The root that signs them both rotates rarely, and only on purpose. A gapless design needs an answer for each one.
+
+## Client certificates: the overlap is the guarantee
+
+cert-manager renews a client certificate before it expires and generates a new key pair each time. The Secret changes. The running process does not notice. The transport reads the certificate files once, when it opens a connection, and AMQP connections stay open for as long as the process runs. A trust store that is set up at pod start is just as static. A renewed Secret therefore needs a pod restart to take effect.
+
+Several options exist to cause that restart. Reloading the certificate inside the process would avoid restarts entirely, but the transport pins the certificate when it creates the connection, so every service would need custom code to recycle its connections. Scheduled restarts are trivial, but they are blind to the moment of rotation, so they fire too often or too late. A checksum annotation on the pod template, the common Helm idiom, only changes when someone runs a Helm upgrade, and cert-manager rotates the Secret between upgrades.
+
+The option that fits is a controller that watches the Secret and performs a rolling restart of the workload when the Secret's content changes. Several open-source controllers do this. Each Deployment opts in with an annotation that names exactly the Secrets that should trigger a restart, such as the client certificate and the CA bundle.
+
+Naming the Secrets, instead of reloading on any change, keeps unrelated configuration updates from restarting the service.
+
+Speed does not make this safe. Overlap does. cert-manager renews while the outgoing certificate still has a comfortable amount of validity left. At the moment the Secret changes, every running pod holds a certificate that the broker will still accept for that whole window, and both the old and the new certificate chain to the same root. The restart is therefore a convergence step, not a correctness gate. If the restart controller is down for a while, the margin shrinks, and that deserves an alert. It is not an outage.
+
+That one relationship carries the whole design. The renewal window must be comfortably longer than the slowest plausible rollout, including a weekend with the restart controller down. A chart that shortens it should fail review.
+
+## Restarts that do not drop consumers
+
+Rotation now means that every messaging service restarts on a regular schedule. Each restart must be boring.
+
+A rolling restart with readiness probes keeps at least some replicas consuming while others start. On shutdown, an NServiceBus endpoint stops taking new messages, lets in-flight handlers finish, and closes its connection. Any message that was delivered but not yet acknowledged returns to the queue, and another consumer receives it. Nothing is lost, but a message can be processed twice, which is why handlers should already be idempotent.
+
+Two settings deserve attention. The pod's termination grace period must be longer than the longest handler, or Kubernetes kills the process mid-handler. And the readiness probe should report ready only after the endpoint has connected to the broker, so that the rollout does not move on to the next pod before this one is consuming.
+
+These are not new requirements. Node upgrades and cluster maintenance already restart pods. Certificate rotation just makes the restarts regular enough that any weakness in shutdown shows up quickly.
+
+## The broker certificate: trust the issuer, not the leaf
+
+The broker's own certificate renews the same way, and it is easier. Clients verify the broker against the root, not against a specific broker certificate. A new broker certificate signed by the same root is accepted with no change on any client.
+
+The broker reads its certificate files and caches them. When the mounted files change, existing connections keep their sessions, and new connections use the new certificate once the broker's PEM cache refreshes. The RabbitMQ documentation describes how to clear that cache on demand. One Kubernetes detail matters here. A Secret mounted as a whole volume receives updates in place. A Secret mounted with `subPath` does not, and the consumer needs a restart to see a change.
+
+## The root: two roots for a while
+
+The root is where a careless design fails all at once. Suppose every consumer trusts exactly one root, and you re-key it. The moment leaf certificates re-issue under the new root, every consumer that still trusts only the old root rejects them. Clients cannot connect to the broker, and the broker cannot verify clients.
+
+The answer is an overlap window for trust, the same idea as the overlap for client certificates, one level up. cert-manager's trust-manager project distributes CA certificates into namespaces as a bundle that can carry more than one root. A deliberate root rotation then follows a fixed order. Snapshot the outgoing root and add it to the bundle as a second source. Re-key the root. Wait until every consumer's bundle carries both roots, and restart the consumers so that they load it. Re-issue every leaf under the new root. Verify that the broker and every client chain to the new root. Only then remove the old root from the bundle.
+
+The last step should refuse to run while any leaf still chains to the old root. A procedure built that way can stop at any point and resume later, because the state of the cluster records how far it got. The window stays open, and safe, until convergence is complete.
+
+Two details keep this procedure honest. Pin the root's private key in cert-manager, so that a routine renewal re-signs the same key and a re-key only happens on purpose. And let the rotation procedure restart its consumers itself and wait for each rollout, instead of relying on the restart controller. A rare, deliberate operation should not depend on the timing of a second controller.
+
+## Operating the rotation
+
+The renewal window matters most. It is the single number that makes client rotation safe, and the temptation to shorten certificate lifetimes without thinking about it will come up. Compare it with how long a full rollout of the slowest service really takes.
+
+Next, check the reload annotations. The list of Secrets in each annotation must match the Secrets that the Deployment actually mounts. Keeping the certificate request and the Deployment in the same chart puts both in front of the same reviewer.
+
+Clean shutdown matters too. A service that does not drain cleanly will show it every time its certificate rotates. That is a feature, as long as someone reads the signal.
+
+A shared broker password made every rotation a coordinated redeploy. With the certificate, the trusted root, the reload trigger, and the overlap in each service's chart, rotation is a routine that nobody has to schedule.

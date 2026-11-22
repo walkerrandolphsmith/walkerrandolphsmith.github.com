@@ -1,0 +1,117 @@
+---
+title: 'Resize on Collisions, Not Load Factor'
+date: 2026-11-17
+tags: ['performance', 'data structures']
+draft: false
+excerpt: |
+  Most hash tables grow when they are 75 percent full. That rule assumes keys spread evenly across the table. An experiment with skewed and clustered keys shows what happens when they do not, and what changes when the table grows on the cost it actually pays, which is the number of slots an insert must check.
+---
+
+A hash table stores each key in a slot that a hash function picks. When two keys want the same slot, that is a collision, and the table must do extra work to place the second key. Many hash tables decide when to grow by one number, the load factor. The load factor is the number of stored keys divided by the number of slots. A common default is 0.75: when the table is three quarters full, it doubles its slot count and moves every key into the larger table. That move is called a resize.
+
+The load factor is a proxy. Nobody cares how full a table is for its own sake. They care how much work each operation does, and fullness predicts that work only under one assumption: that the hash function spreads keys evenly across the slots. This post follows an experiment that asks what happens when that assumption is false, and whether a table should grow when collisions rise instead of when it reaches a fixed fullness. The notebook, code, and raw outputs are in a [public repository](https://github.com/walkerrandolphsmith/collision_aware_hash_tables).
+
+## How collisions turn into work
+
+The experiment covers both families of collision handling. In open addressing, every key lives directly in the slot array. If the home slot of a key is taken, the table checks other slots in a fixed order until it finds an empty one. Linear probing checks the next slot, then the one after, and so on. Quadratic probing jumps by 1, 4, 9, and 16 slots, which spreads the search out. Each slot that an insert checks is a probe, and the probe length of an insert is how many slots it checked before it found a place. A probe length of 1 means the home slot was free.
+
+In separate chaining, each slot holds a small list of keys, called a chain. A collision adds the key to the list. The equivalent cost is the chain length, which is how many keys share the slot.
+
+For linear probing with evenly spread keys, Knuth's formula gives the expected probe length of an insert as a function of load factor. The notebook evaluates it: 2.5 probes at a load factor of 0.5, 8.5 probes at 0.75, and 50.5 probes at 0.9. The cost climbs steeply near full, and 0.75 is a point on that curve where the expected cost is still small. A table that resizes at 0.75 never lets the expected insert cost rise above 8.5 probes, but only if keys spread evenly.
+
+Real keys often do not spread evenly. Sequential IDs and nearby memory addresses arrive in runs. A few popular keys can appear far more often than the rest. If the hash function keeps that structure, keys pile into one region of the table. In linear probing, a pile is self-reinforcing. Every key that lands anywhere inside a run of full slots must walk to the end of the run, and then it makes the run longer. The table can be half empty and still force long walks. The load factor sees none of this because it counts keys, not where they landed.
+
+## The adaptive policy
+
+The alternative is to watch the cost directly. For open addressing, the adaptive table keeps a running average of probe length since its last resize and grows when that average reaches a threshold. For separate chaining, it grows when the longest chain reaches a threshold. A sketch of the two open addressing rules:
+
+```python
+def should_resize_load_factor(table):
+    return table.size / table.capacity >= 0.75
+
+def should_resize_adaptive(table):
+    return (table.avg_probe_length >= 2.0
+            or table.size / table.capacity >= 0.95)
+```
+
+The running average resets after each resize, so the trigger measures pressure in the current table and not in an earlier, smaller one. The 0.95 term is a safety ceiling. It stops a linear probing table from becoming completely full when probes happen to stay short. Quadratic probing can only guarantee that it finds a free slot while the table is less than half full, so both quadratic tables, the baseline and the adaptive one, use a ceiling of 0.45. That means the quadratic baseline resizes at 0.45, not 0.75.
+
+## The experiment
+
+Each trial inserts 10,000 keys, one at a time, into a table that starts with 64 slots and doubles on every resize. Each combination runs 30 trials with fixed random seeds, so every number below is a mean over 30 runs and the whole notebook can be reproduced. Three key distributions, called workloads, feed three table types under two policies, for 18 combinations in the main comparison.
+
+- Uniform keys are drawn evenly from 0 to 100,000. This is the case the load factor was designed for.
+- Zipfian keys follow a Zipf distribution with exponent 1.1. In a Zipf distribution, the most common value appears far more often than the next, and the frequency keeps falling with rank. Here it means most keys are small integers, and many repeat.
+- Clustered keys come from four narrow ranges, each 51 values wide, placed at random. That gives at most 204 distinct values across 10,000 inserts, so most inserts find a key that is already present.
+
+The notebook hashes each key to itself and takes the remainder by the slot count. Key structure therefore reaches the slots unchanged. The experiment does not test a hash function that mixes bits, so its results describe what happens when that structure is not removed before the table sees it.
+
+The notebook records three costs: the resize count, the mean probe length (or chain length) across all 10,000 inserts, and the wall-clock time of each insert. The time of an insert that triggers a resize includes the full rehash, so the 99th percentile insert time, called p99, captures resize spikes as well as long probes. The p99 is the time that 99 percent of inserts beat. The timer is Python's, so the absolute times describe this Python implementation and not a compiled hash table. The same keys at the same threshold gave a uniform p99 of 2.40 µs in the calibration sweep and 3.38 µs in the main run, so differences of that size are timing noise.
+
+## How the thresholds were chosen
+
+The configuration cell at the top of the notebook sets the probe threshold to 3.0 and calls it a deliberately moderate value. That value does not survive to the main comparison. A calibration section runs next. It sweeps the probe threshold over 2, 3, 4, 5, and 6 on all three workloads with linear probing and applies a stated rule: keep the thresholds whose uniform p99 stays within 10 percent of the baseline's uniform p99, then pick the one with the lowest Zipfian p99. Two of the five thresholds passed the uniform check, and the rule picked 2.0. The notebook then overwrites the 3.0 with 2.0, and the main comparison runs at 2.0. Its linear probing rows match the sweep's 2.0 rows exactly.
+
+The calibration uses the same seeds as the main comparison, so the threshold was tuned on the same keys it was later scored on. The open addressing results are therefore a best case for the adaptive policy on these workloads, not a test on unseen data.
+
+The separate chaining sweep covers chain thresholds of 2, 3, 4, 5, 6, 8, and 12 under the same rule and prints 12 as its choice. The main comparison's chaining rows, however, match the sweep's rows for a threshold of 5 on all three workloads. The saved notebook does not reconcile the two.
+
+## Results for open addressing
+
+Across workloads, the adaptive policy holds linear probing near one or two probes per insert. The load factor policy swings from about 3 probes on uniform keys to 45 on Zipfian keys. Quadratic probing barely moves under either policy.
+
+| Table | Workload | Resizes, load factor | Resizes, adaptive | Mean probes per insert, load factor (lower is better) | Mean probes per insert, adaptive (lower is better) | p99 insert time, load factor (µs, lower is better) | p99 insert time, adaptive (µs, lower is better) |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Linear | Uniform | 8.0 | 8.7 | 2.99 | 1.74 | 7.16 | 3.38 |
+| Linear | Zipfian | 7.0 | 10.2 | 45.02 | 1.72 | 213.44 | 5.42 |
+| Linear | Clustered | 3.0 | 5.2 | 16.06 | 1.04 | 26.19 | 2.20 |
+| Quadratic | Uniform | 9.0 | 9.2 | 1.47 | 1.39 | 2.55 | 2.79 |
+| Quadratic | Zipfian | 8.0 | 8.5 | 1.79 | 1.63 | 5.59 | 4.24 |
+| Quadratic | Clustered | 3.0 | 4.1 | 2.02 | 1.10 | 3.12 | 2.18 |
+
+The linear probing Zipfian row is the headline. The load factor table never goes past 0.75 full, where the uniform formula expects at most 8.5 probes per insert, yet on Zipfian keys it averages 45 probes over the whole run. The small keys fill a run of slots at the start of the table, and each new key that lands in the run walks to its end. The adaptive table sees the average climb and grows early. It averages 1.72 probes, and its p99 insert time falls from 213 µs to 5.4 µs. Clustered keys show the same pattern at a smaller scale, from 16.1 probes to 1.04 and from 26.2 µs to 2.2 µs.
+
+The adaptive policy also helps linear probing on uniform keys, from 2.99 probes to 1.74. A threshold of 2.0 is low enough to fire before the table reaches 0.75 on uniform keys too, so the adaptive table resizes more and runs emptier on every workload.
+
+Quadratic probing spreads colliding keys apart, so runs do not form and there is little for the adaptive trigger to catch. Its gains are small, and on uniform keys the adaptive version is slightly slower, with a p99 of 2.79 µs against 2.55 µs and a mean of 2.29 µs against 2.20 µs. Both gaps are inside the timing noise.
+
+## The cost is memory
+
+The adaptive policy resizes more often. On Zipfian keys with linear probing, it resizes 10.2 times on average against 7.0. Each resize rehashes every key, but the timing above already includes that work, and the adaptive table is still faster at the mean (1.74 µs against 13.88 µs) and at p99.
+
+The larger cost is memory, and the notebook records final capacity without reporting it. The capacity follows from the resize count, because each resize doubles a table that starts at 64 slots. Seven resizes end at 8,192 slots, and ten end at 65,536. On Zipfian keys, the adaptive table ends up eight or more times larger. On clustered keys, it ends near 2,048 slots against 512, for at most 204 distinct keys. The adaptive policy buys short probes with empty slots. Whether that trade is good depends on whether the table is limited by memory or by time per operation, and this experiment measures only the second.
+
+## Where it does not help
+
+Separate chaining shows the opposite result. The chain length below is the length of the chain an insert lands in.
+
+| Workload | Resizes, load factor | Resizes, adaptive | Mean chain length, load factor (keys, lower is better) | Mean chain length, adaptive (keys, lower is better) | Mean insert time, load factor (µs, lower is better) | Mean insert time, adaptive (µs, lower is better) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Uniform | 8.0 | 8.6 | 1.48 | 1.36 | 3.25 | 3.55 |
+| Zipfian | 7.0 | 8.1 | 1.46 | 1.37 | 1.02 | 2.56 |
+| Clustered | 3.0 | 0.0 | 1.46 | 3.33 | 0.48 | 0.62 |
+
+On clustered keys, the adaptive chaining table never resized. With at most 204 distinct keys in 64 slots, no chain reached the trigger, so the table stayed at 64 slots and chains averaged 3.33 keys against 1.46. The longest chain is a poor signal when there are few keys, because it can stay below any useful threshold while every chain is longer than it needs to be. On uniform and Zipfian keys, chains were slightly shorter under the adaptive policy, but mean insert time rose, from 1.02 µs to 2.56 µs on Zipfian keys. The p99 times for chaining are all between 1.06 and 1.51 µs under both policies. Chaining does not degrade the way linear probing does, because a collision adds one key to one list instead of lengthening a run that other keys must walk.
+
+Two sweeps on linear probing test how far the open addressing result holds. A skew sweep varies the Zipf exponent, where a higher exponent concentrates keys on fewer values.
+
+| Zipf exponent | Mean probes, load factor (lower is better) | Mean probes, adaptive (lower is better) | Resizes, load factor | Resizes, adaptive |
+| ---: | ---: | ---: | ---: | ---: |
+| 1.05 | 47.14 | 1.74 | 8.0 | 10.2 |
+| 1.2 | 27.74 | 1.80 | 6.0 | 9.1 |
+| 1.5 | 3.48 | 1.71 | 4.0 | 5.4 |
+| 2.0 | 1.13 | 1.25 | 2.0 | 2.1 |
+
+The adaptive column stays between 1.25 and 1.80. The load factor column falls as skew increases, and at an exponent of 2.0 the load factor table does slightly better. At high skew, so many inserts repeat a few keys that the table holds few distinct keys and stays small, and long runs do not form. The load factor policy does worst at mild skew.
+
+A cluster sweep varies the number and width of the ranges. The adaptive policy had the lower p99 in all five configurations, by a factor between 2.27 and 35.72. Wider clusters hurt the baseline most: four clusters 200 values wide drove the load factor table to 48.03 probes per insert against 1.06. The price was again resizes. With 16 clusters 50 values wide, the adaptive table resized 8.7 times against 4.9.
+
+The experiment also has limits that the tables do not show. It measures inserts only, with no lookups or deletions. The keys are synthetic. The hash function is the identity, which is the worst case for structured keys. The open addressing threshold was tuned on the same keys it was scored on.
+
+## Measure the cost you care about
+
+The 0.75 default encodes a belief about the keys: that they spread evenly. When that belief holds, fullness is a good stand-in for probe cost, and the two policies give similar results. When it fails, fullness says nothing about the runs forming inside the table, and on Zipfian keys the linear probing table averaged about 26 times as many probes per insert as the adaptive one while it stayed under its limit.
+
+The adaptive policy works because it triggers on the quantity that matters, the probes an insert actually pays. The separate chaining result shows that this is not automatic. The longest chain was the wrong signal for a small table with few keys, and it let chains grow while it waited. A trigger has to measure the cost directly, and its threshold has to be checked against workloads it was not tuned on.
+
+The same reasoning applies outside hash tables. A connection pool size, a cache eviction rule, or a retry limit is often a default chosen with one workload in mind. Before it is trusted, it is worth asking what cost it stands in for, and whether that cost can be measured and used instead.

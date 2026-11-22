@@ -1,0 +1,84 @@
+---
+title: 'Designing a Small Language for Releases'
+date: 2026-11-14
+tags: ['CI/CD', 'GitOps', 'platform engineering']
+draft: false
+excerpt: |
+  Promotion logic tends to spread across bash scripts until nobody can say what a release will do. Treating the build-to-deploy contract as a small language, with one evaluator, explicit referential checks, and deliberate boundaries, keeps it readable and testable. This post is about the design discipline behind that language, not only its syntax.
+---
+
+Most delivery systems have a promotion step: something reads what a build produced and writes the new digests into the configuration of an environment. On most platforms, that step starts as a short script. Over time, it becomes several scripts that each read the build output in a slightly different way. The meaning of a release ends up spread across all of them, and nobody can describe it without reading every file.
+
+An earlier post covered the shape of one alternative: a catalog that CI writes for each build, a binding that each GitOps overlay declares, and a resolver that joins them. This post is about the design discipline that keeps that model coherent. The point is not that it uses JSON and YAML. The point is that it is treated as a language, and languages have rules about where meaning lives.
+
+## Name the parts, and arguments go away
+
+A surprising number of design debates come from not naming the parts of a system. On a promotion design, one recurring question was whether the build output file was a registry or a domain-specific language. Neither answer was satisfying, because the question mixed two roles.
+
+Naming the parts settled it. The catalog is the set of values: artifact names bound to concrete digests, for this build only. The binding is the program: what an overlay consumes and where each artifact lands. The values path in the binding is the operator. The promotion pull request diff is the compiled output that a human reviews before it merges. The catalog does not compete with the bindings. It is the substitution table that the bindings run against.
+
+The ownership and lifecycle of each part follow from its role. CI writes the catalog, and each publish produces a new one. Humans write the bindings, and they last as long as the overlay does. Keeping them in separate files is not an accident of tooling. Merging them would couple two phases that the design deliberately keeps apart.
+
+## One evaluator, and nowhere else
+
+The most important rule in the design is that resolution has exactly one implementation. A single function takes a binding and a catalog and returns the patches to apply:
+
+```text
+resolve_patches(binding, catalog) ->
+  images: [ { artifact, valuesPath, repository, digest } ]   # only fresh artifacts
+  chart:  { artifact, name, digest } | null
+```
+
+Both promotion paths, the automatic staging batch and the gated production release, call that function. Neither reads the catalog directly. That rule is what gives "partial merge" a single meaning. If an artifact is absent from this build's catalog, the overlay keeps its current pin. A build that touched only a sidecar resolves to a patch for the sidecar's values path and nothing else, in both environments.
+
+The same library exposes the queries that the rest of the pipeline needs: resolve a binding with its default fallback, find the overlays of a release, list the artifacts a release consumes for the approval gate, and list the releases that consume an artifact for trigger tags. Every question about the language is answered by the language's own runtime.
+
+This is the rule most likely to erode. Someone needs a quick answer in a new script and reads the catalog directly, because it is just JSON. The second reader is where divergent semantics start. Code review should treat a direct catalog read outside the evaluator the way it treats a raw SQL string in a codebase with a data access layer.
+
+## Every edge is a contract with a check
+
+A binding joins several surfaces, and each join is a contract that something must enforce. Leaving any of them as an assumption creates a failure that the runtime cannot see.
+
+The artifact name in a binding must refer to a real project. The runtime cannot check this. A typo creates a dead binding, which never resolves as fresh, never patches, and never reports an error. It looks exactly like "not built in this run". A referential lint over every binding file is the only place to catch it.
+
+The values path must point at something the chart actually renders into an image reference. The check here is to render the chart with the patched values and assert that the rendered image carries the digest. Without it, a patch can land in a values key that no template reads, and the deploy keeps running the old image while the pull request looks correct.
+
+The release name must have a pipeline behind it. A production binding for a release that has no release pipeline is configuration that can never deploy. A simple existence check closes that gap.
+
+The general lesson is that every reference in a declarative file is a foreign key. If the system does not enforce it, it is only a hope.
+
+## Strict where it counts, lenient where it helps
+
+The two promotion paths use the same evaluator but different rules for applying its output.
+
+The staging path is lenient. It walks every staging overlay, applies whatever is fresh, creates a values path if one is missing, and opens a single pull request that merges automatically. Its goal is flow.
+
+The production path is strict. The values path must already exist, because that node carries the environment's registry override. A version stamp is mandatory whenever an image changes. The approval gate promotes only if at least one artifact the release consumes is fresh. A malformed binding is a hard error. Its goal is intent.
+
+That split is a deliberate design choice, not an inconsistency. The cost of guessing in staging is a broken staging deploy that the next build fixes. The cost of guessing in production is a deploy that nobody intended.
+
+## Boundaries by design
+
+A small language should say what it will not do, and say it as clearly as what it will do.
+
+Each release gets one pull request and one approval, even when it spans several overlays. There is no per-overlay approval and no way to say "keep this overlay on the latest version and pin that one". A team that needs divergence splits the overlays into separate releases. That limit keeps the approval model simple enough that approvers understand what they are approving.
+
+The mirror lane for third-party images is separate from the language entirely. Those images move by tag through their own promotion job. They never flow through overlay pins, and the binding paths must ignore them.
+
+The dead binding is also a boundary, stated openly. The runtime cannot distinguish a misspelled artifact from one that was not built, so the specification says so and assigns that check to the lint.
+
+## Default bindings keep adoption cheap
+
+A language that every service must adopt on day one rarely gets adopted. An overlay with no binding file gets a default binding that matches the old convention of one project per overlay, so the classic services need no file. A binding file appears only where the shape is unusual: several images in one pod, a fan-out to several overlays, an image-only or chart-only project, or an overlay that consumes another project's artifact.
+
+The default also means that the trigger behavior for classic services does not change. A project maps to the release with the same name, exactly as it did before the language existed.
+
+## Keeping the language small
+
+A design like this lives or dies by its specification. One durable reference document that defines the parts, the shapes, the evaluator, the referential edges, the two paths, and the boundaries is what lets a new engineer extend the system without reading every script. Machine-checkable schemas for the catalog and the binding make that document enforceable.
+
+Tests should follow equivalence classes rather than services. One fixture for each shape, such as the standard application, chart-only, image-only, composed, fan-out, sibling releases, mirror-only, and environment-scoped, covers the behavior. Keep fixtures for shapes that have no current instance. Those are the shapes most likely to break when someone finally needs them.
+
+Watch for the urge to add expressiveness. Per-overlay approvals, conditional pins, and environment-specific artifact names are all reasonable requests. Each one makes the language harder to read and the review of a promotion pull request harder to trust. A small language is valuable because it is small. The real job is often to protect that, and to show that a request can be met by splitting a release or adding a binding instead of growing the syntax.
+
+The payoff is a delivery system that people can reason about. The meaning of a release lives in one place, every reference is checked, and the boundaries are written down. That is much easier to defend in an incident review than a folder of scripts that each know a little.

@@ -1,0 +1,68 @@
+---
+title: 'The Price of Going Private'
+date: 2026-11-17
+tags: ['infrastructure', 'Azure', 'security', 'GitOps']
+draft: false
+excerpt: |
+  Private endpoints move a managed service off the public internet and onto the provider backbone. The security case takes one sentence. The bill arrives in DNS, in CI agents that can no longer reach anything, in debugging sessions that start with a VPN, and in the invoice. This post walks through each cost and when the trade is worth it.
+---
+
+Every managed service in Azure starts with a public endpoint. A storage account, a key vault, a database server, or a container registry answers on an address that anyone on the internet can reach. Authentication still protects the data, but the endpoint itself is open to probing, to credential stuffing, and to whatever misconfiguration happens next year.
+
+A private endpoint changes the address. The service gets a network interface with a private IP inside your virtual network, and you turn its public network access off. Clients in the network reach it over the Azure backbone, and the traffic never crosses the public internet. Clients outside the network cannot reach it at all, whatever credentials they hold.
+
+The security argument is short. Authentication decides who succeeds. Network position decides who can try. A private endpoint removes most of the people who can try. The rest of this post is about what that removal costs, because the cost is spread across many teams and it is easy to underestimate.
+
+## DNS pays first
+
+A private endpoint does not change the name of the service. The vault is still `example.vault.azure.net`. What changes is the answer. Azure adds a `privatelink` alias to the public name, and a private DNS zone that is linked to your virtual network answers that alias with the private IP. A resolver that does not know about the private zone follows the public chain and gets the public address, which now refuses the connection.
+
+That split answer is the design. It means the same name works from inside the network and fails from outside it, with no change to application configuration. It also means that every resolver path must know about the private zone, and there are more paths than people expect.
+
+Pods in the cluster use the cluster DNS, which forwards to the virtual network resolver, which reads the linked zones. That path usually works on the first day. Engineer laptops on a VPN use whatever resolver the VPN client hands them. An on-premises network uses its own DNS servers, which need a conditional forwarder for each `privatelink` zone that points into Azure. A second virtual network needs its own link to each zone. Each of these is a separate piece of configuration, and each one fails in the same confusing way.
+
+The symptom is rarely a DNS error. The lookup succeeds and returns the public address. The connection then fails with an authorization message about public network access, or it times out. People read that as a permissions problem and start to change role assignments. The first diagnostic step for any "access denied" against a private service is a lookup from the client that failed. If the answer is a public IP, the problem is DNS, and no role assignment will fix it.
+
+## CI loses its reach
+
+A hosted CI agent runs in the provider's shared network, outside your virtual network. Before the change, it could deploy to the cluster, run a database migration, read a secret, or push an image. After the change, every one of those calls goes to a private address that the agent cannot route to.
+
+The first answer is usually a self-hosted agent pool inside the network. It works, and it has costs of its own. The pool is compute that someone must patch and scale. It is often small, so jobs queue behind it. If it scales from zero, every job starts cold. And an agent that can reach every private data plane is now one of the most privileged machines in the estate, with credentials to match.
+
+The better answer for deployment is to change the direction of the call. In a push model, CI reaches into the cluster. In a pull model, a GitOps controller inside the cluster reaches out to a git repository and applies what it finds there. The controller already has a network position. CI no longer needs one. Its job ends when it publishes an image and writes the new desired state to git. No pipeline holds cluster credentials, and the record of every deploy is a commit that someone reviewed.
+
+That is why private networking and pull-based GitOps tend to arrive together. GitOps is a good idea on its own merits, but private networking makes it close to mandatory. The same logic applies to other work that needs a network position. A task that must touch a private data plane belongs to something that already lives in the network, triggered by a declaration that CI can write from outside. A [related post](/blog/split-the-environment-along-the-network-boundary) applies that rule to short-lived test environments.
+
+Infrastructure code feels this too. Some provider operations call the data plane of a resource, not only the management API. Creating a secret in a vault or a container in a storage account are common examples. A plan that worked from a hosted agent starts to fail on those resources. Whatever runs the infrastructure code needs a network path, and that path is itself access that must be governed.
+
+## Debugging starts with a network path
+
+The portal is less helpful than it was. The management view of a private resource still loads, because the management API stays public. The data views do not. Listing secrets in a vault, browsing blobs in a storage account, or running a query in the portal editor all fail from a browser outside the network. The message says that public access is disabled, which is accurate and not very helpful during an incident.
+
+Every engineer who needs to see data plane state now needs a network path first. In practice, that means a VPN that routes the virtual network address space and resolves the private zones, or a jump host inside the network. Either one is another system to operate, another set of credentials, and another dependency during an outage. If that path is down, so is the ability to look.
+
+This changes how a team should build its tools. Diagnostics that run inside the cluster, such as dashboards, health endpoints, and log queries in a workspace that the team can reach, become more valuable than ad hoc access to each resource. A good test is to ask how an on-call engineer would answer "is the vault reachable from the workload?" without connecting to the network first. If the only answer is to connect and try, the team will spend the first minutes of every incident on the network instead of the problem.
+
+## The invoice
+
+Private endpoints have a direct price. Each endpoint has an hourly charge and a charge for the data that passes through it. One endpoint is cheap. A platform with many resources, several sub-resources that each need their own endpoint, and more than one environment has many endpoints.
+
+The indirect costs are larger. Private DNS zones, a self-hosted agent pool, a VPN gateway or a jump host, firewall data processing for traffic that would otherwise go direct, and the engineering time to keep all of it consistent across environments all go on the bill. None of these appear in the line item for the private endpoint itself, so they are easy to leave out of the decision.
+
+## When it is worth it
+
+The trade is clearly worth it when the data is regulated, when an auditor will ask how the platform keeps data off untrusted networks, or when a single leaked credential would be a serious incident. In those cases, network position is a control that still works when an identity control fails. It also simplifies a hard conversation, because "this service has no public endpoint" is a claim that anyone can check.
+
+The trade is weaker for resources that hold nothing sensitive, for short-lived sandboxes, and for assets that are meant to be public, such as a static site or a public package feed. Putting those behind private endpoints adds cost and friction and removes little risk.
+
+One habit helps when the answer is yes: design the delivery path for the private network on the first day. Retrofitting pull-based deployment after the network goes private is much harder than starting with it.
+
+## Keeping the paths reachable
+
+Watch DNS before anything else. Every new consumer of a private service, such as a new network, a new VPN profile, or a new on-premises site, is a new resolver path. Add a lookup from that path to the checklist for connecting it.
+
+Guard the self-hosted pool. Once it exists, it becomes the easy answer to every network problem in CI, and every job that moves onto it adds cost and privilege. Keep it for the work that truly needs a network position, and send everything else to hosted agents.
+
+Then review the paths that humans use. The VPN and any jump host are part of the security boundary, not conveniences beside it. Their access should be reviewed with the same care as role assignments, and their failure should be in the incident plan.
+
+Before the network goes private, write down who needs to reach each resource, from which network, through which resolver, and how the team will see its state when something breaks. Then the bill is a budget line instead of a surprise.
