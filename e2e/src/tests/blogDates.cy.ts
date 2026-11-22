@@ -38,7 +38,9 @@ it("shows each post's frontmatter date on the blog index", () => {
     });
     cy.get("article").each(($article) => {
       const href = $article.find("h2 a").attr("href") ?? "";
-      const post = posts.find((p) => href.replace(/\/$/, "").endsWith(`/blog/${p.slug}`));
+      const post = posts.find((p) =>
+        href.replace(/\/$/, "").endsWith(`/blog/${p.slug}`),
+      );
       expect(post, `search.json entry for ${href}`).to.exist;
       expect($article.find("time").text()).to.equal(expectedLabel(post!.date));
     });
