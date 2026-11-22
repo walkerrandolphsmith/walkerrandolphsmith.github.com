@@ -6,7 +6,7 @@
     "hoistingLimits": "workspaces"
   },
   "scripts": {
-    "ci:test": "cypress run --e2e",
+    "ci:test": "cross-env TZ=America/Los_Angeles cypress run --e2e",
     "test": "cypress open --e2e --config baseUrl=http://localhost:4280 ",
     "install": "cypress install",
     "clear": "cypress cache clear"
