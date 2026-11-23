@@ -99,46 +99,23 @@ export const community = [
 
 export const skills: [string, string][] = [
   [
-    'Architecture & Design',
-    'Distributed Systems, Microservices, Monorepo (Nx), Cloud Architecture',
+    'Platform & Infrastructure',
+    'Azure, Kubernetes, Terraform, FluxCD, Istio, Helm, Docker, AWS',
   ],
   [
-    'Cloud & Infrastructure',
-    'Azure, Terraform, FluxCD, Istio, Kubernetes, Helm, Docker, AWS',
-  ],
-  ['Compliance', 'CJIS, SOC 2, NLETS, FIPS 140-3'],
-  [
-    'Security',
-    'Entra ID, RBAC / ABAC, Managed Identity, Workload Identity Federation, Azure Key Vault, External Secrets Operator, Azure Firewall, WAF, mTLS, Policy-as-Code (Azure Policy, Kyverno, Cloud Custodian), SBOM',
+    'CI/CD & Developer Experience',
+    'Azure DevOps, GitHub Actions, Nx (affected builds), Monorepo, Ephemeral Environments, OCI Artifacts, Kustomize',
   ],
   [
-    'Observability & Messaging',
-    'OpenTelemetry, Prometheus, Grafana, Azure Service Bus, RabbitMQ',
+    'Security & Compliance',
+    'CJIS, SOC 2, FIPS 140-3, Workload Identity Federation, Managed Identity, Policy-as-Code (Azure Policy, Kyverno), mTLS, SBOM',
   ],
   [
-    'Testing & Quality',
-    'Playwright, Cypress, Jest, xUnit, k6, Visual Regression, Ephemeral Environments',
+    'Testing & Observability',
+    'Playwright, Cypress, k6, Visual Regression, OpenTelemetry, Prometheus, Grafana',
   ],
-  [
-    'Agentic Engineering',
-    'Claude Code, multi-agent orchestration (firstmate), RAG',
-  ],
-  [
-    'Machine Learning',
-    'PyTorch, Transformers, CNNs, NLP, scikit-learn, pandas, NumPy, Matplotlib, Jupyter',
-  ],
-  [
-    'Data & Databases',
-    'SQL Server, Azure Cosmos DB, MongoDB, ClickHouse, Apache Spark, Azure Data Factory',
-  ],
-  [
-    'CI/CD',
-    'Azure DevOps, GitHub Actions, Nx (affected builds), Skopeo, OCI Artifacts, Kustomize, Bash',
-  ],
-  [
-    'Languages & Frameworks',
-    'C#, Python, TypeScript, Node.js, React, Next.js, GraphQL',
-  ],
+  ['Agentic Engineering', 'Claude Code, multi-agent orchestration, RAG'],
+  ['Languages', 'TypeScript, C#, Python, Node.js, React, Next.js, GraphQL'],
 ]
 
 export const education = {
