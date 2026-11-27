@@ -1,7 +1,7 @@
 ---
 title: 'Reconcilers Without Standing Privilege'
 date: 2026-06-17
-tags: ['security', 'identity', 'platform engineering']
+tags: ['security', 'identity', 'platform-engineering']
 draft: false
 excerpt: |
   Infrastructure as code stops where a provider stops, and the state past that line still drifts. The Kubernetes reflex is to write a controller that converges it forever. This post argues that reconciler work does not need a controller that holds long-lived privilege in the cluster. The reconciler runs on demand instead, under the operator's own short-lived identity, so its access lasts only for the run.

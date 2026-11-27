@@ -1,7 +1,7 @@
 ---
 title: 'One CI Identity for Two Control Planes'
 date: 2026-03-19
-tags: ['CI/CD', 'identity', 'security', 'Azure']
+tags: ['ci-cd', 'identity', 'security', 'azure']
 draft: false
 excerpt: |
   A pipeline acts on two systems: the cloud where it pushes images and reads secrets, and the build platform itself where it restores feeds and cancels runs. This post explains how one secret-less service connection, owned by Terraform, can be the identity for both, why it should replace personal access tokens and the ambient build token, and why its permissions still live in two places.

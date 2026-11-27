@@ -1,7 +1,7 @@
 ---
 title: 'End-to-End TLS Is a Chain of Handoffs'
 date: 2026-08-20
-tags: ['security', 'Azure', 'AKS', 'cert-manager']
+tags: ['security', 'azure', 'kubernetes']
 draft: false
 excerpt: |
   End-to-end TLS through an edge gateway and a service mesh is not one certificate. It is a chain of handoffs, and each layer must trust the next one with its own copy of the material. This post covers the pattern with cert-manager, External Secrets Operator, Key Vault, Application Gateway, and an Istio ingress gateway, and the lessons that only show up at renewal time.

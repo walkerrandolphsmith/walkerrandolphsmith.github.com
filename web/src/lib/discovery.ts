@@ -18,7 +18,7 @@ export type DiscoveryPost = {
 export type TagSummary = {
   /** The URL-safe tag, as tag-data.json and the /tags/<slug>/ route use it. */
   slug: string
-  /** The tag as the posts spell it, for example "CI/CD". */
+  /** The tag as the posts spell it, for example "ci-cd". */
   label: string
   count: number
 }

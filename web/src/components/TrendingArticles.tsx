@@ -68,7 +68,7 @@ const TrendingArticles = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 mb-12">
         <ArticleCard
           slug="blog/one-registry-for-production"
-          tags={['supply chain', 'CI/CD', 'Azure', 'AKS', 'security']}
+          tags={['supply-chain', 'ci-cd', 'security', 'azure']}
           title="One Registry for Production: Promoting Images Across a Trust Boundary"
         >
           Production pulls images from one private registry and from nowhere
@@ -78,7 +78,7 @@ const TrendingArticles = () => (
         </ArticleCard>
         <ArticleCard
           slug="blog/nothing-holds-a-secret"
-          tags={['security', 'identity', 'Azure', 'AKS']}
+          tags={['security', 'identity', 'azure', 'kubernetes']}
           title="Nothing Holds a Secret: Identity Instead of Keys"
         >
           A connection string gives its access to anyone who holds it. Workload
@@ -87,7 +87,7 @@ const TrendingArticles = () => (
         </ArticleCard>
         <ArticleCard
           slug="blog/environment-vs-request-isolation"
-          tags={['infrastructure', 'CI/CD']}
+          tags={['ci-cd', 'platform-engineering', 'developer-experience']}
           title="From Preview Links to Full Ephemeral Environments: Scalable Testing in Microservice Architectures"
         >
           Each pull request gets its own copy of the full system. Engineers,
@@ -96,7 +96,7 @@ const TrendingArticles = () => (
         </ArticleCard>
         <ArticleCard
           slug="blog/ci-is-a-framework-not-a-library"
-          tags={['CI/CD', 'platform engineering', 'developer experience']}
+          tags={['ci-cd', 'platform-engineering', 'developer-experience']}
           title="CI Is a Framework, Not a Library"
         >
           When each repository builds its own pipeline, every pipeline drifts. A
