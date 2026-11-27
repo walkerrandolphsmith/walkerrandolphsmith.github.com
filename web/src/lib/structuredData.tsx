@@ -1,4 +1,5 @@
 import sitemetadata from '@/data/sitemetadata'
+import { tagLabel } from '@/lib/discovery'
 import { absoluteUrl, profile } from '@/lib/siteContent'
 
 /**
@@ -102,7 +103,7 @@ export const blogPostingNode = (post: {
       ? post.image
       : absoluteUrl(post.image)
     : absoluteUrl('/twitter-card.png'),
-  keywords: post.tags,
+  keywords: post.tags.map(tagLabel),
   inLanguage: sitemetadata.locale,
   isPartOf: { '@id': websiteId },
 })

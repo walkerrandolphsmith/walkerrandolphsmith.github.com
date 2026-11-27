@@ -17,12 +17,16 @@ export type ArticleMatch<T extends SearchablePost> = {
   score: number
 }
 
-/** Lower case, no accents, and runs of space collapsed to one. */
+/**
+ * Lower case, no accents, hyphens and slashes read as spaces, and runs of
+ * space collapsed to one. So the tag "ci-cd" and the label "CI/CD" match.
+ */
 export const normalize = (text: string) =>
   text
     .normalize('NFKD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
+    .replace(/[-/]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 

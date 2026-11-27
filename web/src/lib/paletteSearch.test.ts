@@ -15,21 +15,28 @@ const posts = [
     title: 'Nothing Holds a Secret: Identity Instead of Keys',
     excerpt: 'Workload identity federation replaces keys.',
     date: '2025-03-01',
-    tags: ['security', 'identity', 'Azure'],
+    tags: ['security', 'identity', 'azure'],
   },
   {
     slug: 'ci-is-a-framework',
     title: 'CI Is a Framework, Not a Library',
     excerpt: 'When each repository builds its own pipeline, it drifts.',
     date: '2026-01-01',
-    tags: ['CI/CD', 'platform engineering'],
+    tags: ['ci-cd', 'platform-engineering'],
   },
   {
     slug: 'smarter-retries',
     title: 'Smarter Retries',
     excerpt: 'Retry budgets keep a slow pipeline from a retry storm.',
     date: '2024-01-01',
-    tags: ['distributed systems'],
+    tags: ['distributed-systems'],
+  },
+  {
+    slug: 'context-is-everything',
+    title: 'Context Is Everything',
+    excerpt: 'Good docs let a new hire ship on day one.',
+    date: '2023-01-01',
+    tags: ['developer-experience'],
   },
 ]
 
@@ -43,7 +50,12 @@ describe('searchArticles', () => {
   it('returns the newest posts for an empty query', () => {
     assert.deepEqual(
       searchArticles(posts, '').map(m => m.post.slug),
-      ['ci-is-a-framework', 'nothing-holds-a-secret', 'smarter-retries'],
+      [
+        'ci-is-a-framework',
+        'nothing-holds-a-secret',
+        'smarter-retries',
+        'context-is-everything',
+      ],
     )
   })
 
@@ -62,6 +74,24 @@ describe('searchArticles', () => {
     assert.deepEqual(
       searchArticles(posts, 'azure').map(m => m.post.slug),
       ['nothing-holds-a-secret'],
+    )
+  })
+
+  it('matches each word of a hyphenated tag', () => {
+    assert.deepEqual(
+      searchArticles(posts, 'experience').map(m => m.post.slug),
+      ['context-is-everything'],
+    )
+    assert.deepEqual(
+      searchArticles(posts, 'developer experience').map(m => m.post.slug),
+      ['context-is-everything'],
+    )
+  })
+
+  it('matches a slug tag by its display label', () => {
+    assert.deepEqual(
+      searchArticles(posts, 'CI/CD').map(m => m.post.slug),
+      ['ci-is-a-framework'],
     )
   })
 
