@@ -1,17 +1,15 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
 
 import { POSTS_PER_PAGE } from '@/app/blog/pagination'
 import { genPageMetadata } from '@/app/seo'
 import Articles from '@/components/Articles'
-
-import { allBlogs } from '../../../../../.contentlayer/generated'
+import { getPostCards } from '@/lib/blogContent'
 
 // Count the same published posts that the page renders, so every
 // generated page has posts.
 const totalPageCount = () =>
-  Math.ceil(allCoreContent(sortPosts(allBlogs)).length / POSTS_PER_PAGE)
+  Math.ceil(getPostCards().length / POSTS_PER_PAGE)
 
 export const generateStaticParams = async () => {
   const totalPages = totalPageCount()
@@ -45,7 +43,7 @@ export default async function Page(props: {
   params: Promise<{ page: string }>
 }) {
   const params = await props.params
-  const posts = allCoreContent(sortPosts(allBlogs))
+  const posts = getPostCards()
   const pageNumber = parseInt(params.page as string)
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
 

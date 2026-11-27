@@ -1,6 +1,7 @@
 const sitedata = {
   title: 'Walker Smith',
   author: 'Walker Smith',
+  jobTitle: 'Staff Engineer, Developer Experience and Platform',
   headerTitle: 'Walker Smith',
   description:
     'Staff Engineer for developer experience and platform. I make large platforms fast and safe for teams to change.',

@@ -2,9 +2,11 @@ import './globals.css'
 
 import localFont from 'next/font/local'
 
+import PaletteRoot from '@/components/palette/PaletteRoot'
 import ResetScrollPosition from '@/components/ResetScrollPosition'
 import WebMCPTools from '@/components/WebMCPTools'
 import sitemetadata from '@/data/sitemetadata'
+import { getSocialInfo } from '@/lib/siteContent'
 
 // Roboto is self-hosted. Google Fonts served Vercel's build a font URL with no
 // file extension, which crashed next/font/google. The file is Google's Latin
@@ -113,6 +115,7 @@ export default function RootLayout({
         {children}
         <ResetScrollPosition />
         <WebMCPTools />
+        <PaletteRoot social={getSocialInfo()} />
       </body>
     </html>
   )

@@ -1,6 +1,12 @@
 import { CoreContent } from 'pliny/utils/contentlayer'
 import { ReactNode } from 'react'
 
+import PostMeta from '@/components/PostMeta'
+import RelatedPosts from '@/components/RelatedPosts'
+import { TagList } from '@/components/TagChip'
+import type { PostCardData } from '@/lib/blogContent'
+import { readingMinutes } from '@/lib/discovery'
+
 import type { Authors, Blog } from '../../.contentlayer/generated'
 import CallToAction from './CallToAction'
 
@@ -9,11 +15,16 @@ interface LayoutProps {
   authorDetails: CoreContent<Authors>[]
   next?: { path: string; title: string }
   prev?: { path: string; title: string }
+  related?: PostCardData[]
   children: ReactNode
 }
 
-export default function PostLayout({ content, children }: LayoutProps) {
-  const { title } = content
+export default function PostLayout({
+  content,
+  related = [],
+  children,
+}: LayoutProps) {
+  const { title, date, tags = [], readingTime } = content
 
   return (
     <article>
@@ -22,12 +33,17 @@ export default function PostLayout({ content, children }: LayoutProps) {
           <h1 className="text-[36px] leading-[44px] font-medium font-[var(--font-roboto)] sm:text-[48px] sm:leading-[56px] relative text-zinc-950 dark:text-white tracking-[-0.05em] bg-[linear-gradient(to_bottom,_var(--sectionBackgroundColor)_75%,_transparent_100%)] pointer-events-none">
             {title}
           </h1>
+          <PostMeta date={date} readingMinutes={readingMinutes(readingTime)} />
+          <TagList tags={tags} />
         </header>
         <section className="mx-4 md:mx-6 max-w-screen-xl overflow-hidden">
           <div className="prose dark:prose-invert max-w-none pt-10 pb-8">
             {children}
           </div>
         </section>
+        <div className="mx-4 md:mx-6">
+          <RelatedPosts posts={related} />
+        </div>
         <div className="mx-4 md:mx-6">
           <CallToAction
             href="/blog"

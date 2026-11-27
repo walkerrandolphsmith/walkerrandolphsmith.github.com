@@ -1,5 +1,6 @@
 import { CiDark } from 'react-icons/ci'
 import { LiaFileDownloadSolid } from 'react-icons/lia'
+import { LuSearch } from 'react-icons/lu'
 
 import {
   inlineNavLinkClassName,
@@ -7,6 +8,7 @@ import {
   navBarClassName,
   primaryNavLinks,
 } from './navLinks'
+import { paletteTriggerClassName } from './palette/PaletteTrigger'
 
 const NavSkeleton = ({ isResumePage = false }) => (
   <div className={`${navBarClassName} ${navBarBackgroundClassName}`}>
@@ -49,17 +51,30 @@ const NavSkeleton = ({ isResumePage = false }) => (
             <CiDark />
           </button>
         </div>
-        <button
-          aria-expanded={false}
-          aria-controls="overlay-nav"
-          aria-label="Toggle menu"
-          className="lg:hidden h-[36px] cursor-pointer"
-        >
-          <span
-            aria-hidden="true"
-            className={`${'bg-zinc-900 '}height-[36px] cursor-pointer flex transform-gpu before:transform-gpu before:content-[''] after:content-[''] h-1 before:h-1 after:h-1 w-9 before:w-9 after:w-9 before:visible before:top-[-10px] after:top-2.5 relative before:bg-zinc-900 after:bg-zinc-900 before:absolute after:absolute text-zinc-900 rounded-sm before:rounded-sm after:rounded-sm transition-transform before:transition-transform after:transition-transform duration-300 ease-in-out before:duration-300 before:ease-in-out after:duration-300 after:ease-in-out`}
-          ></span>
-        </button>
+        <div className="flex items-center gap-x-2">
+          <button
+            type="button"
+            aria-label="Search the site"
+            className={paletteTriggerClassName}
+          >
+            <LuSearch aria-hidden="true" className="h-5 w-5" />
+            <span className="hidden text-sm lg:inline">Search</span>
+            <kbd className="hidden rounded border border-zinc-300 px-1.5 text-xs font-medium text-zinc-600 lg:inline">
+              ⌘K
+            </kbd>
+          </button>
+          <button
+            aria-expanded={false}
+            aria-controls="overlay-nav"
+            aria-label="Toggle menu"
+            className="lg:hidden h-[36px] cursor-pointer"
+          >
+            <span
+              aria-hidden="true"
+              className={`${'bg-zinc-900 '}height-[36px] cursor-pointer flex transform-gpu before:transform-gpu before:content-[''] after:content-[''] h-1 before:h-1 after:h-1 w-9 before:w-9 after:w-9 before:visible before:top-[-10px] after:top-2.5 relative before:bg-zinc-900 after:bg-zinc-900 before:absolute after:absolute text-zinc-900 rounded-sm before:rounded-sm after:rounded-sm transition-transform before:transition-transform after:transition-transform duration-300 ease-in-out before:duration-300 before:ease-in-out after:duration-300 after:ease-in-out`}
+            ></span>
+          </button>
+        </div>
       </nav>
     </div>
   </div>

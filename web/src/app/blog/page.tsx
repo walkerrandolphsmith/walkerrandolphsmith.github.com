@@ -1,8 +1,7 @@
-import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
-
 import { POSTS_PER_PAGE } from '@/app/blog/pagination'
 import { genPageMetadata } from '@/app/seo'
 import Articles from '@/components/Articles'
+import { getPostCards, getTagCatalog } from '@/lib/blogContent'
 import {
   breadcrumbNode,
   collectionPageNode,
@@ -10,8 +9,6 @@ import {
   personNode,
   websiteNode,
 } from '@/lib/structuredData'
-
-import { allBlogs } from '../../../.contentlayer/generated'
 
 const description =
   'Articles by Walker Smith about platform engineering, CI/CD, infrastructure, identity, and developer experience.'
@@ -23,7 +20,8 @@ export const metadata = genPageMetadata({
 })
 
 export default function BlogPage() {
-  const posts = allCoreContent(sortPosts(allBlogs))
+  const posts = getPostCards()
+  const tags = getTagCatalog()
   const pageNumber = 1
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
   const initialDisplayPosts = posts.slice(0, POSTS_PER_PAGE * pageNumber)
@@ -45,6 +43,7 @@ export default function BlogPage() {
       <Articles
         pagination={pagination}
         initialDisplayPosts={initialDisplayPosts}
+        topics={{ top: tags.slice(0, 10), total: tags.length }}
       />
     </>
   )

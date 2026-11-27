@@ -3,51 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import CallToAction from '@/components/CallToAction'
 import Footer from '@/components/Footer'
 import GuidedSection from '@/components/GuidedSection'
 import Nav from '@/components/Nav'
-import { formatPostDate } from '@/lib/formatPostDate'
+import PostListItem from '@/components/PostListItem'
+import TopicStrip from '@/components/TopicStrip'
+import type { PostCardData } from '@/lib/blogContent'
+import type { TagSummary } from '@/lib/discovery'
 
-const ArticleHook = ({ date, timestamp, title, tags = [], intro, href }) => (
-  <li className="py-12 first:pt-0">
-    <article>
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-4 text-sm text-gray-500 dark:text-gray-300">
-            <time dateTime={timestamp}>{date}</time>
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              <Link className="break-words" href={href}>
-                {title}
-              </Link>
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="text-primary-500 mr-3 text-sm font-medium uppercase"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-          <p className="text-gray-600 dark:text-gray-300">{intro}</p>
-        </div>
-        <CallToAction
-          href={href}
-          title="Read article"
-          dataTestId="read-article"
-          includeArrow
-          excludeLeftPadding
-          justify="justify-start"
-          color="text-zinc-950"
-          darkColor="text-white"
-        />
-      </div>
-    </article>
-  </li>
-)
 interface PaginationProps {
   totalPages: number
   currentPage: number
@@ -110,7 +73,15 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
   )
 }
 
-export default function Articles({ pagination, initialDisplayPosts }) {
+export default function Articles({
+  pagination,
+  initialDisplayPosts,
+  topics,
+}: {
+  pagination: PaginationProps
+  initialDisplayPosts: PostCardData[]
+  topics?: { top: TagSummary[]; total: number }
+}) {
   return (
     <>
       <Nav />
@@ -125,18 +96,16 @@ export default function Articles({ pagination, initialDisplayPosts }) {
           <h1 className="sr-only">
             Writing about platform engineering and developer experience
           </h1>
+          {topics && (
+            <div className="px-12 pb-12">
+              <TopicStrip topics={topics.top} totalTopics={topics.total} />
+            </div>
+          )}
           <div className="flex flex-col gap-8 md:flex-row">
             <div className="min-w-0 flex-1">
               <ul className="divide-y divide-gray-200 dark:divide-gray-600 px-12">
                 {initialDisplayPosts.map(post => (
-                  <ArticleHook
-                    key={post.slug}
-                    title={post.title}
-                    date={formatPostDate(post.date)}
-                    intro={post.excerpt}
-                    timestamp={new Date(post.date).toISOString()}
-                    href={`/blog/${post.slug}`}
-                  />
+                  <PostListItem key={post.slug} post={post} />
                 ))}
               </ul>
             </div>
