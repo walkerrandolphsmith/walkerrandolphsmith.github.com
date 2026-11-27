@@ -1,0 +1,125 @@
+---
+title: 'Pay for the Reasoning Once'
+date: 2026-11-23
+tags: ['platform engineering', 'developer experience', 'automation', 'llm']
+draft: false
+excerpt: |
+  A coding agent can scaffold a new service from a prompt, but it pays for the same reasoning again on every run. A better split lets the agent do the expensive reasoning once, freezes that reasoning into a deterministic Nx generator, and has skills call the generator as a tool. This post argues for that split, shows what knowledge is worth freezing, and explains where freezing stops paying.
+---
+
+Ask a coding agent to scaffold a new service in a platform monorepo, and it will usually succeed. It reads the existing services, infers the conventions, and writes the files. The result can be good. But the agent pays for that reading and inference on every request. The tenth service costs about the same tokens as the first, because the agent builds the same understanding again from nothing.
+
+A generator inverts that cost. It is ordinary code that takes a few inputs and writes files. Running it costs no tokens. Building it costs reasoning, and an agent is a good tool for that reasoning. So the useful question is not "agent or generator". The agent does the expensive work once, that work is frozen into deterministic code, and later requests call the code as a tool.
+
+One regulated platform monorepo puts this rule in its README: use generators, not AI code generation, to scaffold boilerplate and repeated tasks. The reason it gives is cost. You pay tokens once to write and refine a generator. After that, you can run it as often as you like at no extra cost. The tokens for a prompt or a skill that does the same task recur on every run, and they compound across team members and iterations.
+
+## The cost of the nth scaffold
+
+Put the two options side by side. With a prompt, each scaffold costs the tokens to read the conventions, reason about them, and write the files. Call that cost P. With a generator, the first cost is the work to build it, B. Each change to the pattern adds a maintenance cost, M. Each run still needs some agent work to choose the inputs and finish what the generator does not do. Call that smaller cost c.
+
+Freezing pays when the savings over all runs are larger than the cost to build and keep the generator:
+
+```text
+n × (P − c) > B + k × M
+
+n = the number of scaffolds
+k = the number of times the pattern changes
+```
+
+The rule needs no figures to be useful. It shows which variables decide the answer. A pattern that the team uses often makes n large. A stable pattern keeps k small. When both are true, the generator wins easily. When the pattern is rare, or when it changes every month, the left side stays small and the right side grows. Then the prompt is cheaper.
+
+The rule leaves out a second benefit, and that benefit is often larger. A generator gives the same output for the same input. An agent that works from a prompt does not. Two runs of the same request can put a file in a different place, name a resource differently, or skip a step that the conventions require but the existing code does not make obvious. Each difference is small. Across many services, the differences become drift, and drift is expensive to find later. A generator removes that variance, so the nth service has the same shape as the first.
+
+## What the generator knows
+
+Consistency is only worth something if the frozen output is correct. So the value of a generator depends on how much tacit knowledge it carries. An agent can reproduce simple boilerplate without help. Knowledge that lives in people's heads is harder.
+
+In that monorepo, one command scaffolds a service. With the database and message flags set, it writes 38 files into four trees:
+
+| Tree                                  | Contents                                                                                    |
+| ------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `apps/<name>`                         | The application: source, Dockerfile, Helm chart, and the Nx project with its build targets. |
+| `infra/modules/app_<name>`            | The cloud resources that the app owns: its identities, its role assignments, its databases. |
+| `infra/environments/<env>/app_<name>` | One instance of that module for each environment. The same module with different inputs.    |
+| `.ci/release/<name>.yml`              | The promotion pipeline for the service.                                                     |
+
+It also edits three files that belong to other systems. It adds an entry to the values of a monitoring chart, and it adds the new identities to two database permission registries, one for each environment. It adds to those registries in place. It never copies them.
+
+The trees are not a filing convention. Each file goes where its lifecycle and its blast radius put it. Application code ships on every merge, and a failure affects one app. The infrastructure that the app owns appears with the app and goes away with it. The shared platform under both changes rarely, and a failure there affects every app. One question decides where a resource belongs:
+
+> If someone deleted this app tomorrow, would the resource go with it?
+
+If the answer is yes, the resource belongs in the app's own infrastructure module. If the answer is no, it belongs in a shared module, and the app module can only refer to it. The app's databases go with the app. The server that hosts them does not. The generated module writes this boundary into the code. Each shared resource appears as a data lookup, and each resource that the app owns appears as a resource block.
+
+The templates freeze smaller decisions too. The chart ships empty strings for the database name, the broker's virtual host, and the identity authority. These empty strings are places for an override. They are not missing values. The chart derives each name from the namespace that it deploys into, and the infrastructure code creates the same names from the list of registered namespaces. Both ends must use one naming formula. An agent that "helpfully" fills in those strings breaks the derivation, and nothing fails until a deploy goes to a new namespace.
+
+The database flag creates two identities, not one. The runtime identity can read and write data. A separate migrations identity holds the rights to change the schema, and only the pre-upgrade migrations job uses it. [Least Privilege Has a Clock](/blog/least-privilege-has-a-clock) explains why that split exists. Every grant for the app sits in one roles file next to its identity, so that file is the complete record of what the app can touch. [Nothing Holds a Secret](/blog/nothing-holds-a-secret) describes the identity chain behind those grants.
+
+An agent can find each of these decisions by reading the repository. It can also miss one. And it pays to look for all of them every time. In a template, each decision is made once and reviewed once.
+
+## The skill calls the tool
+
+When the generator exists, the skill or primed context changes shape. It no longer teaches the agent how to build a service. It tells the agent which tool to call, how to choose the inputs, and what to do after the tool runs. A skill for this can be short:
+
+```markdown
+## New service
+
+Do not write service files by hand. Run the generator:
+
+    npx nx g @platform/workspace-plugin:service <name> [--sql] [--bus]
+
+Set --sql if the service keeps its own relational data.
+Set --bus if the service sends or receives messages.
+
+After the generator runs, do the "Next steps" that it prints.
+Then write only the code that is specific to this service.
+```
+
+The context cost of this skill is small and fixed. It does not grow when the conventions grow, because the conventions live in the generator. The agent spends its tokens on the decisions that are different for each request: the name, the flags, and the business logic.
+
+The generator's schema is the other half of the interface. An agent reads the input descriptions to choose values, as it reads the parameters of any tool. Clear descriptions do the same work as a good function signature. A generic version looks like this:
+
+```json
+{
+  "name": {
+    "type": "string",
+    "description": "Service name. Kebab-case for the project and image, snake_case for the infra module."
+  },
+  "sql": {
+    "type": "boolean",
+    "default": false,
+    "description": "Add a database, a migrations identity, and a migrations job."
+  },
+  "bus": {
+    "type": "boolean",
+    "default": false,
+    "description": "Add message broker topology and a client certificate to the chart."
+  }
+}
+```
+
+## Where the generator stops
+
+A generator that tries to do everything becomes a second framework, and usually a worse one. This one stops at a clear line, and it says where the line is. After it writes the files, it prints the steps that it does not do: restore the packages, add the first database migration, apply the infrastructure and copy the identity's client ID into the chart values, run the reconciler that applies database permissions, register the release pipeline, and add the app to the deployment repository.
+
+Each of those steps depends on something that does not exist when the generator runs: a credential, an applied resource, or code that the developer has not written yet. They cannot be file writes that give the same result every time. They are good work for a person or an agent with the right access, and the printed list tells that person or agent what to do.
+
+The generator also refuses to run if any of its target directories already exists. It creates services. It does not update them. That boundary is important. A generator that edits existing services must handle every way that a service has changed since it was created, and that is the kind of judgment that does not freeze well.
+
+Other decisions stay with the agent because they depend on the service. Configuration keys are an example. That repository keeps them in two tiers. In the first tier, the repository owns the value absolutely, and every apply overwrites the live value. In the second tier, the apply sets a first value and then ignores changes, because a person or an external system edits the value at runtime. The tier depends on who owns the value. If a runtime value goes in the first tier, the next apply silently reverts it. If a settled value goes in the second tier, an apply never corrects a wrong first value. The generator cannot know which tier a new key needs, because the answer depends on what the service does. Written rules can guide the agent, but the agent makes the choice for each key.
+
+A simple test marks the line. If two different services would get the same answer, put the answer in the generator. If the answer depends on what the service does, leave it to the agent. Layout, naming formulas, identities, and baseline grants follow from the platform. Business logic, extra grants, and configuration tiers follow from the service.
+
+## When freezing does not pay
+
+Go back to the rule. When a pattern is still changing, k is large. Each change to the pattern is now a change to templates, generator code, and tests. While a team is still learning what a service should look like, a prompt or a skill is a cheaper place to keep the pattern, because text is cheap to rewrite. Freeze a pattern after it stops moving, not before.
+
+When a task is rare, n is small. A task that happens once a year does not repay a generator. A written checklist, or an agent that reasons from scratch, costs less.
+
+A generator is also code to maintain. It has its own defects. Its edits to files that other systems own depend on the format of those files. In that repository, the generator looks for a section header in each permission registry, and it stops with an error if it cannot find the header. A format change in a registry breaks the generator. Someone must own it.
+
+That owner can be the agent. When the platform changes, an agent updates the templates once, a person reviews the change once, and every later scaffold uses it. The reasoning cost moves from every scaffold to every change in the pattern. That is still the same trade: pay for reasoning when the knowledge changes, not every time someone uses it.
+
+The last limit is about time. A generator copies files. After it runs, the new service owns those files, and later template changes do not reach it. A generator gives consistency at creation, not for the life of the service. Code that must change in every service at once does not belong in a template. It belongs behind a version boundary, as [Why a Monorepo Still Publishes Packages](/blog/why-a-monorepo-still-publishes-packages) describes, or in shared control flow that each project plugs into, as [CI Is a Framework, Not a Library](/blog/ci-is-a-framework-not-a-library) describes.
+
+For any task that an agent repeats, the useful question is not whether the agent can do it. It usually can. The useful question is whether the reasoning behind the task changes from one run to the next. If it does not, pay for the reasoning once, review it once, and let every later run call the result.
