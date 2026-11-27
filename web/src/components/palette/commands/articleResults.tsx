@@ -1,6 +1,6 @@
 import { LuExternalLink, LuFileText, LuHash, LuLink } from 'react-icons/lu'
 
-import { postsWithTag, tagSlug } from '@/lib/discovery'
+import { postsWithTag, tagLabel, tagSlug } from '@/lib/discovery'
 import { filterByLabel, searchArticles } from '@/lib/paletteSearch'
 
 import { ArticlePanel, ArticleRow } from '../parts'
@@ -53,16 +53,17 @@ export const articleDetailLevel = (post: IndexedPost): PaletteLevel => ({
             .catch(() => actions.announce('Could not copy the link'))
         },
       },
-      ...post.tags.map(tag => ({
-        id: `tag-${tag}`,
-        title: `See posts about ${tag}`,
-        description: 'List the posts with this tag',
-        icon: LuHash,
-        onSelect: actions =>
-          actions.push(tagPostsLevel({ slug: tagSlug(tag), label: tag })),
-        onChoose: actions =>
-          actions.push(tagPostsLevel({ slug: tagSlug(tag), label: tag })),
-      })),
+      ...post.tags.map((tag): PaletteItem => {
+        const topic = { slug: tagSlug(tag), label: tagLabel(tag) }
+        return {
+          id: `tag-${tag}`,
+          title: `See posts about ${topic.label}`,
+          description: 'List the posts with this tag',
+          icon: LuHash,
+          onSelect: actions => actions.push(tagPostsLevel(topic)),
+          onChoose: actions => actions.push(tagPostsLevel(topic)),
+        }
+      }),
     ]
     return {
       sections: [

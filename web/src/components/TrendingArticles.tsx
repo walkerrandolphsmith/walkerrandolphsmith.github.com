@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+import { tagLabel } from '@/lib/discovery'
+
 import CallToAction from './CallToAction'
 import SectionHeader from './SectionHeader'
 
@@ -25,7 +27,7 @@ const ArticleCard = ({ slug, tags, title, children }) => (
               className="inline-flex items-center justify-start gap-x-3 bg-white dark:bg-[rgba(39,39,42,1)] dark:text-gray-400 border border-zinc-200 dark:border-gray-600 px-4 py-2 pr-4 rounded-sm text-[12px] font-semibold leading-[1.25]"
               key={tag}
             >
-              {tag}
+              {tagLabel(tag)}
             </span>
           ))}
         </div>

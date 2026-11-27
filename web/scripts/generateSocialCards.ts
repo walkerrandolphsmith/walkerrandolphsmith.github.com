@@ -6,6 +6,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import siteMetadata from '../src/data/sitemetadata.ts'
+import { tagLabel } from '../src/lib/discovery.ts'
 
 /**
  * Writes one Open Graph image per post to out/social/<slug>.png. Each card
@@ -183,7 +184,7 @@ const card = (post: IndexedPost, avatar: string) => {
                   color: '#ede9fe',
                 },
               },
-              tag,
+              tagLabel(tag),
             ),
           ),
         ),

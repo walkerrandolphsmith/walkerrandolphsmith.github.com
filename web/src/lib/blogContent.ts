@@ -45,7 +45,7 @@ export const toPostCard = (
 export const getPostCards = (): PostCardData[] =>
   allCoreContent(sortPosts(allBlogs)).map(toPostCard)
 
-export const getTagCatalog = () => buildTagCatalog(tagData, getPostCards())
+export const getTagCatalog = () => buildTagCatalog(tagData)
 
 export const getTag = (slug: string) =>
   getTagCatalog().find(tag => tag.slug === slug)

@@ -1,4 +1,5 @@
 import sitemetadata from '@/data/sitemetadata'
+import { tagLabel } from '@/lib/discovery'
 import {
   absoluteUrl,
   contactLinks,
@@ -229,7 +230,9 @@ export const renderLlmsFullTxt = () => {
         ...(post.dateModified !== post.datePublished
           ? [`Updated: ${post.dateModified}`]
           : []),
-        ...(post.tags.length ? [`Tags: ${post.tags.join(', ')}`] : []),
+        ...(post.tags.length
+          ? [`Tags: ${post.tags.map(tagLabel).join(', ')}`]
+          : []),
         `Summary: ${post.summary}`,
         '',
         demoteHeadings(post.markdown),
@@ -349,7 +352,9 @@ export const renderRss = () => {
       `      <description>${escapeXml(post.summary)}</description>`,
       `      <pubDate>${new Date(post.datePublished).toUTCString()}</pubDate>`,
       `      <dc:creator>${escapeXml(profile.name)}</dc:creator>`,
-      ...post.tags.map(tag => `      <category>${escapeXml(tag)}</category>`),
+      ...post.tags.map(
+        tag => `      <category>${escapeXml(tagLabel(tag))}</category>`,
+      ),
       '    </item>',
     ].join('\n'),
   )

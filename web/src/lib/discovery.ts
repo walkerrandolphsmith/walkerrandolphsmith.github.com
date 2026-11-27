@@ -18,7 +18,7 @@ export type DiscoveryPost = {
 export type TagSummary = {
   /** The URL-safe tag, as tag-data.json and the /tags/<slug>/ route use it. */
   slug: string
-  /** The tag as the posts spell it, for example "ci-cd". */
+  /** The tag as readers see it, for example "CI/CD". */
   label: string
   count: number
 }
@@ -27,6 +27,37 @@ export type TagSummary = {
 export const tagSlug = (tag: string) => slug(tag)
 
 export const tagHref = (tag: string) => `/tags/${tagSlug(tag)}/`
+
+/** The reader-facing label for each tag slug. */
+export const TAG_LABELS: Record<string, string> = {
+  'ci-cd': 'CI/CD',
+  ai: 'AI',
+  'platform-engineering': 'Platform engineering',
+  'developer-experience': 'Developer experience',
+  kubernetes: 'Kubernetes',
+  azure: 'Azure',
+  gitops: 'GitOps',
+  'supply-chain': 'Supply chain',
+  'distributed-systems': 'Distributed systems',
+  'software-design': 'Software design',
+  'engineering-leadership': 'Engineering leadership',
+  'content-platforms': 'Content platforms',
+  security: 'Security',
+  identity: 'Identity',
+  performance: 'Performance',
+}
+
+/**
+ * The tag as readers see it. Slugs are for keys and URLs only. A slug that
+ * is not in TAG_LABELS shows in sentence case; any other tag shows as written.
+ */
+export const tagLabel = (tag: string) => {
+  const key = tagSlug(tag)
+  if (TAG_LABELS[key]) return TAG_LABELS[key]
+  if (tag !== key) return tag
+  const words = key.replace(/-/g, ' ')
+  return words.charAt(0).toUpperCase() + words.slice(1)
+}
 
 const uniqueSlugs = (tags: string[] = []) =>
   Array.from(new Set(tags.map(tagSlug)))
@@ -37,35 +68,17 @@ const newestFirst = (a: DiscoveryPost, b: DiscoveryPost) =>
   time(b.date) - time(a.date)
 
 /**
- * The tag catalog. The counts and the set of tags come from tag-data.json.
- * The posts supply each tag's label: the spelling that most posts use.
- * Most-used tags come first; tags with the same count sort by label.
+ * The tag catalog. The counts and the set of tags come from tag-data.json,
+ * and each label comes from tagLabel. Most-used tags come first; tags with
+ * the same count sort by label.
  */
 export const buildTagCatalog = (
   counts: Record<string, number>,
-  posts: Pick<DiscoveryPost, 'tags'>[],
-): TagSummary[] => {
-  const spellings = new Map<string, Map<string, number>>()
-  posts.forEach(post =>
-    (post.tags ?? []).forEach(tag => {
-      const key = tagSlug(tag)
-      const forms = spellings.get(key) ?? new Map<string, number>()
-      forms.set(tag, (forms.get(tag) ?? 0) + 1)
-      spellings.set(key, forms)
-    }),
-  )
-
-  const labelFor = (key: string) => {
-    const forms = Array.from(spellings.get(key) ?? new Map<string, number>())
-    forms.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    return forms[0]?.[0] ?? key
-  }
-
-  return Object.entries(counts)
+): TagSummary[] =>
+  Object.entries(counts)
     .filter(([, count]) => count > 0)
-    .map(([key, count]) => ({ slug: key, label: labelFor(key), count }))
+    .map(([key, count]) => ({ slug: key, label: tagLabel(key), count }))
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
-}
 
 /** Posts that carry the tag, newest first. */
 export const postsWithTag = <T extends DiscoveryPost>(

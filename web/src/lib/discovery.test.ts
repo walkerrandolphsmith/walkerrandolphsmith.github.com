@@ -8,6 +8,7 @@ import {
   readingTimeLabel,
   relatedPosts,
   tagHref,
+  tagLabel,
   tagSlug,
 } from './discovery.ts'
 
@@ -30,41 +31,46 @@ describe('tagSlug', () => {
   })
 })
 
-describe('buildTagCatalog', () => {
-  const posts = [
-    { tags: ['CI/CD', 'security'] },
-    { tags: ['CI/CD', 'Security'] },
-    { tags: ['ci/cd', 'security'] },
-  ]
+describe('tagLabel', () => {
+  it('shows the mapped label for a known slug', () => {
+    assert.equal(tagLabel('ci-cd'), 'CI/CD')
+    assert.equal(tagLabel('ai'), 'AI')
+    assert.equal(tagLabel('gitops'), 'GitOps')
+    assert.equal(tagLabel('platform-engineering'), 'Platform engineering')
+  })
 
+  it('shows an unmapped slug in sentence case', () => {
+    assert.equal(tagLabel('event-driven'), 'Event driven')
+  })
+
+  it('keeps a tag that is already in display form', () => {
+    assert.equal(tagLabel('CI/CD'), 'CI/CD')
+  })
+})
+
+describe('buildTagCatalog', () => {
   it('takes the tags and counts from tag-data.json', () => {
-    const catalog = buildTagCatalog({ cicd: 3, security: 3, dns: 1 }, posts)
+    const catalog = buildTagCatalog({ 'ci-cd': 3, security: 3, dns: 1 })
     assert.deepEqual(
       catalog.map(tag => [tag.slug, tag.count]),
       [
-        ['cicd', 3],
+        ['ci-cd', 3],
         ['security', 3],
         ['dns', 1],
       ],
     )
   })
 
-  it('labels each tag with the spelling most posts use', () => {
-    const catalog = buildTagCatalog({ cicd: 3, security: 3 }, posts)
-    assert.equal(catalog.find(tag => tag.slug === 'cicd')?.label, 'CI/CD')
-    assert.equal(
-      catalog.find(tag => tag.slug === 'security')?.label,
-      'security',
-    )
-  })
-
-  it('falls back to the slug when no post has the tag', () => {
-    const catalog = buildTagCatalog({ dns: 1 }, [])
-    assert.deepEqual(catalog, [{ slug: 'dns', label: 'dns', count: 1 }])
+  it('labels each tag for readers, not with the slug', () => {
+    const catalog = buildTagCatalog({ 'ci-cd': 3, 'event-driven': 1 })
+    assert.deepEqual(catalog, [
+      { slug: 'ci-cd', label: 'CI/CD', count: 3 },
+      { slug: 'event-driven', label: 'Event driven', count: 1 },
+    ])
   })
 
   it('drops tags with no posts', () => {
-    assert.deepEqual(buildTagCatalog({ dns: 0 }, []), [])
+    assert.deepEqual(buildTagCatalog({ dns: 0 }), [])
   })
 })
 

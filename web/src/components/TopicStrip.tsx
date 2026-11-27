@@ -36,7 +36,6 @@ const TopicStrip = ({
         <li key={topic.slug}>
           <TagChip
             tag={topic.slug}
-            label={topic.label}
             count={topic.count}
             href={`/tags/${topic.slug}/`}
           />

@@ -4,7 +4,6 @@ import tagData from '@/app/tag-data.json'
 import { buildTagCatalog } from '@/lib/discovery'
 import { filterByLabel } from '@/lib/paletteSearch'
 
-import { useSearchIndex } from '../searchIndex'
 import type { PaletteCommand, PaletteLevel } from '../types'
 import { tagPostsLevel } from './articleResults'
 
@@ -18,11 +17,12 @@ const tagsLevel = (): PaletteLevel => ({
   chip: 'Tag',
   placeholder: 'Search tags...',
   useContent: query => {
-    const { posts, loading, failed } = useSearchIndex()
-    const tags = posts ? buildTagCatalog(tagData, posts) : []
-    const matches = filterByLabel(tags, query, tag => tag.label)
+    const matches = filterByLabel(
+      buildTagCatalog(tagData),
+      query,
+      tag => tag.label,
+    )
     return {
-      loading,
       sections: [
         {
           id: 'tags',
@@ -37,9 +37,7 @@ const tagsLevel = (): PaletteLevel => ({
           })),
         },
       ],
-      emptyText: failed
-        ? 'The tags did not load. Close the palette and try again.'
-        : `No tag matches "${query.trim()}".`,
+      emptyText: `No tag matches "${query.trim()}".`,
     }
   },
 })

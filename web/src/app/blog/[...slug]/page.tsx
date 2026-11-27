@@ -14,6 +14,7 @@ import MDXContent from '@/components/MDXContent'
 import Nav from '@/components/Nav'
 import siteMetadata from '@/data/sitemetadata'
 import { getRelatedPostCards } from '@/lib/blogContent'
+import { tagLabel } from '@/lib/discovery'
 import { toPostSummary } from '@/lib/siteContent'
 import {
   blogPostingNode,
@@ -51,7 +52,7 @@ export async function generateMetadata(props: {
   return {
     title: post.title,
     description,
-    keywords: post.tags,
+    keywords: post.tags?.map(tagLabel),
     authors: [{ name: siteMetadata.author, url: siteMetadata.siteUrl }],
     openGraph: {
       title: post.title,
@@ -64,7 +65,7 @@ export async function generateMetadata(props: {
       url,
       images,
       authors: [siteMetadata.author],
-      tags: post.tags,
+      tags: post.tags?.map(tagLabel),
     },
     alternates: {
       canonical: url,

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { tagLabel } from '@/lib/discovery'
 import { formatPostDate } from '@/lib/formatPostDate'
 import { highlight } from '@/lib/paletteSearch'
 
@@ -96,7 +97,8 @@ export const ArticleRow = ({
     </span>
     <span className="truncate text-sm text-zinc-600 dark:text-zinc-400">
       {formatPostDate(post.date)} · {post.readingMinutes} min read
-      {post.tags.length > 0 && ` · ${post.tags.slice(0, 3).join(', ')}`}
+      {post.tags.length > 0 &&
+        ` · ${post.tags.slice(0, 3).map(tagLabel).join(', ')}`}
     </span>
   </span>
 )
@@ -111,7 +113,7 @@ export const ArticlePanel = ({ post }: { post: IndexedPost }) => (
       <ul className="flex flex-wrap gap-2" aria-label="Tags">
         {post.tags.map(tag => (
           <li key={tag}>
-            <Badge tone="outline">{tag}</Badge>
+            <Badge tone="outline">{tagLabel(tag)}</Badge>
           </li>
         ))}
       </ul>

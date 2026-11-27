@@ -52,7 +52,7 @@ it("lists only the posts with the tag on a tag page", () => {
       post.tags.some((other) => tagSlug(other) === tagSlug(tag)),
     );
     cy.visit(`/tags/${tagSlug(tag)}/`);
-    cy.get("h1").should("contain.text", tag);
+    cy.get("h1").should("contain.text", "Posts about");
     cy.get('[data-test="tag-posts"] article').should(
       "have.length",
       tagged.length,
@@ -63,6 +63,12 @@ it("lists only the posts with the tag on a tag page", () => {
       );
     });
   });
+});
+
+it("shows the reader label, not the slug, on a tag page", () => {
+  cy.visit("/tags/ci-cd/");
+  cy.get("h1").should("have.text", "Posts about CI/CD");
+  cy.title().should("contain", "Posts about CI/CD");
 });
 
 it("links each tag in a post header to its tag page", () => {
