@@ -18,7 +18,7 @@ const tagsLevel = (): PaletteLevel => ({
   chip: 'Tag',
   placeholder: 'Search tags...',
   useContent: query => {
-    const { posts, loading } = useSearchIndex()
+    const { posts, loading, failed } = useSearchIndex()
     const tags = posts ? buildTagCatalog(tagData, posts) : []
     const matches = filterByLabel(tags, query, tag => tag.label)
     return {
@@ -37,7 +37,9 @@ const tagsLevel = (): PaletteLevel => ({
           })),
         },
       ],
-      emptyText: `No tag matches "${query.trim()}".`,
+      emptyText: failed
+        ? 'The tags did not load. Close the palette and try again.'
+        : `No tag matches "${query.trim()}".`,
     }
   },
 })

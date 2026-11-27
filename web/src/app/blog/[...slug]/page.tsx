@@ -26,6 +26,13 @@ import {
 import type { Authors, Blog } from '../../../../.contentlayer/generated'
 import { allAuthors, allBlogs } from '../../../../.contentlayer/generated'
 
+const postImages = (post: Blog) => {
+  const images = typeof post.images === 'string' ? [post.images] : post.images
+  const list: string[] = Array.isArray(images) ? images.filter(Boolean) : []
+  return list.length > 0
+    ? list.map(url => ({ url }))
+    : [socialCard(post.slug, post.title)]
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string[] }>
@@ -39,7 +46,7 @@ export async function generateMetadata(props: {
 
   const url = `${siteMetadata.siteUrl}/blog/${slug}/`
   const description = post.excerpt.replace(/\s+/g, ' ').trim()
-  const images = [socialCard(post.slug, post.title)]
+  const images = postImages(post)
 
   return {
     title: post.title,
@@ -106,7 +113,7 @@ export default async function Page(props: {
           personNode(),
           blogPostingNode({
             ...toPostSummary(post),
-            image: socialCard(post.slug, post.title).url,
+            image: postImages(post)[0].url,
           }),
           breadcrumbNode([
             { name: 'Writing', route: '/blog/' },
