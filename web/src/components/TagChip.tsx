@@ -18,6 +18,7 @@ const TagChip = ({
   href?: string
 }) => (
   <Link
+    prefetch={false}
     href={href ?? tagHref(tag)}
     className={tagChipClassName}
     data-test="tag-link"

@@ -62,6 +62,7 @@ export default function TagsPage() {
             {tags.map(tag => (
               <li key={tag.slug}>
                 <Link
+                  prefetch={false}
                   href={`/tags/${tag.slug}/`}
                   data-test="tag-catalog-link"
                   className="flex min-h-14 items-center justify-between gap-4 rounded-[8px] border border-zinc-200 bg-[#f6f9fc] px-4 py-3 transition-colors hover:border-zinc-400 dark:border-white/10 dark:bg-[rgba(39,39,42,0.9)] dark:hover:border-white/30"

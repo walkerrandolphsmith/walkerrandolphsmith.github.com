@@ -23,6 +23,7 @@ const TopicStrip = ({
         Topics
       </h2>
       <Link
+        prefetch={false}
         href="/tags/"
         className="text-sm font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-950 dark:text-gray-300 dark:hover:text-white"
         data-test="all-topics"
