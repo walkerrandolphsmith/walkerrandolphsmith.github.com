@@ -5,7 +5,6 @@ import {
   buildTagCatalog,
   postsWithTag,
   readingMinutes,
-  readingTimeLabel,
   relatedPosts,
   tagHref,
   tagLabel,
@@ -147,6 +146,5 @@ describe('reading time', () => {
     assert.equal(readingMinutes({ minutes: 6.4 }), 6)
     assert.equal(readingMinutes({ minutes: 0.2 }), 1)
     assert.equal(readingMinutes(undefined), 1)
-    assert.equal(readingTimeLabel({ minutes: 9.6 }), '10 min read')
   })
 })

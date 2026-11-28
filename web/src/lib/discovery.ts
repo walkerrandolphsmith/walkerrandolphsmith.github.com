@@ -119,6 +119,3 @@ export const relatedPosts = <T extends DiscoveryPost>(
 /** Whole minutes to read a post, at least one. */
 export const readingMinutes = (readingTime?: { minutes?: number } | null) =>
   Math.max(1, Math.round(readingTime?.minutes ?? 0))
-
-export const readingTimeLabel = (readingTime?: { minutes?: number } | null) =>
-  `${readingMinutes(readingTime)} min read`

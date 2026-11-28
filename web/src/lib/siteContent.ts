@@ -62,7 +62,7 @@ export const contactLinks = [
   { label: 'LinkedIn', url: sitemetadata.linkedin },
   { label: 'GitHub', url: sitemetadata.github },
   { label: 'Resume', url: absoluteUrl('/resume/') },
-  { label: 'Resume (PDF)', url: absoluteUrl('/Walker_Smith_Resume.pdf') },
+  { label: 'Resume (PDF)', url: absoluteUrl(sitemetadata.resumePdf) },
   { label: 'Website', url: absoluteUrl('/') },
 ]
 
@@ -99,7 +99,7 @@ export const getSocialInfo = () => {
         description: 'Open source code and contributions',
       },
     ],
-    resumePdf: '/Walker_Smith_Resume.pdf',
+    resumePdf: sitemetadata.resumePdf,
     resumePage: '/resume/',
     qrPage: '/qr/',
   }

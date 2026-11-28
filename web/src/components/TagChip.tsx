@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import { tagHref, tagLabel } from '@/lib/discovery'
 
-export const tagChipClassName =
+const tagChipClassName =
   'inline-flex min-h-8 items-center gap-x-2 rounded-sm border border-zinc-200 bg-white px-3 py-1.5 text-[12px] font-semibold leading-[1.25] text-zinc-700 transition-colors hover:border-zinc-400 hover:text-zinc-950 dark:border-gray-600 dark:bg-[rgba(39,39,42,1)] dark:text-gray-300 dark:hover:border-gray-400 dark:hover:text-white'
 
 /** A tag that links to the tag's page. A count shows when one is given. */

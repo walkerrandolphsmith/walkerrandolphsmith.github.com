@@ -1,8 +1,11 @@
 import { LuDownload } from 'react-icons/lu'
 
+import sitemetadata from '@/data/sitemetadata'
+
+import { downloadFile } from '../download'
 import type { PaletteCommand } from '../types'
 
-export const RESUME_PDF = '/Walker_Smith_Resume.pdf'
+const RESUME_PDF = sitemetadata.resumePdf
 
 /** Download resume: one action, no results. It saves the resume PDF. */
 const resumeCommand: PaletteCommand = {
@@ -11,16 +14,7 @@ const resumeCommand: PaletteCommand = {
   description: 'Save the resume as a PDF file',
   icon: LuDownload,
   keywords: ['cv', 'pdf', 'resume', 'download', 'save'],
-  run: actions => {
-    const link = document.createElement('a')
-    link.href = RESUME_PDF
-    link.download = RESUME_PDF.slice(1)
-    link.dataset.test = 'palette-resume-download'
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    actions.close()
-  },
+  run: actions => downloadFile(RESUME_PDF, actions),
 }
 
 export default resumeCommand

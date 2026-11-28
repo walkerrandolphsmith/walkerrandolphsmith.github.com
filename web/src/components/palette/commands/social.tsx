@@ -11,6 +11,7 @@ import {
 
 import { filterByLabel } from '@/lib/paletteSearch'
 
+import { downloadFile } from '../download'
 import { Badge, DetailGrid } from '../parts'
 import type {
   PaletteActions,
@@ -30,16 +31,6 @@ import type {
 const profileIcons: Record<string, IconType> = {
   linkedin: FaLinkedin,
   github: FaGithub,
-}
-
-const download = (href: string, actions: PaletteActions) => {
-  const link = document.createElement('a')
-  link.href = href
-  link.download = href.split('/').pop() ?? ''
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-  actions.close()
 }
 
 const SocialPanel = ({ info }: { info: SocialInfo }) => {
@@ -191,7 +182,7 @@ const socialLevel = (info: SocialInfo): PaletteLevel => ({
         title: 'Download resume',
         description: 'Save the resume as a PDF file',
         icon: LuDownload,
-        onSelect: actions => download(info.resumePdf, actions),
+        onSelect: actions => downloadFile(info.resumePdf, actions),
       },
       {
         id: 'resume-page',
