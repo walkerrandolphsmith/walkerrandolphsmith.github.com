@@ -34,8 +34,12 @@ describe('tagSlug', () => {
 describe('tagLabel', () => {
   it('shows the mapped label for a known slug', () => {
     assert.equal(tagLabel('ci-cd'), 'CI/CD')
-    assert.equal(tagLabel('ai'), 'AI')
-    assert.equal(tagLabel('gitops'), 'GitOps')
+    assert.equal(tagLabel('ai-engineering'), 'AI engineering')
+    assert.equal(tagLabel('security-compliance'), 'Security and compliance')
+    assert.equal(
+      tagLabel('performance-reliability'),
+      'Performance and reliability',
+    )
     assert.equal(tagLabel('platform-engineering'), 'Platform engineering')
   })
 

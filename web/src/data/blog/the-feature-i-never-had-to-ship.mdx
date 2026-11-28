@@ -1,7 +1,7 @@
 ---
 title: 'The Feature I Never Had to Ship: Open-Closed by Composition'
 date: 2026-11-03
-tags: ['software-design', 'platform-engineering', 'developer-experience']
+tags: ['system-design', 'developer-experience', 'platform-engineering']
 draft: false
 excerpt: |
   A retry library got a request it was never designed for: poll forever. The library had no infinite option, and it did not need one. Stopping was already a predicate that the caller passed in, so a one-line predicate met the need with no change to the retry loop. This post is about that design choice, what it costs, and why shared platform tools need the same shape.

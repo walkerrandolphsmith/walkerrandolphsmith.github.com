@@ -148,3 +148,33 @@ it("gives each post its own social card", () => {
       .should("contain", "image/png");
   });
 });
+
+// The nine agreed brand areas. The generated search index, which feeds the
+// palette and the social cards, must use no other tag.
+const brandTags = [
+  "platform-engineering",
+  "developer-experience",
+  "ci-cd",
+  "security-compliance",
+  "distributed-systems",
+  "system-design",
+  "performance-reliability",
+  "ai-engineering",
+  "engineering-leadership",
+];
+
+it("uses only the brand tags in the generated search index", () => {
+  postIndex().then((posts) => {
+    posts.forEach((post) => {
+      expect(post.tags, post.slug).to.have.length.within(2, 3);
+      post.tags.forEach((tag) =>
+        expect(brandTags, `${post.slug} tag ${tag}`).to.include(tag),
+      );
+    });
+  });
+  cy.visit("/tags/");
+  cy.get('[data-test="tag-catalog-link"]').should(
+    "have.length.at.most",
+    brandTags.length,
+  );
+});

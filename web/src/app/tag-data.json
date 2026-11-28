@@ -1,17 +1,11 @@
 {
   "ci-cd": 10,
-  "platform-engineering": 17,
+  "platform-engineering": 23,
   "developer-experience": 7,
-  "ai": 2,
-  "content-platforms": 4,
+  "ai-engineering": 2,
+  "system-design": 8,
   "distributed-systems": 6,
-  "software-design": 5,
-  "security": 13,
-  "azure": 9,
-  "gitops": 4,
-  "supply-chain": 2,
-  "kubernetes": 7,
-  "performance": 3,
-  "identity": 5,
+  "security-compliance": 13,
+  "performance-reliability": 6,
   "engineering-leadership": 3
 }

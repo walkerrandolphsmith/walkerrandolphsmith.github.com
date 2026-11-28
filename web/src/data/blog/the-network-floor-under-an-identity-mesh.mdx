@@ -1,7 +1,7 @@
 ---
 title: 'The Network Floor Under an Identity Mesh'
 date: 2026-04-29
-tags: ['security', 'azure', 'kubernetes', 'platform-engineering']
+tags: ['security-compliance', 'platform-engineering']
 draft: false
 excerpt: |
   A private virtual network is open east-west by default, and "it is inside the VNet" does not mean isolated. Even with an identity-aware service mesh, the coarse L3/L4 network still has a job: it is the floor that holds when the assumptions of the richer layer break. This post covers why, what closing the default costs, and the stateful-routing mistakes that silently drop traffic.

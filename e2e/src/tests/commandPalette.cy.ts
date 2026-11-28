@@ -75,9 +75,12 @@ it("searches by tag, then lists the posts with the chosen tag", () => {
   input().type("#");
   cy.get('[data-test="palette-chip"]').should("contain.text", "Tag");
   input().type("secur");
-  options().first().should("contain.text", "Security").click();
-  cy.get('[data-test="palette-chip"]').should("contain.text", "Tag › Security");
-  cy.contains('[role="group"]', "Posts about Security")
+  options().first().should("contain.text", "Security and compliance").click();
+  cy.get('[data-test="palette-chip"]').should(
+    "contain.text",
+    "Tag › Security and compliance",
+  );
+  cy.contains('[role="group"]', "Posts about Security and compliance")
     .find('[role="option"]')
     .should("have.length.greaterThan", 0);
   input().type("{backspace}");

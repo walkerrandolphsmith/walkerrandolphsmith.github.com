@@ -28,23 +28,20 @@ export const tagSlug = (tag: string) => slug(tag)
 
 export const tagHref = (tag: string) => `/tags/${tagSlug(tag)}/`
 
-/** The reader-facing label for each tag slug. */
+/**
+ * The reader-facing label for each tag slug. These nine brand areas are the
+ * only tags a post may use.
+ */
 export const TAG_LABELS: Record<string, string> = {
-  'ci-cd': 'CI/CD',
-  ai: 'AI',
   'platform-engineering': 'Platform engineering',
   'developer-experience': 'Developer experience',
-  kubernetes: 'Kubernetes',
-  azure: 'Azure',
-  gitops: 'GitOps',
-  'supply-chain': 'Supply chain',
+  'ci-cd': 'CI/CD',
+  'security-compliance': 'Security and compliance',
   'distributed-systems': 'Distributed systems',
-  'software-design': 'Software design',
+  'system-design': 'System design',
+  'performance-reliability': 'Performance and reliability',
+  'ai-engineering': 'AI engineering',
   'engineering-leadership': 'Engineering leadership',
-  'content-platforms': 'Content platforms',
-  security: 'Security',
-  identity: 'Identity',
-  performance: 'Performance',
 }
 
 /**
@@ -72,9 +69,7 @@ const newestFirst = (a: DiscoveryPost, b: DiscoveryPost) =>
  * and each label comes from tagLabel. Most-used tags come first; tags with
  * the same count sort by label.
  */
-export const buildTagCatalog = (
-  counts: Record<string, number>,
-): TagSummary[] =>
+export const buildTagCatalog = (counts: Record<string, number>): TagSummary[] =>
   Object.entries(counts)
     .filter(([, count]) => count > 0)
     .map(([key, count]) => ({ slug: key, label: tagLabel(key), count }))

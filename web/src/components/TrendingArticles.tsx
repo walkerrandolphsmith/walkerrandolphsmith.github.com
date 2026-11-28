@@ -70,7 +70,7 @@ const TrendingArticles = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 mb-12">
         <ArticleCard
           slug="blog/one-registry-for-production"
-          tags={['supply-chain', 'ci-cd', 'security', 'azure']}
+          tags={['ci-cd', 'security-compliance', 'platform-engineering']}
           title="One Registry for Production: Promoting Images Across a Trust Boundary"
         >
           Production pulls images from one private registry and from nowhere
@@ -80,7 +80,7 @@ const TrendingArticles = () => (
         </ArticleCard>
         <ArticleCard
           slug="blog/nothing-holds-a-secret"
-          tags={['security', 'identity', 'azure', 'kubernetes']}
+          tags={['security-compliance', 'platform-engineering']}
           title="Nothing Holds a Secret: Identity Instead of Keys"
         >
           A connection string gives its access to anyone who holds it. Workload
