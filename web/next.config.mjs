@@ -20,7 +20,6 @@ const withSerwist = withSerwistInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: { ignoreDuringBuilds: true },
   /**
    * @link https://nextjs.org/docs/pages/building-your-application/deploying/static-exports
    */

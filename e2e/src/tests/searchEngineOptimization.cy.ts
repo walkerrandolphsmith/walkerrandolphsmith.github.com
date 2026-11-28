@@ -2,7 +2,7 @@ it("should serve a favicon", () => {
   cy.visit("/");
   cy.document().then((doc) => {
     const faviconElement = doc.querySelector(
-      "link[rel='icon'][href='/favicon.ico']"
+      "link[rel='icon'][href^='/favicon.ico']"
     );
 
     expect(faviconElement).to.exist;

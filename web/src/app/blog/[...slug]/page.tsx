@@ -4,7 +4,7 @@ import {
   allCoreContent,
   coreContent,
   sortPosts,
-} from 'pliny/utils/contentlayer'
+} from 'pliny/utils/contentlayer.js'
 
 import { socialCard } from '@/app/seo'
 import Article from '@/components/Article'
