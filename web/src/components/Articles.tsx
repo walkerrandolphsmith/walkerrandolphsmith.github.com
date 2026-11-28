@@ -80,7 +80,7 @@ export default function Articles({
 }: {
   pagination: PaginationProps
   initialDisplayPosts: PostCardData[]
-  topics?: { top: TagSummary[]; total: number }
+  topics?: TagSummary[]
 }) {
   return (
     <>
@@ -98,7 +98,7 @@ export default function Articles({
           </h1>
           {topics && (
             <div className="px-12 pb-12">
-              <TopicStrip topics={topics.top} totalTopics={topics.total} />
+              <TopicStrip topics={topics} />
             </div>
           )}
           <div className="flex flex-col gap-8 md:flex-row">

@@ -134,7 +134,7 @@ export const pages = [
     title: 'Topics',
     url: absoluteUrl('/tags/'),
     description:
-      'Every topic of the writing, with the number of posts for each topic.',
+      'Topics of the writing: platforms, developer experience, delivery, security, and the systems underneath.',
   },
 ]
 

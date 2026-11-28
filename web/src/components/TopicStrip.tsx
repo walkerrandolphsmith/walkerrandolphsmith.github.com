@@ -7,13 +7,7 @@ import type { TagSummary } from '@/lib/discovery'
  * The most-used topics at the top of the blog index, so that a reader sees
  * what the writing covers before the first post.
  */
-const TopicStrip = ({
-  topics,
-  totalTopics,
-}: {
-  topics: TagSummary[]
-  totalTopics: number
-}) => (
+const TopicStrip = ({ topics }: { topics: TagSummary[] }) => (
   <nav aria-labelledby="topic-strip-heading" className="grid gap-y-4">
     <div className="flex flex-wrap items-baseline justify-between gap-4">
       <h2
@@ -28,7 +22,7 @@ const TopicStrip = ({
         className="text-sm font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-950 dark:text-gray-300 dark:hover:text-white"
         data-test="all-topics"
       >
-        See all {totalTopics} topics
+        See all topics
       </Link>
     </div>
     <ul className="flex flex-wrap gap-2">

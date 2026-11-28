@@ -43,7 +43,7 @@ export default function BlogPage() {
       <Articles
         pagination={pagination}
         initialDisplayPosts={initialDisplayPosts}
-        topics={{ top: tags.slice(0, 10), total: tags.length }}
+        topics={tags.slice(0, 10)}
       />
     </>
   )

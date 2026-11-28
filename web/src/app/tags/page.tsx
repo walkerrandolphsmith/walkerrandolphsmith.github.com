@@ -14,7 +14,7 @@ import {
 } from '@/lib/structuredData'
 
 const description =
-  'All topics that Walker Smith writes about, with the number of posts for each topic.'
+  'Walker Smith writes about building platforms that make teams fast and safe: developer experience, delivery, security, and the systems underneath.'
 
 export const metadata = genPageMetadata({
   title: 'Topics',
@@ -51,8 +51,9 @@ export default function TagsPage() {
               Topics
             </h1>
             <p className="max-w-2xl text-lg text-gray-600 dark:text-gray-300">
-              I write about {tags.length} topics. The topics with the most posts
-              are first. Select a topic to see its posts.
+              Writing on building platforms that make teams fast and safe:
+              developer experience, delivery, security, and the systems
+              underneath.
             </p>
           </header>
           <ul

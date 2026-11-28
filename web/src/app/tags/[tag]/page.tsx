@@ -21,8 +21,7 @@ export const dynamicParams = false
 export const generateStaticParams = async () =>
   getTagCatalog().map(tag => ({ tag: tag.slug }))
 
-const describe = (label: string, count: number) =>
-  `${count} ${count === 1 ? 'post' : 'posts'} by Walker Smith about ${label}.`
+const describe = (label: string) => `Posts by Walker Smith about ${label}.`
 
 export async function generateMetadata(props: {
   params: Promise<{ tag: string }>
@@ -33,7 +32,7 @@ export async function generateMetadata(props: {
   return genPageMetadata({
     title: `Posts about ${tag.label}`,
     route: `tags/${tag.slug}`,
-    description: describe(tag.label, tag.count),
+    description: describe(tag.label),
   })
 }
 
@@ -56,7 +55,7 @@ export default async function TagPage(props: {
           collectionPageNode(
             route,
             `Posts about ${tag.label}`,
-            describe(tag.label, tag.count),
+            describe(tag.label),
           ),
           breadcrumbNode([
             { name: 'Topics', route: '/tags/' },
@@ -88,7 +87,7 @@ export default async function TagPage(props: {
               Posts about {tag.label}
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300">
-              {describe(tag.label, posts.length)}
+              {describe(tag.label)}
             </p>
           </header>
           <ul
