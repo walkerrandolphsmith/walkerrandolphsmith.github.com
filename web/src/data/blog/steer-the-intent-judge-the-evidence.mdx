@@ -1,0 +1,60 @@
+---
+title: 'Steer the Intent, Judge the Evidence'
+date: 2026-11-27
+tags: ['developer-experience', 'ai-engineering']
+draft: false
+excerpt: |
+  When agents write most of the code, the engineer's job moves from describing how to build a thing to steering what it should be and judging whether the result is right. This post describes how I rebuilt this site that way, with a supervisor agent, a validation pipeline that collects evidence, a visual review loop, and a repository whose structure keeps agent output consistent.
+---
+
+For most of my career, my job on a feature was to work out how to build it and then build it, or describe it precisely enough that someone else could. When I rebuilt this site with coding agents, that job changed. I wrote less about how. I spent my time on two other things: saying what I wanted in my own words, and deciding whether what came back was right.
+
+That change needs tools. An agent that writes code is easy to get. What is harder to get is a way to keep many agents pointed at what you meant, and a way to see enough evidence to trust or reject their work without reading every line. This post describes the setup I used, the parts of it that caught real problems, and the parts that still need a person.
+
+## A supervisor that holds my words
+
+I talk to one agent, [firstmate](https://github.com/kunchenguid/firstmate). It does not write the code. It turns what I ask for into a task, starts a worker agent in its own isolated git worktree, and watches the workers while they run. Each worker gets a brief, and the brief keeps my request word for word in a section of its own, separate from the extra guidance that the supervisor adds.
+
+That separation is the important part. My words are the acceptance criteria. The supervisor can add context, such as which files to read or which editorial rules apply, but it cannot rewrite what I asked for into something more convenient. When a worker finishes, the question is whether the result does what my words said, not whether it matches the supervisor's summary of them.
+
+The isolation matters too. Each worker has its own branch and its own copy of the repository, so several posts and features can move at once without one worker's half-finished change breaking another's build. A worker cannot merge, and it cannot push to the default branch. It reports status to the supervisor in short lines, and it stops and asks when a decision belongs to me.
+
+## A pipeline that collects evidence
+
+The worker does not decide when its own work is done. A validation pipeline, [no-mistakes](https://github.com/kunchenguid/no-mistakes), takes the committed branch and runs it through review, tests, documentation, lint, push, pull request, and CI. I think of it less as a gate and more as an evidence collector. Its output is a record of what was checked, what was found, and what was fixed.
+
+Every review finding has an action. Some are mechanical, and the worker can approve the fix. Others are marked as questions for the user, because they challenge what I asked for or change how the product behaves. The worker is not allowed to answer those. It escalates them to the supervisor, word for word, and the supervisor brings them to me.
+
+The post you can read next to this one shows why. I asked for a post about a GitHub App design written "as if there were separate keys for CI and Flux." The draft went further and described two separate Apps. The reviewer flagged that as scope that my words did not cover, and it also explained the technical reason the draft did it: keys of one App share that App's permissions. The pipeline did not pick an answer. It asked, and I decided to keep two Apps.
+
+The same review caught a real flaw in that post. The draft said that a successful Flux reconcile after a key rotation proved that Flux used the new key. The reviewer pointed out that Flux may cache an installation token until it nears expiry, so a reconcile could succeed with a token minted from the old key. A reader who followed the draft could revoke the old key and lose access an hour later. After that fix, a second review round found that the new steps still did not confirm that the cluster secret had synced. Neither of those is a typo. They are the kind of mistake that an expert reader catches and a confident writer does not.
+
+The evidence also includes what the pipeline could not do. On one run, the pipeline's worktree had no Node installed, so it could not regenerate the search index after a fix made a post longer. It did not edit the generated file by hand. It reported the stale reading time as a finding, and the worker regenerated the file with the real build.
+
+On the pull request, the evidence is something I can read in a few minutes. For the feature that added topic pages and a command palette to this site, the pull request listed each scenario that the pipeline drove against the built site, with a result and a screenshot for each one. That included failure cases, such as the tag command when the search index fails to load. I reviewed that table and the screenshots, not a diff of every component.
+
+Evidence works for problems outside the code too. A production build failed on the hosting platform while the font loader downloaded a font at build time. The deployment log showed the crash inside the loader. The fix was to self-host the font, and the next deploy then failed for a different reason: the platform refused a framework version with a known vulnerability. Each failure was diagnosed from the log and fixed in its own commit, with the log line quoted in the commit message.
+
+## A visual loop for ideas
+
+Some feedback is hard to type. For front-end work, I review the page itself in [Lavish](https://github.com/kunchenguid/lavish-axi), an editor that turns an HTML artifact into a review surface. I select an element or a passage, attach a note to it, and send the notes back to the agent as a batch. "Make this smaller" is ambiguous in a chat window. A note attached to one heading is not.
+
+The same loop works for plans. Before a system design becomes code, the agent can write it up as an interactive page, with diagrams and the options it considered. I annotate the parts I disagree with, the agent revises, and the plan settles before anyone writes an implementation. The loop is fast because the feedback is attached to exactly what it is about.
+
+## A repository that keeps agents consistent
+
+The last part is not a tool. It is the repository. Agents copy what they see, so a repository with clear patterns gets output that follows those patterns, and a repository with five ways to do one thing gets a sixth.
+
+This site has a few structures that do that work. Derived files, such as the tag counts, the search index, and the social cards, come from generators at build time, so an agent does not hand-write them. An agent guide in the repository states the editorial rules every post must follow. And some rules are tests. When I cut the blog tags down to nine brand areas, I added a unit test that fails when a post uses a tag outside that set. The next agent that tries to invent a tenth tag finds out in the test step, not in my review.
+
+[Pay for the Reasoning Once](/blog/pay-for-the-reasoning-once) makes the same argument for service templates. When an agent makes the same decision many times, freeze that decision into a generator and let the agent spend its reasoning on what is actually new. Patterns are a light guardrail. They do not stop a determined mistake, but they make the right path the easy one.
+
+## Steering is short
+
+The tag change shows what steering looks like. The site had 36 tags, many of them on a single post and several that meant the same thing. I did not write a taxonomy. I looked at the result and wrote a few short messages: consolidate the tags and remove duplicates, then keep no more than twelve areas for my brand, and name the kinds of areas I meant. The first pass merged them into fifteen topics. That still split the writing too finely, so the next pass cut them to nine. Each message was a sentence or two. The work in between, including updating every post, regenerating the derived files, and adding the test, was the agents' work, and the pipeline checked it.
+
+## Where it still needs me
+
+This setup does not run itself. Workers stall, and the supervisor has to notice and restart them. Usage limits pause work in the middle of a task. A pipeline round can take many minutes, and a long run with several fix rounds takes longer than writing a small change by hand would.
+
+More important, every decision that matters is still mine. The pipeline marks scope and product questions for me, and a worker that answers one on its own breaks the rules it runs under. No worker merges a pull request. I read the evidence, I make the scope calls, and I press merge. The agents make it possible to ship more than I could alone. They do not make the judgment for me, and the setup is built so that they cannot.
