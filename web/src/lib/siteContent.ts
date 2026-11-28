@@ -1,4 +1,4 @@
-import { sortPosts } from 'pliny/utils/contentlayer'
+import { sortPosts } from 'pliny/utils/contentlayer.js'
 
 import { platformResults } from '@/data/platformWork'
 import {

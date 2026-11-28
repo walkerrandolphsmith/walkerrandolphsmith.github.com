@@ -1,4 +1,4 @@
-import { CoreContent } from 'pliny/utils/contentlayer'
+import { CoreContent } from 'pliny/utils/contentlayer.js'
 import { ReactNode } from 'react'
 
 import PostMeta from '@/components/PostMeta'
