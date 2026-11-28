@@ -1,0 +1,163 @@
+---
+title: 'The Key Signs, the Token Works: A GitHub App as the GitOps Machine Identity'
+date: 2026-11-27
+tags: ['security-compliance', 'platform-engineering', 'ci-cd']
+draft: false
+excerpt: |
+  A GitOps loop has two machines that talk to GitHub: the pipeline that opens and merges promotion pull requests, and Flux, which reads the repository that decides what the cluster runs. This post explains how I gave each of them its own GitHub App, why the private keys sign assertions instead of acting as credentials, and how to rotate the Flux key with overlapping windows so that reconciliation never stops.
+---
+
+When I set up GitOps for a platform from scratch, two automations needed access to GitHub. Flux reads the GitOps repository on every reconcile, so every deploy in the cluster depends on its credential. The release pipeline writes to the same repository: it opens a pull request to promote an image, merges it when the checks pass, and posts a comment with the link to the ephemeral environment for that change.
+
+Inside Azure, the platform already had a rule that no workload holds a stored secret. [Nothing Holds a Secret](/blog/nothing-holds-a-secret) describes that rule. GitHub is outside that boundary. An Entra identity means nothing to github.com, so some other identity had to represent these machines there.
+
+The usual answer is a personal access token, sometimes on a bot account. That works, and nothing in Flux or the pipeline requires more. I chose GitHub Apps instead. Maybe that is table stakes for a GitOps workflow. It was not required to get the loop working, but it gave benefits that I want to explain, together with what it did not fix.
+
+## A user pretending to be a machine
+
+A bot account with a fine-grained token is simple, and simple has value. The problems are around the token, not in its scope. The token is a static bearer secret. Anyone who holds it has its access until it expires, and the expiry can be up to a year away. The bot uses a seat in the organization. It also needs an email address, a password, and a second factor that someone stores somewhere, which is a second secret problem outside GitHub. If someone suspends the account, or the token expires on a weekend, Flux and the pipeline lose access at the same moment.
+
+A GitHub App is an identity that GitHub built for machines. It has no seat, no password, and no login that a person can share. The audit log shows its actions under the name of the App, not under a user that pretends to be one. You install it on specific repositories and grant it specific permissions, and you can change those permissions later without issuing a new credential.
+
+## The key never travels
+
+The App authenticates with a private key, but the key is never sent to GitHub. It signs a short assertion, GitHub exchanges the assertion for a token, and the token does the work.
+
+The assertion is a JWT signed with RS256. Its issuer is the App ID, and GitHub refuses any assertion that claims to be valid for more than ten minutes. The client sends the JWT to the installation endpoint, and GitHub returns an installation access token that expires after one hour. That token carries only the permissions of the App, and only for the repositories where the App is installed.
+
+The core of the exchange fits in a few lines of shell:
+
+```bash
+NOW=$(date +%s)
+IAT=$((NOW - 60))   # backdate for clock drift
+EXP=$((IAT + 540))  # stays under the ten-minute cap
+
+b64url() { openssl enc -base64 -A | tr '+/' '-_' | tr -d '='; }
+
+HEADER=$(printf '{"alg":"RS256","typ":"JWT"}' | b64url)
+PAYLOAD=$(printf '{"iss":"%s","iat":%d,"exp":%d}' "$APP_ID" "$IAT" "$EXP" | b64url)
+SIGNATURE=$(printf '%s.%s' "$HEADER" "$PAYLOAD" \
+  | openssl dgst -sha256 -sign "$PEM_FILE" -binary | b64url)
+
+curl -s -X POST \
+  -H "Authorization: Bearer ${HEADER}.${PAYLOAD}.${SIGNATURE}" \
+  -H "Accept: application/vnd.github+json" \
+  "https://api.github.com/app/installations/${INSTALLATION_ID}/access_tokens"
+```
+
+The expiry calculation has a detail that cost me time. If you set the expiry to exactly ten minutes from your own clock, and your machine runs a few seconds fast, GitHub rejects the JWT with a message that the expiration is too far in the future. Nothing in the message says that clock drift is the cause. Measure the window from the backdated issue time and keep it under the cap.
+
+This changes what a leak means. A token that leaks into a build log expires within the hour and can only do what the App can do on the installed repositories. You should still treat it as an incident, but the clock contains it. The private key is the root of trust, and it stays in Key Vault. It appears in no request header, so it cannot leak through one.
+
+## One App for the reader, one for the writer
+
+One App could serve both consumers, but then the cluster would hold the same write access as the pipeline. All keys of one App share the permissions of that App, so separate keys alone could not keep write access out of the cluster. That is why I gave each consumer its own App, each with its own private key in Key Vault.
+
+The Flux App is read-only. It has Contents read and Metadata read, and nothing else. Flux only clones the repository, so that is all it needs.
+
+The CI App is the writer. It has Contents write, so that it can push a promotion branch and merge, and Pull requests write, so that it can open the pull request and comment on it. Comments on the pull request conversation go through the issues comment API, and GitHub accepts Pull requests write for that endpoint, so the App does not need the Issues permission.
+
+The reason for the split is the direction of trust. The GitOps repository decides what the cluster runs. If the cluster can write to that repository, then an attacker who gets the Flux secret out of the cluster can change what the cluster runs, and Flux will deploy the change for them. With a read-only App in the cluster, a compromised cluster can read the desired state but cannot change it. The writer key lives only where the pipeline reads it, and it never enters the cluster.
+
+Two Apps also give two audit identities. When a commit or a merge appears in the log, the name of the App tells you which side did it. And each key can rotate on its own schedule without any effect on the other consumer.
+
+## Flux does the exchange itself
+
+Flux 2.5 and later support GitHub App authentication natively. You give Flux a secret with the App ID, the installation ID, and the private key, set the provider to `github`, and Flux runs the JWT exchange internally. There is no sidecar and no job that refreshes a token on a schedule.
+
+External Secrets syncs the private key from Key Vault into the `flux-system` namespace and builds the secret in the shape that Flux expects:
+
+```yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: flux-github-app
+  namespace: flux-system
+spec:
+  refreshInterval: 15m
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: platform-vault
+  target:
+    name: flux-github-app
+    template:
+      data:
+        githubAppID: '<flux-app-id>'
+        githubAppInstallationID: '<flux-installation-id>'
+        githubAppPrivateKey: '{{ .privateKey }}'
+  data:
+    - secretKey: privateKey
+      remoteRef:
+        key: github-app-flux-private-key
+```
+
+The Flux source then points at it:
+
+```yaml
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gitops
+  namespace: flux-system
+spec:
+  url: https://github.com/<org>/<gitops-repo>
+  provider: github
+  secretRef:
+    name: flux-github-app
+```
+
+With the Flux Operator, the same secret goes into the `sync.pullSecret` field of the FluxInstance. Before the App, Flux used SSH deploy keys. Adopting the App removed the deploy keys, their public keys, and their `known_hosts` entries for two repositories, along with the resources that synced them. Fewer secrets at rest is a result that I can measure.
+
+## CI mints a token per job
+
+The pipeline does the exchange as a step. The pipeline identity reads the CI private key from Key Vault, signs the JWT, and gets an installation token at the start of each job that needs GitHub. The token dies with the job, or within the hour if the job runs longer. [One CI Identity for Two Control Planes](/blog/one-ci-identity-for-two-control-planes) describes that pipeline identity. One consequence is worth saying directly: the right to read the CI key from the vault is the right to write to the GitOps repository, so that vault permission is more powerful than it looks.
+
+The installation endpoint accepts a request body that narrows the token further. A job that only posts a comment can ask for a token with Pull requests write on one repository. A promotion job asks for Contents write and Pull requests write. The App sets the ceiling, and each job takes only what it needs.
+
+With the token, a promotion job pushes a branch that changes the image digest, opens the pull request, and enables merge when the required checks pass. The job that creates an ephemeral environment uses its own token to post the environment URL as a comment on the pull request, so a reviewer can open the running change from the conversation. All of this appears in GitHub under the name of the CI App.
+
+The token is a secret while it lives, so the pipeline must keep it out of logs. In Azure DevOps, set it as a secret variable with `##vso[task.setvariable variable=GH_TOKEN;issecret=true]` before any step uses it, so that the agent masks it in output. Do not echo the response of the exchange, because the token is in the response body.
+
+A stronger variant removes the PEM from CI completely. Store the CI key as a non-exportable RSA key in Key Vault, not as a secret. The pipeline builds the JWT header and payload, hashes them with SHA-256, and asks Key Vault to sign the digest with RS256. The private key never leaves the vault, so there is nothing for a pipeline step to leak. Flux cannot use this variant, because it needs the PEM in its secret, but CI can.
+
+## Rotating the Flux key with zero downtime
+
+GitHub Apps can have more than one active private key at the same time. Any active key can sign a valid JWT for the App. GitHub keys have no built-in expiry. A key stays valid until someone deletes it in the App settings, and deleting it is what revokes it. So the expiry policy is mine to enforce, and the platform has to do the work.
+
+I set it up as a sequence of overlapping keys for the Flux App. Each key has a fixed lifetime. The next key starts well before the current one ends, so there is always a window where both keys are valid on GitHub.
+
+Each Key Vault secret version carries an expiration attribute set to the end of its key's window. Key Vault does not block reads of an expired secret, and it cannot revoke anything at GitHub. What it does is record the date where tooling can see it and publish a near-expiry event. That event starts the rotation, and a scheduled check that fails when a version is close to its expiry backs it up.
+
+The rotation itself follows one rule: the key in the cluster secret must be valid on GitHub at every moment.
+
+First, generate a new private key for the Flux App on GitHub. The old key is still active, so nothing changes yet. Then write the new PEM to Key Vault as a new version of the secret, with its own expiration attribute. External Secrets picks up the new version on its next refresh and updates the secret in `flux-system`. You can annotate the ExternalSecret to force a sync instead of waiting for the refresh interval.
+
+Next, prove that the new key works. A Ready status from `flux reconcile source git gitops` is not that proof. Flux can keep an installation token in memory until the token is close to expiry, so a reconcile can succeed with a token that the old key minted. Instead, run the exchange from earlier in this post by hand, with `PEM_FILE` set to the new PEM. If GitHub returns an installation token, the new key is valid for the App. If the exchange fails, the old key is still active on GitHub, so you can roll the vault secret back to the previous version and investigate without any outage.
+
+That exchange proves the new key is valid on GitHub, but it does not prove that the cluster has it. Before you start the wait, confirm that the secret in `flux-system` holds the new PEM. Compare the fingerprint of the key in the secret with the fingerprint that the App settings on GitHub show for the new key:
+
+```bash
+kubectl -n flux-system get secret flux-github-app \
+  -o jsonpath='{.data.githubAppPrivateKey}' | base64 -d \
+  | openssl rsa -pubout -outform DER | openssl sha256 -binary | openssl base64
+```
+
+If the fingerprints are different, External Secrets did not sync. Fix the sync before you continue, because the old key is the only key that Flux can use until then.
+
+Then wait. Keep both keys active for longer than the one-hour lifetime of an installation token, and preferably for a full reconcile window after that. Any token that the old key minted stays valid until it expires, and Flux may keep using it until then. Because the secret already held the new PEM when the wait started, every token that Flux holds after that period came from the new key. Confirm that the GitRepository still reports Ready after a fresh fetch.
+
+Only after that period, delete the old key on GitHub. Do this before the old window ends, not at its end, so that a missed step does not leave an expired key active. After you delete the key, GitHub refuses new assertions that it signs, but tokens that it minted earlier stay valid until their hour ends. After that, a copy of the old PEM anywhere, in a backup or in an old secret version, signs nothing.
+
+Flux never sees a gap, because GitHub accepts both keys during the sync and for the full lifetime of any token that the old key minted. The old key disappears only after the new one has proved itself directly. The CI App rotates the same way, and it is simpler, because each job reads the vault directly and there is no cluster sync to wait for.
+
+## What it did not fix
+
+The private key is still a static secret. The improvement over a token is the role of the key: it signs assertions and never acts as a bearer credential. It still exists, it still needs protection, and it still needs rotation. The rotation above is work that a platform has to own, because GitHub will not do it.
+
+The setup costs more than a token. You register the Apps, set the permissions, install them, generate the keys, and wire each key through Key Vault and External Secrets. For a single GitOps repository and a small team that already kept secrets in a vault, the practical security gain on the first day over a fine-grained token in that vault was modest. I bought identity semantics: no seat, no shared login, a name in the audit log, and a clear split between the reader and the writer. I also bought room to add repositories and consumers without new credentials.
+
+Flux needs the PEM in a Kubernetes secret, so the cluster holds a private key. Anyone who can read secrets in `flux-system` can mint tokens as the Flux App. Keep read access to that namespace narrow, and turn on encryption at rest for etcd. The read-only App limits what that key can do, but it does not make the key harmless.
+
+Automatic merge must not bypass branch protection. The CI App can merge, so the repository rules must require the checks to pass before any merge, and the App must not be on the bypass list. If the writer App can skip the rules, then the vault permission that reads its key is a path to deploy anything. A time limit on access is good, but [Least Privilege Has a Clock](/blog/least-privilege-has-a-clock) makes the point that time is only one axis. The other axis is what the identity can do while its token is alive, and the branch rules decide that.
+
+The private key signs, the token does the work, and neither one needs a person. The Flux App can only read what the cluster should run. The CI App can propose and merge changes only through the same checks that a person must pass.

@@ -1,11 +1,11 @@
 {
-  "ci-cd": 10,
-  "platform-engineering": 23,
-  "developer-experience": 7,
-  "ai-engineering": 2,
+  "ci-cd": 11,
+  "platform-engineering": 25,
+  "developer-experience": 8,
+  "security-compliance": 15,
+  "ai-engineering": 3,
   "system-design": 8,
   "distributed-systems": 6,
-  "security-compliance": 13,
   "performance-reliability": 6,
   "engineering-leadership": 3
 }

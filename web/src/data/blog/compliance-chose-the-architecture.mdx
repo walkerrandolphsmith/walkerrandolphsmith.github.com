@@ -1,0 +1,52 @@
+---
+title: 'Compliance Chose the Architecture'
+date: 2026-11-27
+tags: ['security-compliance', 'platform-engineering']
+draft: false
+excerpt: |
+  A common view says that teams reach for Kubernetes too often. Often that view is right. On one platform I built, the tools were not a fashion choice. A rule against inbound access from the internet made push deploys impossible, so delivery had to become pull, which is what GitOps does. A rule for encryption on every hop is what a service mesh provides. This post explains how the requirements chose the tools, and when the same tools would be too much.
+---
+
+Many articles describe Kubernetes as a heavy tool that the industry uses far more than it needs to. I agree with much of that. A small team with a few services can pay a lot for a cluster: upgrades, add-ons, and a skill set that is hard to hire for. Often a managed app platform does the same job with less work.
+
+On one platform that I set up from scratch, I did not choose Kubernetes, GitOps, and a service mesh because they were popular. The platform holds data under criminal-justice data rules, and the security requirements arrived before any architecture did. Each requirement removed options. When I looked at what was left, the tools that the industry is told to avoid were the ones that met the rules with the least custom work.
+
+This post is about that reasoning, not the mechanics. Other posts go deeper into each part, and I link to them where they apply.
+
+## No connection from the outside world
+
+The first requirement was that every data plane must have a private endpoint, with no connection from the internet. That includes the cluster API server. The rule is easy to say and hard to live with.
+
+The usual delivery model is push. A CI agent builds an image, then connects to the production environment and deploys it. With private endpoints and no inbound path, that connection is impossible. A hosted CI agent runs outside the private network, so it cannot route to the API server. The rule blocked the deploy at the network layer, before any credential was checked.
+
+One answer is to put CI agents inside the network. That works, but it moves the problem. The agents become compute that someone must patch and scale, and an agent that can reach every private data plane is one of the most privileged machines in the estate. [The Price of Going Private](/blog/the-price-of-going-private) covers those costs in detail.
+
+The other answer is to change the direction of the call. In a pull model, a controller inside the cluster connects out to a git repository and applies what it finds. CI never connects in. Its job ends when it publishes an image and writes the new desired state to git. That inversion from push to pull is exactly what GitOps is.
+
+The requirement did not say "use GitOps." It made push impossible, and pull was the design that fit the hole it left. GitOps then brought benefits that I would want anyway. No pipeline holds cluster credentials. Every deploy is a commit that someone reviewed, so the audit record is the git history. The controller needs its own identity to read the repository, and [The Key Signs, the Token Works](/blog/the-key-signs-the-token-works) describes how I gave it one. [Split the Environment Along the Network Boundary](/blog/split-the-environment-along-the-network-boundary) shows the same rule applied to short-lived test environments.
+
+## Encryption on every hop
+
+The second requirement was encryption in transit for every hop, from end to end. TLS at the edge is common, and most teams stop there. Traffic often enters over TLS, the load balancer terminates it, and the calls between services inside the network travel in plain text. The requirement did not allow that. A call from one service to another inside the cluster is a hop, so it must be encrypted too.
+
+You can meet that rule inside each application. Every service gets a certificate, loads it, rotates it, and checks the certificate of every service it calls. That is possible with a few services written in one language. It becomes fragile as the number of services grows, because every team must get the same security code right, and a single service that skips it breaks the rule for the whole platform.
+
+A service mesh with mutual TLS meets the rule once, at the platform layer. The mesh gives every workload an identity and a short-lived certificate, rotates it automatically, and in strict mode refuses plain text between workloads. Application code does not change. The requirement asked for a property of every connection, and the mesh is a tool that enforces a property of every connection.
+
+The chain from the edge into the mesh still has handoffs that can break, and [End-to-End TLS Is a Chain of Handoffs](/blog/end-to-end-tls-is-a-chain-of-handoffs) covers them. Once every workload has a mesh identity, the same identity can decide which calls are allowed. [Living With Deny by Default in a Service Mesh](/blog/living-with-deny-by-default) covers that layer, and [The Network Floor Under an Identity Mesh](/blog/the-network-floor-under-an-identity-mesh) explains why the network rules under the mesh still matter.
+
+## Why Kubernetes followed
+
+Neither requirement mentioned Kubernetes. They asked for a deploy model where nothing connects in, and for encryption on every internal connection. Those are capabilities, and the capabilities needed a place to run.
+
+A pull-based controller and a service mesh are both mature on Kubernetes. They are built for it, they are widely used on it, and the knowledge to run them is easy to find. I could have built a pull agent for virtual machines and given each service its own certificate code. That would have been more custom software for my team to own, and custom security software is the kind that an auditor asks the most questions about. The requirements chose the capabilities. The capabilities chose the platform.
+
+That argument is conditional, and I want to be clear about where it stops. If your services can run on a public endpoint behind a gateway, the push problem does not exist. If a managed app platform gives you a private deploy path and encryption between services that your auditor accepts, use it. It will cost less to run than a cluster. If you have one service and a small team, a cluster is very likely too much, whatever the requirements say, and the better answer is a simpler host with the same rules applied to it. Kubernetes was right for this platform because of what the rules removed. Without those rules, the common advice applies.
+
+## Requirements are your friend
+
+The lesson I took from this is that compliance requirements helped the design. Most of them are good practice that engineers already agree with. Do not expose data stores to the internet. Encrypt traffic. Give each system only the access it needs. Keep a record of who changed what. Under deadline pressure, teams skip these things, because nothing stops them and the cost arrives later.
+
+A written requirement with an auditor behind it changes that. It holds the team to the practice when skipping it would be easier. It also ends arguments early. I did not have to persuade anyone that pull-based delivery or a mesh was worth the effort. The rules had already decided that push was not allowed and plain text was not allowed, so the discussion moved to how to meet them well.
+
+The tools to meet these rules exist and are mature. A team does not need to invent a pull-based deploy system or write its own mutual TLS. The work is to read each requirement as a design input, ask what it makes impossible, and choose the tool that fits what is left. Read that way, a compliance document is a short list of the decisions you would have wanted to make anyway, with someone to check that you made them.
