@@ -9,6 +9,7 @@ import {
   skills,
 } from '@/data/resume'
 import sitemetadata from '@/data/sitemetadata'
+import { readingMinutes } from '@/lib/discovery'
 import { getRecommendationGroups } from '@/lib/recommendations'
 
 import { allBlogs } from '../../.contentlayer/generated'
@@ -31,7 +32,7 @@ export const absoluteUrl = (route = '') =>
 
 export const profile = {
   name: sitemetadata.author,
-  jobTitle: 'Staff Engineer, Developer Experience and Platform',
+  jobTitle: sitemetadata.jobTitle,
   description: sitemetadata.description,
   headline:
     'I make large platforms fast and safe for teams to change. They serve 2B+ Microsoft users, 53% of the Fortune 100, and nationwide public safety programs.',
@@ -61,9 +62,48 @@ export const contactLinks = [
   { label: 'LinkedIn', url: sitemetadata.linkedin },
   { label: 'GitHub', url: sitemetadata.github },
   { label: 'Resume', url: absoluteUrl('/resume/') },
-  { label: 'Resume (PDF)', url: absoluteUrl('/Walker_Smith_Resume.pdf') },
+  { label: 'Resume (PDF)', url: absoluteUrl(sitemetadata.resumePdf) },
   { label: 'Website', url: absoluteUrl('/') },
 ]
+
+const handle = (url: string) =>
+  new URL(url).pathname.split('/').filter(Boolean).pop() ?? url
+
+/**
+ * The palette's Social info view. It uses only the profiles in the site
+ * metadata, and the current role from the resume data.
+ */
+export const getSocialInfo = () => {
+  const job = jobs[0]
+  const role = job.roles?.[0]?.title ?? job.title
+  return {
+    name: profile.name,
+    jobTitle: profile.jobTitle,
+    headline: profile.headline,
+    currentRole: role ? `${role}, ${job.company}` : job.company,
+    avatar: '/headshot.webp',
+    website: absoluteUrl('/'),
+    profiles: [
+      {
+        id: 'linkedin',
+        label: 'LinkedIn',
+        url: sitemetadata.linkedin,
+        handle: handle(sitemetadata.linkedin),
+        description: 'Work history and recommendations',
+      },
+      {
+        id: 'github',
+        label: 'GitHub',
+        url: sitemetadata.github,
+        handle: handle(sitemetadata.github),
+        description: 'Open source code and contributions',
+      },
+    ],
+    resumePdf: sitemetadata.resumePdf,
+    resumePage: '/resume/',
+    qrPage: '/qr/',
+  }
+}
 
 export const pages = [
   {
@@ -89,6 +129,12 @@ export const pages = [
     url: absoluteUrl('/blog/'),
     description:
       'Articles about platform engineering, CI/CD, infrastructure, and developer experience.',
+  },
+  {
+    title: 'Topics',
+    url: absoluteUrl('/tags/'),
+    description:
+      'Topics of the writing: platforms, developer experience, delivery, security, and the systems underneath.',
   },
 ]
 
@@ -121,7 +167,7 @@ export const toPostSummary = (post: BlogDocument): PostSummary => ({
   datePublished: isoDate(post.date),
   dateModified: isoDate(post.lastmod || post.date),
   tags: post.tags ?? [],
-  readingMinutes: Math.max(1, Math.round(post.readingTime?.minutes ?? 0)),
+  readingMinutes: readingMinutes(post.readingTime),
   headings: (post.toc ?? []).map(({ value }) => value),
 })
 

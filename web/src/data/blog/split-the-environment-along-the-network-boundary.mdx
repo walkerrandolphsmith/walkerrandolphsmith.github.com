@@ -1,7 +1,7 @@
 ---
 title: 'Split the Environment Along the Network Boundary'
 date: 2026-04-08
-tags: ['infrastructure', 'CI/CD', 'GitOps', 'platform engineering']
+tags: ['platform-engineering', 'ci-cd']
 draft: false
 excerpt: |
   A design for per-pull-request environments made sense until the network went private. This post walks through the reversal: why the original premises failed, how the lifecycle now splits at the network boundary between CI and a controller in the cluster, and how a pull-request label states what data an environment needs.

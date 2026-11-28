@@ -59,6 +59,12 @@ const Footer = () => (
           </Link>
           <Link
             className="text-zinc-800 hover:text-zinc-400 dark:text-gray-400 dark:hover:text-gray-600 text-[18px] font-normal leading-[1.555556] tracking-[0.2px] transition-colors cursor-pointer py-4 md:py-2 px-4 flex"
+            href="/tags/"
+          >
+            Topics
+          </Link>
+          <Link
+            className="text-zinc-800 hover:text-zinc-400 dark:text-gray-400 dark:hover:text-gray-600 text-[18px] font-normal leading-[1.555556] tracking-[0.2px] transition-colors cursor-pointer py-4 md:py-2 px-4 flex"
             href="https://discord.com/channels/520327352790548501/"
             target="_blank"
             rel="noopener noreferrer"

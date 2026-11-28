@@ -1,7 +1,7 @@
 ---
 title: 'Custody, Not Cryptography: What Customer-Managed Keys Actually Change'
 date: 2026-07-02
-tags: ['security', 'Azure', 'infrastructure']
+tags: ['security-compliance', 'platform-engineering']
 draft: false
 excerpt: |
   Azure already encrypts every byte at rest with AES-256. Customer-managed keys do not make that encryption stronger. They change who holds the key that unlocks the keys, which gives the operator an audited revocation switch and makes the key vault a tier-0 dependency. This post covers the model, the decision, and the per-service integration work that the one-line policy hides.

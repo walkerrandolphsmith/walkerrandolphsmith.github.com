@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 
 import siteMetadata from '@/data/sitemetadata'
+import { getTagCatalog } from '@/lib/blogContent'
 
 import { allBlogs } from '../../.contentlayer/generated'
 
@@ -17,7 +18,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
 
   // Trailing slashes match the exported URLs and the canonical links.
-  const routes = ['', 'blog', 'recommendations', 'qr', 'resume'].map(route => ({
+  const tagRoutes = getTagCatalog().map(tag => `tags/${tag.slug}`)
+  const routes = [
+    '',
+    'blog',
+    'tags',
+    'recommendations',
+    'qr',
+    'resume',
+    ...tagRoutes,
+  ].map(route => ({
     url: route ? `${siteUrl}/${route}/` : `${siteUrl}/`,
     lastModified: new Date().toISOString().split('T')[0],
   }))

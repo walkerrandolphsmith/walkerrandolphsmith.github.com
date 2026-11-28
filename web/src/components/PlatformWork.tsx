@@ -7,7 +7,7 @@ const PlatformWork = () => (
     <header className="px-8 grid gap-y-4">
       <SectionHeader
         title="Selected platform work"
-        byline="Measured results from my platform work at Blue Line Solutions, Microsoft, and Digital.ai."
+        byline="Delivery pipelines, ephemeral environments, secretless identity, and event-driven systems that let teams ship safely."
       />
     </header>
     <ul className="grid sm:grid-cols-[repeat(2,1fr)] lg:grid-cols-[repeat(3,1fr)] gap-x-8 gap-y-12">

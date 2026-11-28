@@ -6,12 +6,15 @@ import {
   sortPosts,
 } from 'pliny/utils/contentlayer'
 
+import { socialCard } from '@/app/seo'
 import Article from '@/components/Article'
 import Footer from '@/components/Footer'
 import GuidedSection from '@/components/GuidedSection'
 import MDXContent from '@/components/MDXContent'
 import Nav from '@/components/Nav'
 import siteMetadata from '@/data/sitemetadata'
+import { getRelatedPostCards } from '@/lib/blogContent'
+import { tagLabel } from '@/lib/discovery'
 import { toPostSummary } from '@/lib/siteContent'
 import {
   blogPostingNode,
@@ -24,10 +27,12 @@ import {
 import type { Authors, Blog } from '../../../../.contentlayer/generated'
 import { allAuthors, allBlogs } from '../../../../.contentlayer/generated'
 
-const postImages = (post: Blog): string[] => {
+const postImages = (post: Blog) => {
   const images = typeof post.images === 'string' ? [post.images] : post.images
-  const list = Array.isArray(images) ? images.filter(Boolean) : []
-  return list.length > 0 ? list : [siteMetadata.socialBanner]
+  const list: string[] = Array.isArray(images) ? images.filter(Boolean) : []
+  return list.length > 0
+    ? list.map(url => ({ url }))
+    : [socialCard(post.slug, post.title)]
 }
 
 export async function generateMetadata(props: {
@@ -47,7 +52,7 @@ export async function generateMetadata(props: {
   return {
     title: post.title,
     description,
-    keywords: post.tags,
+    keywords: post.tags?.map(tagLabel),
     authors: [{ name: siteMetadata.author, url: siteMetadata.siteUrl }],
     openGraph: {
       title: post.title,
@@ -60,7 +65,7 @@ export async function generateMetadata(props: {
       url,
       images,
       authors: [siteMetadata.author],
-      tags: post.tags,
+      tags: post.tags?.map(tagLabel),
     },
     alternates: {
       canonical: url,
@@ -109,7 +114,7 @@ export default async function Page(props: {
           personNode(),
           blogPostingNode({
             ...toPostSummary(post),
-            image: postImages(post)[0],
+            image: postImages(post)[0].url,
           }),
           breadcrumbNode([
             { name: 'Writing', route: '/blog/' },
@@ -131,6 +136,7 @@ export default async function Page(props: {
             prev={prev}
             next={next}
             authorDetails={authorDetails}
+            related={getRelatedPostCards(post.slug)}
           >
             <MDXContent code={post.body.code} />
           </Article>

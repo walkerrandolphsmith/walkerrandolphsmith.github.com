@@ -2,6 +2,17 @@ import { Metadata } from 'next'
 
 import sitemetadata from '@/data/sitemetadata'
 
+/**
+ * The Open Graph card for a post. The build writes it to
+ * out/social/<slug>.png (see scripts/generateSocialCards.ts).
+ */
+export const socialCard = (slug: string, title: string) => ({
+  url: `/social/${slug}.png`,
+  width: 1200,
+  height: 630,
+  alt: title,
+})
+
 interface PageSEOProps {
   title: string
   route: string

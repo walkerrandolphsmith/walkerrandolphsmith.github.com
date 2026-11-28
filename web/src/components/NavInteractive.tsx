@@ -10,6 +10,7 @@ import {
   navBarClassName,
   primaryNavLinks,
 } from './navLinks'
+import PaletteTrigger from './palette/PaletteTrigger'
 import ThemeToggle from './ThemeToggle'
 
 const keys: Record<number, boolean | undefined> = {
@@ -172,25 +173,28 @@ const NavInteractive = ({ isResumePage = false }) => {
             )}
             <ThemeToggle tabIndex={open ? -1 : 0} ariaHidden={open} />
           </div>
-          <button
-            onClick={handleClick}
-            aria-expanded={open}
-            aria-controls="overlay-nav"
-            aria-label="Toggle menu"
-            ref={el => {
-              if (el) navItemRefs.current[0] = el
-            }}
-            className="lg:hidden w-12 h-12 min-w-12 min-h-12 max-w-12 max-h-12 cursor-pointer flex items-center justify-center"
-          >
-            <span
-              aria-hidden="true"
-              className={`${
-                open
-                  ? 'bg-transparent before:rotate-45 before:translate-x-0 before:translate-y-[10px] after:-rotate-45 after:translate-x-0 after:translate-y-[-10px] '
-                  : 'bg-zinc-900 dark:bg-slate-100 '
-              } cursor-pointer flex transform-gpu before:transform-gpu before:content-[''] after:content-[''] h-[2px] before:h-[2px] after:h-[2px] w-8 before:w-8 after:w-8 before:visible before:top-[-10px] after:top-[10px] relative before:bg-zinc-900 after:bg-zinc-900 dark:before:bg-slate-100 dark:after:bg-slate-100 before:absolute after:absolute text-zinc-900 dark:text-white rounded-sm before:rounded-sm after:rounded-sm transition-transform before:transition-transform after:transition-transform duration-300 ease-in-out before:duration-300 before:ease-in-out after:duration-300 after:ease-in-out`}
-            ></span>
-          </button>
+          <div className="flex items-center gap-x-2">
+            <PaletteTrigger tabIndex={open ? -1 : 0} ariaHidden={open} />
+            <button
+              onClick={handleClick}
+              aria-expanded={open}
+              aria-controls="overlay-nav"
+              aria-label="Toggle menu"
+              ref={el => {
+                if (el) navItemRefs.current[0] = el
+              }}
+              className="lg:hidden w-12 h-12 min-w-12 min-h-12 max-w-12 max-h-12 cursor-pointer flex items-center justify-center"
+            >
+              <span
+                aria-hidden="true"
+                className={`${
+                  open
+                    ? 'bg-transparent before:rotate-45 before:translate-x-0 before:translate-y-[10px] after:-rotate-45 after:translate-x-0 after:translate-y-[-10px] '
+                    : 'bg-zinc-900 dark:bg-slate-100 '
+                } cursor-pointer flex transform-gpu before:transform-gpu before:content-[''] after:content-[''] h-[2px] before:h-[2px] after:h-[2px] w-8 before:w-8 after:w-8 before:visible before:top-[-10px] after:top-[10px] relative before:bg-zinc-900 after:bg-zinc-900 dark:before:bg-slate-100 dark:after:bg-slate-100 before:absolute after:absolute text-zinc-900 dark:text-white rounded-sm before:rounded-sm after:rounded-sm transition-transform before:transition-transform after:transition-transform duration-300 ease-in-out before:duration-300 before:ease-in-out after:duration-300 after:ease-in-out`}
+              ></span>
+            </button>
+          </div>
         </nav>
 
         <nav

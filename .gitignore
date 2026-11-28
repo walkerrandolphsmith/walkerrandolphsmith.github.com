@@ -1,3 +1,5 @@
 node_modules/
 .lighthouse.html
 .lighthouse-runs/
+# Cypress downloads
+e2e/src/downloads/
