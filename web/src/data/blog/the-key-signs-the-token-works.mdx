@@ -134,7 +134,17 @@ First, generate a new private key for the Flux App on GitHub. The old key is sti
 
 Next, prove that the new key works. A Ready status from `flux reconcile source git gitops` is not that proof. Flux can keep an installation token in memory until the token is close to expiry, so a reconcile can succeed with a token that the old key minted. Instead, run the exchange from earlier in this post by hand, with `PEM_FILE` set to the new PEM. If GitHub returns an installation token, the new key is valid for the App. If the exchange fails, the old key is still active on GitHub, so you can roll the vault secret back to the previous version and investigate without any outage.
 
-Then wait. Keep both keys active for longer than the one-hour lifetime of an installation token, and preferably for a full reconcile window after that. Any token that the old key minted stays valid until it expires, and Flux may keep using it until then. After that period, every token that Flux holds came from the new key. Confirm that the GitRepository still reports Ready after a fresh fetch.
+That exchange proves the new key is valid on GitHub, but it does not prove that the cluster has it. Before you start the wait, confirm that the secret in `flux-system` holds the new PEM. Compare the fingerprint of the key in the secret with the fingerprint that the App settings on GitHub show for the new key:
+
+```bash
+kubectl -n flux-system get secret flux-github-app \
+  -o jsonpath='{.data.githubAppPrivateKey}' | base64 -d \
+  | openssl rsa -pubout -outform DER | openssl sha256 -binary | openssl base64
+```
+
+If the fingerprints are different, External Secrets did not sync. Fix the sync before you continue, because the old key is the only key that Flux can use until then.
+
+Then wait. Keep both keys active for longer than the one-hour lifetime of an installation token, and preferably for a full reconcile window after that. Any token that the old key minted stays valid until it expires, and Flux may keep using it until then. Because the secret already held the new PEM when the wait started, every token that Flux holds after that period came from the new key. Confirm that the GitRepository still reports Ready after a fresh fetch.
 
 Only after that period, delete the old key on GitHub. Do this before the old window ends, not at its end, so that a missed step does not leave an expired key active. After you delete the key, GitHub refuses new assertions that it signs, but tokens that it minted earlier stay valid until their hour ends. After that, a copy of the old PEM anywhere, in a backup or in an old secret version, signs nothing.
 
