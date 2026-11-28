@@ -1,5 +1,5 @@
 'use client'
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { ChangeEvent, SubmitEvent, useEffect, useState } from 'react'
 
 import {
   contactUsSubmissionFailed,
@@ -17,8 +17,8 @@ interface MyCustomEventTarget extends EventTarget {
   }
 }
 
-interface MyCustomFormEvent<T> extends FormEvent<T> {
-  target: T & MyCustomEventTarget
+interface MyCustomFormEvent<T extends HTMLFormElement> extends SubmitEvent<T> {
+  target: EventTarget & T & MyCustomEventTarget
 }
 
 const ContactForm = (props: ContactFormProps) => {

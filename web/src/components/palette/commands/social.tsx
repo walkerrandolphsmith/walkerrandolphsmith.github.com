@@ -138,6 +138,7 @@ const SocialPanel = ({ info }: { info: SocialInfo }) => {
             {
               label: 'Website',
               value: (
+                // eslint-disable-next-line @next/next/no-html-link-for-pages
                 <a href="/" className="underline underline-offset-4">
                   {new URL(info.website).host}
                 </a>

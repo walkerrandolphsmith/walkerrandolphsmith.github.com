@@ -12,14 +12,14 @@
     "clear": "cypress cache clear"
   },
   "devDependencies": {
-    "@types/node": "^20.3.1",
-    "cross-env": "^7.0.3",
-    "cypress": "^12.15.0",
-    "cypress-plugin-api": "^2.11.1",
-    "cypress-recurse": "^1.35.2",
+    "@types/node": "^22.20.7",
+    "cross-env": "^10.1.0",
+    "cypress": "^15.21.2",
+    "cypress-plugin-api": "^2.12.3",
+    "cypress-recurse": "^1.37.2",
     "imap-simple": "^5.1.0",
-    "mailparser": "^3.6.5",
-    "nodemailer": "^6.9.3",
+    "mailparser": "^3.15.0",
+    "nodemailer": "^10.6.1",
     "ts-node": "^10.9.1",
     "typescript": "latest"
   }

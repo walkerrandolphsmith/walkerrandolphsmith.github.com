@@ -19,6 +19,7 @@ const NavSkeleton = ({ isResumePage = false }) => (
         aria-label="Primary"
       >
         <div className="flex items-center gap-x-6">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/" className="font-medium" tabIndex={0}>
             Walker Smith
           </a>

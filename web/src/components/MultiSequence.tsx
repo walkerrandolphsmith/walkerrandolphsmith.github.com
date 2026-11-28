@@ -17,7 +17,7 @@ const cursorClasses = [
 ].join(' ')
 
 const Token = ({ token, speed, onTokenCompleted, awaitNextKeyStroke }) => {
-  const ref = useRef<HTMLElement>()
+  const ref = useRef<HTMLElement>(undefined)
 
   const addCursor = () => {
     ref.current.classList.add(CURSOR_CLASS_NAME)
@@ -120,7 +120,7 @@ const Rows = ({ rows }) => {
 }
 
 const MultiSequence = () => {
-  const heroRef = useRef()
+  const heroRef = useRef(undefined)
   const { ref, inView } = useInView()
   const setRef = useCallback(
     node => {
